@@ -1,6 +1,6 @@
 @extends('layouts.app')
 
-@section('title','Profile')
+@section('title','Perfil')
 
 @push('css')
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
@@ -12,11 +12,11 @@
 
 
 <div class="container-fluid">
-    <h1 class="mt-4 mb-4 text-center">Profile Settings</h1>
+    <h1 class="mt-4 mb-4 text-center">Configuración de Perfil</h1>
 
     <div class="card">
         <div class="card-header">
-            <p class="lead">Configure and personalize your profile</p>
+            <p class="lead">Configura y personaliza tu perfil</p>
         </div>
         <div class="card-body">
             <div class="">
@@ -38,7 +38,7 @@
                     <div class="col-sm-4">
                         <div class="input-group">
                             <span class="input-group-text"><i class="fa-solid fa-square-check"></i></span>
-                            <input disabled type="text" class="form-control" value="First Name(s)">
+                            <input disabled type="text" class="form-control" value="Nombre(s)">
                         </div>
                     </div>
                     <div class="col-sm-8">
@@ -51,7 +51,7 @@
                     <div class="col-sm-4">
                         <div class="input-group">
                             <span class="input-group-text"><i class="fa-solid fa-square-check"></i></span>
-                            <input disabled type="text" class="form-control" value="Email">
+                            <input disabled type="text" class="form-control" value="Correo electrónico">
                         </div>
                     </div>
                     <div class="col-sm-8">
@@ -64,7 +64,7 @@
                     <div class="col-sm-4">
                         <div class="input-group">
                             <span class="input-group-text"><i class="fa-solid fa-square-check"></i></span>
-                            <input disabled type="text" class="form-control" value="Password">
+                            <input disabled type="text" class="form-control" value="Contraseña">
                         </div>
                     </div>
                     <div class="col-sm-8">
@@ -73,7 +73,7 @@
                 </div>
 
                 <div class="col text-center">
-                    <input disabled class="btn btn-success" type="submit" value="Save changes">
+                    <input disabled class="btn btn-success" type="submit" value="Guardar cambios">
                 </div>
 
             </form>

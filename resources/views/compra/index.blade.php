@@ -1,6 +1,6 @@
 @extends('layouts.app')
 
-@section('title','Purchases')
+@section('title','Compras')
 @push('css-datatable')
 <link href="https://cdn.jsdelivr.net/npm/simple-datatables@latest/dist/style.css" rel="stylesheet" type="text/css">
 @endpush
@@ -18,16 +18,16 @@
 @include('layouts.partials.alert')
 
 <div class="container-fluid px-4">
-    <h1 class="mt-4 text-center">Purchases</h1>
+    <h1 class="mt-4 text-center">Compras</h1>
     <ol class="breadcrumb mb-4">
-        <li class="breadcrumb-item"><a href="{{ route('panel') }}">Home</a></li>
-        <li class="breadcrumb-item active">Purchases</li>
+        <li class="breadcrumb-item"><a href="{{ route('panel') }}">Inicio</a></li>
+        <li class="breadcrumb-item active">Compras</li>
     </ol>
 
     @can('crear-compra')
     <div class="mb-4">
         <a href="{{route('compras.create')}}">
-            <button type="button" class="btn btn-primary">Add new record</button>
+            <button type="button" class="btn btn-primary">Agregar nuevo registro</button>
         </a>
     </div>
     @endcan
@@ -35,17 +35,17 @@
     <div class="card mb-4">
         <div class="card-header">
             <i class="fas fa-table me-1"></i>
-            Purchases Table
+            Tabla de Compras
         </div>
         <div class="card-body">
             <table id="datatablesSimple" class="table table-striped">
                 <thead>
                     <tr>
-                        <th>Receipt</th>
-                        <th>Supplier</th>
-                        <th>Date and Time</th>
+                        <th>Comprobante</th>
+                        <th>Proveedor</th>
+                        <th>Fecha y Hora</th>
                         <th>Total</th>
-                        <th>Actions</th>
+                        <th>Acciones</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -73,12 +73,12 @@
                                 @can('mostrar-compra')
                                 <form action="{{route('compras.show', ['compra'=>$item]) }}" method="get">
                                     <button type="submit" class="btn btn-success">
-                                        View
+                                        Ver
                                     </button>
                                 </form>
                                 @endcan
                                 @can('eliminar-compra')
-                                <button type="button" class="btn btn-danger" data-bs-toggle="modal" data-bs-target="#confirmModal-{{$item->id}}">Delete</button>
+                                <button type="button" class="btn btn-danger" data-bs-toggle="modal" data-bs-target="#confirmModal-{{$item->id}}">Eliminar</button>
                                 @endcan
                             </div>
                         </td>
@@ -88,18 +88,18 @@
                         <div class="modal-dialog">
                             <div class="modal-content">
                                 <div class="modal-header">
-                                    <h1 class="modal-title fs-5" id="exampleModalLabel">Confirmation message</h1>
+                                    <h1 class="modal-title fs-5" id="exampleModalLabel">Mensaje de Confirmación</h1>
                                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                                 </div>
                                 <div class="modal-body">
-                                    Are you sure you want to delete the record?
+                                    ¿Está seguro de que desea eliminar el registro?
                                 </div>
                                 <div class="modal-footer">
-                                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
                                     <form action="{{ route('compras.destroy',['compra'=>$item->id]) }}" method="post">
                                         @method('DELETE')
                                         @csrf
-                                        <button type="submit" class="btn btn-danger">Confirm</button>
+                                        <button type="submit" class="btn btn-danger">Confirmar</button>
                                     </form>
                                 </div>
                             </div>

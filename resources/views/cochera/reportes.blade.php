@@ -1,18 +1,18 @@
 @extends('adminlte::page')
 
-@section('title', 'Garage Reports')
+@section('title', 'Reportes de Cochera')
 
 @section('content_header')
 <div class="container-fluid">
     <div class="row mb-2">
         <div class="col-sm-6">
-            <h1>Garage / Parking Reports</h1>
+            <h1>Reportes de Cochera / Estacionamiento</h1>
         </div>
         <div class="col-sm-6">
             <ol class="breadcrumb float-sm-right">
-                <li class="breadcrumb-item"><a href="{{ route('panel') }}"><i class="fas fa-home"></i> Home</a></li>
-                <li class="breadcrumb-item"><a href="{{ route('cocheras.index') }}">Garage</a></li>
-                <li class="breadcrumb-item active">Reports</li>
+                <li class="breadcrumb-item"><a href="{{ route('panel') }}"><i class="fas fa-home"></i> Inicio</a></li>
+                <li class="breadcrumb-item"><a href="{{ route('cocheras.index') }}">Cochera</a></li>
+                <li class="breadcrumb-item active">Reportes</li>
             </ol>
         </div>
     </div>
@@ -25,27 +25,27 @@
         <div class="col-12">
             <div class="card">
                 <div class="card-header">
-                    <h3 class="card-title">Report Filters</h3>
+                    <h3 class="card-title">Filtros de Reporte</h3>
                 </div>
                 <div class="card-body">
                     <form action="{{ route('cocheras.reportes') }}" method="GET">
                         <div class="row">
                             <div class="col-md-4">
                                 <div class="form-group">
-                                    <label for="fecha_inicio">Start Date:</label>
+                                    <label for="fecha_inicio">Fecha de Inicio:</label>
                                     <input type="date" name="fecha_inicio" id="fecha_inicio" class="form-control" value="{{ $fechaInicio }}">
                                 </div>
                             </div>
                             <div class="col-md-4">
                                 <div class="form-group">
-                                    <label for="fecha_fin">End Date:</label>
+                                    <label for="fecha_fin">Fecha de Fin:</label>
                                     <input type="date" name="fecha_fin" id="fecha_fin" class="form-control" value="{{ $fechaFin }}">
                                 </div>
                             </div>
                             <div class="col-md-4 d-flex align-items-end">
                                 <div class="form-group w-100">
                                     <button type="submit" class="btn btn-primary btn-block">
-                                        <i class="fas fa-filter mr-1"></i> Filter
+                                        <i class="fas fa-filter mr-1"></i> Filtrar
                                     </button>
                                 </div>
                             </div>
@@ -61,7 +61,7 @@
             <div class="info-box">
                 <span class="info-box-icon bg-success"><i class="fas fa-car"></i></span>
                 <div class="info-box-content">
-                    <span class="info-box-text">Total Vehicles</span>
+                    <span class="info-box-text">Total de Vehículos</span>
                     <span class="info-box-number">{{ $cocheras->count() }}</span>
                 </div>
             </div>
@@ -70,7 +70,7 @@
             <div class="info-box">
                 <span class="info-box-icon bg-primary"><i class="fas fa-money-bill"></i></span>
                 <div class="info-box-content">
-                    <span class="info-box-text">Total Income</span>
+                    <span class="info-box-text">Ingreso Total</span>
                     <span class="info-box-number">S/ {{ number_format($cocheras->sum('monto_total'), 2) }}</span>
                 </div>
             </div>
@@ -79,7 +79,7 @@
             <div class="info-box">
                 <span class="info-box-icon bg-warning"><i class="fas fa-clock"></i></span>
                 <div class="info-box-content">
-                    <span class="info-box-text">Active Vehicles</span>
+                    <span class="info-box-text">Vehículos Activos</span>
                     <span class="info-box-number">{{ $cocheras->where('estado', 'activo')->count() }}</span>
                 </div>
             </div>
@@ -88,7 +88,7 @@
             <div class="info-box">
                 <span class="info-box-icon bg-secondary"><i class="fas fa-check-circle"></i></span>
                 <div class="info-box-content">
-                    <span class="info-box-text">Completed Vehicles</span>
+                    <span class="info-box-text">Vehículos Finalizados</span>
                     <span class="info-box-number">{{ $cocheras->where('estado', 'finalizado')->count() }}</span>
                 </div>
             </div>
@@ -99,10 +99,10 @@
         <div class="col-12">
             <div class="card">
                 <div class="card-header">
-                    <h3 class="card-title">Report Results</h3>
+                    <h3 class="card-title">Resultados del Reporte</h3>
                     <div class="card-tools">
                         <button type="button" class="btn btn-success" onclick="exportToExcel()">
-                            <i class="fas fa-file-excel mr-1"></i> Export to Excel
+                            <i class="fas fa-file-excel mr-1"></i> Exportar a Excel
                         </button>
                     </div>
                 </div>
@@ -111,16 +111,16 @@
                         <thead>
                             <tr>
                                 <th>ID</th>
-                                <th>Plate</th>
-                                <th>Client</th>
-                                <th>Model</th>
-                                <th>Type</th>
-                                <th>Entry Date</th>
-                                <th>Exit Date</th>
-                                <th>Duration</th>
-                                <th>Amount (S/)</th>
-                                <th>Status</th>
-                                <th>Actions</th>
+                                <th>Placa</th>
+                                <th>Cliente</th>
+                                <th>Modelo</th>
+                                <th>Tipo</th>
+                                <th>Fecha Ingreso</th>
+                                <th>Fecha Salida</th>
+                                <th>Duración</th>
+                                <th>Monto (S/)</th>
+                                <th>Estado</th>
+                                <th>Acciones</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -178,11 +178,11 @@
                                 <td>{{ number_format($monto, 2) }}</td>
                                 <td>
                                     @if($cochera->estado == 'activo')
-                                        <span class="badge badge-success">Active</span>
+                                        <span class="badge badge-success">Activo</span>
                                     @elseif($cochera->estado == 'finalizado')
-                                        <span class="badge badge-secondary">Completed</span>
+                                        <span class="badge badge-secondary">Finalizado</span>
                                     @elseif($cochera->estado == 'cancelado')
-                                        <span class="badge badge-danger">Cancelled</span>
+                                        <span class="badge badge-danger">Cancelado</span>
                                     @endif
                                 </td>
                                 <td>
@@ -193,7 +193,7 @@
                             </tr>
                             @empty
                             <tr>
-                                <td colspan="11" class="text-center">No records available for the selected period</td>
+                                <td colspan="11" class="text-center">No hay registros disponibles para el periodo seleccionado</td>
                             </tr>
                             @endforelse
                         </tbody>
@@ -216,7 +216,7 @@
         <div class="col-md-6">
             <div class="card">
                 <div class="card-header">
-                    <h3 class="card-title">Daily Income</h3>
+                    <h3 class="card-title">Ingresos Diarios</h3>
                 </div>
                 <div class="card-body">
                     <canvas id="ingresosPorDia" style="height: 300px;"></canvas>
@@ -226,7 +226,7 @@
         <div class="col-md-6">
             <div class="card">
                 <div class="card-header">
-                    <h3 class="card-title">Vehicle Type Distribution</h3>
+                    <h3 class="card-title">Distribución por Tipo de Vehículo</h3>
                 </div>
                 <div class="card-body">
                     <canvas id="vehiculosPorTipo" style="height: 300px;"></canvas>
@@ -273,7 +273,7 @@
                     return $group->sum('monto_total');
                 })->keys()),
                 datasets: [{
-                    label: 'Daily Income (S/)',
+                    label: 'Ingresos Diarios (S/)',
                     data: @json($cocheras->where('estado', 'finalizado')->groupBy(function($date) {
                         return \Carbon\Carbon::parse($date->fecha_salida)->format('d/m/Y');
                     })->map(function($group) {
@@ -360,8 +360,8 @@
         // Crear el libro y la hoja
         const wb = XLSX.utils.book_new();
         wb.Props = {
-            Title: "Garage Report",
-            Author: "Carwash System",
+            Title: "Reporte de Cochera",
+            Author: "Sistema Carwash",
             CreatedDate: new Date()
         };
         
@@ -375,7 +375,7 @@
         
         // Generar y descargar el archivo Excel
         const fechaActual = new Date().toISOString().slice(0, 10);
-        XLSX.writeFile(wb, `Garage_Report_${fechaActual}.xlsx`);
+        XLSX.writeFile(wb, `Reporte_Cochera_${fechaActual}.xlsx`);
     }
 </script>
 @stop

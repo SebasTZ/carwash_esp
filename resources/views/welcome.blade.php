@@ -5,9 +5,9 @@
     <meta charset="utf-8" />
     <meta http-equiv="X-UA-Compatible" content="IE=edge" />
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no" />
-    <meta name="description" content="Sales system to manage purchases, sales, clients, suppliers, products, categories, etc. Ideal for small and medium businesses that want to automate their processes and have any business information at hand." />
+    <meta name="description" content="Sistema de ventas para gestionar compras, ventas, clientes, proveedores, productos, categorías, etc. Ideal para pequeñas y medianas empresas que desean automatizar sus procesos y tener la información del negocio siempre a mano." />
     <meta name="author" content="SakCode" />
-    <title>Sales System</title>
+    <title>Sistema de Ventas</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.1/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-4bw+/aepP/YC94hEpVNVgiZdgIC5+VKNBQNGCHeKRQN+PtmoHDEXuppvnDJzQIu9" crossorigin="anonymous">
 </head>
 
@@ -19,7 +19,7 @@
             <!-- Brand -->
             <a class="navbar-brand" href="{{route('panel')}}">
                 <img src="{{ asset('assets/img/icon.png') }}" alt="Logo" width="30" height="30" class="d-inline-block align-text-top">
-                Sales System
+                Sistema de Ventas
             </a>
             <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
                 <span class="navbar-toggler-icon"></span>
@@ -28,15 +28,15 @@
             <div class="collapse navbar-collapse" id="navbarSupportedContent">
                 <ul class="navbar-nav me-auto mb-2 mb-lg-0">
                     <li class="nav-item">
-                        <a class="nav-link active" aria-current="page" href="{{route('panel')}}">Home</a>
+                        <a class="nav-link active" aria-current="page" href="{{route('panel')}}">Inicio</a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link" href="#">About</a>
+                        <a class="nav-link" href="#">Acerca de</a>
                     </li>
                 </ul>
 
                 <form class="d-flex" action="{{route('login')}}" method="get">
-                    <button class="btn btn-primary" type="submit">Login</button>
+                    <button class="btn btn-primary" type="submit">Iniciar sesión</button>
                 </form>
 
             </div>
@@ -47,22 +47,22 @@
     <div id="carouselExample" class="carousel slide carousel-fade">
         <div class="carousel-inner">
             <div class="carousel-item active">
-                <img src="{{asset('assets/img/img_carrusel_1.png')}}" class="d-block w-100" alt="invitation banner">
+                <img src="{{asset('assets/img/img_carrusel_1.png')}}" class="d-block w-100" alt="banner de invitación">
             </div>
             <div class="carousel-item">
-                <img src="{{asset('assets/img/img_carrusel_2.png')}}" class="d-block w-100" alt="advertising banner">
+                <img src="{{asset('assets/img/img_carrusel_2.png')}}" class="d-block w-100" alt="banner publicitario">
             </div>
             <div class="carousel-item">
-                <img src="{{asset('assets/img/img_carrusel_3.png')}}" class="d-block w-100" alt="contact us banner">
+                <img src="{{asset('assets/img/img_carrusel_3.png')}}" class="d-block w-100" alt="banner contáctanos">
             </div>
         </div>
         <button class="carousel-control-prev" type="button" data-bs-target="#carouselExample" data-bs-slide="prev">
             <span class="carousel-control-prev-icon" aria-hidden="true"></span>
-            <span class="visually-hidden">Previous</span>
+            <span class="visually-hidden">Anterior</span>
         </button>
         <button class="carousel-control-next" type="button" data-bs-target="#carouselExample" data-bs-slide="next">
             <span class="carousel-control-next-icon" aria-hidden="true"></span>
-            <span class="visually-hidden">Next</span>
+            <span class="visually-hidden">Siguiente</span>
         </button>
     </div>
 
@@ -72,21 +72,21 @@
             <div class="col-lg-6">
                 <div class="card border-0">
                     <div class="card-header text-center text-info border-info fs-5 fw-semibold border-3 rounded-start rounded-end">
-                        With a web sales system
+                        Con un sistema de ventas web
                     </div>
                     <div class="card-body">
                         <ul class="text-light">
                             <li>
-                                <p class="card-text mb-2">You have access to your system 24/7 and from anywhere.</p>
+                                <p class="card-text mb-2">Tienes acceso a tu sistema 24/7 y desde cualquier lugar.</p>
                             </li>
                             <li>
-                                <p class="card-text mb-2">Allows automation of tasks such as inventory management, order processing, and data collection, saving time and reducing errors.</p>
+                                <p class="card-text mb-2">Permite automatizar tareas como la gestión de inventario, procesamiento de pedidos y recopilación de datos, ahorrando tiempo y reduciendo errores.</p>
                             </li>
                             <li>
-                                <p class="card-text mb-2">Provides valuable data about customer behavior, allowing you to make better decisions.</p>
+                                <p class="card-text mb-2">Proporciona datos valiosos sobre el comportamiento de los clientes, permitiéndote tomar mejores decisiones.</p>
                             </li>
                             <li>
-                                <p class="card-text mb-2">You can expand your business online relatively easily by adding more products, services, or even targeting new markets.</p>
+                                <p class="card-text mb-2">Puedes expandir tu negocio en línea fácilmente agregando más productos, servicios o incluso apuntando a nuevos mercados.</p>
                             </li>
                         </ul>
 
@@ -96,21 +96,21 @@
             <div class="col-lg-6">
                 <div class="card border-0">
                     <div class="card-header text-center text-info border-info fs-5 fw-semibold border-3 rounded-start rounded-end">
-                        Without a web sales system
+                        Sin un sistema de ventas web
                     </div>
                     <div class="card-body">
                         <ul class="text-light">
                             <li>
-                                <p class="card-text mb-2">You are subject to a specific operating schedule.</p>
+                                <p class="card-text mb-2">Estás sujeto a un horario de operación específico.</p>
                             </li>
                             <li>
-                                <p class="card-text mb-2">Operations without a web system often require more manual work, which can take more time and increase the possibility of errors.</p>
+                                <p class="card-text mb-2">Las operaciones sin un sistema web suelen requerir más trabajo manual, lo que puede tomar más tiempo y aumentar la posibilidad de errores.</p>
                             </li>
                             <li>
-                                <p class="card-text mb-2">Makes it difficult to collect and analyze data about business performance and customer behavior.</p>
+                                <p class="card-text mb-2">Dificulta la recopilación y el análisis de datos sobre el desempeño del negocio y el comportamiento de los clientes.</p>
                             </li>
                             <li>
-                                <p class="card-text mb-2">Expanding a physical business can be more complicated and expensive in terms of opening new locations or reaching a wider market.</p>
+                                <p class="card-text mb-2">Expandir un negocio físico puede ser más complicado y costoso en términos de abrir nuevas sucursales o llegar a un mercado más amplio.</p>
                             </li>
                         </ul>
                     </div>
@@ -123,9 +123,9 @@
     <!-- Phrase Section -->
     <section class="container-fluid bg-body-secondary text-center">
         <div class="container p-5">
-            <h2 class="text-light mb-5">Give your business a new approach<span class="text-info"> It's time to use technology as an ally!</span></h2>
+            <h2 class="text-light mb-5">Dale a tu negocio un nuevo enfoque<span class="text-info"> ¡Es momento de usar la tecnología como aliada!</span></h2>
             <div class="">
-                <a href="{{route('login') }}" role="button" class="btn btn-primary">Try now</a>
+                <a href="{{route('login') }}" role="button" class="btn btn-primary">Probar ahora</a>
             </div>
         </div>
 
@@ -165,7 +165,7 @@
 
         <!-- Copyright -->
         <div class="text-center p-3" style="background-color: rgba(0, 0, 0, 0.2);">
-            © 2023 Copyright:
+            © 2023 Derechos reservados:
             <a class="text-white" href="#">SebasTZ.com</a>
         </div>
         <!-- Copyright -->

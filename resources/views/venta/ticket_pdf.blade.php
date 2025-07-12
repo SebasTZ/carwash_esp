@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Sale Ticket</title>
+    <title>Ticket de Venta</title>
     <style>
         @page {
             size: auto;
@@ -54,21 +54,21 @@
 <body>
     <div class="container">
         <p class="bold text-center">{{ $configuracion->nombre_negocio }}</p>
-        <p class="text-center">Address: {{ $configuracion->direccion }}</p>
-        <p class="text-center">Phone: {{ $configuracion->telefono }}</p>
+        <p class="text-center">Dirección: {{ $configuracion->direccion }}</p>
+        <p class="text-center">Teléfono: {{ $configuracion->telefono }}</p>
 
         <div class="separator"></div>
 
-        <p><span class="bold">Ticket No.:</span> {{ $venta->numero_comprobante }}</p>
-        <p><span class="bold">Date and Time:</span> {{ \Carbon\Carbon::parse($venta->fecha_hora)->format('d-m-Y H:i') }}</p>
-        <p><span class="bold">Customer:</span> {{ $venta->cliente->persona->razon_social }}</p>
+        <p><span class="bold">Ticket N°:</span> {{ $venta->numero_comprobante }}</p>
+        <p><span class="bold">Fecha y Hora:</span> {{ \Carbon\Carbon::parse($venta->fecha_hora)->format('d-m-Y H:i') }}</p>
+        <p><span class="bold">Cliente:</span> {{ $venta->cliente->persona->razon_social }}</p>
 
         <div class="separator"></div>
 
         <table>
             <tr>
-                <td class="bold">Product</td>
-                <td class="bold" style="text-align:right;">Qty</td>
+                <td class="bold">Producto</td>
+                <td class="bold" style="text-align:right;">Cant</td>
                 <td class="bold" style="text-align:right;">Subtotal</td>
             </tr>
             @foreach ($venta->productos as $producto)
@@ -88,27 +88,27 @@
 
         @php
             $paymentMethods = [
-                'efectivo' => 'Cash',
-                'tarjeta_credito' => 'Credit Card',
-                'tarjeta_regalo' => 'Gift Card',
-                'lavado_gratis' => 'Free Wash (Loyalty)',
+                'efectivo' => 'Efectivo',
+                'tarjeta_credito' => 'Tarjeta de Crédito',
+                'tarjeta_regalo' => 'Tarjeta de Regalo',
+                'lavado_gratis' => 'Lavado Gratis (Fidelidad)',
             ];
         @endphp
 
-        <p><span class="bold">Payment Method:</span> {{ $paymentMethods[$venta->medio_pago] ?? ucfirst(str_replace('_', ' ', $venta->medio_pago)) }}</p>
-        <p><span class="bold">Cash:</span> {{ $venta->efectivo }}</p>
+        <p><span class="bold">Método de Pago:</span> {{ $paymentMethods[$venta->medio_pago] ?? ucfirst(str_replace('_', ' ', $venta->medio_pago)) }}</p>
+        <p><span class="bold">Efectivo:</span> {{ $venta->efectivo }}</p>
         <p><span class="bold">Yape:</span> {{ $venta->yape }}</p>
 
         <div class="separator"></div>
 
-        <p><span class="bold">Car Wash Service?:</span> {{ $venta->servicio_lavado ? 'Yes' : 'No' }}</p>
+        <p><span class="bold">¿Servicio de Lavado?:</span> {{ $venta->servicio_lavado ? 'Sí' : 'No' }}</p>
         @if($venta->servicio_lavado)
-        <p><span class="bold">Car Wash End Time:</span> {{ \Carbon\Carbon::parse($venta->horario_lavado)->format('d-m-Y H:i') }}</p>
+        <p><span class="bold">Hora de Fin de Lavado:</span> {{ \Carbon\Carbon::parse($venta->horario_lavado)->format('d-m-Y H:i') }}</p>
         @endif
 
         <div class="separator"></div>
 
-        <p class="text-center">Thank you for your purchase!</p>
+        <p class="text-center">¡Gracias por su compra!</p>
     </div>
 </body>
 </html>

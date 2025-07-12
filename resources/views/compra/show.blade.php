@@ -1,6 +1,6 @@
 @extends('layouts.app')
 
-@section('title','View Purchase')
+@section('title','Ver Compra')
 
 @push('css')
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.4/jquery.min.js"></script>
@@ -21,11 +21,11 @@
 
 @section('content')
 <div class="container-fluid">
-    <h1 class="mt-4 text-center">View Purchase</h1>
+    <h1 class="mt-4 text-center">Ver Compra</h1>
     <ol class="breadcrumb mb-4">
-        <li class="breadcrumb-item"><a href="{{ route('panel') }}">Home</a></li>
-        <li class="breadcrumb-item"><a href="{{ route('compras.index')}}">Purchases</a></li>
-        <li class="breadcrumb-item active">View Purchase</li>
+        <li class="breadcrumb-item"><a href="{{ route('panel') }}">Inicio</a></li>
+        <li class="breadcrumb-item"><a href="{{ route('compras.index')}}">Compras</a></li>
+        <li class="breadcrumb-item active">Ver Compra</li>
     </ol>
 </div>
 
@@ -33,7 +33,7 @@
 
     <div class="card mb-4">
         <div class="card-header">
-            General purchase information
+            Información general de la compra
         </div>
 
         <div class="card-body">
@@ -43,7 +43,7 @@
                 <div class="col-sm-6">
                     <div class="input-group" id="hide-group">
                         <span class="input-group-text"><i class="fa-solid fa-file"></i></span>
-                        <input disabled type="text" class="form-control" value="Receipt Type: ">
+                        <input disabled type="text" class="form-control" value="Tipo de Comprobante: ">
                     </div>
                 </div>
                 <div class="col-sm-6">
@@ -59,7 +59,7 @@
                 <div class="col-sm-6">
                     <div class="input-group" id="hide-group">
                         <span class="input-group-text"><i class="fa-solid fa-hashtag"></i></span>
-                        <input disabled type="text" class="form-control" value="Receipt Number: ">
+                        <input disabled type="text" class="form-control" value="Número de Comprobante: ">
                     </div>
                 </div>
                 <div class="col-sm-6">
@@ -75,7 +75,7 @@
                 <div class="col-sm-6">
                     <div class="input-group" id="hide-group">
                         <span class="input-group-text"><i class="fa-solid fa-user-tie"></i></span>
-                        <input disabled type="text" class="form-control" value="Supplier: ">
+                        <input disabled type="text" class="form-control" value="Proveedor: ">
                     </div>
                 </div>
                 <div class="col-sm-6">
@@ -91,7 +91,7 @@
                 <div class="col-sm-6">
                     <div class="input-group" id="hide-group">
                         <span class="input-group-text"><i class="fa-solid fa-calendar-days"></i></span>
-                        <input disabled type="text" class="form-control" value="Date: ">
+                        <input disabled type="text" class="form-control" value="Fecha: ">
                     </div>
                 </div>
                 <div class="col-sm-6">
@@ -107,7 +107,7 @@
                 <div class="col-sm-6">
                     <div class="input-group" id="hide-group">
                         <span class="input-group-text"><i class="fa-solid fa-clock"></i></span>
-                        <input disabled type="text" class="form-control" value="Time: ">
+                        <input disabled type="text" class="form-control" value="Hora: ">
                     </div>
                 </div>
                 <div class="col-sm-6">
@@ -123,7 +123,7 @@
                 <div class="col-sm-6">
                     <div class="input-group" id="hide-group">
                         <span class="input-group-text"><i class="fa-solid fa-percent"></i></span>
-                        <input disabled type="text" class="form-control" value="Tax: ">
+                        <input disabled type="text" class="form-control" value="Impuesto: ">
                     </div>
                 </div>
                 <div class="col-sm-6">
@@ -142,16 +142,16 @@
     <div class="card mb-2">
         <div class="card-header">
             <i class="fas fa-table me-1"></i>
-            Purchase Details Table
+            Tabla de Detalle de Compra
         </div>
         <div class="card-body table-responsive">
             <table class="table table-striped">
                 <thead class="bg-primary">
                     <tr class="align-top">
-                        <th class="text-white">Product</th>
-                        <th class="text-white">Quantity</th>
-                        <th class="text-white">Purchase Price</th>
-                        <th class="text-white">Sale Price</th>
+                        <th class="text-white">Producto</th>
+                        <th class="text-white">Cantidad</th>
+                        <th class="text-white">Precio de Compra</th>
+                        <th class="text-white">Precio de Venta</th>
                         <th class="text-white">Subtotal</th>
                     </tr>
                 </thead>
@@ -181,11 +181,11 @@
                         <th colspan="5"></th>
                     </tr>
                     <tr>
-                        <th colspan="4">Sum:</th>
+                        <th colspan="4">Suma:</th>
                         <th id="th-suma"></th>
                     </tr>
                     <tr>
-                        <th colspan="4">VAT:</th>
+                        <th colspan="4">IGV:</th>
                         <th id="th-igv"></th>
                     </tr>
                     <tr>

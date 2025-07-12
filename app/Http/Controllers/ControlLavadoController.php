@@ -77,7 +77,7 @@ class ControlLavadoController extends Controller
         $lavado->tipo_vehiculo_id = $request->tipo_vehiculo_id;
         $lavado->save();
 
-        return redirect()->route('control.lavados')->with('success', 'Washer and vehicle type assigned successfully.');
+        return redirect()->route('control.lavados')->with('success', 'Lavador y tipo de vehículo asignados correctamente.');
     }
 
     public function inicioLavado($id)

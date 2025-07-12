@@ -2,29 +2,29 @@
 
 @section('content')
 <div class="container">
-    <h1>Commission Report by Washer</h1>
+    <h1>Reporte de Comisiones por Lavador</h1>
     <form method="GET" action="{{ route('pagos_comisiones.reporte') }}" class="row g-3 mb-3">
         <div class="col-md-4">
-            <label for="fecha_inicio" class="form-label">From</label>
+            <label for="fecha_inicio" class="form-label">Desde</label>
             <input type="date" name="fecha_inicio" id="fecha_inicio" class="form-control" value="{{ $fechaInicio }}">
         </div>
         <div class="col-md-4">
-            <label for="fecha_fin" class="form-label">To</label>
+            <label for="fecha_fin" class="form-label">Hasta</label>
             <input type="date" name="fecha_fin" id="fecha_fin" class="form-control" value="{{ $fechaFin }}">
         </div>
         <div class="col-md-4 d-flex align-items-end">
-            <button type="submit" class="btn btn-primary">Filter</button>
-            <a href="{{ route('pagos_comisiones.reporte.export', ['fecha_inicio' => $fechaInicio, 'fecha_fin' => $fechaFin]) }}" class="btn btn-success ms-2">Export to Excel</a>
+            <button type="submit" class="btn btn-primary">Filtrar</button>
+            <a href="{{ route('pagos_comisiones.reporte.export', ['fecha_inicio' => $fechaInicio, 'fecha_fin' => $fechaFin]) }}" class="btn btn-success ms-2">Exportar a Excel</a>
         </div>
     </form>
     <table class="table table-bordered">
         <thead>
             <tr>
-                <th>Washer</th>
-                <th>Number of Washes</th>
-                <th>Total Commission</th>
-                <th>Total Paid</th>
-                <th>Pending</th>
+                <th>Lavador</th>
+                <th>Número de Lavados</th>
+                <th>Comisión Total</th>
+                <th>Total Pagado</th>
+                <th>Pendiente</th>
             </tr>
         </thead>
         <tbody>
@@ -40,16 +40,16 @@
         </tbody>
     </table>
 
-    <h2 class="mt-5">Commission Payment History</h2>
+    <h2 class="mt-5">Historial de Pagos de Comisión</h2>
     <table class="table table-bordered">
         <thead>
             <tr>
-                <th>Washer</th>
-                <th>Amount Paid</th>
-                <th>From</th>
-                <th>To</th>
-                <th>Payment Date</th>
-                <th>Observation</th>
+                <th>Lavador</th>
+                <th>Monto Pagado</th>
+                <th>Desde</th>
+                <th>Hasta</th>
+                <th>Fecha de Pago</th>
+                <th>Observación</th>
             </tr>
         </thead>
         <tbody>

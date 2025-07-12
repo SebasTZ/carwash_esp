@@ -19,13 +19,13 @@ class TarjetasRegaloExport implements FromCollection, WithHeadings, WithMapping,
     public function headings(): array
     {
         return [
-            'Code',
-            'Initial Value',
-            'Current Balance',
-            'Status',
-            'Sale Date',
-            'Expiration Date',
-            'Customer',
+            'Código',
+            'Valor inicial',
+            'Saldo actual',
+            'Estado',
+            'Fecha de venta',
+            'Fecha de vencimiento',
+            'Cliente',
         ];
     }
 

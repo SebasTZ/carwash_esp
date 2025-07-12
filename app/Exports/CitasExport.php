@@ -36,13 +36,13 @@ class CitasExport implements FromCollection, WithHeadings, WithEvents
     public function headings(): array
     {
         return [
-            'Client',
-            'Document',
-            'Date',
-            'Time',
-            'Queue Position',
-            'Status',
-            'Notes'
+            'Cliente',
+            'Documento',
+            'Fecha',
+            'Hora',
+            'Posición en cola',
+            'Estado',
+            'Notas'
         ];
     }
 

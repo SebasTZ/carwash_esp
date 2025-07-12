@@ -1,13 +1,13 @@
 @extends('layouts.app')
 
-@section('title', 'Gift Card Report')
+@section('title', 'Reporte de Tarjetas de Regalo')
 
 @section('content')
 <div class="container-fluid px-4">
-    <h1 class="mt-4 text-center">Gift Card Report</h1>
+    <h1 class="mt-4 text-center">Reporte de Tarjetas de Regalo</h1>
     <ol class="breadcrumb mb-4">
-        <li class="breadcrumb-item"><a href="{{ route('panel') }}">Home</a></li>
-        <li class="breadcrumb-item active">Gift Card Report</li>
+        <li class="breadcrumb-item"><a href="{{ route('panel') }}">Inicio</a></li>
+        <li class="breadcrumb-item active">Reporte de Tarjetas de Regalo</li>
     </ol>
     @if(session('success'))
         <div class="alert alert-success">
@@ -17,21 +17,21 @@
     <div class="card mb-4">
         <div class="card-header">
             <i class="fas fa-table me-1"></i>
-            Gift Cards
+            Tarjetas de Regalo
         </div>
         <div class="card-body">
-            <a href="{{ route('tarjetas_regalo.export.excel') }}" class="btn btn-success mb-3">Export to Excel</a>
+            <a href="{{ route('tarjetas_regalo.export.excel') }}" class="btn btn-success mb-3">Exportar a Excel</a>
             <table class="table table-striped">
                 <thead>
                     <tr>
-                        <th>Code</th>
-                        <th>Initial Value</th>
-                        <th>Current Balance</th>
-                        <th>Status</th>
-                        <th>Sale Date</th>
-                        <th>Expiration Date</th>
-                        <th>Customer</th>
-                        <th>Actions</th>
+                        <th>Código</th>
+                        <th>Valor Inicial</th>
+                        <th>Saldo Actual</th>
+                        <th>Estado</th>
+                        <th>Fecha de Venta</th>
+                        <th>Fecha de Vencimiento</th>
+                        <th>Cliente</th>
+                        <th>Acciones</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -45,7 +45,7 @@
                         <td>{{ $tarjeta->fecha_vencimiento ?? '-' }}</td>
                         <td>{{ $tarjeta->cliente ? $tarjeta->cliente->persona->razon_social : '-' }}</td>
                         <td>
-                            <a href="{{ route('tarjetas_regalo.edit', $tarjeta->id) }}" class="btn btn-warning btn-sm">Edit</a>
+                            <a href="{{ route('tarjetas_regalo.edit', $tarjeta->id) }}" class="btn btn-warning btn-sm">Editar</a>
                         </td>
                     </tr>
                     @endforeach

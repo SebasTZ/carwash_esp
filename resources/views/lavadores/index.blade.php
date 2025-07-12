@@ -2,18 +2,18 @@
 
 @section('content')
 <div class="container">
-    <h1>Washers</h1>
+    <h1>Lavadores</h1>
     @can('crear-lavador')
-        <a href="{{ route('lavadores.create') }}" class="btn btn-primary mb-3">Add Washer</a>
+        <a href="{{ route('lavadores.create') }}" class="btn btn-primary mb-3">Agregar Lavador</a>
     @endcan
     <table class="table table-bordered">
         <thead>
             <tr>
-                <th>Name</th>
+                <th>Nombre</th>
                 <th>DNI</th>
-                <th>Phone</th>
-                <th>Status</th>
-                <th>Actions</th>
+                <th>Teléfono</th>
+                <th>Estado</th>
+                <th>Acciones</th>
             </tr>
         </thead>
         <tbody>
@@ -25,13 +25,13 @@
                     <td>{{ ucfirst($lavador->estado) }}</td>
                     <td>
                         @can('editar-lavador')
-                            <a href="{{ route('lavadores.edit', ['lavadore' => $lavador->id]) }}" class="btn btn-sm btn-info">Edit</a>
+                            <a href="{{ route('lavadores.edit', ['lavadore' => $lavador->id]) }}" class="btn btn-sm btn-info">Editar</a>
                         @endcan
                         @can('eliminar-lavador')
                             <form action="{{ route('lavadores.destroy', ['lavadore' => $lavador->id]) }}" method="POST" style="display:inline-block">
                                 @csrf
                                 @method('DELETE')
-                                <button type="submit" class="btn btn-sm btn-danger" onclick="return confirm('Are you sure?')">Deactivate</button>
+                                <button type="submit" class="btn btn-sm btn-danger" onclick="return confirm('¿Estás seguro?')">Desactivar</button>
                             </form>
                         @endcan
                     </td>

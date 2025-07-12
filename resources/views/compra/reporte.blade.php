@@ -1,6 +1,6 @@
 @extends('layouts.app')
 
-@section('title', 'Purchase Report ' . ucfirst($reporte))
+@section('title', 'Reporte de Compras ' . ucfirst($reporte))
 
 @push('css-datatable')
 <link href="https://cdn.jsdelivr.net/npm/simple-datatables@latest/dist/style.css" rel="stylesheet" type="text/css">
@@ -19,38 +19,38 @@
 @include('layouts.partials.alert')
 
 <div class="container-fluid px-4">
-    <h1 class="mt-4 text-center">Purchase Report {{ ucfirst($reporte) }}</h1>
+    <h1 class="mt-4 text-center">Reporte de Compras {{ ucfirst($reporte) }}</h1>
     <ol class="breadcrumb mb-4">
-        <li class="breadcrumb-item"><a href="{{ route('panel') }}">Home</a></li>
-        <li class="breadcrumb-item"><a href="{{ route('compras.index') }}">Purchases</a></li>
-        <li class="breadcrumb-item active">Report {{ ucfirst($reporte) }}</li>
+        <li class="breadcrumb-item"><a href="{{ route('panel') }}">Inicio</a></li>
+        <li class="breadcrumb-item"><a href="{{ route('compras.index') }}">Compras</a></li>
+        <li class="breadcrumb-item active">Reporte {{ ucfirst($reporte) }}</li>
     </ol>
 
     @if($reporte === 'personalizado')
     <div class="card mb-4">
         <div class="card-header">
             <i class="fas fa-calendar me-1"></i>
-            Select Date Range
+            Seleccionar Rango de Fechas
         </div>
         <div class="card-body">
             <form action="{{ route('compras.reporte.personalizado') }}" method="GET" class="row g-3 align-items-center">
                 <div class="col-auto">
-                    <label for="fecha_inicio" class="col-form-label">Start Date:</label>
+                    <label for="fecha_inicio" class="col-form-label">Fecha de inicio:</label>
                     <input type="date" class="form-control" id="fecha_inicio" name="fecha_inicio" required value="{{ $fechaInicio ?? '' }}">
                 </div>
                 <div class="col-auto">
-                    <label for="fecha_fin" class="col-form-label">End Date:</label>
+                    <label for="fecha_fin" class="col-form-label">Fecha de fin:</label>
                     <input type="date" class="form-control" id="fecha_fin" name="fecha_fin" required value="{{ $fechaFin ?? '' }}">
                 </div>
                 <div class="col-auto">
                     <label class="col-form-label">&nbsp;</label>
-                    <button type="submit" class="form-control btn btn-primary">Filter</button>
+                    <button type="submit" class="form-control btn btn-primary">Filtrar</button>
                 </div>
                 @if(isset($fechaInicio) && isset($fechaFin))
                 <div class="col-auto">
                     <label class="col-form-label">&nbsp;</label>
                     <a href="{{ route('compras.export.personalizado', ['fecha_inicio' => $fechaInicio, 'fecha_fin' => $fechaFin]) }}" class="form-control btn btn-success">
-                        Export to Excel
+                        Exportar a Excel
                     </a>
                 </div>
                 @endif
@@ -60,7 +60,7 @@
     @else
     <div class="mb-4">
         <a href="{{ route('compras.export.' . $reporte) }}">
-            <button type="button" class="btn btn-success">Export to Excel</button>
+            <button type="button" class="btn btn-success">Exportar a Excel</button>
         </a>
     </div>
     @endif
@@ -68,16 +68,16 @@
     <div class="card mb-4">
         <div class="card-header">
             <i class="fas fa-table me-1"></i>
-            Purchases Table {{ $reporte }}
+            Tabla de Compras {{ $reporte }}
         </div>
         <div class="card-body">
             <table id="datatablesSimple" class="table table-striped">
                 <thead>
                     <tr>
-                        <th>Receipt</th>
-                        <th>Supplier</th>
-                        <th>Date and Time</th>
-                        <th>VAT</th>
+                        <th>Comprobante</th>
+                        <th>Proveedor</th>
+                        <th>Fecha y Hora</th>
+                        <th>IGV</th>
                         <th>Total</th>
                     </tr>
                 </thead>

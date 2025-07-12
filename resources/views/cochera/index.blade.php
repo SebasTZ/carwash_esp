@@ -1,17 +1,17 @@
 @extends('adminlte::page')
 
-@section('title', 'Garage | Parking')
+@section('title', 'Cochera | Estacionamiento')
 
 @section('content_header')
 <div class="container-fluid">
     <div class="row mb-2">
         <div class="col-sm-6">
-            <h1>Parking / Garage</h1>
+            <h1>Estacionamiento / Cochera</h1>
         </div>
         <div class="col-sm-6">
             <ol class="breadcrumb float-sm-right">
-                <li class="breadcrumb-item"><a href="{{ route('panel') }}"><i class="fas fa-home"></i> Home</a></li>
-                <li class="breadcrumb-item active">Garage</li>
+                <li class="breadcrumb-item"><a href="{{ route('panel') }}"><i class="fas fa-home"></i> Inicio</a></li>
+                <li class="breadcrumb-item active">Cochera</li>
             </ol>
         </div>
     </div>
@@ -25,13 +25,13 @@
             <div class="card">
                 <div class="card-header">
                     <div class="d-flex justify-content-between align-items-center">
-                        <h3 class="card-title">Vehicles in Parking</h3>
+                        <h3 class="card-title">Vehículos en Estacionamiento</h3>
                         <div>
                             <a href="{{ route('cocheras.create') }}" class="btn btn-success">
-                                <i class="fas fa-plus-circle"></i> Register Vehicle
+                                <i class="fas fa-plus-circle"></i> Registrar Vehículo
                             </a>
                             <a href="{{ route('cocheras.reportes') }}" class="btn btn-info ml-2">
-                                <i class="fas fa-chart-bar"></i> Reports
+                                <i class="fas fa-chart-bar"></i> Reportes
                             </a>
                         </div>
                     </div>
@@ -41,12 +41,12 @@
                         <div class="col-md-6">
                             <form action="{{ route('cocheras.index') }}" method="GET" class="form-inline">
                                 <div class="form-group">
-                                    <label class="mr-2">Filter by status: </label>
+                                    <label class="mr-2">Filtrar por estado: </label>
                                     <select name="estado" class="form-control" onchange="this.form.submit()">
-                                        <option value="activo" {{ request('estado') == 'activo' ? 'selected' : '' }}>Active</option>
-                                        <option value="finalizado" {{ request('estado') == 'finalizado' ? 'selected' : '' }}>Finished</option>
-                                        <option value="cancelado" {{ request('estado') == 'cancelado' ? 'selected' : '' }}>Cancelled</option>
-                                        <option value="todos" {{ request('estado') == 'todos' ? 'selected' : '' }}>All</option>
+                                        <option value="activo" {{ request('estado') == 'activo' ? 'selected' : '' }}>Activo</option>
+                                        <option value="finalizado" {{ request('estado') == 'finalizado' ? 'selected' : '' }}>Finalizado</option>
+                                        <option value="cancelado" {{ request('estado') == 'cancelado' ? 'selected' : '' }}>Cancelado</option>
+                                        <option value="todos" {{ request('estado') == 'todos' ? 'selected' : '' }}>Todos</option>
                                     </select>
                                 </div>
                             </form>
@@ -54,7 +54,7 @@
                         <div class="col-md-6">
                             <div class="alert alert-info p-2 mb-0">
                                 <small>
-                                    <i class="fas fa-info-circle"></i> Vehicles with more than 5 days in the garage are marked in yellow.
+                                    <i class="fas fa-info-circle"></i> Los vehículos con más de 5 días en la cochera se marcan en amarillo.
                                 </small>
                             </div>
                         </div>
@@ -65,15 +65,15 @@
                             <thead>
                                 <tr>
                                     <th>ID</th>
-                                    <th>Plate</th>
-                                    <th>Client</th>
-                                    <th>Model</th>
-                                    <th>Entry</th>
-                                    <th>Time</th>
-                                    <th>Location</th>
-                                    <th>Status</th>
-                                    <th>Current Amount</th>
-                                    <th width="160px">Actions</th>
+                                    <th>Placa</th>
+                                    <th>Cliente</th>
+                                    <th>Modelo</th>
+                                    <th>Ingreso</th>
+                                    <th>Tiempo</th>
+                                    <th>Ubicación</th>
+                                    <th>Estado</th>
+                                    <th>Monto Actual</th>
+                                    <th width="160px">Acciones</th>
                                 </tr>
                             </thead>
                             <tbody>
@@ -125,11 +125,11 @@
                                     <td>{{ $cochera->ubicacion ?: 'No especificada' }}</td>
                                     <td>
                                         @if($cochera->estado == 'activo')
-                                            <span class="badge badge-success">Active</span>
+                                            <span class="badge badge-success">Activo</span>
                                         @elseif($cochera->estado == 'finalizado')
-                                            <span class="badge badge-secondary">Finished</span>
+                                            <span class="badge badge-secondary">Finalizado</span>
                                         @elseif($cochera->estado == 'cancelado')
-                                            <span class="badge badge-danger">Cancelled</span>
+                                            <span class="badge badge-danger">Cancelado</span>
                                         @endif
                                     </td>
                                     <td>S/ {{ number_format($montoActual, 2) }}</td>
@@ -150,7 +150,7 @@
                                             <form action="{{ route('cocheras.destroy', $cochera->id) }}" method="POST" style="display:inline">
                                                 @csrf
                                                 @method('DELETE')
-                                                <button type="submit" class="btn btn-sm btn-danger" onclick="return confirm('Are you sure you want to delete this record?')">
+                                                <button type="submit" class="btn btn-sm btn-danger" onclick="return confirm('¿Está seguro que desea eliminar este registro?')">
                                                     <i class="fas fa-trash"></i>
                                                 </button>
                                             </form>
@@ -175,7 +175,7 @@
                                     <div class="modal-dialog" role="document">
                                         <div class="modal-content">
                                             <div class="modal-header">
-                                                <h5 class="modal-title" id="finalizarModalLabel">End Parking</h5>
+                                                <h5 class="modal-title" id="finalizarModalLabel">Finalizar Estacionamiento</h5>
                                                 <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                                                     <span aria-hidden="true">&times;</span>
                                                 </button>
@@ -183,16 +183,16 @@
                                             <form action="{{ route('cocheras.finalizar', $cochera->id) }}" method="POST">
                                                 @csrf
                                                 <div class="modal-body">
-                                                    <p>Do you want to end the parking for the vehicle <strong>{{ $cochera->placa }}</strong>?</p>
+                                                    <p>¿Desea finalizar el estacionamiento para el vehículo <strong>{{ $cochera->placa }}</strong>?</p>
                                                     
                                                     <div class="alert alert-info">
-                                                        <p class="mb-1">Time: <strong>{{ $tiempoFormateado }}</strong></p>
-                                                        <p class="mb-1">Current amount to pay: <strong>S/ {{ number_format($montoActual, 2) }}</strong></p>
+                                                        <p class="mb-1">Tiempo: <strong>{{ $tiempoFormateado }}</strong></p>
+                                                        <p class="mb-1">Monto actual a pagar: <strong>S/ {{ number_format($montoActual, 2) }}</strong></p>
                                                     </div>
                                                 </div>
                                                 <div class="modal-footer">
-                                                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
-                                                    <button type="submit" class="btn btn-success">End</button>
+                                                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancelar</button>
+                                                    <button type="submit" class="btn btn-success">Finalizar</button>
                                                 </div>
                                             </form>
                                         </div>
@@ -200,7 +200,7 @@
                                 </div>
                                 @empty
                                 <tr>
-                                    <td colspan="10" class="text-center">No records available</td>
+                                    <td colspan="10" class="text-center">No hay registros disponibles</td>
                                 </tr>
                                 @endforelse
                             </tbody>

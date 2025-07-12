@@ -6,24 +6,24 @@
         <div class="col-md-8">
             <div class="card shadow mb-4">
                 <div class="card-header bg-primary text-white d-flex justify-content-between align-items-center">
-                    <h4 class="mb-0">Commission Payment History for <span class="badge bg-light text-primary">{{ $lavador->nombre }}</span></h4>
+                    <h4 class="mb-0">Historial de Pagos de Comisión de <span class="badge bg-light text-primary">{{ $lavador->nombre }}</span></h4>
                     <a href="{{ $reporteUrl }}" class="btn btn-outline-light btn-sm">
-                        <i class="fas fa-chart-line me-1"></i> View Commission Report
+                        <i class="fas fa-chart-line me-1"></i> Ver Reporte de Comisiones
                     </a>
                 </div>
                 <div class="card-body">
                     @if($pagos->isEmpty())
-                        <div class="alert alert-info">No commission payments registered for this washer.</div>
+                        <div class="alert alert-info">No hay pagos de comisión registrados para este lavador.</div>
                     @else
                         <div class="table-responsive">
                             <table class="table table-bordered align-middle">
                                 <thead class="table-light">
                                     <tr>
-                                        <th>Amount Paid</th>
-                                        <th>From</th>
-                                        <th>To</th>
-                                        <th>Payment Date</th>
-                                        <th>Observation</th>
+                                        <th>Monto Pagado</th>
+                                        <th>Desde</th>
+                                        <th>Hasta</th>
+                                        <th>Fecha de Pago</th>
+                                        <th>Observación</th>
                                     </tr>
                                 </thead>
                                 <tbody>
@@ -43,7 +43,7 @@
                 </div>
                 <div class="card-footer text-end">
                     <a href="{{ route('pagos_comisiones.index') }}" class="btn btn-secondary">
-                        <i class="fas fa-arrow-left me-1"></i> Back to Payments
+                        <i class="fas fa-arrow-left me-1"></i> Volver a Pagos
                     </a>
                 </div>
             </div>

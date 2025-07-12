@@ -1,6 +1,6 @@
 @extends('layouts.app')
 
-@section('title', 'Wash Control')
+@section('title', 'Control de Lavados')
 
 @push('css')
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-select@1.14.0-beta3/dist/css/bootstrap-select.min.css">
@@ -105,11 +105,11 @@
 @section('content')
 <div class="container-fluid px-4">
     <div class="d-flex justify-content-between align-items-center pb-2 mb-3">
-        <h1 class="h2 mb-0">Wash Control</h1>
+        <h1 class="h2 mb-0">Control de Lavados</h1>
         <nav aria-label="breadcrumb">
             <ol class="breadcrumb mb-0">
-                <li class="breadcrumb-item"><a href="{{ route('panel') }}">Home</a></li>
-                <li class="breadcrumb-item active">Wash Control</li>
+                <li class="breadcrumb-item"><a href="{{ route('panel') }}">Inicio</a></li>
+                <li class="breadcrumb-item active">Control de Lavados</li>
             </ol>
         </nav>
     </div>
@@ -118,24 +118,24 @@
         <div class="card-header bg-primary text-white py-3">
             <h5 class="mb-0">
                 <i class="fas fa-file-export me-2"></i>
-                Export Reports
+                Exportar Reportes
             </h5>
         </div>
         <div class="card-body">
             <div class="row g-3">
                 <div class="col-md-3">
                     <a href="{{ route('control.lavados.export.diario') }}" class="btn btn-success w-100 btn-action">
-                        <i class="fas fa-file-excel"></i> Export Daily
+                        <i class="fas fa-file-excel"></i> Exportar Diario
                     </a>
                 </div>
                 <div class="col-md-3">
                     <a href="{{ route('control.lavados.export.semanal') }}" class="btn btn-success w-100 btn-action">
-                        <i class="fas fa-file-excel"></i> Export Weekly
+                        <i class="fas fa-file-excel"></i> Exportar Semanal
                     </a>
                 </div>
                 <div class="col-md-3">
                     <a href="{{ route('control.lavados.export.mensual') }}" class="btn btn-success w-100 btn-action">
-                        <i class="fas fa-file-excel"></i> Export Monthly
+                        <i class="fas fa-file-excel"></i> Exportar Mensual
                     </a>
                 </div>
                 <div class="col-md-3">
@@ -155,32 +155,32 @@
     <div class="filter-section">
         <form method="GET" action="{{ route('control.lavados') }}" class="row g-3">
             <div class="col-md-3">
-                <label for="filtro_lavador" class="form-label">Filter by washer:</label>
+                <label for="filtro_lavador" class="form-label">Filtrar por lavador:</label>
                 <select id="filtro_lavador" name="lavador_id" class="form-control selectpicker" data-live-search="true">
-                    <option value="">All</option>
+                    <option value="">Todos</option>
                     @foreach($lavadores as $lavador)
                         <option value="{{ $lavador->id }}" {{ request('lavador_id') == $lavador->id ? 'selected' : '' }}>{{ $lavador->nombre }}</option>
                     @endforeach
                 </select>
             </div>
             <div class="col-md-3">
-                <label for="filtro_estado" class="form-label">Filter by status:</label>
+                <label for="filtro_estado" class="form-label">Filtrar por estado:</label>
                 <select id="filtro_estado" name="estado" class="form-control">
-                    <option value="" {{ request('estado') == '' ? 'selected' : '' }}>All</option>
-                    <option value="En espera" {{ request('estado') == 'En espera' ? 'selected' : '' }}>Pending</option>
-                    <option value="En proceso" {{ request('estado') == 'En proceso' ? 'selected' : '' }}>In process</option>
-                    <option value="Terminado" {{ request('estado') == 'Terminado' ? 'selected' : '' }}>Finished</option>
+                    <option value="" {{ request('estado') == '' ? 'selected' : '' }}>Todos</option>
+                    <option value="En espera" {{ request('estado') == 'En espera' ? 'selected' : '' }}>Pendiente</option>
+                    <option value="En proceso" {{ request('estado') == 'En proceso' ? 'selected' : '' }}>En proceso</option>
+                    <option value="Terminado" {{ request('estado') == 'Terminado' ? 'selected' : '' }}>Terminado</option>
                 </select>
             </div>
             <div class="col-md-3">
-                <label for="fecha" class="form-label">Filter by date:</label>
+                <label for="fecha" class="form-label">Filtrar por fecha:</label>
                 <input type="date" id="fecha" name="fecha" class="form-control" 
                        value="{{ request('fecha') }}">
             </div>
             <div class="col-md-3 d-flex align-items-end">
                 <button type="submit" class="btn btn-primary w-100 btn-action">
                     <i class="fas fa-filter me-2"></i>
-                    Filter
+                    Filtrar
                 </button>
             </div>
         </form>
@@ -192,18 +192,18 @@
                 <table class="table table-hover align-middle mb-0">
                     <thead>
                         <tr>
-                            <th>Receipt</th>
-                            <th>Client</th>
-                            <th>Washer / Vehicle Type</th>
-                            <th>Arrival Time</th>
-                            <th>Wash Start</th>
-                            <th>Wash End</th>
-                            <th>Interior Start</th>
-                            <th>Interior End</th>
-                            <th>Final Hour</th>
-                            <th>Total Time</th>
-                            <th>Status</th>
-                            <th>Actions</th>
+                            <th>Comprobante</th>
+                            <th>Cliente</th>
+                            <th>Lavador / Tipo Vehículo</th>
+                            <th>Hora Llegada</th>
+                            <th>Inicio Lavado</th>
+                            <th>Fin Lavado</th>
+                            <th>Inicio Interior</th>
+                            <th>Fin Interior</th>
+                            <th>Hora Final</th>
+                            <th>Tiempo Total</th>
+                            <th>Estado</th>
+                            <th>Acciones</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -216,13 +216,13 @@
                                     <form method="POST" action="{{ route('control.lavados.asignarLavador', $lavado->id) }}" class="d-flex gap-2 align-items-center">
                                         @csrf
                                         <select name="lavador_id" class="form-control form-control-sm" required>
-                                            <option value="">Select washer</option>
+                                            <option value="">Seleccione lavador</option>
                                             @foreach($lavadores as $lavador)
                                                 <option value="{{ $lavador->id }}" {{ $lavado->lavador_id == $lavador->id ? 'selected' : '' }}>{{ $lavador->nombre }}</option>
                                             @endforeach
                                         </select>
                                         <select name="tipo_vehiculo_id" class="form-control form-control-sm" required>
-                                            <option value="">Select type</option>
+                                            <option value="">Seleccione tipo</option>
                                             @foreach($tiposVehiculo as $tipo)
                                                 <option value="{{ $tipo->id }}" {{ $lavado->tipo_vehiculo_id == $tipo->id ? 'selected' : '' }}>{{ $tipo->nombre }}</option>
                                             @endforeach
@@ -253,7 +253,7 @@
                                     <button type="submit" class="btn btn-sm {{ $lavado->inicio_lavado ? 'btn-success' : 'btn-outline-success' }} btn-action"
                                             {{ (!$lavado->lavador_id || !$lavado->tipo_vehiculo_id || $lavado->inicio_lavado) ? 'disabled' : '' }}>
                                         <i class="fas fa-play"></i>
-                                        Start
+                                        Iniciar
                                     </button>
                                 </form>
                                 @if($lavado->inicio_lavado)
@@ -268,7 +268,7 @@
                                     <button type="submit" class="btn btn-sm {{ $lavado->fin_lavado ? 'btn-success' : 'btn-outline-success' }} btn-action"
                                             {{ !$lavado->inicio_lavado || $lavado->fin_lavado ? 'disabled' : '' }}>
                                         <i class="fas fa-flag-checkered"></i>
-                                        Finish
+                                        Finalizar
                                     </button>
                                 </form>
                                 @if($lavado->fin_lavado)
@@ -283,7 +283,7 @@
                                     <button type="submit" class="btn btn-sm {{ $lavado->inicio_interior ? 'btn-info' : 'btn-outline-info' }} btn-action"
                                             {{ !$lavado->fin_lavado || $lavado->inicio_interior ? 'disabled' : '' }}>
                                         <i class="fas fa-car"></i>
-                                        Start
+                                        Iniciar
                                     </button>
                                 </form>
                                 @if($lavado->inicio_interior)
@@ -298,7 +298,7 @@
                                     <button type="submit" class="btn btn-sm {{ $lavado->fin_interior ? 'btn-info' : 'btn-outline-info' }} btn-action"
                                             {{ !$lavado->inicio_interior || $lavado->fin_interior ? 'disabled' : '' }}>
                                         <i class="fas fa-flag-checkered"></i>
-                                        Finish
+                                        Finalizar
                                     </button>
                                 </form>
                                 @if($lavado->fin_interior)
@@ -324,13 +324,13 @@
                             <td>
                                 @switch($lavado->estado)
                                     @case('En espera')
-                                        <span class="status-badge bg-warning text-dark">Pending</span>
+                                        <span class="status-badge bg-warning text-dark">Pendiente</span>
                                         @break
                                     @case('En proceso')
-                                        <span class="status-badge bg-primary text-white">In process</span>
+                                        <span class="status-badge bg-primary text-white">En proceso</span>
                                         @break
                                     @case('Terminado')
-                                        <span class="status-badge bg-success text-white">Finished</span>
+                                        <span class="status-badge bg-success text-white">Terminado</span>
                                         @break
                                     @default
                                         <span class="status-badge bg-secondary text-white">{{ $lavado->estado }}</span>
@@ -346,7 +346,7 @@
                                         @csrf
                                         @method('DELETE')
                                         <button type="submit" class="btn btn-sm btn-danger btn-action"
-                                                onclick="return confirm('Delete this record?')">
+                                                onclick="return confirm('¿Eliminar este registro?')">
                                             <i class="fas fa-trash"></i>
                                         </button>
                                     </form>

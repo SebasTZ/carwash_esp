@@ -35,11 +35,11 @@ class ComprasExport implements FromCollection, WithHeadings, WithEvents
     public function headings(): array
     {
         return [
-            'Receipt Type',
-            'Receipt Number',
-            'Supplier',
-            'Date and Time',
-            'VAT',
+            'Tipo de comprobante',
+            'Número de comprobante',
+            'Proveedor',
+            'Fecha y hora',
+            'IGV',
             'Total'
         ];
     }

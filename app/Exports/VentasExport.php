@@ -27,11 +27,11 @@ class VentasExport implements FromCollection, WithHeadings, WithMapping, WithEve
     public function map($venta): array
     {
         $paymentMethods = [
-            'efectivo' => 'Cash',
-            'tarjeta' => 'Credit Card',
-            'tarjeta_credito' => 'Credit Card',
-            'tarjeta_regalo' => 'Gift Card',
-            'lavado_gratis' => 'Free Wash (Loyalty)',
+            'efectivo' => 'Efectivo',
+            'tarjeta' => 'Tarjeta de crédito',
+            'tarjeta_credito' => 'Tarjeta de crédito',
+            'tarjeta_regalo' => 'Tarjeta de regalo',
+            'lavado_gratis' => 'Lavado gratis (Fidelidad)',
         ];
         return [
             $venta->comprobante->tipo_comprobante . ' ' . $venta->numero_comprobante,
@@ -43,25 +43,25 @@ class VentasExport implements FromCollection, WithHeadings, WithMapping, WithEve
             $paymentMethods[$venta->medio_pago] ?? ucfirst(str_replace('_', ' ', $venta->medio_pago)),
             number_format($venta->efectivo, 2),
             number_format($venta->yape, 2),
-            $venta->servicio_lavado ? 'Yes' : 'No',
-            $venta->horario_lavado ? Carbon::parse($venta->horario_lavado)->format('d-m-Y H:i') : 'N/A',
+            $venta->servicio_lavado ? 'Sí' : 'No',
+            $venta->horario_lavado ? Carbon::parse($venta->horario_lavado)->format('d-m-Y H:i') : 'N/D',
         ];
     }
 
     public function headings(): array
     {
         return [
-            'Receipt',
-            'Customer',
-            'Date and Time',
-            'Seller',
+            'Comprobante',
+            'Cliente',
+            'Fecha y hora',
+            'Vendedor',
             'Total',
-            'Comments',
-            'Payment Method',
-            'Cash',
-            'Credit Card',
-            'Car Wash Service',
-            'Car Wash End Time',
+            'Comentarios',
+            'Medio de pago',
+            'Efectivo',
+            'Tarjeta de crédito',
+            'Servicio de lavado',
+            'Hora fin de lavado',
         ];
     }
 

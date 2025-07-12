@@ -1,6 +1,6 @@
 @extends('layouts.app')
 
-@section('title','Sales')
+@section('title','Ventas')
 
 @push('css-datatable')
 <link href="https://cdn.jsdelivr.net/npm/simple-datatables@latest/dist/style.css" rel="stylesheet" type="text/css">
@@ -19,62 +19,62 @@
 @include('layouts.partials.alert')
 
 <div class="container-fluid px-4">
-    <h1 class="mt-4 text-center">Sales</h1>
+    <h1 class="mt-4 text-center">Ventas</h1>
     <ol class="breadcrumb mb-4">
-        <li class="breadcrumb-item"><a href="{{ route('panel') }}">Home</a></li>
-        <li class="breadcrumb-item active">Sales</li>
+        <li class="breadcrumb-item"><a href="{{ route('panel') }}">Inicio</a></li>
+        <li class="breadcrumb-item active">Ventas</li>
     </ol>
 
     @can('crear-venta')
     <div class="mb-4">
         <a href="{{route('ventas.create')}}">
-            <button type="button" class="btn btn-primary">Add New Record</button>
+            <button type="button" class="btn btn-primary">Agregar Nuevo Registro</button>
         </a>
     </div>
     @endcan
 
     <div class="mb-4">
     <a href="{{ route('ventas.reporte.diario') }}">
-        <button type="button" class="btn btn-secondary">Daily Report</button>
+        <button type="button" class="btn btn-secondary">Reporte Diario</button>
     </a>
     <a href="{{ route('ventas.reporte.semanal') }}">
-        <button type="button" class="btn btn-secondary">Weekly Report</button>
+        <button type="button" class="btn btn-secondary">Reporte Semanal</button>
     </a>
     <a href="{{ route('ventas.reporte.mensual') }}">
-        <button type="button" class="btn btn-secondary">Monthly Report</button>
+        <button type="button" class="btn btn-secondary">Reporte Mensual</button>
     </a>
     </div>
 
     <div class="card mb-4">
         <div class="card-header">
             <i class="fas fa-table me-1"></i>
-            Sales Table
+            Tabla de Ventas
         </div>
         <div class="card-body">
             <table id="datatablesSimple" class="table table-striped">
                 <thead>
                     <tr>
-                        <th>Receipt</th>
-                        <th>Customer</th>
-                        <th>Date and Time</th>
-                        <th>Seller</th>
+                        <th>Comprobante</th>
+                        <th>Cliente</th>
+                        <th>Fecha y Hora</th>
+                        <th>Vendedor</th>
                         <th>Total</th>
-                        <th>Comments</th>
-                        <th>Payment Method</th>
-                        <th>Cash</th>
+                        <th>Comentarios</th>
+                        <th>Método de Pago</th>
+                        <th>Efectivo</th>
                         <th>Yape</th>
-                        <th>Car Wash Service</th>
-                        <th>Car Wash End Time</th>
-                        <th>Actions</th>
+                        <th>Servicio de Lavado</th>
+                        <th>Hora Fin de Lavado</th>
+                        <th>Acciones</th>
                     </tr>
                 </thead>
                 <tbody>
                     @php
                         $paymentMethods = [
-                            'efectivo' => 'Cash',
-                            'tarjeta_credito' => 'Credit Card',
-                            'tarjeta_regalo' => 'Gift Card',
-                            'lavado_gratis' => 'Free Wash (Loyalty)',
+                            'efectivo' => 'Efectivo',
+                            'tarjeta_credito' => 'Tarjeta de Crédito',
+                            'tarjeta_regalo' => 'Tarjeta de Regalo',
+                            'lavado_gratis' => 'Lavado Gratis (Fidelidad)',
                         ];
                     @endphp
                     @foreach ($ventas as $item)
@@ -112,10 +112,10 @@
                             {{$item->yape}}
                         </td>
                         <td>
-                            {{$item->servicio_lavado ? 'Yes' : 'No'}}
+                            {{$item->servicio_lavado ? 'Sí' : 'No'}}
                         </td>
                         <td>
-                            {{$item->horario_lavado ? \Carbon\Carbon::parse($item->horario_lavado)->format('d-m-Y H:i') : 'N/A'}}
+                            {{$item->horario_lavado ? \Carbon\Carbon::parse($item->horario_lavado)->format('d-m-Y H:i') : 'N/D'}}
                         </td>
                         <td>
                             <div class="btn-group" role="group" aria-label="Basic mixed styles example">
@@ -123,13 +123,13 @@
                                 @can('mostrar-venta')
                                 <form action="{{route('ventas.show', ['venta'=>$item]) }}" method="get">
                                     <button type="submit" class="btn btn-success">
-                                        View
+                                        Ver
                                     </button>
                                 </form>
                                 @endcan
 
                                 @can('eliminar-venta')
-                                <button type="button" class="btn btn-danger" data-bs-toggle="modal" data-bs-target="#confirmModal-{{$item->id}}">Delete</button>
+                                <button type="button" class="btn btn-danger" data-bs-toggle="modal" data-bs-target="#confirmModal-{{$item->id}}">Eliminar</button>
                                 @endcan
                             </div>
                         </td>
@@ -140,18 +140,18 @@
                         <div class="modal-dialog">
                             <div class="modal-content">
                                 <div class="modal-header">
-                                    <h1 class="modal-title fs-5" id="exampleModalLabel">Confirmation Message</h1>
+                                    <h1 class="modal-title fs-5" id="exampleModalLabel">Mensaje de Confirmación</h1>
                                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                                 </div>
                                 <div class="modal-body">
-                                    Are you sure you want to delete this record?
+                                    ¿Estás seguro de que deseas eliminar este registro?
                                 </div>
                                 <div class="modal-footer">
-                                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
                                     <form action="{{ route('ventas.destroy',['venta'=>$item->id]) }}" method="post">
                                         @method('DELETE')
                                         @csrf
-                                        <button type="submit" class="btn btn-danger">Confirm</button>
+                                        <button type="submit" class="btn btn-danger">Confirmar</button>
                                     </form>
                                 </div>
                             </div>

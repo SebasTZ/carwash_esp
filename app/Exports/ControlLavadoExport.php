@@ -32,11 +32,11 @@ class ControlLavadoExport implements FromCollection, WithHeadings, WithEvents
                 $lavado->tipoVehiculo ? $lavado->tipoVehiculo->nombre : '-',
                 $lavado->tipoVehiculo ? number_format($lavado->tipoVehiculo->comision, 2) : '-',
                 Carbon::parse($lavado->hora_llegada)->format('d-m-Y H:i'),
-                $lavado->hora_final ? Carbon::parse($lavado->hora_final)->format('d-m-Y H:i') : 'En proceso',
-                $tiempoTotal ? number_format($tiempoTotal, 0) . ' min' : '-',
-                $lavado->estado,
-                $lavado->observaciones ?? '-',
-                $lavado->user ? $lavado->user->name : 'Sin asignar'
+            $lavado->hora_final ? Carbon::parse($lavado->hora_final)->format('d-m-Y H:i') : 'En proceso',
+            $tiempoTotal ? number_format($tiempoTotal, 0) . ' min' : '-',
+            $lavado->estado,
+            $lavado->observaciones ?? '-',
+            $lavado->user ? $lavado->user->name : 'Sin asignar'
             ];
         });
     }
@@ -44,16 +44,17 @@ class ControlLavadoExport implements FromCollection, WithHeadings, WithEvents
     public function headings(): array
     {
         return [
-            'Receipt No.',
-            'Customer',
-            'Washer',
-            'Vehicle Type',
-            'Commission',
-            'Arrival Time',
-            'Final Time',
-            'Total Time',
-            'Status',
-            'Observations',
+            'N° Comprobante',
+            'Cliente',
+            'Lavador',
+            'Tipo de vehículo',
+            'Comisión',
+            'Hora de llegada',
+            'Hora final',
+            'Tiempo total',
+            'Estado',
+            'Observaciones',
+            'Usuario asignado',
         ];
     }
 

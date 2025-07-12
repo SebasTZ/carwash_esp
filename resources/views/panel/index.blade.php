@@ -130,9 +130,9 @@ use App\Models\PagoComision;
 
 <div class="container-fluid px-4">
     <div class="welcome-section mb-4">
-        <h1 class="display-5 mb-3">Welcome to the Control Panel!</h1>
-        <p class="lead mb-0">Sales Management and Car Wash Control System</p>
-        <p class="text-white-50">{{ now()->format('l, d \o\f F Y') }}</p>
+        <h1 class="display-5 mb-3">¡Bienvenido al Panel de Control!</h1>
+        <p class="lead mb-0">Sistema de Gestión de Ventas y Control de Lavado</p>
+        <p class="text-white-50">{{ now()->format('l, d \d\e F Y') }}</p>
     </div>
 
     <div class="row g-4">
@@ -142,7 +142,7 @@ use App\Models\PagoComision;
                 <div class="card-body">
                     <div class="d-flex justify-content-between align-items-center">
                         <div>
-                            <p class="stat-label mb-1">Today's Appointments</p>
+                            <p class="stat-label mb-1">Citas de Hoy</p>
                             <?php
                             
                             $citas = Cita::whereDate('fecha', today())
@@ -156,7 +156,7 @@ use App\Models\PagoComision;
                 </div>
                 <div class="card-footer">
                     <a class="text-white" href="{{ route('citas.dashboard') }}">
-                        <span>View Dashboard</span>
+                        <span>Ver Panel</span>
                         <i class="fas fa-arrow-right"></i>
                     </a>
                 </div>
@@ -169,7 +169,7 @@ use App\Models\PagoComision;
                 <div class="card-body">
                     <div class="d-flex justify-content-between align-items-center">
                         <div>
-                            <p class="stat-label mb-1">Total Clients</p>
+                            <p class="stat-label mb-1">Total de Clientes</p>
                             <?php
                             $clientes = count(Cliente::all());
                             ?>
@@ -180,7 +180,7 @@ use App\Models\PagoComision;
                 </div>
                 <div class="card-footer">
                     <a class="text-white" href="{{ route('clientes.index') }}">
-                        <span>Manage Clients</span>
+                        <span>Gestionar Clientes</span>
                         <i class="fas fa-arrow-right"></i>
                     </a>
                 </div>
@@ -193,7 +193,7 @@ use App\Models\PagoComision;
                 <div class="card-body">
                     <div class="d-flex justify-content-between align-items-center">
                         <div>
-                            <p class="stat-label mb-1">Categories</p>
+                            <p class="stat-label mb-1">Categorías</p>
                             <?php
                             $categorias = count(Categoria::all());
                             ?>
@@ -204,7 +204,7 @@ use App\Models\PagoComision;
                 </div>
                 <div class="card-footer">
                     <a class="text-white" href="{{ route('categorias.index') }}">
-                        <span>View Categories</span>
+                        <span>Ver Categorías</span>
                         <i class="fas fa-arrow-right"></i>
                     </a>
                 </div>
@@ -217,7 +217,7 @@ use App\Models\PagoComision;
                 <div class="card-body">
                     <div class="d-flex justify-content-between align-items-center">
                         <div>
-                            <p class="stat-label mb-1">Total Purchases</p>
+                            <p class="stat-label mb-1">Total de Compras</p>
                             <?php
                             $compras = count(Compra::all());
                             ?>
@@ -228,7 +228,7 @@ use App\Models\PagoComision;
                 </div>
                 <div class="card-footer">
                     <a class="text-white" href="{{ route('compras.index') }}">
-                        <span>View Purchases</span>
+                        <span>Ver Compras</span>
                         <i class="fas fa-arrow-right"></i>
                     </a>
                 </div>
@@ -241,7 +241,7 @@ use App\Models\PagoComision;
                 <div class="card-body">
                     <div class="d-flex justify-content-between align-items-center">
                         <div>
-                            <p class="stat-label mb-1">Brands</p>
+                            <p class="stat-label mb-1">Marcas</p>
                             <?php
                             $marcas = count(Marca::all());
                             ?>
@@ -252,7 +252,7 @@ use App\Models\PagoComision;
                 </div>
                 <div class="card-footer">
                     <a class="text-white" href="{{ route('marcas.index') }}">
-                        <span>View Brands</span>
+                        <span>Ver Marcas</span>
                         <i class="fas fa-arrow-right"></i>
                     </a>
                 </div>
@@ -265,7 +265,7 @@ use App\Models\PagoComision;
                 <div class="card-body">
                     <div class="d-flex justify-content-between align-items-center">
                         <div>
-                            <p class="stat-label mb-1">Presentations</p>
+                            <p class="stat-label mb-1">Presentaciones</p>
                             <?php
                             $presentaciones = count(Presentacione::all());
                             ?>
@@ -276,7 +276,7 @@ use App\Models\PagoComision;
                 </div>
                 <div class="card-footer">
                     <a class="text-white" href="{{ route('presentaciones.index') }}">
-                        <span>View Presentations</span>
+                        <span>Ver Presentaciones</span>
                         <i class="fas fa-arrow-right"></i>
                     </a>
                 </div>
@@ -289,7 +289,7 @@ use App\Models\PagoComision;
                 <div class="card-body">
                     <div class="d-flex justify-content-between align-items-center">
                         <div>
-                            <p class="stat-label mb-1">Products</p>
+                            <p class="stat-label mb-1">Productos</p>
                             <?php
                             $productos = count(Producto::all());
                             ?>
@@ -300,7 +300,7 @@ use App\Models\PagoComision;
                 </div>
                 <div class="card-footer">
                     <a class="text-white" href="{{ route('productos.index') }}">
-                        <span>View Products</span>
+                        <span>Ver Productos</span>
                         <i class="fas fa-arrow-right"></i>
                     </a>
                 </div>
@@ -313,7 +313,7 @@ use App\Models\PagoComision;
                 <div class="card-body">
                     <div class="d-flex justify-content-between align-items-center">
                         <div>
-                            <p class="stat-label mb-1">Suppliers</p>
+                            <p class="stat-label mb-1">Proveedores</p>
                             <?php
                             $proveedores = count(Proveedore::all());
                             ?>
@@ -324,7 +324,7 @@ use App\Models\PagoComision;
                 </div>
                 <div class="card-footer">
                     <a class="text-white" href="{{ route('proveedores.index') }}">
-                        <span>View Suppliers</span>
+                        <span>Ver Proveedores</span>
                         <i class="fas fa-arrow-right"></i>
                     </a>
                 </div>
@@ -337,7 +337,7 @@ use App\Models\PagoComision;
                 <div class="card-body">
                     <div class="d-flex justify-content-between align-items-center">
                         <div>
-                            <p class="stat-label mb-1">Users</p>
+                            <p class="stat-label mb-1">Usuarios</p>
                             <?php
                             $users = count(User::all());
                             ?>
@@ -348,7 +348,7 @@ use App\Models\PagoComision;
                 </div>
                 <div class="card-footer">
                     <a class="text-white" href="{{ route('users.index') }}">
-                        <span>Manage Users</span>
+                        <span>Gestionar Usuarios</span>
                         <i class="fas fa-arrow-right"></i>
                     </a>
                 </div>
@@ -362,7 +362,7 @@ use App\Models\PagoComision;
                 <div class="card-body">
                     <div class="d-flex justify-content-between align-items-center">
                         <div>
-                            <p class="stat-label mb-1">Active Washes</p>
+                            <p class="stat-label mb-1">Lavados Activos</p>
                             <?php
                             $lavados = ControlLavado::where('estado', '!=', 'Terminado')->count();
                             ?>
@@ -373,7 +373,7 @@ use App\Models\PagoComision;
                 </div>
                 <div class="card-footer">
                     <a class="text-white" href="{{ route('control.lavados') }}">
-                        <span>View Wash Control</span>
+                        <span>Ver Control de Lavado</span>
                         <i class="fas fa-arrow-right"></i>
                     </a>
                 </div>
@@ -388,7 +388,7 @@ use App\Models\PagoComision;
                 <div class="card-body">
                     <div class="d-flex justify-content-between align-items-center">
                         <div>
-                            <p class="stat-label mb-1">Parked Vehicles</p>
+                            <p class="stat-label mb-1">Vehículos Estacionados</p>
                             <?php
                             $vehiculos = Estacionamiento::where('estado', 'ocupado')->count();
                             ?>
@@ -399,7 +399,7 @@ use App\Models\PagoComision;
                 </div>
                 <div class="card-footer">
                     <a class="text-white" href="{{ route('estacionamiento.index') }}">
-                        <span>View Parking</span>
+                        <span>Ver Estacionamiento</span>
                         <i class="fas fa-arrow-right"></i>
                     </a>
                 </div>
@@ -414,7 +414,7 @@ use App\Models\PagoComision;
                 <div class="card-body">
                     <div class="d-flex justify-content-between align-items-center">
                         <div>
-                            <p class="stat-label mb-1">Washers</p>
+                            <p class="stat-label mb-1">Lavadores</p>
                             <p class="stat-value">{{ App\Models\Lavador::count() }}</p>
                         </div>
                         <i class="fa-solid fa-user-tie stat-icon"></i>
@@ -422,7 +422,7 @@ use App\Models\PagoComision;
                 </div>
                 <div class="card-footer">
                     <a class="text-white" href="{{ route('lavadores.index') }}">
-                        <span>Manage Washers</span>
+                        <span>Gestionar Lavadores</span>
                         <i class="fas fa-arrow-right"></i>
                     </a>
                 </div>
@@ -437,7 +437,7 @@ use App\Models\PagoComision;
                 <div class="card-body">
                     <div class="d-flex justify-content-between align-items-center">
                         <div>
-                            <p class="stat-label mb-1">Vehicle Types</p>
+                            <p class="stat-label mb-1">Tipos de Vehículo</p>
                             <p class="stat-value">{{ App\Models\TipoVehiculo::count() }}</p>
                         </div>
                         <i class="fa-solid fa-car-side stat-icon"></i>
@@ -445,7 +445,7 @@ use App\Models\PagoComision;
                 </div>
                 <div class="card-footer">
                     <a class="text-white" href="{{ route('tipos_vehiculo.index') }}">
-                        <span>Manage Vehicle Types</span>
+                        <span>Gestionar Tipos de Vehículo</span>
                         <i class="fas fa-arrow-right"></i>
                     </a>
                 </div>
@@ -460,7 +460,7 @@ use App\Models\PagoComision;
                 <div class="card-body">
                     <div class="d-flex justify-content-between align-items-center">
                         <div>
-                            <p class="stat-label mb-1">Commission Payments</p>
+                            <p class="stat-label mb-1">Pagos de Comisiones</p>
                             <p class="stat-value">{{ App\Models\PagoComision::count() }}</p>
                         </div>
                         <i class="fa-solid fa-money-bill-wave stat-icon"></i>
@@ -468,7 +468,7 @@ use App\Models\PagoComision;
                 </div>
                 <div class="card-footer">
                     <a class="text-white" href="{{ route('pagos_comisiones.index') }}">
-                        <span>View Payments</span>
+                        <span>Ver Pagos</span>
                         <i class="fas fa-arrow-right"></i>
                     </a>
                 </div>
@@ -483,7 +483,7 @@ use App\Models\PagoComision;
                 <div class="card-body">
                     <div class="d-flex justify-content-between align-items-center">
                         <div>
-                            <p class="stat-label mb-1">Commission Report</p>
+                            <p class="stat-label mb-1">Reporte de Comisiones</p>
                             <p class="stat-value"><i class="fa-solid fa-file-excel"></i></p>
                         </div>
                         <i class="fa-solid fa-chart-line stat-icon"></i>
@@ -491,7 +491,7 @@ use App\Models\PagoComision;
                 </div>
                 <div class="card-footer">
                     <a class="text-white" href="{{ route('reporte.comisiones') }}">
-                        <span>View Report</span>
+                        <span>Ver Reporte</span>
                         <i class="fas fa-arrow-right"></i>
                     </a>
                 </div>

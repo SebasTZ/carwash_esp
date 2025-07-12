@@ -1,24 +1,24 @@
 @extends('layouts.app')
 
-@section('title', 'Local Sale Ticket')
+@section('title', 'Ticket de Venta Local')
 
 @section('content')
 <div class="container">
     <h1 class="text-center">{{ $configuracion->nombre_negocio }}</h1>
-    <h2 class="text-center">Sale Ticket</h2>
-    <p class="text-center">Address: {{ $configuracion->direccion }}</p>
-    <p class="text-center">Phone: {{ $configuracion->telefono }}</p>
-    <p><strong>Receipt Number:</strong> {{ $venta->numero_comprobante }}</p>
-    <p><strong>Date and Time:</strong> {{ \Carbon\Carbon::parse($venta->fecha_hora)->format('d-m-Y H:i') }}</p>
-    <p><strong>Customer:</strong> {{ $venta->cliente->persona->razon_social }}</p>
+    <h2 class="text-center">Ticket de Venta</h2>
+    <p class="text-center">Dirección: {{ $configuracion->direccion }}</p>
+    <p class="text-center">Teléfono: {{ $configuracion->telefono }}</p>
+    <p><strong>Número de Comprobante:</strong> {{ $venta->numero_comprobante }}</p>
+    <p><strong>Fecha y Hora:</strong> {{ \Carbon\Carbon::parse($venta->fecha_hora)->format('d-m-Y H:i') }}</p>
+    <p><strong>Cliente:</strong> {{ $venta->cliente->persona->razon_social }}</p>
 
-    <h3>Products:</h3>
+    <h3>Productos:</h3>
     <table class="table">
         <thead>
             <tr>
-                <th>Product</th>
-                <th>Quantity</th>
-                <th>Unit Price</th>
+                <th>Producto</th>
+                <th>Cantidad</th>
+                <th>Precio Unitario</th>
                 <th>Subtotal</th>
             </tr>
         </thead>
@@ -38,29 +38,29 @@
 
     @php
         $paymentMethods = [
-            'efectivo' => 'Cash',
-            'tarjeta_credito' => 'Credit Card',
-            'tarjeta_regalo' => 'Gift Card',
-            'lavado_gratis' => 'Free Wash (Loyalty)',
+            'efectivo' => 'Efectivo',
+            'tarjeta_credito' => 'Tarjeta de Crédito',
+            'tarjeta_regalo' => 'Tarjeta de Regalo',
+            'lavado_gratis' => 'Lavado Gratis (Fidelidad)',
         ];
     @endphp
 
-    <h3>Payment Details:</h3>
-    <p><strong>Payment Method:</strong> {{ $paymentMethods[$venta->medio_pago] ?? ucfirst(str_replace('_', ' ', $venta->medio_pago)) }}</p>
-    <p><strong>Cash:</strong> {{ $venta->efectivo }}</p>
+    <h3>Detalles de Pago:</h3>
+    <p><strong>Método de Pago:</strong> {{ $paymentMethods[$venta->medio_pago] ?? ucfirst(str_replace('_', ' ', $venta->medio_pago)) }}</p>
+    <p><strong>Efectivo:</strong> {{ $venta->efectivo }}</p>
     <p><strong>Yape:</strong> {{ $venta->yape }}</p>
 
-    <h3>Car Wash Service:</h3>
-    <p><strong>Car Wash Service?:</strong> {{ $venta->servicio_lavado ? 'Yes' : 'No' }}</p>
+    <h3>Servicio de Lavado:</h3>
+    <p><strong>¿Servicio de Lavado?:</strong> {{ $venta->servicio_lavado ? 'Sí' : 'No' }}</p>
     @if($venta->servicio_lavado)
-    <p><strong>Car Wash End Time:</strong> {{ \Carbon\Carbon::parse($venta->horario_lavado)->format('d-m-Y H:i') }}</p>
+    <p><strong>Hora de Fin de Lavado:</strong> {{ \Carbon\Carbon::parse($venta->horario_lavado)->format('d-m-Y H:i') }}</p>
     @endif
 
-    <h3>Comments:</h3>
+    <h3>Comentarios:</h3>
     <p>{{ $venta->comentarios }}</p>
 
     <div class="text-center mt-4">
-        <button onclick="window.print()" class="btn btn-primary">Print Ticket</button>
+        <button onclick="window.print()" class="btn btn-primary">Imprimir Ticket</button>
     </div>
 </div>
 @endsection

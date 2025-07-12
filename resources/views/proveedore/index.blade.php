@@ -1,6 +1,6 @@
 @extends('layouts.app')
 
-@section('title','Suppliers')
+@section('title','Proveedores')
 
 @push('css-datatable')
 <link href="https://cdn.jsdelivr.net/npm/simple-datatables@latest/dist/style.css" rel="stylesheet" type="text/css">
@@ -16,16 +16,16 @@
 
 
 <div class="container-fluid px-4">
-    <h1 class="mt-4 text-center">Suppliers</h1>
+    <h1 class="mt-4 text-center">Proveedores</h1>
     <ol class="breadcrumb mb-4">
-        <li class="breadcrumb-item"><a href="{{ route('panel') }}">Home</a></li>
-        <li class="breadcrumb-item active">Suppliers</li>
+        <li class="breadcrumb-item"><a href="{{ route('panel') }}">Inicio</a></li>
+        <li class="breadcrumb-item active">Proveedores</li>
     </ol>
 
     @can('crear-proveedore')
     <div class="mb-4">
         <a href="{{route('proveedores.create')}}">
-            <button type="button" class="btn btn-primary">Add new record</button>
+            <button type="button" class="btn btn-primary">Agregar nuevo registro</button>
         </a>
     </div>
     @endcan
@@ -33,20 +33,20 @@
     <div class="card">
         <div class="card-header">
             <i class="fas fa-table me-1"></i>
-            Suppliers Table
+            Tabla de Proveedores
         </div>
         <div class="card-body">
             <table id="datatablesSimple" class="table table-striped fs-6">
                 <thead>
                     <tr>
-                        <th>Supplier</th>
-                        <th>Type</th>
-                        <th>Address</th>
-                        <th>Phone</th>
-                        <th>Document</th>
-                        <th>Number</th>
-                        <th>Status</th>
-                        <th>Actions</th>
+                        <th>Proveedor</th>
+                        <th>Tipo</th>
+                        <th>Dirección</th>
+                        <th>Teléfono</th>
+                        <th>Documento</th>
+                        <th>Número</th>
+                        <th>Estado</th>
+                        <th>Acciones</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -70,9 +70,9 @@
                         </td>
                         <td>
                             @if ($item->persona->estado == 1)
-                            <span class="badge rounded-pill text-bg-success">active</span>
+                            <span class="badge rounded-pill text-bg-success">activo</span>
                             @else
-                            <span class="badge rounded-pill text-bg-danger">deleted</span>
+                            <span class="badge rounded-pill text-bg-danger">eliminado</span>
                             @endif
                         </td>
                         <td>
@@ -84,7 +84,7 @@
                                     </button>
                                     <ul class="dropdown-menu text-bg-light" style="font-size: small;">
                                         <li>
-                                            <a class="dropdown-item" href="{{ route('proveedores.edit', $item->id) }}">Edit</a>
+                                            <a class="dropdown-item" href="{{ route('proveedores.edit', $item->id) }}">Editar</a>
                                         </li>
                                     </ul>
                                 </div>
@@ -96,7 +96,7 @@
                                     <!------Eliminar proveedore---->
                                     @can('eliminar-proveedore')
                                     @if ($item->persona->estado == 1)
-                                    <button title="Eliminar" data-bs-toggle="modal" data-bs-target="#confirmModal-{{$item->id}}" class="btn btn-danger" data-bs-toggle="modal" data-bs-target="#confirmModal-{{$item->id}}">Delete</button>
+                                    <button title="Eliminar" data-bs-toggle="modal" data-bs-target="#confirmModal-{{$item->id}}" class="btn btn-danger" data-bs-toggle="modal" data-bs-target="#confirmModal-{{$item->id}}">Eliminar</button>
                                     @else
                                     <button title="Restaurar" data-bs-toggle="modal" data-bs-target="#confirmModal-{{$item->id}}" class="btn btn-datatable btn-icon btn-transparent-dark">
                                         <i class="fas fa-undo"></i>
@@ -113,7 +113,7 @@
                         <div class="modal-dialog">
                             <div class="modal-content">
                                 <div class="modal-header">
-                                    <h1 class="modal-title fs-5" id="exampleModalLabel">Confirmation Message</h1>
+                                    <h1 class="modal-title fs-5" id="exampleModalLabel">Mensaje de Confirmación</h1>
                                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                                 </div>
                                 <div class="modal-body">
@@ -124,11 +124,11 @@
                                     @endif
                                 </div>
                                 <div class="modal-footer">
-                                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
                                     <form action="{{ route('proveedores.destroy', $item->id) }}" method="POST">
                                         @csrf
                                         @method('DELETE')
-                                        <button type="submit" class="btn btn-danger">Confirm</button>
+                                        <button type="submit" class="btn btn-danger">Confirmar</button>
                                     </form>
                                 </div>
                             </div>

@@ -1,6 +1,6 @@
 @extends('layouts.app')
 
-@section('title','Create User')
+@section('title','Crear Usuario')
 
 @push('css')
 
@@ -8,30 +8,30 @@
 
 @section('content')
 <div class="container-fluid px-4">
-    <h1 class="mt-4 text-center">Create User</h1>
+    <h1 class="mt-4 text-center">Crear Usuario</h1>
     <ol class="breadcrumb mb-4">
-        <li class="breadcrumb-item"><a href="{{ route('panel') }}">Home</a></li>
-        <li class="breadcrumb-item"><a href="{{ route('users.index')}}">Users</a></li>
-        <li class="breadcrumb-item active">Create User</li>
+        <li class="breadcrumb-item"><a href="{{ route('panel') }}">Inicio</a></li>
+        <li class="breadcrumb-item"><a href="{{ route('users.index')}}">Usuarios</a></li>
+        <li class="breadcrumb-item active">Crear Usuario</li>
     </ol>
 
     <div class="card text-bg-light">
         <form action="{{ route('users.store') }}" method="post">
             @csrf
             <div class="card-header">
-                <p class="">Note: Users are those who can access the system</p>
+                <p class="">Nota: Los usuarios son quienes pueden acceder al sistema</p>
             </div>
             <div class="card-body">
 
                 <!---Nombre---->
                 <div class="row mb-4">
-                    <label for="name" class="col-lg-2 col-form-label">First Name(s):</label>
+                    <label for="name" class="col-lg-2 col-form-label">Nombre(s):</label>
                     <div class="col-lg-4">
                         <input autocomplete="off" type="text" name="name" id="name" class="form-control" value="{{old('name')}}" aria-labelledby="nameHelpBlock">
                     </div>
                     <div class="col-lg-4">
                         <div class="form-text" id="nameHelpBlock">
-                            Enter a single name
+                            Ingresa un solo nombre
                         </div>
                     </div>
                     <div class="col-lg-2">
@@ -43,13 +43,13 @@
 
                 <!---Email---->
                 <div class="row mb-4">
-                    <label for="email" class="col-lg-2 col-form-label">Email:</label>
+                    <label for="email" class="col-lg-2 col-form-label">Correo electrónico:</label>
                     <div class="col-lg-4">
                         <input autocomplete="off" type="email" name="email" id="email" class="form-control" value="{{old('email')}}" aria-labelledby="emailHelpBlock">
                     </div>
                     <div class="col-lg-4">
                         <div class="form-text" id="emailHelpBlock">
-                            Email address
+                            Dirección de correo
                         </div>
                     </div>
                     <div class="col-lg-2">
@@ -61,13 +61,13 @@
 
                 <!---Password---->
                 <div class="row mb-4">
-                    <label for="password" class="col-lg-2 col-form-label">Password:</label>
+                    <label for="password" class="col-lg-2 col-form-label">Contraseña:</label>
                     <div class="col-lg-4">
                         <input type="password" name="password" id="password" class="form-control" aria-labelledby="passwordHelpBlock">
                     </div>
                     <div class="col-lg-4">
                         <div class="form-text" id="passwordHelpBlock">
-                            Enter a secure password. It must include numbers.
+                            Ingresa una contraseña segura. Debe incluir números.
                         </div>
                     </div>
                     <div class="col-lg-2">
@@ -79,13 +79,13 @@
 
                 <!---Confirm_Password---->
                 <div class="row mb-4">
-                    <label for="password_confirm" class="col-lg-2 col-form-label">Confirm:</label>
+                    <label for="password_confirm" class="col-lg-2 col-form-label">Confirmar:</label>
                     <div class="col-lg-4">
                         <input type="password" name="password_confirm" id="password_confirm" class="form-control" aria-labelledby="passwordConfirmHelpBlock">
                     </div>
                     <div class="col-lg-4">
                         <div class="form-text" id="passwordConfirmHelpBlock">
-                            Re-enter your password.
+                            Vuelve a ingresar tu contraseña.
                         </div>
                     </div>
                     <div class="col-lg-2">
@@ -97,10 +97,10 @@
 
                 <!---Roles---->
                 <div class="row mb-4">
-                    <label for="role" class="col-lg-2 col-form-label">Role:</label>
+                    <label for="role" class="col-lg-2 col-form-label">Rol:</label>
                     <div class="col-lg-4">
                         <select name="role" id="role" class="form-select" aria-labelledby="rolHelpBlock">
-                            <option value="" selected disabled>Select:</option>
+                            <option value="" selected disabled>Selecciona:</option>
                             @foreach ($roles as $item)
                             <option value="{{$item->name}}" @selected(old('role')==$item->name)>{{$item->name}}</option>
                             @endforeach
@@ -108,7 +108,7 @@
                     </div>
                     <div class="col-lg-4">
                         <div class="form-text" id="rolHelpBlock">
-                            Choose a role for the user.
+                            Elige un rol para el usuario.
                         </div>
                     </div>
                     <div class="col-lg-2">
@@ -120,7 +120,7 @@
 
             </div>
             <div class="card-footer text-center">
-                <button type="submit" class="btn btn-primary">Save</button>
+                <button type="submit" class="btn btn-primary">Guardar</button>
             </div>
         </form>
     </div>

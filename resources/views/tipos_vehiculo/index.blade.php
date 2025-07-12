@@ -2,17 +2,17 @@
 
 @section('content')
 <div class="container">
-    <h1>Vehicle Types</h1>
+    <h1>Tipos de Vehículo</h1>
     @can('crear-tipo-vehiculo')
-        <a href="{{ route('tipos_vehiculo.create') }}" class="btn btn-primary mb-3">Add Vehicle Type</a>
+        <a href="{{ route('tipos_vehiculo.create') }}" class="btn btn-primary mb-3">Agregar Tipo de Vehículo</a>
     @endcan
     <table class="table table-bordered">
         <thead>
             <tr>
-                <th>Name</th>
-                <th>Commission</th>
-                <th>Status</th>
-                <th>Actions</th>
+                <th>Nombre</th>
+                <th>Comisión</th>
+                <th>Estado</th>
+                <th>Acciones</th>
             </tr>
         </thead>
         <tbody>
@@ -23,7 +23,7 @@
                     <td>{{ ucfirst($tipo->estado) }}</td>
                     <td>
                         @can('editar-tipo-vehiculo')
-                            <a href="{{ route('tipos_vehiculo.edit', ['tipos_vehiculo' => $tipo->id]) }}" class="btn btn-sm btn-info">Edit</a>
+                            <a href="{{ route('tipos_vehiculo.edit', ['tipos_vehiculo' => $tipo->id]) }}" class="btn btn-sm btn-info">Editar</a>
                         @endcan
                     </td>
                 </tr>

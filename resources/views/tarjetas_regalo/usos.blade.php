@@ -1,29 +1,29 @@
 @extends('layouts.app')
 
-@section('title', 'Gift Card Usage History')
+@section('title', 'Historial de Uso de Tarjetas de Regalo')
 
 @section('content')
 <div class="container-fluid px-4">
-    <h1 class="mt-4 text-center">Gift Card Usage History</h1>
+    <h1 class="mt-4 text-center">Historial de Uso de Tarjetas de Regalo</h1>
     <ol class="breadcrumb mb-4">
-        <li class="breadcrumb-item"><a href="{{ route('panel') }}">Home</a></li>
-        <li class="breadcrumb-item"><a href="{{ route('tarjetas_regalo.reporte.view') }}">Gift Card Report</a></li>
-        <li class="breadcrumb-item active">Usage History</li>
+        <li class="breadcrumb-item"><a href="{{ route('panel') }}">Inicio</a></li>
+        <li class="breadcrumb-item"><a href="{{ route('tarjetas_regalo.reporte.view') }}">Reporte de Tarjetas de Regalo</a></li>
+        <li class="breadcrumb-item active">Historial de Uso</li>
     </ol>
     <div class="card mb-4">
         <div class="card-header">
             <i class="fa-solid fa-gift me-1"></i>
-            Gift Card Usages
+            Usos de Tarjetas de Regalo
         </div>
         <div class="card-body">
             <table class="table table-striped">
                 <thead>
                     <tr>
-                        <th>Gift Card Code</th>
-                        <th>Customer</th>
-                        <th>Date</th>
-                        <th>Receipt</th>
-                        <th>Amount Used</th>
+                        <th>Código de Tarjeta</th>
+                        <th>Cliente</th>
+                        <th>Fecha</th>
+                        <th>Comprobante</th>
+                        <th>Monto Usado</th>
                     </tr>
                 </thead>
                 <tbody>

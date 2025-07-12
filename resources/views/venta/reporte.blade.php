@@ -1,6 +1,6 @@
 @extends('layouts.app')
 
-@section('title', 'Sales Report ' . ucfirst($reporte))
+@section('title', 'Reporte de Ventas ' . ucfirst($reporte))
 
 @push('css-datatable')
 <link href="https://cdn.jsdelivr.net/npm/simple-datatables@latest/dist/style.css" rel="stylesheet" type="text/css">
@@ -19,38 +19,38 @@
 @include('layouts.partials.alert')
 
 <div class="container-fluid px-4">
-    <h1 class="mt-4 text-center">Sales Report {{ ucfirst($reporte) }}</h1>
+    <h1 class="mt-4 text-center">Reporte de Ventas {{ ucfirst($reporte) }}</h1>
     <ol class="breadcrumb mb-4">
-        <li class="breadcrumb-item"><a href="{{ route('panel') }}">Home</a></li>
-        <li class="breadcrumb-item"><a href="{{ route('ventas.index') }}">Sales</a></li>
-        <li class="breadcrumb-item active">Report {{ ucfirst($reporte) }}</li>
+        <li class="breadcrumb-item"><a href="{{ route('panel') }}">Inicio</a></li>
+        <li class="breadcrumb-item"><a href="{{ route('ventas.index') }}">Ventas</a></li>
+        <li class="breadcrumb-item active">Reporte {{ ucfirst($reporte) }}</li>
     </ol>
 
     @if($reporte === 'personalizado')
     <div class="card mb-4">
         <div class="card-header">
             <i class="fas fa-calendar me-1"></i>
-            Select Date Range
+            Seleccionar Rango de Fechas
         </div>
         <div class="card-body">
             <form action="{{ route('ventas.reporte.personalizado') }}" method="GET" class="row g-3 align-items-center">
                 <div class="col-auto">
-                    <label for="fecha_inicio" class="col-form-label">Start Date:</label>
+                    <label for="fecha_inicio" class="col-form-label">Fecha de Inicio:</label>
                     <input type="date" class="form-control" id="fecha_inicio" name="fecha_inicio" required value="{{ $fechaInicio ?? '' }}">
                 </div>
                 <div class="col-auto">
-                    <label for="fecha_fin" class="col-form-label">End Date:</label>
+                    <label for="fecha_fin" class="col-form-label">Fecha de Fin:</label>
                     <input type="date" class="form-control" id="fecha_fin" name="fecha_fin" required value="{{ $fechaFin ?? '' }}">
                 </div>
                 <div class="col-auto">
                     <label class="col-form-label">&nbsp;</label>
-                    <button type="submit" class="form-control btn btn-primary">Filter</button>
+                    <button type="submit" class="form-control btn btn-primary">Filtrar</button>
                 </div>
                 @if(isset($fechaInicio) && isset($fechaFin))
                 <div class="col-auto">
                     <label class="col-form-label">&nbsp;</label>
                     <a href="{{ route('ventas.export.personalizado', ['fecha_inicio' => $fechaInicio, 'fecha_fin' => $fechaFin]) }}" class="form-control btn btn-success">
-                        Export to Excel
+                        Exportar a Excel
                     </a>
                 </div>
                 @endif
@@ -60,7 +60,7 @@
     @else
     <div class="mb-4">
         <a href="{{ route('ventas.export.' . $reporte) }}">
-            <button type="button" class="btn btn-success">Export to Excel</button>
+            <button type="button" class="btn btn-success">Exportar a Excel</button>
         </a>
     </div>
     @endif
@@ -68,35 +68,35 @@
     <div class="card mb-4">
         <div class="card-header">
             <i class="fas fa-table me-1"></i>
-            Sales Table {{ $reporte }}
+            Tabla de Ventas {{ $reporte }}
         </div>
         <div class="card-body">
             <table id="datatablesSimple" class="table table-striped">
                 <thead>
                     <tr>
-                        <th>Receipt</th>
-                        <th>Customer</th>
-                        <th>Date and Time</th>
-                        <th>Seller</th>
+                        <th>Comprobante</th>
+                        <th>Cliente</th>
+                        <th>Fecha y Hora</th>
+                        <th>Vendedor</th>
                         <th>Total</th>
-                        <th>Comments</th>
-                        <th>Payment Method</th>
-                        <th>Cash</th>
-                        <th>Digital Wallet</th>
-                        <th>Gift Card</th>
-                        <th>Free Wash</th>
-                        <th>Car Wash Service</th>
-                        <th>Car Wash End Time</th>
+                        <th>Comentarios</th>
+                        <th>Método de Pago</th>
+                        <th>Efectivo</th>
+                        <th>Billetera Digital</th>
+                        <th>Tarjeta de Regalo</th>
+                        <th>Lavado Gratis</th>
+                        <th>Servicio de Lavado</th>
+                        <th>Hora Fin de Lavado</th>
                     </tr>
                 </thead>
                 <tbody>
                     @php
                         $total = 0;
                         $paymentMethods = [
-                            'efectivo' => 'Cash',
-                            'tarjeta_regalo' => 'Gift Card',
-                            'lavado_gratis' => 'Free Wash',
-                            'tarjeta_credito' => 'Credit Card',
+                            'efectivo' => 'Efectivo',
+                            'tarjeta_regalo' => 'Tarjeta de Regalo',
+                            'lavado_gratis' => 'Lavado Gratis',
+                            'tarjeta_credito' => 'Tarjeta de Crédito',
                         ];
                     @endphp
                     @foreach ($ventas as $item)
@@ -127,10 +127,10 @@
                         <td>{{ $paymentMethods[$item->medio_pago] ?? ucfirst(str_replace('_', ' ', $item->medio_pago)) }}</td>
                         <td>{{$item->efectivo}}</td>
                         <td>{{$item->billetera_digital}}</td>
-                        <td>{{ $item->tarjeta_regalo_id ? 'Yes' : 'No' }}</td>
-                        <td>{{ $item->lavado_gratis ? 'Yes' : 'No' }}</td>
-                        <td>{{$item->servicio_lavado ? 'Yes' : 'No'}}</td>
-                        <td>{{$item->horario_lavado ? \Carbon\Carbon::parse($item->horario_lavado)->format('d-m-Y H:i') : 'N/A'}}</td>
+                        <td>{{ $item->tarjeta_regalo_id ? 'Sí' : 'No' }}</td>
+                        <td>{{ $item->lavado_gratis ? 'Sí' : 'No' }}</td>
+                        <td>{{$item->servicio_lavado ? 'Sí' : 'No'}}</td>
+                        <td>{{$item->horario_lavado ? \Carbon\Carbon::parse($item->horario_lavado)->format('d-m-Y H:i') : 'N/D'}}</td>
                     </tr>
                     @endforeach
                 </tbody>

@@ -2,12 +2,12 @@
 
 @section('content')
 <div class="container">
-    <h1>Register Commission Payment</h1>
+    <h1>Registrar Pago de Comisión</h1>
     @can('crear-pago-comision')
     <form action="{{ route('pagos_comisiones.store') }}" method="POST">
         @csrf
         <div class="mb-3">
-            <label for="lavador_id" class="form-label">Washer</label>
+            <label for="lavador_id" class="form-label">Lavador</label>
             <select name="lavador_id" id="lavador_id" class="form-control" required>
                 @foreach($lavadores as $lavador)
                     <option value="{{ $lavador->id }}">{{ $lavador->nombre }}</option>
@@ -15,26 +15,26 @@
             </select>
         </div>
         <div class="mb-3">
-            <label for="monto_pagado" class="form-label">Amount Paid</label>
+            <label for="monto_pagado" class="form-label">Monto Pagado</label>
             <input type="number" step="0.01" name="monto_pagado" id="monto_pagado" class="form-control" required>
         </div>
         <div class="mb-3">
-            <label for="desde" class="form-label">From</label>
+            <label for="desde" class="form-label">Desde</label>
             <input type="date" name="desde" id="desde" class="form-control" required>
         </div>
         <div class="mb-3">
-            <label for="hasta" class="form-label">To</label>
+            <label for="hasta" class="form-label">Hasta</label>
             <input type="date" name="hasta" id="hasta" class="form-control" required>
         </div>
         <div class="mb-3">
-            <label for="fecha_pago" class="form-label">Payment Date</label>
+            <label for="fecha_pago" class="form-label">Fecha de Pago</label>
             <input type="date" name="fecha_pago" id="fecha_pago" class="form-control" required>
         </div>
         <div class="mb-3">
-            <label for="observacion" class="form-label">Observation</label>
+            <label for="observacion" class="form-label">Observación</label>
             <textarea name="observacion" id="observacion" class="form-control"></textarea>
         </div>
-        <button type="submit" class="btn btn-success">Save</button>
+        <button type="submit" class="btn btn-success">Guardar</button>
     </form>
     @endcan
 

@@ -1,6 +1,6 @@
 @extends('layouts.app')
 
-@section('title','Make Sale')
+@section('title','Registrar Venta')
 
 @push('css')
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-select@1.14.0-beta3/dist/css/bootstrap-select.min.css">
@@ -10,11 +10,11 @@
 
 @section('content')
 <div class="container-fluid px-4">
-    <h1 class="mt-4 text-center">Make Sale</h1>
+    <h1 class="mt-4 text-center">Registrar Venta</h1>
     <ol class="breadcrumb mb-4">
-        <li class="breadcrumb-item"><a href="{{ route('panel') }}">Home</a></li>
-        <li class="breadcrumb-item"><a href="{{ route('ventas.index')}}">Sales</a></li>
-        <li class="breadcrumb-item active">Make Sale</li>
+        <li class="breadcrumb-item"><a href="{{ route('panel') }}">Inicio</a></li>
+        <li class="breadcrumb-item"><a href="{{ route('ventas.index')}}">Ventas</a></li>
+        <li class="breadcrumb-item active">Registrar Venta</li>
     </ol>
 </div>
 
@@ -26,7 +26,7 @@
             <!------sale product---->
             <div class="col-xl-8">
                 <div class="text-white bg-primary p-1 text-center">
-                    Sale Details
+                    Detalle de Venta
                 </div>
                 <div class="p-3 border border-3 border-primary">
                     <div class="row gy-4">
@@ -54,25 +54,25 @@
 
                         <!-----Sale Price---->
                         <div class="col-sm-4">
-                            <label for="precio_venta" class="form-label">Sale Price:</label>
+                            <label for="precio_venta" class="form-label">Precio de Venta:</label>
                             <input disabled type="number" name="precio_venta" id="precio_venta" class="form-control" step="0.1">
                         </div>
 
                         <!-----Quantity---->
                         <div class="col-sm-4">
-                            <label for="cantidad" class="form-label">Quantity:</label>
+                            <label for="cantidad" class="form-label">Cantidad:</label>
                             <input type="number" name="cantidad" id="cantidad" class="form-control">
                         </div>
 
                         <!----Discount---->
                         <div class="col-sm-4">
-                            <label for="descuento" class="form-label">Discount:</label>
+                            <label for="descuento" class="form-label">Descuento:</label>
                             <input type="number" name="descuento" id="descuento" class="form-control">
                         </div>
 
                         <!-----button to add--->
                         <div class="col-12 text-end">
-                            <button id="btn_agregar" class="btn btn-primary" type="button">Add</button>
+                            <button id="btn_agregar" class="btn btn-primary" type="button">Agregar</button>
                         </div>
 
                         <!-----Table for sale details--->
@@ -82,10 +82,10 @@
                                     <thead class="bg-primary">
                                         <tr>
                                             <th class="text-white">#</th>
-                                            <th class="text-white">Product</th>
-                                            <th class="text-white">Quantity</th>
-                                            <th class="text-white">Sale Price</th>
-                                            <th class="text-white">Discount</th>
+                                            <th class="text-white">Producto</th>
+                                            <th class="text-white">Cantidad</th>
+                                            <th class="text-white">Precio de Venta</th>
+                                            <th class="text-white">Descuento</th>
                                             <th class="text-white">Subtotal</th>
                                             <th></th>
                                         </tr>
@@ -104,12 +104,12 @@
                                     <tfoot>
                                         <tr>
                                             <th></th>
-                                            <th colspan="4">Sum</th>
+                                            <th colspan="4">Suma</th>
                                             <th colspan="2"><span id="sumas">0</span></th>
                                         </tr>
                                         <tr>
                                             <th></th>
-                                            <th colspan="4">VAT %</th>
+                                            <th colspan="4">IGV %</th>
                                             <th colspan="2"><span id="igv">0</span></th>
                                         </tr>
                                         <tr>
@@ -125,7 +125,7 @@
                         <!--Button to cancel sale--->
                         <div class="col-12">
                             <button id="cancelar" type="button" class="btn btn-danger" data-bs-toggle="modal" data-bs-target="#exampleModal">
-                                Cancel Sale
+                                Cancelar Venta
                             </button>
                         </div>
 
@@ -136,13 +136,13 @@
             <!-----Sale---->
             <div class="col-xl-4">
                 <div class="text-white bg-success p-1 text-center">
-                    General Information
+                    Información General
                 </div>
                 <div class="p-3 border border-3 border-success">
                     <div class="row gy-4">
                         <!--Customer-->
                         <div class="col-12">
-                            <label for="cliente_id" class="form-label">Customer:</label>
+                            <label for="cliente_id" class="form-label">Cliente:</label>
                             <select name="cliente_id" id="cliente_id" class="form-control selectpicker show-tick" data-live-search="true" title="Select" data-size='2'>
                                 @foreach ($clientes as $item)
                                 <option value="{{$item->id}}">{{$item->persona->razon_social}}</option>
@@ -155,7 +155,7 @@
 
                         <!--Receipt Type-->
                         <div class="col-12">
-                            <label for="comprobante_id" class="form-label">Receipt:</label>
+                            <label for="comprobante_id" class="form-label">Comprobante:</label>
                             <select name="comprobante_id" id="comprobante_id" class="form-control selectpicker" title="Select">
                                 @foreach ($comprobantes as $item)
                                 <option value="{{$item->id}}">{{$item->tipo_comprobante}}</option>
@@ -168,13 +168,13 @@
 
                         <!--Receipt Number-->
                         <div class="col-12">
-                            <label for="numero_comprobante" class="form-label">Receipt Number:</label>
+                            <label for="numero_comprobante" class="form-label">Número de Comprobante:</label>
                             <input type="text" name="numero_comprobante" id="numero_comprobante" class="form-control" readonly>
                         </div>
                             
                         <!--Tax-->
                         <div class="col-sm-6">
-                            <label for="impuesto" class="form-label">Tax (VAT):</label>
+                            <label for="impuesto" class="form-label">Impuesto (IGV):</label>
                             <div class="input-group">
                                 <input type="number" name="impuesto" id="impuesto" class="form-control border-success" readonly step="0.01" value="{{ $impuesto ?? 18 }}">
                                 <span class="input-group-text">%</span>
@@ -186,7 +186,7 @@
                         
                         <!--Checkbox for VAT-->
                         <div class="col-sm-6">
-                            <label for="con_igv" class="form-label">Include VAT?</label>
+                            <label for="con_igv" class="form-label">¿Incluir IGV?</label>
                             <div>
                                 <input type="checkbox" name="con_igv" id="con_igv" class="form-check-input">
                             </div>
@@ -194,7 +194,7 @@
 
                         <!--Date--->
                         <div class="col-sm-6">
-                            <label for="fecha" class="form-label">Date:</label>
+                            <label for="fecha" class="form-label">Fecha:</label>
                             <input readonly type="date" name="fecha" id="fecha" class="form-control border-success" value="<?php echo date('Y-m-d') ?>">
                             <?php
 
@@ -210,34 +210,34 @@
 
                         <!-- Comments -->
                         <div class="col-12">
-                            <label for="comentarios" class="form-label">Comments:</label>
+                            <label for="comentarios" class="form-label">Comentarios:</label>
                             <textarea name="comentarios" id="comentarios" class="form-control" rows="3"></textarea>
                         </div>
 
                         <!-- Payment Method -->
                         <div class="col-12">
-                            <label for="medio_pago" class="form-label">Payment Method:</label>
+                            <label for="medio_pago" class="form-label">Método de Pago:</label>
                             <select name="medio_pago" id="medio_pago" class="form-control selectpicker" title="Select">
-                                <option value="efectivo">Cash</option>
-                                <option value="tarjeta_credito">Credit Card</option>
-                                <option value="tarjeta_regalo">Gift Card</option>
-                                <option value="lavado_gratis">Free Wash (Loyalty)</option>
+                                <option value="efectivo">Efectivo</option>
+                                <option value="tarjeta_credito">Tarjeta de Crédito</option>
+                                <option value="tarjeta_regalo">Tarjeta de Regalo</option>
+                                <option value="lavado_gratis">Lavado Gratis (Fidelidad)</option>
                             </select>
                         </div>
 
                         <!-- Gift Card -->
                         <div class="col-12" id="tarjeta_regalo_div" style="display: none;">
-                            <label for="tarjeta_regalo_codigo" class="form-label">Gift Card Code:</label>
+                            <label for="tarjeta_regalo_codigo" class="form-label">Código de Tarjeta de Regalo:</label>
                             <input type="text" name="tarjeta_regalo_codigo" id="tarjeta_regalo_codigo" class="form-control">
                         </div>
                         <!-- Free Wash (Loyalty) -->
                         <div class="col-12" id="lavado_gratis_div" style="display: none;">
-                            <label class="form-label">This wash will be free due to loyalty program.</label>
+                            <label class="form-label">Este lavado será gratis por fidelidad.</label>
                         </div>
 
                         <!-- Car Wash Service -->
                         <div class="col-12">
-                            <label for="servicio_lavado" class="form-label">Car Wash Service?</label>
+                            <label for="servicio_lavado" class="form-label">¿Servicio de Lavado?</label>
                             <input type="hidden" name="servicio_lavado" value="0">
                             <input type="checkbox" name="servicio_lavado" id="servicio_lavado" value="1">
                         </div>
@@ -245,13 +245,13 @@
                         <!-- Car Wash End Time -->
                         <input type="hidden" name="horario_lavado" id="horario_lavado_hidden">
                         <div class="col-12" id="horario_lavado_div" style="display: none;">
-                            <label for="horario_lavado" class="form-label">Car Wash End Time:</label>
+                            <label for="horario_lavado" class="form-label">Hora de Fin de Lavado:</label>
                             <input type="time" name="horario_lavado" id="horario_lavado" class="form-control">
                         </div>
 
                         <!--Buttons--->
                         <div class="col-12 text-center">
-                            <button type="submit" class="btn btn-success" id="guardar">Make Sale</button>
+                            <button type="submit" class="btn btn-success" id="guardar">Registrar Venta</button>
                         </div>
 
                     </div>
@@ -265,15 +265,15 @@
         <div class="modal-dialog">
             <div class="modal-content">
                 <div class="modal-header">
-                    <h1 class="modal-title fs-5" id="exampleModalLabel">Warning</h1>
+                    <h1 class="modal-title fs-5" id="exampleModalLabel">Advertencia</h1>
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
                 <div class="modal-body">
-                    Are you sure you want to cancel the sale?
+                    ¿Estás seguro de que deseas cancelar la venta?
                 </div>
                 <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-                    <button id="btnCancelarVenta" type="button" class="btn btn-danger" data-bs-dismiss="modal">Confirm</button>
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
+                    <button id="btnCancelarVenta" type="button" class="btn btn-danger" data-bs-dismiss="modal">Confirmar</button>
                 </div>
             </div>
         </div>

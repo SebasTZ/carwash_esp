@@ -64,7 +64,7 @@ class TarjetaRegaloController extends Controller
         if ($request->ajax()) {
             return response()->json($tarjeta, 201);
         }
-        return redirect()->route('tarjetas_regalo.reporte.view')->with('success', 'Gift card created successfully!');
+        return redirect()->route('tarjetas_regalo.reporte.view')->with('success', '¡Tarjeta de regalo creada correctamente!');
     }
 
     public function show($id)
@@ -90,14 +90,14 @@ class TarjetaRegaloController extends Controller
             'estado' => 'required|in:activa,usada,vencida',
         ]);
         $tarjeta->update($request->only(['valor_inicial', 'fecha_vencimiento', 'cliente_id', 'estado']));
-        return redirect()->route('tarjetas_regalo.reporte.view')->with('success', 'Gift Card updated successfully.');
+        return redirect()->route('tarjetas_regalo.reporte.view')->with('success', 'Tarjeta de regalo actualizada correctamente.');
     }
 
     public function destroy($id)
     {
         $tarjeta = \App\Models\TarjetaRegalo::findOrFail($id);
         $tarjeta->delete();
-        return redirect()->route('tarjetas_regalo.reporte.view')->with('success', 'Gift Card deleted successfully.');
+        return redirect()->route('tarjetas_regalo.reporte.view')->with('success', 'Tarjeta de regalo eliminada correctamente.');
     }
 
     public function usarTarjeta(Request $request)

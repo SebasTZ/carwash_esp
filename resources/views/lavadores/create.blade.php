@@ -2,12 +2,12 @@
 
 @section('content')
 <div class="container">
-    <h1>Add Washer</h1>
+    <h1>Agregar Lavador</h1>
     @can('crear-lavador')
     <form action="{{ route('lavadores.store') }}" method="POST">
         @csrf
         <div class="mb-3">
-            <label for="nombre" class="form-label">Name</label>
+            <label for="nombre" class="form-label">Nombre</label>
             <input type="text" name="nombre" id="nombre" class="form-control" required>
         </div>
         <div class="mb-3">
@@ -15,17 +15,17 @@
             <input type="text" name="dni" id="dni" class="form-control" required>
         </div>
         <div class="mb-3">
-            <label for="telefono" class="form-label">Phone</label>
+            <label for="telefono" class="form-label">Teléfono</label>
             <input type="text" name="telefono" id="telefono" class="form-control">
         </div>
         <div class="mb-3">
-            <label for="estado" class="form-label">Status</label>
+            <label for="estado" class="form-label">Estado</label>
             <select name="estado" id="estado" class="form-control">
-                <option value="activo">Active</option>
-                <option value="inactivo">Inactive</option>
+                <option value="activo">Activo</option>
+                <option value="inactivo">Inactivo</option>
             </select>
         </div>
-        <button type="submit" class="btn btn-success">Save</button>
+        <button type="submit" class="btn btn-success">Guardar</button>
     </form>
     @endcan
 </div>

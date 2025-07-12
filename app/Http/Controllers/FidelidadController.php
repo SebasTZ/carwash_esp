@@ -65,6 +65,6 @@ class FidelidadController extends Controller
     {
         $clientes = \App\Models\Cliente::with('persona')->orderByDesc('lavados_acumulados')->get();
         $lavadosGratis = \App\Models\Venta::where('lavado_gratis', true)->with('cliente.persona')->get();
-        return \Maatwebsite\Excel\Facades\Excel::download(new FidelidadExport($clientes, $lavadosGratis), 'loyalty_report.xlsx');
+        return \Maatwebsite\Excel\Facades\Excel::download(new FidelidadExport($clientes, $lavadosGratis), 'reporte_fidelidad.xlsx');
     }
 }

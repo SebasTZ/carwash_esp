@@ -39,7 +39,7 @@
 
                     <!---Nombre---->
                     <div class="col-md-6">
-                        <label for="nombre" class="form-label">Name:</label>
+                        <label for="nombre" class="form-label">Nombre:</label>
                         <input type="text" name="nombre" id="nombre" class="form-control" value="{{old('nombre',$producto->nombre)}}">
                         @error('nombre')
                         <small class="text-danger">{{'*'.$message}}</small>
@@ -48,7 +48,7 @@
 
                     <!---Description---->
                     <div class="col-12">
-                        <label for="descripcion" class="form-label">Description:</label>
+                        <label for="descripcion" class="form-label">Descripción:</label>
                         <textarea name="descripcion" id="descripcion" rows="3" class="form-control">{{old('descripcion',$producto->descripcion)}}</textarea>
                         @error('descripcion')
                         <small class="text-danger">{{'*'.$message}}</small>
@@ -57,7 +57,7 @@
 
                     <!---Expiration date---->
                     <div class="col-md-6">
-                        <label for="fecha_vencimiento" class="form-label">Expiration date:</label>
+                        <label for="fecha_vencimiento" class="form-label">Fecha de vencimiento:</label>
                         <input type="date" name="fecha_vencimiento" id="fecha_vencimiento" class="form-control" value="{{old('fecha_vencimiento',$producto->fecha_vencimiento)}}">
                         @error('fecha_vencimiento')
                         <small class="text-danger">{{'*'.$message}}</small>
@@ -66,7 +66,7 @@
 
                     <!---Image---->
                     <div class="col-md-6">
-                        <label for="img_path" class="form-label">Image:</label>
+                        <label for="img_path" class="form-label">Imagen:</label>
                         <input type="file" name="img_path" id="img_path" class="form-control" accept="image/*">
                         @error('img_path')
                         <small class="text-danger">{{'*'.$message}}</small>
@@ -75,8 +75,8 @@
 
                     <!---Brand---->
                     <div class="col-md-6">
-                        <label for="marca_id" class="form-label">Brand:</label>
-                        <select data-size="4" title="Select a brand" data-live-search="true" name="marca_id" id="marca_id" class="form-control selectpicker show-tick">
+                        <label for="marca_id" class="form-label">Marca:</label>
+                        <select data-size="4" title="Seleccione una marca" data-live-search="true" name="marca_id" id="marca_id" class="form-control selectpicker show-tick">
                             @foreach ($marcas as $item)
                             @if ($producto->marca_id == $item->id)
                             <option selected value="{{$item->id}}" {{ old('marca_id') == $item->id ? 'selected' : '' }}>{{$item->nombre}}</option>
@@ -92,8 +92,8 @@
 
                     <!---Presentation---->
                     <div class="col-md-6">
-                        <label for="presentacione_id" class="form-label">Presentation:</label>
-                        <select data-size="4" title="Select a presentation" data-live-search="true" name="presentacione_id" id="presentacione_id" class="form-control selectpicker show-tick">
+                        <label for="presentacione_id" class="form-label">Presentación:</label>
+                        <select data-size="4" title="Seleccione una presentación" data-live-search="true" name="presentacione_id" id="presentacione_id" class="form-control selectpicker show-tick">
                             @foreach ($presentaciones as $item)
                             @if ($producto->presentacione_id == $item->id)
                             <option selected value="{{$item->id}}" {{ old('presentacione_id') == $item->id ? 'selected' : '' }}>{{$item->nombre}}</option>
@@ -109,8 +109,8 @@
 
                     <!---Categories---->
                     <div class="col-md-6">
-                        <label for="categorias" class="form-label">Categories:</label>
-                        <select data-size="4" title="Select categories" data-live-search="true" name="categorias[]" id="categorias" class="form-control selectpicker show-tick" multiple>
+                        <label for="categorias" class="form-label">Categorías:</label>
+                        <select data-size="4" title="Seleccione categorías" data-live-search="true" name="categorias[]" id="categorias" class="form-control selectpicker show-tick" multiple>
                             @foreach ($categorias as $item)
                             @if (in_array($item->id,$producto->categorias->pluck('id')->toArray()))
                             <option selected value="{{$item->id}}" {{ (in_array($item->id , old('categorias',[]))) ? 'selected' : '' }}>{{$item->nombre}}</option>
@@ -129,17 +129,17 @@
                         <div class="form-check mt-4">
                             <input class="form-check-input" type="checkbox" name="es_servicio_lavado" id="es_servicio_lavado" {{ $producto->es_servicio_lavado || old('es_servicio_lavado') ? 'checked' : '' }}>
                             <label class="form-check-label" for="es_servicio_lavado">
-                                Is wash service?
+                                ¿Es un servicio de lavado?
                             </label>
                             <div class="text-muted small">
-                                If it is a wash service, stock will not be required and it will be managed as a service with unlimited stock.
+                                Si es un servicio de lavado, no se requerirá stock y se gestionará como un servicio con stock ilimitado.
                             </div>
                         </div>
                     </div>
 
                     <!---Sale price for wash service---->
                     <div class="col-md-6" id="precio_servicio_div" style="display: none;">
-                        <label for="precio_venta" class="form-label">Service price:</label>
+                        <label for="precio_venta" class="form-label">Precio del servicio:</label>
                         <input type="number" name="precio_venta" id="precio_venta" class="form-control" step="0.01" value="{{ old('precio_venta', $producto->precio_venta) }}">
                         @error('precio_venta')
                         <small class="text-danger">{{'*'.$message}}</small>
@@ -150,8 +150,8 @@
 
             </div>
             <div class="card-footer text-center">
-                <button type="submit" class="btn btn-primary">Save</button>
-                <button type="reset" class="btn btn-secondary">Reset</button>
+                <button type="submit" class="btn btn-primary">Guardar</button>
+                <button type="reset" class="btn btn-secondary">Restablecer</button>
             </div>
         </form>
     </div>

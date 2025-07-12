@@ -1,29 +1,29 @@
 @extends('layouts.app')
 
-@section('title', 'Register Vehicle Entry')
+@section('title', 'Registrar Entrada de Vehículo')
 
 @section('content')
 <div class="container-fluid px-4">
     <div class="d-flex justify-content-between align-items-center mb-4">
         <h1 class="mt-4 text-primary" style="margin-bottom: 1rem;">
-            <i class="fas fa-car-side me-2"></i>Register Vehicle Entry
+            <i class="fas fa-car-side me-2"></i>Registrar Entrada de Vehículo
         </h1>
         <a href="{{ route('estacionamiento.index') }}" class="btn btn-outline-primary">
-            <i class="fas fa-list me-2"></i>View List
+            <i class="fas fa-list me-2"></i>Ver Lista
         </a>
     </div>
 
     <form action="{{ route('estacionamiento.store') }}" method="POST" class="card shadow-sm border-0 mx-auto" style="max-width: 800px;">
         @csrf
         <div class="card-header bg-primary text-white">
-            <h5 class="mb-0">Customer and Vehicle Information</h5>
+            <h5 class="mb-0">Información del Cliente y Vehículo</h5>
         </div>
         <div class="card-body">
             <div class="row g-3">
                 <div class="col-md-6">
-                    <label for="cliente_id" class="form-label">Customer</label>
+                    <label for="cliente_id" class="form-label">Cliente</label>
                     <select class="form-select select2" id="cliente_id" name="cliente_id" required>
-                        <option value="">Select a customer</option>
+                        <option value="">Seleccione un cliente</option>
                         @foreach($clientes as $cliente)
                             <option value="{{ $cliente->id }}">
                                 {{ $cliente->persona->razon_social }}
@@ -32,32 +32,32 @@
                     </select>
                 </div>
                 <div class="col-md-6">
-                    <label for="placa" class="form-label">Vehicle License Plate</label>
+                    <label for="placa" class="form-label">Placa del Vehículo</label>
                     <input type="text" class="form-control text-uppercase" id="placa" name="placa" required>
                 </div>
 
                 <div class="col-md-6">
-                    <label for="marca" class="form-label">Brand</label>
+                    <label for="marca" class="form-label">Marca</label>
                     <input type="text" class="form-control" id="marca" name="marca" required>
                 </div>
                 <div class="col-md-6">
-                    <label for="modelo" class="form-label">Model</label>
+                    <label for="modelo" class="form-label">Modelo</label>
                     <input type="text" class="form-control" id="modelo" name="modelo" required>
                 </div>
 
                 <div class="col-md-6">
-                    <label for="telefono" class="form-label">Phone</label>
+                    <label for="telefono" class="form-label">Teléfono</label>
                     <input type="text" class="form-control" id="telefono" name="telefono" required>
                 </div>
                 <div class="col-md-6">
-                    <label for="tarifa_hora" class="form-label">Hourly Rate (S/)</label>
-                    <input type="number" step="0.01" class="form-control" id="tarifa_hora" name="tarifa_hora" required placeholder="Enter hourly rate">
+                    <label for="tarifa_hora" class="form-label">Tarifa por Hora (S/)</label>
+                    <input type="number" step="0.01" class="form-control" id="tarifa_hora" name="tarifa_hora" required placeholder="Ingrese la tarifa por hora">
                 </div>
             </div>
         </div>
         <div class="card-footer d-flex justify-content-end">
-            <a href="{{ route('estacionamiento.index') }}" class="btn btn-secondary me-2">Cancel</a>
-            <button type="submit" class="btn btn-primary">Register</button>
+            <a href="{{ route('estacionamiento.index') }}" class="btn btn-secondary me-2">Cancelar</a>
+            <button type="submit" class="btn btn-primary">Registrar</button>
         </div>
     </form>
 </div>

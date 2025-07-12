@@ -25,7 +25,7 @@ class FidelidadExport implements FromCollection, WithHeadings, WithMapping, With
     {
         // Unimos ambos reportes en una sola colección con separador
         $rows = collect();
-        $rows->push(['Frequent Customers', '', '']);
+        $rows->push(['Clientes frecuentes', '', '']);
         foreach ($this->clientes as $c) {
             $rows->push([
                 $c->persona->razon_social,
@@ -34,7 +34,7 @@ class FidelidadExport implements FromCollection, WithHeadings, WithMapping, With
             ]);
         }
         $rows->push(['', '', '']);
-        $rows->push(['Free Washes Granted', '', '']);
+        $rows->push(['Lavados gratis otorgados', '', '']);
         foreach ($this->lavadosGratis as $l) {
             $rows->push([
                 $l->cliente->persona->razon_social,
@@ -47,7 +47,7 @@ class FidelidadExport implements FromCollection, WithHeadings, WithMapping, With
 
     public function headings(): array
     {
-        return ['Customer', 'Accumulated Washes / Date', 'Receipt'];
+        return ['Cliente', 'Lavados acumulados / Fecha', 'Comprobante'];
     }
 
     public function map($row): array

@@ -1,46 +1,46 @@
 @extends('layouts.app')
 
-@section('title', 'Parking Report')
+@section('title', 'Reporte de Estacionamiento')
 
 @section('content')
 <div class="container-fluid px-4">
     <h1 class="mt-4">
-        Parking Report 
+        Reporte de Estacionamiento
         @if($reporte == 'diario')
-            Daily
+            Diario
         @elseif($reporte == 'semanal')
-            Weekly
+            Semanal
         @elseif($reporte == 'mensual')
-            Monthly
+            Mensual
         @else
-            Custom
+            Personalizado
         @endif
     </h1>
 
     <div class="card mb-4">
         <div class="card-header">
             <i class="fas fa-chart-bar me-1"></i>
-            Records Summary
+            Resumen de Registros
             <div class="float-end">
                 @if($reporte == 'personalizado')
                     <a href="{{ route('estacionamiento.export.personalizado', ['fecha_inicio' => $fechaInicio, 'fecha_fin' => $fechaFin]) }}" class="btn btn-success btn-sm">
-                        <i class="fas fa-file-excel"></i> Export Excel
+                        <i class="fas fa-file-excel"></i> Exportar Excel
                     </a>
                 @else
                     <a href="{{ route('estacionamiento.export.' . $reporte) }}" class="btn btn-success btn-sm">
-                        <i class="fas fa-file-excel"></i> Export Excel
+                        <i class="fas fa-file-excel"></i> Exportar Excel
                     </a>
                 @endif
                 <a href="{{ route('estacionamiento.index') }}" class="btn btn-primary btn-sm">
-                    <i class="fas fa-arrow-left"></i> Back
+                    <i class="fas fa-arrow-left"></i> Volver
                 </a>
             </div>
         </div>
         <div class="card-body">
             @if($reporte == 'personalizado')
                 <div class="alert alert-info">
-                    Showing records from {{ \Carbon\Carbon::parse($fechaInicio)->format('d/m/Y') }} 
-                    to {{ \Carbon\Carbon::parse($fechaFin)->format('d/m/Y') }}
+                    Mostrando registros desde {{ \Carbon\Carbon::parse($fechaInicio)->format('d/m/Y') }} 
+                    hasta {{ \Carbon\Carbon::parse($fechaFin)->format('d/m/Y') }}
                 </div>
             @endif
 
@@ -49,7 +49,7 @@
                     <div class="card bg-primary text-white mb-4">
                         <div class="card-body">
                             <h4>{{ $estacionamientos->count() }}</h4>
-                            <div>Total Records</div>
+                            <div>Total de Registros</div>
                         </div>
                     </div>
                 </div>
@@ -57,7 +57,7 @@
                     <div class="card bg-warning text-white mb-4">
                         <div class="card-body">
                             <h4>{{ $estacionamientos->where('estado', 'ocupado')->count() }}</h4>
-                            <div>In Use</div>
+                            <div>En Uso</div>
                         </div>
                     </div>
                 </div>
@@ -65,7 +65,7 @@
                     <div class="card bg-success text-white mb-4">
                         <div class="card-body">
                             <h4>{{ $estacionamientos->where('estado', 'finalizado')->count() }}</h4>
-                            <div>Finished</div>
+                            <div>Finalizados</div>
                         </div>
                     </div>
                 </div>
@@ -73,7 +73,7 @@
                     <div class="card bg-info text-white mb-4">
                         <div class="card-body">
                             <h4>S/. {{ number_format($estacionamientos->sum('monto_total'), 2) }}</h4>
-                            <div>Total Collected</div>
+                            <div>Total Recaudado</div>
                         </div>
                     </div>
                 </div>
@@ -82,15 +82,15 @@
             <table id="datatablesSimple" class="table table-striped">
                 <thead>
                     <tr>
-                        <th>Plate</th>
-                        <th>Client</th>
-                        <th>Brand/Model</th>
-                        <th>Entry</th>
-                        <th>Exit</th>
-                        <th>Time</th>
-                        <th>Rate/Hour</th>
-                        <th>Total Amount</th>
-                        <th>Status</th>
+                        <th>Placa</th>
+                        <th>Cliente</th>
+                        <th>Marca/Modelo</th>
+                        <th>Entrada</th>
+                        <th>Salida</th>
+                        <th>Tiempo</th>
+                        <th>Tarifa/Hora</th>
+                        <th>Monto Total</th>
+                        <th>Estado</th>
                     </tr>
                 </thead>
                 <tbody>

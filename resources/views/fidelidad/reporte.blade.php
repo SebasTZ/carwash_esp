@@ -1,25 +1,25 @@
 @extends('layouts.app')
 
-@section('title', 'Loyalty Report')
+@section('title', 'Reporte de Fidelidad')
 
 @section('content')
 <div class="container-fluid px-4">
-    <h1 class="mt-4 text-center">Loyalty Report</h1>
+    <h1 class="mt-4 text-center">Reporte de Fidelidad</h1>
     <ol class="breadcrumb mb-4">
-        <li class="breadcrumb-item"><a href="{{ route('panel') }}">Home</a></li>
-        <li class="breadcrumb-item active">Loyalty Report</li>
+        <li class="breadcrumb-item"><a href="{{ route('panel') }}">Inicio</a></li>
+        <li class="breadcrumb-item active">Reporte de Fidelidad</li>
     </ol>
     <div class="card mb-4">
         <div class="card-header">
             <i class="fas fa-users me-1"></i>
-            Frequent Customers
+            Clientes Frecuentes
         </div>
         <div class="card-body">
             <table class="table table-striped">
                 <thead>
                     <tr>
-                        <th>Customer</th>
-                        <th>Accumulated Washes</th>
+                        <th>Cliente</th>
+                        <th>Lavados Acumulados</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -36,15 +36,15 @@
     <div class="card mb-4">
         <div class="card-header">
             <i class="fas fa-star me-1"></i>
-            Free Washes Granted
+            Lavados Gratis Otorgados
         </div>
         <div class="card-body">
             <table class="table table-striped">
                 <thead>
                     <tr>
-                        <th>Customer</th>
-                        <th>Date</th>
-                        <th>Receipt</th>
+                        <th>Cliente</th>
+                        <th>Fecha</th>
+                        <th>Comprobante</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -59,6 +59,6 @@
             </table>
         </div>
     </div>
-    <a href="{{ route('fidelidad.export.excel') }}" class="btn btn-success mb-3">Export to Excel</a>
+    <a href="{{ route('fidelidad.export.excel') }}" class="btn btn-success mb-3">Exportar a Excel</a>
 </div>
 @endsection

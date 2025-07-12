@@ -1,6 +1,6 @@
 @extends('layouts.app')
 
-@section('title','Edit User')
+@section('title','Editar Usuario')
 
 @push('css')
 
@@ -8,11 +8,11 @@
 
 @section('content')
 <div class="container-fluid px-4">
-    <h1 class="mt-4 text-center">Edit User</h1>
+    <h1 class="mt-4 text-center">Editar Usuario</h1>
     <ol class="breadcrumb mb-4">
-        <li class="breadcrumb-item"><a href="{{ route('panel') }}">Home</a></li>
-        <li class="breadcrumb-item"><a href="{{ route('users.index')}}">Users</a></li>
-        <li class="breadcrumb-item active">Edit User</li>
+        <li class="breadcrumb-item"><a href="{{ route('panel') }}">Inicio</a></li>
+        <li class="breadcrumb-item"><a href="{{ route('users.index')}}">Usuarios</a></li>
+        <li class="breadcrumb-item active">Editar Usuario</li>
     </ol>
 
     <div class="card text-bg-light">
@@ -20,18 +20,18 @@
             @method('PATCH')
             @csrf
             <div class="card-header">
-                <p class="">Note: Users are those who can access the system</p>
+                <p class="">Nota: Los usuarios son quienes pueden acceder al sistema</p>
             </div>
             <div class="card-body">
                 <!---Nombre---->
                 <div class="row mb-4">
-                    <label for="name" class="col-lg-2 col-form-label">First Name(s):</label>
+                    <label for="name" class="col-lg-2 col-form-label">Nombre(s):</label>
                     <div class="col-lg-4">
                         <input type="text" name="name" id="name" class="form-control" value="{{old('name',$user->name)}}">
                     </div>
                     <div class="col-lg-4">
                         <div class="form-text">
-                            Enter a single name
+                            Ingresa un solo nombre
                         </div>
                     </div>
                     <div class="col-lg-2">
@@ -43,13 +43,13 @@
 
                 <!---Email---->
                 <div class="row mb-4">
-                    <label for="email" class="col-lg-2 col-form-label">Email:</label>
+                    <label for="email" class="col-lg-2 col-form-label">Correo electrónico:</label>
                     <div class="col-lg-4">
                         <input type="email" name="email" id="email" class="form-control" value="{{old('email',$user->email)}}">
                     </div>
                     <div class="col-lg-4">
                         <div class="form-text">
-                            Email address
+                            Correo electrónico
                         </div>
                     </div>
                     <div class="col-lg-2">
@@ -59,15 +59,15 @@
                     </div>
                 </div>
 
-                <!---Password---->
+                <!---Contraseña---->
                 <div class="row mb-4">
-                    <label for="password" class="col-lg-2 col-form-label">Password:</label>
+                    <label for="password" class="col-lg-2 col-form-label">Contraseña:</label>
                     <div class="col-lg-4">
                         <input type="password" name="password" id="password" class="form-control">
                     </div>
                     <div class="col-lg-4">
                         <div class="form-text">
-                            Enter a secure password. It must include numbers.
+                            Ingrese una contraseña segura. Debe incluir números.
                         </div>
                     </div>
                     <div class="col-lg-2">
@@ -77,15 +77,15 @@
                     </div>
                 </div>
 
-                <!---Confirm_Password---->
+                <!---Confirmar_Contraseña---->
                 <div class="row mb-4">
-                    <label for="password_confirm" class="col-lg-2 col-form-label">Confirm:</label>
+                    <label for="password_confirm" class="col-lg-2 col-form-label">Confirmar:</label>
                     <div class="col-lg-4">
                         <input type="password" name="password_confirm" id="password_confirm" class="form-control">
                     </div>
                     <div class="col-lg-4">
                         <div class="form-text">
-                            Re-enter your password.
+                            Vuelva a ingresar su contraseña.
                         </div>
                     </div>
                     <div class="col-lg-2">
@@ -97,7 +97,7 @@
 
                 <!---Roles---->
                 <div class="row mb-4">
-                    <label for="role" class="col-lg-2 col-form-label">Select role:</label>
+                    <label for="role" class="col-lg-2 col-form-label">Seleccionar rol:</label>
                     <div class="col-lg-4">
                         <select name="role" id="role" class="form-select">
                             @foreach ($roles as $item)
@@ -111,7 +111,7 @@
                     </div>
                     <div class="col-lg-4">
                         <div class="form-text">
-                            Choose a role for the user.
+                            Elija un rol para el usuario.
                         </div>
                     </div>
                     <div class="col-lg-2">
@@ -123,8 +123,8 @@
 
             </div>
             <div class="card-footer text-center">
-                <button type="submit" class="btn btn-primary">Update</button>
-                <button type="reset" class="btn btn-secondary">Reset</button>
+                <button type="submit" class="btn btn-primary">Actualizar</button>
+                <button type="reset" class="btn btn-secondary">Restablecer</button>
             </div>
         </form>
     </div>

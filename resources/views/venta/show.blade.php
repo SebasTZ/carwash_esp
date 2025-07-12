@@ -1,6 +1,6 @@
 @extends('layouts.app')
 
-@section('title','View Sale')
+@section('title','Ver Venta')
 
 @push('css')
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.4/jquery.min.js"></script>
@@ -21,11 +21,11 @@
 
 @section('content')
 <div class="container-fluid px-4">
-    <h1 class="mt-4 text-center">View Sale</h1>
+    <h1 class="mt-4 text-center">Ver Venta</h1>
     <ol class="breadcrumb mb-4">
-        <li class="breadcrumb-item"><a href="{{ route('panel') }}">Home</a></li>
-        <li class="breadcrumb-item"><a href="{{ route('ventas.index')}}">Sales</a></li>
-        <li class="breadcrumb-item active">View Sale</li>
+        <li class="breadcrumb-item"><a href="{{ route('panel') }}">Inicio</a></li>
+        <li class="breadcrumb-item"><a href="{{ route('ventas.index')}}">Ventas</a></li>
+        <li class="breadcrumb-item active">Ver Venta</li>
     </ol>
 </div>
 
@@ -34,7 +34,7 @@
     <div class="card mb-4">
 
         <div class="card-header">
-            General sale information
+            Información general de la venta
         </div>
 
         <div class="card-body">
@@ -44,7 +44,7 @@
                 <div class="col-sm-6">
                     <div class="input-group" id="hide-group">
                         <span class="input-group-text"><i class="fa-solid fa-file"></i></span>
-                        <input disabled type="text" class="form-control" value="Receipt Type: ">
+                        <input disabled type="text" class="form-control" value="Tipo de Comprobante: ">
                     </div>
                 </div>
                 <div class="col-sm-6">
@@ -60,7 +60,7 @@
                 <div class="col-sm-6">
                     <div class="input-group" id="hide-group">
                         <span class="input-group-text"><i class="fa-solid fa-hashtag"></i></span>
-                        <input disabled type="text" class="form-control" value="Receipt Number: ">
+                        <input disabled type="text" class="form-control" value="Número de Comprobante: ">
                     </div>
                 </div>
                 <div class="col-sm-6">
@@ -76,7 +76,7 @@
                 <div class="col-sm-6">
                     <div class="input-group" id="hide-group">
                         <span class="input-group-text"><i class="fa-solid fa-user-tie"></i></span>
-                        <input disabled type="text" class="form-control" value="Customer: ">
+                        <input disabled type="text" class="form-control" value="Cliente: ">
                     </div>
                 </div>
                 <div class="col-sm-6">
@@ -92,7 +92,7 @@
                 <div class="col-sm-6">
                     <div class="input-group" id="hide-group">
                         <span class="input-group-text"><i class="fa-solid fa-user"></i></span>
-                        <input disabled type="text" class="form-control" value="Seller: ">
+                        <input disabled type="text" class="form-control" value="Vendedor: ">
                     </div>
                 </div>
                 <div class="col-sm-6">
@@ -108,7 +108,7 @@
                 <div class="col-sm-6">
                     <div class="input-group" id="hide-group">
                         <span class="input-group-text"><i class="fa-solid fa-calendar-days"></i></span>
-                        <input disabled type="text" class="form-control" value="Date: ">
+                        <input disabled type="text" class="form-control" value="Fecha: ">
                     </div>
                 </div>
                 <div class="col-sm-6">
@@ -124,7 +124,7 @@
                 <div class="col-sm-6">
                     <div class="input-group" id="hide-group">
                         <span class="input-group-text"><i class="fa-solid fa-clock"></i></span>
-                        <input disabled type="text" class="form-control" value="Time: ">
+                        <input disabled type="text" class="form-control" value="Hora: ">
                     </div>
                 </div>
                 <div class="col-sm-6">
@@ -141,7 +141,7 @@
                 <div class="col-sm-6">
                     <div class="input-group" id="hide-group">
                         <span class="input-group-text"><i class="fa-solid fa-percent"></i></span>
-                        <input disabled type="text" class="form-control" value="Tax: ">
+                        <input disabled type="text" class="form-control" value="Impuesto: ">
                     </div>
                 </div>
                 <div class="col-sm-6">
@@ -158,7 +158,7 @@
                 <div class="col-sm-6">
                     <div class="input-group" id="hide-group">
                         <span class="input-group-text"><i class="fa-solid fa-comment-dots"></i></span>
-                        <input disabled type="text" class="form-control" value="Comments: ">
+                        <input disabled type="text" class="form-control" value="Comentarios: ">
                     </div>
                 </div>
             <div class="col-sm-6">
@@ -173,7 +173,7 @@
                 <div class="col-sm-6">
                     <div class="input-group" id="hide-group">
                         <span class="input-group-text"><i class="fa-solid fa-money-bill-transfer"></i></span>
-                        <input disabled type="text" class="form-control" value="Payment Method: ">
+                        <input disabled type="text" class="form-control" value="Método de Pago: ">
                     </div>
                 </div>
 
@@ -182,10 +182,10 @@
                         <span title="Payment Method" class="input-group-text" id="icon-form"><i class="fa-solid fa-money-bill-transfer"></i></span>
                         @php
                             $paymentMethods = [
-                                'efectivo' => 'Cash',
-                                'tarjeta_credito' => 'Credit Card',
-                                'tarjeta_regalo' => 'Gift Card',
-                                'lavado_gratis' => 'Free Wash (Loyalty)',
+                                'efectivo' => 'Efectivo',
+                                'tarjeta_credito' => 'Tarjeta de Crédito',
+                                'tarjeta_regalo' => 'Tarjeta de Regalo',
+                                'lavado_gratis' => 'Lavado Gratis (Fidelidad)',
                             ];
                         @endphp
                         <input disabled type="text" class="form-control" value="{{ $paymentMethods[$venta->medio_pago] ?? ucfirst(str_replace('_', ' ', $venta->medio_pago)) }}">
@@ -198,13 +198,13 @@
                 <div class="col-sm-6">
                     <div class="input-group" id="hide-group">
                         <span class="input-group-text"><i class="fa-solid fa-bath"></i></span>
-                        <input disabled type="text" class="form-control" value="Car Wash Service: ">
+                        <input disabled type="text" class="form-control" value="¿Servicio de Lavado?: ">
                     </div>
                 </div>
                 <div class="col-sm-6">
                     <div class="input-group">
                         <span title="Car Wash Service" class="input-group-text" id="icon-form"><i class="fa-solid fa-bath"></i></span>
-                        <input disabled type="text" class="form-control" value="{{$venta->servicio_lavado ? 'Yes' : 'No'}}">
+                        <input disabled type="text" class="form-control" value="{{$venta->servicio_lavado ? 'Sí' : 'No'}}">
                     </div>
                 </div>
             </div>
@@ -214,13 +214,13 @@
                 <div class="col-sm-6">
                     <div class="input-group" id="hide-group">
                         <span class="input-group-text"><i class="fa-solid fa-clock"></i></span>
-                        <input disabled type="text" class="form-control" value="Car Wash End Time: ">
+                        <input disabled type="text" class="form-control" value="Hora de Fin de Lavado: ">
                     </div>
                 </div>
                 <div class="col-sm-6">
                     <div class="input-group">
                         <span title="Car Wash End Time" class="input-group-text" id="icon-form"><i class="fa-solid fa-clock"></i></span>
-                        <input disabled type="text" class="form-control" value="{{$venta->horario_lavado ? \Carbon\Carbon::parse($venta->horario_lavado)->format('d-m-Y H:i') : 'N/A'}}">
+                        <input disabled type="text" class="form-control" value="{{$venta->horario_lavado ? \Carbon\Carbon::parse($venta->horario_lavado)->format('d-m-Y H:i') : 'N/D'}}">
                     </div>
                 </div>
             </div>
@@ -228,14 +228,14 @@
             <!-- Button to view the ticket -->
             <div class="row mb-4">
                 <div class="col-sm-6">
-                    <a href="{{ route('ventas.ticket', $venta) }}" class="btn btn-primary">View Local Ticket</a>
+                    <a href="{{ route('ventas.ticket', $venta) }}" class="btn btn-primary">Ver Ticket Local</a>
                 </div>
             </div>
 
             <!-- Button to print the ticket -->
             <div class="row mb-4">
                 <div class="col-sm-6">
-                    <a href="{{ route('ventas.printTicket', $venta) }}" class="btn btn-secondary">Print Customer Ticket</a>
+                    <a href="{{ route('ventas.printTicket', $venta) }}" class="btn btn-secondary">Imprimir Ticket para Cliente</a>
                 </div>
             </div>
 
@@ -246,16 +246,16 @@
     <div class="card mb-2">
         <div class="card-header">
             <i class="fas fa-table me-1"></i>
-            Sale Details Table
+            Tabla de Detalle de Venta
         </div>
         <div class="card-body table-responsive">
             <table class="table table-striped">
                 <thead class="bg-primary text-white">
                     <tr class="align-top">
-                        <th class="text-white">Product</th>
-                        <th class="text-white">Quantity</th>
-                        <th class="text-white">Sale Price</th>
-                        <th class="text-white">Discount</th>
+                        <th class="text-white">Producto</th>
+                        <th class="text-white">Cantidad</th>
+                        <th class="text-white">Precio de Venta</th>
+                        <th class="text-white">Descuento</th>
                         <th class="text-white">Subtotal</th>
                     </tr>
                 </thead>
@@ -284,11 +284,11 @@
                         <th colspan="5"></th>
                     </tr>
                     <tr>
-                        <th colspan="4">Sum:</th>
+                        <th colspan="4">Suma:</th>
                         <th id="th-suma"></th>
                     </tr>
                     <tr>
-                        <th colspan="4">VAT:</th>
+                        <th colspan="4">IGV:</th>
                         <th id="th-igv"></th>
                     </tr>
                     <tr>

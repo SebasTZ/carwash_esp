@@ -1,6 +1,6 @@
 @extends('layouts.app')
 
-@section('title','Make Purchase')
+@section('title','Registrar Compra')
 
 @push('css')
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-select@1.14.0-beta3/dist/css/bootstrap-select.min.css">
@@ -10,11 +10,11 @@
 
 @section('content')
 <div class="container-fluid px-4">
-    <h1 class="mt-4 text-center">Create Purchase</h1>
+    <h1 class="mt-4 text-center">Registrar Compra</h1>
     <ol class="breadcrumb mb-4">
-        <li class="breadcrumb-item"><a href="{{ route('panel') }}">Home</a></li>
-        <li class="breadcrumb-item"><a href="{{ route('compras.index')}}">Purchases</a></li>
-        <li class="breadcrumb-item active">Create Purchase</li>
+        <li class="breadcrumb-item"><a href="{{ route('panel') }}">Inicio</a></li>
+        <li class="breadcrumb-item"><a href="{{ route('compras.index')}}">Compras</a></li>
+        <li class="breadcrumb-item active">Registrar Compra</li>
     </ol>
 </div>
 
@@ -26,7 +26,7 @@
             <!------Purchase product---->
             <div class="col-xl-8">
                 <div class="text-white bg-primary p-1 text-center">
-                    Purchase Details
+                    Detalle de la Compra
                 </div>
                 <div class="p-3 border border-3 border-primary">
                     <div class="row">
@@ -59,7 +59,7 @@
 
                         <!-----button to add--->
                         <div class="col-12 mb-4 mt-2 text-end">
-                            <button id="btn_agregar" class="btn btn-primary" type="button">Add</button>
+                            <button id="btn_agregar" class="btn btn-primary" type="button">Agregar</button>
                         </div>
 
                         <!-----Table for purchase details--->
@@ -69,10 +69,10 @@
                                     <thead class="bg-primary">
                                         <tr>
                                             <th class="text-white">#</th>
-                                            <th class="text-white">Product</th>
-                                            <th class="text-white">Quantity</th>
-                                            <th class="text-white">Purchase Price</th>
-                                            <th class="text-white">Sale Price</th>
+                                            <th class="text-white">Producto</th>
+                                            <th class="text-white">Cantidad</th>
+                                            <th class="text-white">Precio de Compra</th>
+                                            <th class="text-white">Precio de Venta</th>
                                             <th class="text-white">Subtotal</th>
                                             <th></th>
                                         </tr>
@@ -91,12 +91,12 @@
                                     <tfoot>
                                         <tr>
                                             <th></th>
-                                            <th colspan="4">Sum</th>
+                                            <th colspan="4">Suma</th>
                                             <th colspan="2"><span id="sumas">0</span></th>
                                         </tr>
                                         <tr>
                                             <th></th>
-                                            <th colspan="4">VAT %</th>
+                                            <th colspan="4">IGV %</th>
                                             <th colspan="2"><span id="igv">0</span></th>
                                         </tr>
                                         <tr>
@@ -112,7 +112,7 @@
                         <!--Button to cancel purchase-->
                         <div class="col-12 mt-2">
                             <button id="cancelar" type="button" class="btn btn-danger" data-bs-toggle="modal" data-bs-target="#exampleModal">
-                                Cancel Purchase
+                                Cancelar Compra
                             </button>
                         </div>
 
@@ -123,13 +123,13 @@
             <!-----Purchase---->
             <div class="col-xl-4">
                 <div class="text-white bg-success p-1 text-center">
-                    General Information
+                    Información General
                 </div>
                 <div class="p-3 border border-3 border-success">
                     <div class="row">
                         <!--Supplier-->
                         <div class="col-12 mb-2">
-                            <label for="proveedore_id" class="form-label">Supplier:</label>
+                            <label for="proveedore_id" class="form-label">Proveedor:</label>
                             <select name="proveedore_id" id="proveedore_id" class="form-control selectpicker show-tick" data-live-search="true" title="Select" data-size='2'>
                                 @foreach ($proveedores as $item)
                                 <option value="{{$item->id}}">{{$item->persona->razon_social}}</option>
@@ -142,7 +142,7 @@
 
                         <!--Receipt Type-->
                         <div class="col-12 mb-2">
-                            <label for="comprobante_id" class="form-label">Receipt:</label>
+                            <label for="comprobante_id" class="form-label">Comprobante:</label>
                             <select name="comprobante_id" id="comprobante_id" class="form-control selectpicker" title="Select">
                                 @foreach ($comprobantes as $item)
                                 <option value="{{$item->id}}">{{$item->tipo_comprobante}}</option>
@@ -155,7 +155,7 @@
 
                         <!--Receipt Number-->
                         <div class="col-12 mb-2">
-                            <label for="numero_comprobante" class="form-label">Receipt Number:</label>
+                            <label for="numero_comprobante" class="form-label">Número de Comprobante:</label>
                             <input required type="text" name="numero_comprobante" id="numero_comprobante" class="form-control">
                             @error('numero_comprobante')
                             <small class="text-danger">{{ '*'.$message }}</small>
@@ -164,7 +164,7 @@
 
                         <!--Tax-->
                         <div class="col-sm-6 mb-2">
-                            <label for="impuesto" class="form-label">Tax (VAT):</label>
+                            <label for="impuesto" class="form-label">Impuesto (IGV):</label>
                             <div class="input-group">
                                 <input type="number" name="impuesto" id="impuesto" class="form-control border-success" readonly step="0.01" value="{{ $impuesto ?? 18 }}">
                                 <span class="input-group-text">%</span>
@@ -176,7 +176,7 @@
 
                         <!--Checkbox for VAT-->
                         <div class="col-sm-6 mb-2">
-                            <label for="con_igv" class="form-label">Include VAT?</label>
+                            <label for="con_igv" class="form-label">¿Incluir IGV?</label>
                             <div>
                                 <input type="checkbox" name="con_igv" id="con_igv" class="form-check-input">
                             </div>
@@ -184,7 +184,7 @@
 
                         <!--Purchase Date--->
                         <div class="col-sm-6 mb-2">
-                        <label for="fecha_hora" class="form-label">Purchase Date:</label>
+                        <label for="fecha_hora" class="form-label">Fecha de Compra:</label>
                         <input type="datetime-local" name="fecha_hora" id="fecha_hora" class="form-control" value="{{ old('fecha_hora', now()->format('Y-m-d\TH:i')) }}">
                         @error('fecha_hora')
                         <small class="text-danger">{{ '*'.$message }}</small>
@@ -193,7 +193,7 @@
 
                         <!--Buttons--->
                         <div class="col-12 mt-4 text-center">
-                            <button type="submit" class="btn btn-success" id="guardar">Make Purchase</button>
+                            <button type="submit" class="btn btn-success" id="guardar">Registrar Compra</button>
                         </div>
 
                     </div>

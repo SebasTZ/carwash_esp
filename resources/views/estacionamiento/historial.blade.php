@@ -1,30 +1,30 @@
 @extends('layouts.app')
 
-@section('title', 'Parking History')
+@section('title', 'Historial de Estacionamiento')
 
 @section('content')
 <div class="container-fluid px-4">
-    <h1 class="mt-4">Parking History</h1>
+    <h1 class="mt-4">Historial de Estacionamiento</h1>
     <div class="card mb-4">
         <div class="card-header">
             <i class="fas fa-history me-1"></i>
-            Finished Records
+            Registros Finalizados
             <a href="{{ route('estacionamiento.index') }}" class="btn btn-primary btn-sm float-end">
-                <i class="fas fa-arrow-left"></i> Back
+                <i class="fas fa-arrow-left"></i> Volver
             </a>
         </div>
         <div class="card-body">
             <table id="datatablesSimple" class="table table-striped">
                 <thead>
                     <tr>
-                        <th>License Plate</th>
-                        <th>Customer</th>
-                        <th>Brand/Model</th>
-                        <th>Entry</th>
-                        <th>Exit</th>
-                        <th>Total Time</th>
-                        <th>Rate/Hour</th>
-                        <th>Total Amount</th>
+                        <th>Placa</th>
+                        <th>Cliente</th>
+                        <th>Marca/Modelo</th>
+                        <th>Entrada</th>
+                        <th>Salida</th>
+                        <th>Tiempo Total</th>
+                        <th>Tarifa/Hora</th>
+                        <th>Monto Total</th>
                     </tr>
                 </thead>
                 <tbody>

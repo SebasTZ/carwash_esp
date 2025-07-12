@@ -40,15 +40,15 @@ class EstacionamientoExport implements FromCollection, WithHeadings, WithEvents
     public function headings(): array
     {
         return [
-            'Plate',
-            'Client',
-            'Vehicle',
-            'Entry Time',
-            'Exit Time',
-            'Hourly Rate',
-            'Total Time',
-            'Total Amount',
-            'Status'
+            'Placa',
+            'Cliente',
+            'Vehículo',
+            'Hora de entrada',
+            'Hora de salida',
+            'Tarifa por hora',
+            'Tiempo total',
+            'Monto total',
+            'Estado'
         ];
     }
 

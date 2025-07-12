@@ -1,6 +1,6 @@
 @extends('layouts.app')
 
-@section('title','Create Supplier')
+@section('title','Crear Proveedor')
 
 @push('css')
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.4/jquery.min.js"></script>
@@ -13,11 +13,11 @@
 
 @section('content')
 <div class="container-fluid px-4">
-    <h1 class="mt-4 text-center">Create Supplier</h1>
+    <h1 class="mt-4 text-center">Crear Proveedor</h1>
     <ol class="breadcrumb mb-4">
-        <li class="breadcrumb-item"><a href="{{ route('panel') }}">Home</a></li>
-        <li class="breadcrumb-item"><a href="{{ route('proveedores.index')}}">Suppliers</a></li>
-        <li class="breadcrumb-item active">Create Supplier</li>
+        <li class="breadcrumb-item"><a href="{{ route('panel') }}">Inicio</a></li>
+        <li class="breadcrumb-item"><a href="{{ route('proveedores.index')}}">Proveedores</a></li>
+        <li class="breadcrumb-item active">Crear Proveedor</li>
     </ol>
 
     <div class="card text-bg-light">
@@ -28,11 +28,11 @@
 
                     <!----Tipo de persona----->
                     <div class="col-md-6">
-                        <label for="tipo_persona" class="form-label">Supplier type:</label>
+                        <label for="tipo_persona" class="form-label">Tipo de proveedor:</label>
                         <select class="form-select" name="tipo_persona" id="tipo_persona">
-                            <option value="" selected disabled>Select an option</option>
-                            <option value="natural" {{ old('tipo_persona') == 'natural' ? 'selected' : '' }}>Individual</option>
-                            <option value="juridica" {{ old('tipo_persona') == 'juridica' ? 'selected' : '' }}>Company</option>
+                            <option value="" selected disabled>Seleccione una opción</option>
+                            <option value="natural" {{ old('tipo_persona') == 'natural' ? 'selected' : '' }}>Persona natural</option>
+                            <option value="juridica" {{ old('tipo_persona') == 'juridica' ? 'selected' : '' }}>Empresa</option>
                         </select>
                         @error('tipo_persona')
                         <small class="text-danger">{{'*'.$message}}</small>
@@ -41,8 +41,8 @@
 
                     <!-------Razón social------->
                     <div class="col-12" id="box-razon-social">
-                        <label id="label-natural" for="razon_social" class="form-label">Full name:</label>
-                        <label id="label-juridica" for="razon_social" class="form-label">Company name:</label>
+                        <label id="label-natural" for="razon_social" class="form-label">Nombre completo:</label>
+                        <label id="label-juridica" for="razon_social" class="form-label">Razón social:</label>
 
                         <input required type="text" name="razon_social" id="razon_social" class="form-control" value="{{old('razon_social')}}">
 
@@ -53,7 +53,7 @@
 
                     <!------Dirección---->
                     <div class="col-12">
-                        <label for="direccion" class="form-label">Address:</label>
+                        <label for="direccion" class="form-label">Dirección:</label>
                         <input required type="text" name="direccion" id="direccion" class="form-control" value="{{old('direccion')}}">
                         @error('direccion')
                         <small class="text-danger">{{'*'.$message}}</small>
@@ -62,7 +62,7 @@
 
                     <!------Teléfono---->
                     <div class="col-12">
-                        <label for="telefono" class="form-label">Phone:</label>
+                        <label for="telefono" class="form-label">Teléfono:</label>
                         <input type="text" name="telefono" id="telefono" class="form-control" value="{{old('telefono')}}">
                         @error('telefono')
                         <small class="text-danger">{{'*'.$message}}</small>
@@ -71,7 +71,7 @@
 
                     <!--------------Documento------->
                     <div class="col-md-6">
-                        <label for="documento_id" class="form-label">Document type:</label>
+                        <label for="documento_id" class="form-label">Tipo de documento:</label>
                         <select class="form-select" name="documento_id" id="documento_id">
                             @foreach ($documentos as $item)
                             <option value="{{$item->id}}" {{ old('documento_id') == $item->id ? 'selected' : '' }}>{{$item->tipo_documento}}</option>
@@ -83,7 +83,7 @@
                     </div>
 
                     <div class="col-md-6">
-                        <label for="numero_documento" class="form-label">Document number:</label>
+                        <label for="numero_documento" class="form-label">Número de documento:</label>
                         <input required type="text" name="numero_documento" id="numero_documento" class="form-control" value="{{old('numero_documento')}}">
                         @error('numero_documento')
                         <small class="text-danger">{{'*'.$message}}</small>
@@ -93,7 +93,7 @@
 
             </div>
             <div class="card-footer text-center">
-                <button type="submit" class="btn btn-primary">Save</button>
+                <button type="submit" class="btn btn-primary">Guardar</button>
             </div>
         </form>
     </div>

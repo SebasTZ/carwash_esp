@@ -15,14 +15,14 @@
 <div class="container-fluid px-4">
     <h1 class="mt-4 text-center">Roles</h1>
     <ol class="breadcrumb mb-4">
-        <li class="breadcrumb-item"><a href="{{ route('panel') }}">Home</a></li>
+        <li class="breadcrumb-item"><a href="{{ route('panel') }}">Inicio</a></li>
         <li class="breadcrumb-item active">Roles</li>
     </ol>
 
     @can('crear-role')
     <div class="mb-4">
         <a href="{{route('roles.create')}}">
-            <button type="button" class="btn btn-primary">Add new role</button>
+            <button type="button" class="btn btn-primary">Agregar nuevo rol</button>
         </a>
     </div>
     @endcan
@@ -30,14 +30,14 @@
     <div class="card">
         <div class="card-header">
             <i class="fas fa-table me-1"></i>
-            Roles Table
+            Tabla de Roles
         </div>
         <div class="card-body">
             <table id="datatablesSimple" class="table table-striped fs-6">
                 <thead>
                     <tr>
-                        <th>Role</th>
-                        <th>Actions</th>
+                        <th>Rol</th>
+                        <th>Acciones</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -51,12 +51,12 @@
 
                                 @can('editar-role')
                                 <form action="{{route('roles.edit',['role'=>$item])}}" method="get">
-                                    <button type="submit" class="btn btn-warning">Edit</button>
+                                    <button type="submit" class="btn btn-warning">Editar</button>
                                 </form>
                                 @endcan
 
                                 @can('eliminar-role')
-                                <button type="button" class="btn btn-danger" data-bs-toggle="modal" data-bs-target="#confirmModal-{{$item->id}}">Delete</button>
+                                <button type="button" class="btn btn-danger" data-bs-toggle="modal" data-bs-target="#confirmModal-{{$item->id}}">Eliminar</button>
                                 @endcan
 
                             </div>
@@ -68,18 +68,18 @@
                         <div class="modal-dialog">
                             <div class="modal-content">
                                 <div class="modal-header">
-                                    <h1 class="modal-title fs-5" id="exampleModalLabel">Confirmation Message</h1>
+                                    <h1 class="modal-title fs-5" id="exampleModalLabel">Mensaje de Confirmación</h1>
                                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                                 </div>
                                 <div class="modal-body">
-                                    Are you sure you want to delete the role?
+                                    ¿Está seguro que desea eliminar el rol?
                                 </div>
                                 <div class="modal-footer">
-                                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
                                     <form action="{{ route('roles.destroy',['role'=>$item->id]) }}" method="post">
                                         @method('DELETE')
                                         @csrf
-                                        <button type="submit" class="btn btn-danger">Confirm</button>
+                                        <button type="submit" class="btn btn-danger">Confirmar</button>
                                     </form>
                                 </div>
                             </div>
