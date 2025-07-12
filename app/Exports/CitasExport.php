@@ -50,7 +50,8 @@ class CitasExport implements FromCollection, WithHeadings, WithEvents
     {
         return [
             AfterSheet::class => function(AfterSheet $event) {
-                $lastRow = $this->citas->count() + 1;
+                $count = $this->citas->count();
+                $lastRow = $count + 1;
                 $lastColumn = 'G';
 
                 // Estilo para encabezados
@@ -70,34 +71,36 @@ class CitasExport implements FromCollection, WithHeadings, WithEvents
                     ],
                 ]);
 
-                // Estilo para el contenido
-                $event->sheet->getStyle('A2:' . $lastColumn . $lastRow)->applyFromArray([
-                    'borders' => [
-                        'allBorders' => [
-                            'borderStyle' => \PhpOffice\PhpSpreadsheet\Style\Border::BORDER_THIN,
+                if ($count > 0) {
+                    // Estilo para el contenido
+                    $event->sheet->getStyle('A2:' . $lastColumn . $lastRow)->applyFromArray([
+                        'borders' => [
+                            'allBorders' => [
+                                'borderStyle' => \PhpOffice\PhpSpreadsheet\Style\Border::BORDER_THIN,
+                            ],
                         ],
-                    ],
-                ]);
+                    ]);
 
-                // Ancho automático para todas las columnas
-                foreach(range('A', $lastColumn) as $column) {
-                    $event->sheet->getColumnDimension($column)->setAutoSize(true);
+                    // Alineación
+                    $event->sheet->getStyle('A1:' . $lastColumn . $lastRow)
+                        ->getAlignment()
+                        ->setVertical(\PhpOffice\PhpSpreadsheet\Style\Alignment::VERTICAL_CENTER);
+
+                    // Alternar colores de filas
+                    for($row = 2; $row <= $lastRow; $row++) {
+                        if($row % 2 == 0) {
+                            $event->sheet->getStyle('A'.$row.':'.$lastColumn.$row)
+                                ->getFill()
+                                ->setFillType(\PhpOffice\PhpSpreadsheet\Style\Fill::FILL_SOLID)
+                                ->getStartColor()
+                                ->setRGB('F2F2F2');
+                        }
+                    }
                 }
 
-                // Alineación
-                $event->sheet->getStyle('A1:' . $lastColumn . $lastRow)
-                    ->getAlignment()
-                    ->setVertical(\PhpOffice\PhpSpreadsheet\Style\Alignment::VERTICAL_CENTER);
-
-                // Alternar colores de filas
-                for($row = 2; $row <= $lastRow; $row++) {
-                    if($row % 2 == 0) {
-                        $event->sheet->getStyle('A'.$row.':'.$lastColumn.$row)
-                            ->getFill()
-                            ->setFillType(\PhpOffice\PhpSpreadsheet\Style\Fill::FILL_SOLID)
-                            ->getStartColor()
-                            ->setRGB('F2F2F2');
-                    }
+                // Ancho automático para todas las columnas (siempre)
+                foreach(range('A', $lastColumn) as $column) {
+                    $event->sheet->getColumnDimension($column)->setAutoSize(true);
                 }
             }
         ];

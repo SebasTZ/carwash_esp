@@ -48,7 +48,8 @@ class ComprasExport implements FromCollection, WithHeadings, WithEvents
     {
         return [
             AfterSheet::class => function(AfterSheet $event) {
-                $lastRow = $this->compras->count() + 1;
+                $count = $this->compras->count();
+                $lastRow = $count + 1;
                 $lastColumn = 'F';
 
                 // Estilo para encabezados
@@ -68,64 +69,66 @@ class ComprasExport implements FromCollection, WithHeadings, WithEvents
                     ],
                 ]);
 
-                // Estilo para el contenido
-                $event->sheet->getStyle('A2:' . $lastColumn . $lastRow)->applyFromArray([
-                    'borders' => [
-                        'allBorders' => [
-                            'borderStyle' => \PhpOffice\PhpSpreadsheet\Style\Border::BORDER_THIN,
+                if ($count > 0) {
+                    // Estilo para el contenido
+                    $event->sheet->getStyle('A2:' . $lastColumn . $lastRow)->applyFromArray([
+                        'borders' => [
+                            'allBorders' => [
+                                'borderStyle' => \PhpOffice\PhpSpreadsheet\Style\Border::BORDER_THIN,
+                            ],
                         ],
-                    ],
-                ]);
+                    ]);
 
-                // Formato para las columnas de montos (IGV y Total)
-                $event->sheet->getStyle('E2:F'.$lastRow)->getNumberFormat()
-                    ->setFormatCode('_("$"* #,##0.00_);_("$"* \(#,##0.00\);_("$"* "-"??_);_(@_)');
+                    // Formato para las columnas de montos (IGV y Total)
+                    $event->sheet->getStyle('E2:F'.$lastRow)->getNumberFormat()
+                        ->setFormatCode('_("$"* #,##0.00_);_("$"* \(#,##0.00\);_("$"* "-"??_);_(@_)');
 
-                // Ancho automático para todas las columnas
+                    // Alineación
+                    $event->sheet->getStyle('A1:' . $lastColumn . $lastRow)
+                        ->getAlignment()
+                        ->setVertical(\PhpOffice\PhpSpreadsheet\Style\Alignment::VERTICAL_CENTER);
+
+                    // Alternar colores de filas
+                    for($row = 2; $row <= $lastRow; $row++) {
+                        if($row % 2 == 0) {
+                            $event->sheet->getStyle('A'.$row.':'.$lastColumn.$row)
+                                ->getFill()
+                                ->setFillType(\PhpOffice\PhpSpreadsheet\Style\Fill::FILL_SOLID)
+                                ->getStartColor()
+                                ->setRGB('EBF1F8');
+                        }
+                    }
+
+                    // Agregar totales
+                    $totalRow = $lastRow + 1;
+                    $igvTotal = $this->compras->sum('impuesto');
+                    $total = $this->compras->sum('total');
+
+                    $event->sheet->setCellValue('D' . $totalRow, 'TOTALES:');
+                    $event->sheet->setCellValue('E' . $totalRow, number_format($igvTotal, 2));
+                    $event->sheet->setCellValue('F' . $totalRow, number_format($total, 2));
+
+                    // Estilo para la fila de totales
+                    $event->sheet->getStyle('D'.$totalRow.':'.$lastColumn.$totalRow)->applyFromArray([
+                        'font' => [
+                            'bold' => true,
+                        ],
+                        'fill' => [
+                            'fillType' => \PhpOffice\PhpSpreadsheet\Style\Fill::FILL_SOLID,
+                            'color' => ['rgb' => 'D9E2F3']
+                        ],
+                        'borders' => [
+                            'outline' => [
+                                'borderStyle' => \PhpOffice\PhpSpreadsheet\Style\Border::BORDER_THIN,
+                            ],
+                        ],
+                    ]);
+                }
+
+                // Ancho automático para todas las columnas (siempre)
                 foreach(range('A', $lastColumn) as $column) {
                     $event->sheet->getColumnDimension($column)->setAutoSize(true);
                 }
-
-                // Alineación
-                $event->sheet->getStyle('A1:' . $lastColumn . $lastRow)
-                    ->getAlignment()
-                    ->setVertical(\PhpOffice\PhpSpreadsheet\Style\Alignment::VERTICAL_CENTER);
-
-                // Alternar colores de filas
-                for($row = 2; $row <= $lastRow; $row++) {
-                    if($row % 2 == 0) {
-                        $event->sheet->getStyle('A'.$row.':'.$lastColumn.$row)
-                            ->getFill()
-                            ->setFillType(\PhpOffice\PhpSpreadsheet\Style\Fill::FILL_SOLID)
-                            ->getStartColor()
-                            ->setRGB('EBF1F8');
-                    }
-                }
-
-                // Agregar totales
-                $totalRow = $lastRow + 1;
-                $igvTotal = $this->compras->sum('impuesto');
-                $total = $this->compras->sum('total');
-
-                $event->sheet->setCellValue('D' . $totalRow, 'TOTALES:');
-                $event->sheet->setCellValue('E' . $totalRow, number_format($igvTotal, 2));
-                $event->sheet->setCellValue('F' . $totalRow, number_format($total, 2));
-
-                // Estilo para la fila de totales
-                $event->sheet->getStyle('D'.$totalRow.':'.$lastColumn.$totalRow)->applyFromArray([
-                    'font' => [
-                        'bold' => true,
-                    ],
-                    'fill' => [
-                        'fillType' => \PhpOffice\PhpSpreadsheet\Style\Fill::FILL_SOLID,
-                        'color' => ['rgb' => 'D9E2F3']
-                    ],
-                    'borders' => [
-                        'outline' => [
-                            'borderStyle' => \PhpOffice\PhpSpreadsheet\Style\Border::BORDER_THIN,
-                        ],
-                    ],
-                ]);
             }
         ];
     }
