@@ -1,18 +1,18 @@
 @extends('adminlte::page')
 
-@section('title', 'Maintenance Details')
+@section('title', 'Detalles de Mantenimiento')
 
 @section('content_header')
 <div class="container-fluid">
     <div class="row mb-2">
         <div class="col-sm-6">
-            <h1>Maintenance Details #{{ $mantenimiento->id }}</h1>
+            <h1>Detalles de Mantenimiento #{{ $mantenimiento->id }}</h1>
         </div>
         <div class="col-sm-6">
             <ol class="breadcrumb float-sm-right">
-                <li class="breadcrumb-item"><a href="{{ route('panel') }}"><i class="fas fa-home"></i> Home</a></li>
-                <li class="breadcrumb-item"><a href="{{ route('mantenimientos.index') }}">Maintenance</a></li>
-                <li class="breadcrumb-item active">Details</li>
+                <li class="breadcrumb-item"><a href="{{ route('panel') }}"><i class="fas fa-home"></i> Inicio</a></li>
+                <li class="breadcrumb-item"><a href="{{ route('mantenimientos.index') }}">Mantenimiento</a></li>
+                <li class="breadcrumb-item active">Detalles</li>
             </ol>
         </div>
     </div>
@@ -22,21 +22,21 @@
 @section('content')
 <div class="container-fluid">
     @if(session('success'))
-    <div class="alert alert-success alert-dismissible fade show" role="alert">
-        {{ session('success') }}
-        <button type="button" class="close" data-dismiss="alert" aria-label="Close">
-            <span aria-hidden="true">&times;</span>
-        </button>
-    </div>
+        <div class="alert alert-success alert-dismissible fade show" role="alert">
+            {{ session('success') }}
+            <button type="button" class="close" data-dismiss="alert" aria-label="Cerrar">
+                <span aria-hidden="true">&times;</span>
+            </button>
+        </div>
     @endif
 
     @if(session('error'))
-    <div class="alert alert-danger alert-dismissible fade show" role="alert">
-        {{ session('error') }}
-        <button type="button" class="close" data-dismiss="alert" aria-label="Close">
-            <span aria-hidden="true">&times;</span>
-        </button>
-    </div>
+        <div class="alert alert-danger alert-dismissible fade show" role="alert">
+            {{ session('error') }}
+            <button type="button" class="close" data-dismiss="alert" aria-label="Cerrar">
+                <span aria-hidden="true">&times;</span>
+            </button>
+        </div>
     @endif
 
     <!-- Estado del mantenimiento -->
@@ -46,15 +46,15 @@
                 <div class="card-header">
                     <div class="d-flex justify-content-between align-items-center">
                         <h3 class="card-title">
-                            Current status:
+                            Estado actual:
                             @if($mantenimiento->estado == 'recibido')
-                                <span class="badge badge-secondary">Received</span>
+                                <span class="badge badge-secondary">Recibido</span>
                             @elseif($mantenimiento->estado == 'en_proceso')
-                                <span class="badge badge-primary">In Process</span>
+                                <span class="badge badge-primary">En Proceso</span>
                             @elseif($mantenimiento->estado == 'terminado')
-                                <span class="badge badge-warning">Finished</span>
+                                <span class="badge badge-warning">Terminado</span>
                             @elseif($mantenimiento->estado == 'entregado')
-                                <span class="badge badge-success">Delivered</span>
+                                <span class="badge badge-success">Entregado</span>
                             @endif
                         </h3>
                         <div>
@@ -106,11 +106,11 @@
                             @endif
                             
                             <a href="{{ route('mantenimientos.edit', $mantenimiento->id) }}" class="btn btn-info ml-2">
-                                <i class="fas fa-edit mr-1"></i> Edit
+                                <i class="fas fa-edit mr-1"></i> Editar
                             </a>
                             
                             <a href="{{ route('mantenimientos.index') }}" class="btn btn-secondary ml-2">
-                                <i class="fas fa-arrow-left mr-1"></i> Back
+                                <i class="fas fa-arrow-left mr-1"></i> Volver
                             </a>
                         </div>
                     </div>
@@ -124,34 +124,34 @@
         <div class="col-md-6">
             <div class="card">
                 <div class="card-header">
-                    <h3 class="card-title">Client and Vehicle</h3>
+                    <h3 class="card-title">Cliente y Vehículo</h3>
                 </div>
                 <div class="card-body">
                     <div class="row">
                         <div class="col-md-12">
-                            <h5>Client Data</h5>
+                            <h5>Datos del Cliente</h5>
                             <dl class="row">
-                                <dt class="col-sm-4">Client:</dt>
+                                <dt class="col-sm-4">Cliente:</dt>
                                 <dd class="col-sm-8">{{ $mantenimiento->cliente->persona->razon_social }}</dd>
                                 
                                 <dt class="col-sm-4">{{ $mantenimiento->cliente->persona->documento->tipo_documento }}:</dt>
                                 <dd class="col-sm-8">{{ $mantenimiento->cliente->persona->numero_documento }}</dd>
                                 
-                                <dt class="col-sm-4">Phone:</dt>
-                                <dd class="col-sm-8">{{ $mantenimiento->cliente->persona->telefono ?: 'Not available' }}</dd>
+                                <dt class="col-sm-4">Teléfono:</dt>
+                                <dd class="col-sm-8">{{ $mantenimiento->cliente->persona->telefono ?: 'No disponible' }}</dd>
                             </dl>
                             
                             <hr>
                             
-                            <h5>Vehicle Data</h5>
+                            <h5>Datos del Vehículo</h5>
                             <dl class="row">
-                                <dt class="col-sm-4">Plate:</dt>
+                                <dt class="col-sm-4">Placa:</dt>
                                 <dd class="col-sm-8"><span class="badge badge-dark">{{ $mantenimiento->placa }}</span></dd>
                                 
-                                <dt class="col-sm-4">Model:</dt>
+                                <dt class="col-sm-4">Modelo:</dt>
                                 <dd class="col-sm-8">{{ $mantenimiento->modelo }}</dd>
                                 
-                                <dt class="col-sm-4">Type:</dt>
+                                <dt class="col-sm-4">Tipo:</dt>
                                 <dd class="col-sm-8">{{ $mantenimiento->tipo_vehiculo }}</dd>
                             </dl>
                         </div>
@@ -164,17 +164,17 @@
         <div class="col-md-6">
             <div class="card">
                 <div class="card-header">
-                    <h3 class="card-title">Service Details</h3>
+                    <h3 class="card-title">Detalles del Servicio</h3>
                 </div>
                 <div class="card-body">
                     <dl class="row">
-                        <dt class="col-sm-6">Service Type:</dt>
+                        <dt class="col-sm-6">Tipo de Servicio:</dt>
                         <dd class="col-sm-6">{{ $mantenimiento->tipo_servicio }}</dd>
                         
-                        <dt class="col-sm-6">Entry Date:</dt>
+                        <dt class="col-sm-6">Fecha de Ingreso:</dt>
                         <dd class="col-sm-6">{{ $mantenimiento->fecha_ingreso->format('d/m/Y') }}</dd>
                         
-                        <dt class="col-sm-6">Estimated Delivery Date:</dt>
+                        <dt class="col-sm-6">Fecha de Entrega Estimada:</dt>
                         <dd class="col-sm-6">
                             @if($mantenimiento->fecha_entrega_estimada)
                                 {{ \Carbon\Carbon::parse($mantenimiento->fecha_entrega_estimada)->format('d/m/Y') }}
@@ -191,23 +191,23 @@
                                     <span class="badge badge-info">Faltan {{ $diasRestantes }} días</span>
                                 @endif
                             @else
-                                Not specified
+                                No especificado
                             @endif
                         </dd>
                         
-                        <dt class="col-sm-6">Actual Delivery Date:</dt>
+                        <dt class="col-sm-6">Fecha de Entrega Real:</dt>
                         <dd class="col-sm-6">
                             @if($mantenimiento->fecha_entrega_real)
                                 {{ \Carbon\Carbon::parse($mantenimiento->fecha_entrega_real)->format('d/m/Y') }}
                             @else
-                                Pending
+                                Pendiente
                             @endif
                         </dd>
                         
-                        <dt class="col-sm-6">Responsible Mechanic:</dt>
-                        <dd class="col-sm-6">{{ $mantenimiento->mecanico_responsable ?: 'Not assigned' }}</dd>
+                        <dt class="col-sm-6">Mecánico Responsable:</dt>
+                        <dd class="col-sm-6">{{ $mantenimiento->mecanico_responsable ?: 'No asignado' }}</dd>
                         
-                        <dt class="col-sm-6">Payment Status:</dt>
+                        <dt class="col-sm-6">Estado de Pago:</dt>
                         <dd class="col-sm-6">
                             @if($mantenimiento->pagado)
                                 <span class="badge badge-success">Pagado</span>
@@ -217,25 +217,25 @@
                                     </a>
                                 @endif
                             @else
-                                <span class="badge badge-danger">Pending payment</span>
+                                <span class="badge badge-danger">Pago pendiente</span>
                             @endif
                         </dd>
                         
-                        <dt class="col-sm-6">Estimated Cost:</dt>
+                        <dt class="col-sm-6">Costo Estimado:</dt>
                         <dd class="col-sm-6">
                             @if($mantenimiento->costo_estimado)
                                 S/ {{ number_format($mantenimiento->costo_estimado, 2) }}
                             @else
-                                Not specified
+                                No especificado
                             @endif
                         </dd>
                         
-                        <dt class="col-sm-6">Final Cost:</dt>
+                        <dt class="col-sm-6">Costo Final:</dt>
                         <dd class="col-sm-6">
                             @if($mantenimiento->costo_final)
                                 S/ {{ number_format($mantenimiento->costo_final, 2) }}
                             @else
-                                Pending
+                                Pendiente
                             @endif
                         </dd>
                     </dl>
@@ -249,12 +249,12 @@
         <div class="col-12">
             <div class="card">
                 <div class="card-header">
-                    <h3 class="card-title">Work Description</h3>
+                    <h3 class="card-title">Descripción del Trabajo</h3>
                 </div>
                 <div class="card-body">
                     <div class="row">
                         <div class="col-md-12">
-                            <h5>Diagnosis / Work to be Done</h5>
+                            <h5>Diagnóstico / Trabajo a Realizar</h5>
                             <div class="p-3 bg-light border rounded">
                                 {!! nl2br(e($mantenimiento->descripcion_trabajo)) !!}
                             </div>
@@ -278,25 +278,25 @@
     <div class="modal-dialog" role="document">
         <div class="modal-content">
             <div class="modal-header">
-                <h5 class="modal-title" id="vincularVentaModalLabel">Register Payment</h5>
+                <h5 class="modal-title" id="vincularVentaModalLabel">Registrar Pago</h5>
                 <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                     <span aria-hidden="true">&times;</span>
                 </button>
             </div>
             <div class="modal-body">
-                <p>To register the payment, enter the sale ID associated with this maintenance service.</p>
+                <p>Para registrar el pago, ingrese el ID de la venta asociada a este servicio de mantenimiento.</p>
                 <form action="{{ route('mantenimientos.vincularVenta', $mantenimiento->id) }}" method="POST" id="formVincularVenta">
                     @csrf
                     <div class="form-group">
-                        <label for="venta_id">Sale ID</label>
+                        <label for="venta_id">ID de Venta</label>
                         <input type="number" name="venta_id" id="venta_id" class="form-control" min="1" required>
-                        <small class="form-text text-muted">Enter the sale number that contains the payment for this service.</small>
+                        <small class="form-text text-muted">Ingrese el número de venta que contiene el pago de este servicio.</small>
                     </div>
                 </form>
             </div>
             <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
-                <button type="submit" form="formVincularVenta" class="btn btn-primary">Link Sale</button>
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancelar</button>
+                <button type="submit" form="formVincularVenta" class="btn btn-primary">Vincular Venta</button>
             </div>
         </div>
     </div>

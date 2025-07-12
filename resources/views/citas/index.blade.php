@@ -1,6 +1,6 @@
 @extends('layouts.app')
 
-@section('title', 'Appointment Management')
+@section('title', 'Gestión de Citas')
 
 @push('css')
 <style>
@@ -59,14 +59,14 @@
 
 @section('content')
 <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pb-2 mb-3 border-bottom">
-    <h1 class="h2">Appointment Management</h1>
+    <h1 class="h2">Gestión de Citas</h1>
     <div class="btn-toolbar mb-2 mb-md-0">
         <div class="btn-group mr-2">
             <a href="{{ route('citas.create') }}" class="btn btn-sm btn-outline-primary">
-                <i class="fas fa-plus-circle"></i> New Appointment
+                <i class="fas fa-plus-circle"></i> Nueva Cita
             </a>
             <a href="{{ route('citas.dashboard') }}" class="btn btn-sm btn-outline-secondary">
-                <i class="fas fa-tachometer-alt"></i> Real-Time Dashboard
+                <i class="fas fa-tachometer-alt"></i> Panel en Tiempo Real
             </a>
         </div>
     </div>
@@ -76,7 +76,7 @@
     <div class="card-header d-flex justify-content-between align-items-center">
         <h5 class="mb-0">
             <i class="fas fa-file-export me-2"></i>
-            Export Reports
+            Exportar Reportes
         </h5>
     </div>
     <div class="card-body">
@@ -84,25 +84,25 @@
             <div class="col-md-3">
                 <a href="{{ route('citas.export.diario') }}" class="btn btn-success w-100 btn-export">
                     <i class="fas fa-file-excel"></i>
-                    <span>Export Daily</span>
+                    <span>Exportar Diario</span>
                 </a>
             </div>
             <div class="col-md-3">
                 <a href="{{ route('citas.export.semanal') }}" class="btn btn-success w-100 btn-export">
                     <i class="fas fa-file-excel"></i>
-                    <span>Export Weekly</span>
+                    <span>Exportar Semanal</span>
                 </a>
             </div>
             <div class="col-md-3">
                 <a href="{{ route('citas.export.mensual') }}" class="btn btn-success w-100 btn-export">
                     <i class="fas fa-file-excel"></i>
-                    <span>Export Monthly</span>
+                    <span>Exportar Mensual</span>
                 </a>
             </div>
             <div class="col-md-3">
                 <form action="{{ route('citas.export.personalizado') }}" method="GET" class="d-flex gap-2">
-                    <input type="date" name="fecha_inicio" class="form-control" required placeholder="Start date">
-                    <input type="date" name="fecha_fin" class="form-control" required placeholder="End date">
+                    <input type="date" name="fecha_inicio" class="form-control" required placeholder="Fecha inicio">
+                    <input type="date" name="fecha_fin" class="form-control" required placeholder="Fecha fin">
                     <button type="submit" class="btn btn-success btn-export flex-shrink-0">
                         <i class="fas fa-file-excel"></i>
                     </button>
@@ -115,23 +115,23 @@
 <div class="filter-card">
     <form action="{{ route('citas.index') }}" method="GET" class="row g-3">
         <div class="col-md-4">
-            <label for="fecha" class="form-label">Date</label>
+            <label for="fecha" class="form-label">Fecha</label>
             <input type="date" class="form-control" id="fecha" name="fecha" value="{{ request('fecha', date('Y-m-d')) }}">
         </div>
         <div class="col-md-4">
-            <label for="estado" class="form-label">Status</label>
+            <label for="estado" class="form-label">Estado</label>
             <select class="form-control" id="estado" name="estado">
-                <option value="">All</option>
-                <option value="pendiente" {{ request('estado') == 'pendiente' ? 'selected' : '' }}>Pending</option>
-                <option value="en_proceso" {{ request('estado') == 'en_proceso' ? 'selected' : '' }}>In Process</option>
-                <option value="completada" {{ request('estado') == 'completada' ? 'selected' : '' }}>Completed</option>
-                <option value="cancelada" {{ request('estado') == 'cancelada' ? 'selected' : '' }}>Cancelled</option>
+                <option value="">Todos</option>
+                <option value="pendiente" {{ request('estado') == 'pendiente' ? 'selected' : '' }}>Pendiente</option>
+                <option value="en_proceso" {{ request('estado') == 'en_proceso' ? 'selected' : '' }}>En Proceso</option>
+                <option value="completada" {{ request('estado') == 'completada' ? 'selected' : '' }}>Completada</option>
+                <option value="cancelada" {{ request('estado') == 'cancelada' ? 'selected' : '' }}>Cancelada</option>
             </select>
         </div>
         <div class="col-md-4 d-flex align-items-end">
             <button type="submit" class="btn btn-primary w-100 btn-export">
                 <i class="fas fa-filter me-2"></i>
-                Filter
+                Filtrar
             </button>
         </div>
     </form>
@@ -149,12 +149,12 @@
         <thead class="thead-dark">
             <tr>
                 <th>#</th>
-                <th>Client</th>
-                <th>Date</th>
-                <th>Time</th>
-                <th>Position</th>
-                <th>Status</th>
-                <th>Actions</th>
+                <th>Cliente</th>
+                <th>Fecha</th>
+                <th>Hora</th>
+                <th>Posición</th>
+                <th>Estado</th>
+                <th>Acciones</th>
             </tr>
         </thead>
         <tbody>
@@ -168,26 +168,26 @@
                 <td>
                     @switch($cita->estado)
                         @case('pendiente')
-                            <span class="badge bg-warning">Pending</span>
+                            <span class="badge bg-warning">Pendiente</span>
                             @break
                         @case('en_proceso')
-                            <span class="badge bg-primary">In Process</span>
+                            <span class="badge bg-primary">En Proceso</span>
                             @break
                         @case('completada')
-                            <span class="badge bg-success">Completed</span>
+                            <span class="badge bg-success">Completada</span>
                             @break
                         @case('cancelada')
-                            <span class="badge bg-danger">Cancelled</span>
+                            <span class="badge bg-danger">Cancelada</span>
                             @break
                     @endswitch
                 </td>
                 <td>
                     <div class="btn-group" role="group">
-                        <a href="{{ route('citas.show', $cita) }}" class="btn btn-info btn-sm" title="View details">
+                        <a href="{{ route('citas.show', $cita) }}" class="btn btn-info btn-sm" title="Ver detalles">
                             <i class="fas fa-eye"></i>
                         </a>
                         @if($cita->estado != 'completada' && $cita->estado != 'cancelada')
-                        <a href="{{ route('citas.edit', $cita) }}" class="btn btn-primary btn-sm" title="Edit">
+                        <a href="{{ route('citas.edit', $cita) }}" class="btn btn-primary btn-sm" title="Editar">
                             <i class="fas fa-edit"></i>
                         </a>
                         @endif
@@ -195,7 +195,7 @@
                         @if($cita->estado == 'pendiente')
                         <form action="{{ route('citas.iniciar', $cita) }}" method="POST" style="display:inline">
                             @csrf
-                            <button type="submit" class="btn btn-success btn-sm" title="Start Appointment">
+                            <button type="submit" class="btn btn-success btn-sm" title="Iniciar Cita">
                                 <i class="fas fa-play"></i>
                             </button>
                         </form>
@@ -204,7 +204,7 @@
                         @if($cita->estado == 'en_proceso')
                         <form action="{{ route('citas.completar', $cita) }}" method="POST" style="display:inline">
                             @csrf
-                            <button type="submit" class="btn btn-success btn-sm" title="Complete Appointment">
+                            <button type="submit" class="btn btn-success btn-sm" title="Completar Cita">
                                 <i class="fas fa-check"></i>
                             </button>
                         </form>
@@ -213,8 +213,8 @@
                         @if($cita->estado != 'completada' && $cita->estado != 'cancelada')
                         <form action="{{ route('citas.cancelar', $cita) }}" method="POST" style="display:inline">
                             @csrf
-                            <button type="submit" class="btn btn-danger btn-sm" title="Cancel Appointment"
-                                onclick="return confirm('Are you sure you want to cancel this appointment?')">
+                            <button type="submit" class="btn btn-danger btn-sm" title="Cancelar Cita"
+                                onclick="return confirm('¿Está seguro de que desea cancelar esta cita?')">
                                 <i class="fas fa-times"></i>
                             </button>
                         </form>
@@ -223,8 +223,8 @@
                         <form action="{{ route('citas.destroy', $cita) }}" method="POST" style="display:inline">
                             @csrf
                             @method('DELETE')
-                            <button type="submit" class="btn btn-danger btn-sm" title="Delete"
-                                onclick="return confirm('Are you sure you want to delete this appointment?')">
+                            <button type="submit" class="btn btn-danger btn-sm" title="Eliminar"
+                                onclick="return confirm('¿Está seguro de que desea eliminar esta cita?')">
                                 <i class="fas fa-trash"></i>
                             </button>
                         </form>
@@ -233,7 +233,7 @@
             </tr>
             @empty
             <tr>
-                <td colspan="7" class="text-center">No appointments registered</td>
+                <td colspan="7" class="text-center">No hay citas registradas</td>
             </tr>
             @endforelse
         </tbody>

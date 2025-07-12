@@ -25,7 +25,7 @@
     @can('crear-proveedore')
     <div class="mb-4">
         <a href="{{route('proveedores.create')}}">
-            <button type="button" class="btn btn-primary">Agregar nuevo registro</button>
+            <button type="button" class="btn btn-primary">Agregar nuevo proveedor</button>
         </a>
     </div>
     @endcan

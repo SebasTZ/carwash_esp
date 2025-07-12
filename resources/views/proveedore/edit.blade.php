@@ -87,7 +87,7 @@
 
             </div>
             <div class="card-footer text-center">
-                <button type="submit" class="btn btn-primary">Guardar</button>
+                <button type="submit" class="btn btn-primary">Actualizar proveedor</button>
             </div>
         </form>
     </div>

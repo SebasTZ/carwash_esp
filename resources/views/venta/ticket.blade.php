@@ -5,7 +5,7 @@
 @section('content')
 <div class="container">
     <h1 class="text-center">{{ $configuracion->nombre_negocio }}</h1>
-    <h2 class="text-center">Ticket de Venta</h2>
+    <h2 class="text-center">Ticket de venta</h2>
     <p class="text-center">Dirección: {{ $configuracion->direccion }}</p>
     <p class="text-center">Teléfono: {{ $configuracion->telefono }}</p>
     <p><strong>Número de Comprobante:</strong> {{ $venta->numero_comprobante }}</p>
@@ -45,12 +45,12 @@
         ];
     @endphp
 
-    <h3>Detalles de Pago:</h3>
+    <h3>Detalles de pago:</h3>
     <p><strong>Método de Pago:</strong> {{ $paymentMethods[$venta->medio_pago] ?? ucfirst(str_replace('_', ' ', $venta->medio_pago)) }}</p>
     <p><strong>Efectivo:</strong> {{ $venta->efectivo }}</p>
     <p><strong>Yape:</strong> {{ $venta->yape }}</p>
 
-    <h3>Servicio de Lavado:</h3>
+    <h3>Servicio de lavado:</h3>
     <p><strong>¿Servicio de Lavado?:</strong> {{ $venta->servicio_lavado ? 'Sí' : 'No' }}</p>
     @if($venta->servicio_lavado)
     <p><strong>Hora de Fin de Lavado:</strong> {{ \Carbon\Carbon::parse($venta->horario_lavado)->format('d-m-Y H:i') }}</p>
@@ -60,7 +60,7 @@
     <p>{{ $venta->comentarios }}</p>
 
     <div class="text-center mt-4">
-        <button onclick="window.print()" class="btn btn-primary">Imprimir Ticket</button>
+        <button onclick="window.print()" class="btn btn-primary">Imprimir ticket</button>
     </div>
 </div>
 @endsection

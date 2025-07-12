@@ -251,7 +251,7 @@
 
                         <!--Buttons--->
                         <div class="col-12 text-center">
-                            <button type="submit" class="btn btn-success" id="guardar">Registrar Venta</button>
+                            <button type="submit" class="btn btn-success" id="guardar">Registrar venta</button>
                         </div>
 
                     </div>

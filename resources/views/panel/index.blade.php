@@ -1,6 +1,6 @@
 @extends('layouts.app')
 
-@section('title','Panel')
+@section('title','Panel de control')
 
 @php
 use App\Models\Cita;
@@ -130,7 +130,7 @@ use App\Models\PagoComision;
 
 <div class="container-fluid px-4">
     <div class="welcome-section mb-4">
-        <h1 class="display-5 mb-3">¡Bienvenido al Panel de Control!</h1>
+        <h1 class="display-5 mb-3">¡Bienvenido al panel de control!</h1>
         <p class="lead mb-0">Sistema de Gestión de Ventas y Control de Lavado</p>
         <p class="text-white-50">{{ now()->format('l, d \d\e F Y') }}</p>
     </div>
@@ -156,7 +156,7 @@ use App\Models\PagoComision;
                 </div>
                 <div class="card-footer">
                     <a class="text-white" href="{{ route('citas.dashboard') }}">
-                        <span>Ver Panel</span>
+                        <span>Ver panel de control</span>
                         <i class="fas fa-arrow-right"></i>
                     </a>
                 </div>

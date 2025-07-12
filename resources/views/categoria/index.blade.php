@@ -24,7 +24,7 @@
     @can('crear-categoria')
     <div class="mb-4">
         <a href="{{route('categorias.create')}}">
-            <button type="button" class="btn btn-primary">Agregar nuevo registro</button>
+            <button type="button" class="btn btn-primary">Agregar nueva categoría</button>
         </a>
     </div>
     @endcan

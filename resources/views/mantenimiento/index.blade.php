@@ -1,17 +1,17 @@
 @extends('adminlte::page')
 
-@section('title', 'Vehicle Maintenance')
+@section('title', 'Mantenimiento de Vehículos')
 
 @section('content_header')
 <div class="container-fluid">
     <div class="row mb-2">
         <div class="col-sm-6">
-            <h1>Vehicle Maintenance</h1>
+            <h1>Mantenimiento de Vehículos</h1>
         </div>
         <div class="col-sm-6">
             <ol class="breadcrumb float-sm-right">
-                <li class="breadcrumb-item"><a href="{{ route('panel') }}"><i class="fas fa-home"></i> Home</a></li>
-                <li class="breadcrumb-item active">Maintenance</li>
+                <li class="breadcrumb-item"><a href="{{ route('panel') }}"><i class="fas fa-home"></i> Inicio</a></li>
+                <li class="breadcrumb-item active">Mantenimiento</li>
             </ol>
         </div>
     </div>
@@ -21,34 +21,34 @@
 @section('content')
 <div class="container-fluid">
     @if(session('success'))
-    <div class="alert alert-success alert-dismissible fade show" role="alert">
-        {{ session('success') }}
-        <button type="button" class="close" data-dismiss="alert" aria-label="Close">
-            <span aria-hidden="true">&times;</span>
-        </button>
-    </div>
+        <div class="alert alert-success alert-dismissible fade show" role="alert">
+            {{ session('success') }}
+            <button type="button" class="close" data-dismiss="alert" aria-label="Cerrar">
+                <span aria-hidden="true">&times;</span>
+            </button>
+        </div>
     @endif
 
     @if(session('error'))
-    <div class="alert alert-danger alert-dismissible fade show" role="alert">
-        {{ session('error') }}
-        <button type="button" class="close" data-dismiss="alert" aria-label="Close">
-            <span aria-hidden="true">&times;</span>
-        </button>
-    </div>
+        <div class="alert alert-danger alert-dismissible fade show" role="alert">
+            {{ session('error') }}
+            <button type="button" class="close" data-dismiss="alert" aria-label="Cerrar">
+                <span aria-hidden="true">&times;</span>
+            </button>
+        </div>
     @endif
     <div class="row">
         <div class="col-12">
             <div class="card">
                 <div class="card-header">
                     <div class="d-flex justify-content-between align-items-center">
-                        <h3 class="card-title">Maintenance Services</h3>
+                        <h3 class="card-title">Servicios de Mantenimiento</h3>
                         <div>
                             <a href="{{ route('mantenimientos.create') }}" class="btn btn-success">
-                                <i class="fas fa-plus-circle"></i> New Maintenance
+                                <i class="fas fa-plus-circle"></i> Nuevo Mantenimiento
                             </a>
                             <a href="{{ route('mantenimientos.reportes') }}" class="btn btn-info ml-2">
-                                <i class="fas fa-chart-bar"></i> Reports
+                                <i class="fas fa-chart-bar"></i> Reportes
                             </a>
                         </div>
                     </div>
@@ -58,13 +58,13 @@
                         <div class="col-md-6">
                             <form action="{{ route('mantenimientos.index') }}" method="GET" class="form-inline">
                                 <div class="form-group">
-                                    <label class="mr-2">Filter by status: </label>
+                                    <label class="mr-2">Filtrar por estado: </label>
                                     <select name="estado" class="form-control" onchange="this.form.submit()">
-                                        <option value="recibido" {{ request('estado') == 'recibido' ? 'selected' : '' }}>Received</option>
-                                        <option value="en_proceso" {{ request('estado') == 'en_proceso' ? 'selected' : '' }}>In Process</option>
-                                        <option value="terminado" {{ request('estado') == 'terminado' ? 'selected' : '' }}>Finished</option>
-                                        <option value="entregado" {{ request('estado') == 'entregado' ? 'selected' : '' }}>Delivered</option>
-                                        <option value="todos" {{ request('estado') == 'todos' ? 'selected' : '' }}>All</option>
+                                        <option value="recibido" {{ request('estado') == 'recibido' ? 'selected' : '' }}>Recibido</option>
+                                        <option value="en_proceso" {{ request('estado') == 'en_proceso' ? 'selected' : '' }}>En Proceso</option>
+                                        <option value="terminado" {{ request('estado') == 'terminado' ? 'selected' : '' }}>Terminado</option>
+                                        <option value="entregado" {{ request('estado') == 'entregado' ? 'selected' : '' }}>Entregado</option>
+                                        <option value="todos" {{ request('estado') == 'todos' ? 'selected' : '' }}>Todos</option>
                                     </select>
                                 </div>
                             </form>
@@ -76,16 +76,16 @@
                             <thead>
                                 <tr>
                                     <th>ID</th>
-                                    <th>Plate</th>
-                                    <th>Client</th>
-                                    <th>Vehicle</th>
-                                    <th>Service Type</th>
-                                    <th>Entry</th>
-                                    <th>Est. Delivery</th>
-                                    <th>Status</th>
-                                    <th>Paid</th>
-                                    <th>Cost</th>
-                                    <th width="120px">Actions</th>
+                                    <th>Placa</th>
+                                    <th>Cliente</th>
+                                    <th>Vehículo</th>
+                                    <th>Tipo de Servicio</th>
+                                    <th>Ingreso</th>
+                                    <th>Entrega Est.</th>
+                                    <th>Estado</th>
+                                    <th>Pagado</th>
+                                    <th>Costo</th>
+                                    <th width="120px">Acciones</th>
                                 </tr>
                             </thead>
                             <tbody>
@@ -108,11 +108,11 @@
                                             @endphp
                                             
                                             @if($diasRestantes < 0 && $mantenimiento->estado != 'entregado')
-                                                <span class="badge badge-danger">Late {{ abs($diasRestantes) }} days</span>
+                                                <span class="badge badge-danger">Atrasado {{ abs($diasRestantes) }} días</span>
                                             @elseif($diasRestantes == 0 && $mantenimiento->estado != 'entregado')
-                                                <span class="badge badge-warning">Today</span>
+                                                <span class="badge badge-warning">Hoy</span>
                                             @elseif($diasRestantes > 0 && $mantenimiento->estado != 'entregado')
-                                                <span class="badge badge-info">{{ $diasRestantes }} days</span>
+                                                <span class="badge badge-info">Faltan {{ $diasRestantes }} días</span>
                                             @endif
                                         @else
                                             -
@@ -120,25 +120,25 @@
                                     </td>
                                     <td>
                                         @if($mantenimiento->estado == 'recibido')
-                                            <span class="badge badge-secondary">Received</span>
+                                            <span class="badge badge-secondary">Recibido</span>
                                         @elseif($mantenimiento->estado == 'en_proceso')
-                                            <span class="badge badge-primary">In Process</span>
+                                            <span class="badge badge-primary">En Proceso</span>
                                         @elseif($mantenimiento->estado == 'terminado')
-                                            <span class="badge badge-warning">Finished</span>
+                                            <span class="badge badge-warning">Terminado</span>
                                         @elseif($mantenimiento->estado == 'entregado')
-                                            <span class="badge badge-success">Delivered</span>
+                                            <span class="badge badge-success">Entregado</span>
                                         @endif
                                     </td>
                                     <td>
                                         @if($mantenimiento->pagado)
-                                            <span class="badge badge-success">Paid</span>
+                                            <span class="badge badge-success">Pagado</span>
                                             @if($mantenimiento->venta_id)
-                                                <a href="{{ route('ventas.show', $mantenimiento->venta_id) }}" class="badge badge-info" title="View sale">
+                                                <a href="{{ route('ventas.show', $mantenimiento->venta_id) }}" class="badge badge-info" title="Ver venta">
                                                     #{{ $mantenimiento->venta_id }}
                                                 </a>
                                             @endif
                                         @else
-                                            <span class="badge badge-danger">Pending</span>
+                                            <span class="badge badge-danger">Pendiente</span>
                                         @endif
                                     </td>
                                     <td>
@@ -151,19 +151,19 @@
                                         @endif
                                     </td>
                                     <td>
-                                        <a href="{{ route('mantenimientos.show', $mantenimiento->id) }}" class="btn btn-sm btn-info">
+                                        <a href="{{ route('mantenimientos.show', $mantenimiento->id) }}" class="btn btn-sm btn-info" title="Ver detalles">
                                             <i class="fas fa-eye"></i>
                                         </a>
                                         
                                         @if($mantenimiento->estado != 'entregado')
-                                            <a href="{{ route('mantenimientos.edit', $mantenimiento->id) }}" class="btn btn-sm btn-primary">
+                                            <a href="{{ route('mantenimientos.edit', $mantenimiento->id) }}" class="btn btn-sm btn-primary" title="Editar">
                                                 <i class="fas fa-edit"></i>
                                             </a>
                                             
                                             <form action="{{ route('mantenimientos.destroy', $mantenimiento->id) }}" method="POST" style="display:inline">
                                                 @csrf
                                                 @method('DELETE')
-                                                <button type="submit" class="btn btn-sm btn-danger" onclick="return confirm('Are you sure you want to delete this record?')">
+                                                <button type="submit" class="btn btn-sm btn-danger" onclick="return confirm('¿Está seguro que desea eliminar este registro?')">
                                                     <i class="fas fa-trash"></i>
                                                 </button>
                                             </form>
@@ -172,7 +172,7 @@
                                 </tr>
                                 @empty
                                 <tr>
-                                    <td colspan="11" class="text-center">No records available</td>
+                                    <td colspan="11" class="text-center">No hay registros disponibles</td>
                                 </tr>
                                 @endforelse
                             </tbody>
@@ -196,7 +196,7 @@
     $(document).ready(function() {
         $('#tabla-mantenimientos').DataTable({
             "language": {
-                "url": "//cdn.datatables.net/plug-ins/1.10.25/i18n/English.json"
+                "url": "//cdn.datatables.net/plug-ins/1.10.25/i18n/Spanish.json"
             },
             "order": [[0, "desc"]],
             "pageLength": 10

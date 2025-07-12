@@ -228,14 +228,14 @@
             <!-- Button to view the ticket -->
             <div class="row mb-4">
                 <div class="col-sm-6">
-                    <a href="{{ route('ventas.ticket', $venta) }}" class="btn btn-primary">Ver Ticket Local</a>
+                    <a href="{{ route('ventas.ticket', $venta) }}" class="btn btn-primary">Ver ticket local</a>
                 </div>
             </div>
 
             <!-- Button to print the ticket -->
             <div class="row mb-4">
                 <div class="col-sm-6">
-                    <a href="{{ route('ventas.printTicket', $venta) }}" class="btn btn-secondary">Imprimir Ticket para Cliente</a>
+                    <a href="{{ route('ventas.printTicket', $venta) }}" class="btn btn-secondary">Imprimir ticket para cliente</a>
                 </div>
             </div>
 

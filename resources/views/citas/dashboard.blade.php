@@ -1,6 +1,6 @@
 @extends('layouts.app')
 
-@section('title', 'Appointment Dashboard')
+@section('title', 'Panel de Citas')
 
 @push('css')
 <style>
@@ -119,21 +119,21 @@
 
 @section('content')
 <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pb-2 mb-3">
-    <h1 class="h2 mb-0">Appointment Dashboard <small class="text-muted">{{ now()->format('d/m/Y') }}</small></h1>
+    <h1 class="h2 mb-0">Panel de Citas <small class="text-muted">{{ now()->format('d/m/Y') }}</small></h1>
     <div class="d-flex align-items-center gap-3">
         <span class="refresh-timer">
             <i class="fas fa-sync-alt"></i>
-            Refresh in <span id="countdown" class="fw-bold">60</span>s
+            Refrescar en <span id="countdown" class="fw-bold">60</span>s
         </span>
         <div class="btn-group">
             <a href="{{ route('citas.index') }}" class="btn btn-action btn-outline-secondary">
-                <i class="fas fa-list"></i> View All
+                <i class="fas fa-list"></i> Ver Todas
             </a>
             <a href="{{ route('citas.create') }}" class="btn btn-action btn-outline-primary">
-                <i class="fas fa-plus-circle"></i> New Appointment
+                <i class="fas fa-plus-circle"></i> Nueva Cita
             </a>
             <button type="button" class="btn btn-action btn-outline-success" onclick="window.location.reload()">
-                <i class="fas fa-sync-alt"></i> Refresh
+                <i class="fas fa-sync-alt"></i> Refrescar
             </button>
         </div>
     </div>
@@ -154,7 +154,7 @@
             <div class="card-body">
                 <div class="d-flex justify-content-between align-items-center">
                     <div>
-                        <h6 class="card-title mb-1">Total Appointments</h6>
+                        <h6 class="card-title mb-1">Total de Citas</h6>
                         <p class="display-5 mb-0">{{ $citas->count() }}</p>
                     </div>
                     <i class="fas fa-calendar-alt stats-icon"></i>
@@ -167,7 +167,7 @@
             <div class="card-body">
                 <div class="d-flex justify-content-between align-items-center">
                     <div>
-                        <h6 class="card-title mb-1">Pending</h6>
+                        <h6 class="card-title mb-1">Pendientes</h6>
                         <p class="display-5 mb-0">{{ $citas->where('estado', 'pendiente')->count() }}</p>
                     </div>
                     <i class="fas fa-clock stats-icon"></i>
@@ -180,7 +180,7 @@
             <div class="card-body">
                 <div class="d-flex justify-content-between align-items-center">
                     <div>
-                        <h6 class="card-title mb-1">In Process</h6>
+                        <h6 class="card-title mb-1">En Proceso</h6>
                         <p class="display-5 mb-0">{{ $citas->where('estado', 'en_proceso')->count() }}</p>
                     </div>
                     <i class="fas fa-spinner stats-icon"></i>
@@ -193,7 +193,7 @@
             <div class="card-body">
                 <div class="d-flex justify-content-between align-items-center">
                     <div>
-                        <h6 class="card-title mb-1">Completed</h6>
+                        <h6 class="card-title mb-1">Completadas</h6>
                         <p class="display-5 mb-0">{{ $citas->where('estado', 'completada')->count() }}</p>
                     </div>
                     <i class="fas fa-check-circle stats-icon"></i>
@@ -207,7 +207,7 @@
 <div class="card mb-4">
     <div class="section-header bg-light">
         <i class="fas fa-clock text-warning"></i>
-        <h5 class="mb-0">Pending Appointments Queue</h5>
+        <h5 class="mb-0">Cola de Citas Pendientes</h5>
     </div>
     <div class="card-body">
         @if($citas->where('estado', 'pendiente')->count() > 0)
@@ -265,10 +265,10 @@
                 @endforeach
             </div>
         @else
-            <div class="alert alert-info m-0">
-                <i class="fas fa-info-circle me-2"></i>
-                There are no pending appointments for today
-            </div>
+                <div class="alert alert-info m-0">
+                    <i class="fas fa-info-circle me-2"></i>
+                    No hay citas pendientes para hoy
+                </div>
         @endif
     </div>
 </div>
@@ -277,7 +277,7 @@
 <div class="card mb-4">
     <div class="section-header bg-light">
         <i class="fas fa-spinner text-info"></i>
-        <h5 class="mb-0">Appointments In Process</h5>
+        <h5 class="mb-0">Citas en Proceso</h5>
     </div>
     <div class="card-body">
         @if($citas->where('estado', 'en_proceso')->count() > 0)
@@ -335,10 +335,10 @@
                 @endforeach
             </div>
         @else
-            <div class="alert alert-info m-0">
-                <i class="fas fa-info-circle me-2"></i>
-                There are no appointments in process currently
-            </div>
+                <div class="alert alert-info m-0">
+                    <i class="fas fa-info-circle me-2"></i>
+                    No hay citas en proceso actualmente
+                </div>
         @endif
     </div>
 </div>
@@ -347,7 +347,7 @@
 <div class="card mb-4">
     <div class="section-header bg-light">
         <i class="fas fa-check-circle text-success"></i>
-        <h5 class="mb-0">Appointments Completed Today</h5>
+        <h5 class="mb-0">Citas Completadas Hoy</h5>
     </div>
     <div class="card-body">
         @if($citas->where('estado', 'completada')->count() > 0)
@@ -380,10 +380,10 @@
                 @endforeach
             </div>
         @else
-            <div class="alert alert-info m-0">
-                <i class="fas fa-info-circle me-2"></i>
-                There are no appointments completed today
-            </div>
+                <div class="alert alert-info m-0">
+                    <i class="fas fa-info-circle me-2"></i>
+                    No hay citas completadas hoy
+                </div>
         @endif
     </div>
 </div>
@@ -392,7 +392,7 @@
 <div class="card mb-4">
     <div class="section-header bg-light">
         <i class="fas fa-ban text-danger"></i>
-        <h5 class="mb-0">Canceled Appointments <small class="text-muted">(Collapsible)</small></h5>
+        <h5 class="mb-0">Citas Canceladas <small class="text-muted">(Colapsable)</small></h5>
         <button class="btn btn-link ms-auto p-0 text-muted" type="button" data-bs-toggle="collapse" data-bs-target="#canceledContent">
             <i class="fas fa-chevron-down"></i>
         </button>
@@ -430,7 +430,7 @@
             @else
                 <div class="alert alert-info m-0">
                     <i class="fas fa-info-circle me-2"></i>
-                    There are no canceled appointments today
+                    No hay citas canceladas hoy
                 </div>
             @endif
         </div>

@@ -21,7 +21,7 @@
                 <option value="inactivo">Inactivo</option>
             </select>
         </div>
-        <button type="submit" class="btn btn-success">Guardar</button>
+        <button type="submit" class="btn btn-success">Registrar tipo de vehículo</button>
     </form>
     @endcan
 </div>

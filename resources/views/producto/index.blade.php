@@ -24,7 +24,7 @@
     @can('crear-producto')
     <div class="mb-4">
         <a href="{{route('productos.create')}}">
-            <button type="button" class="btn btn-primary">Agregar nuevo registro</button>
+            <button type="button" class="btn btn-primary">Agregar nuevo producto</button>
         </a>
     </div>
     @endcan

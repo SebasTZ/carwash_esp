@@ -126,7 +126,7 @@
 
                         <div class="form-group text-right">
                             <a href="{{ route('cocheras.index') }}" class="btn btn-secondary">Cancelar</a>
-                            <button type="submit" class="btn btn-success">Registrar Vehículo</button>
+                            <button type="submit" class="btn btn-success">Registrar vehículo</button>
                         </div>
                     </form>
                 </div>

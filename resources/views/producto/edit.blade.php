@@ -150,7 +150,7 @@
 
             </div>
             <div class="card-footer text-center">
-                <button type="submit" class="btn btn-primary">Guardar</button>
+                    <button type="submit" class="btn btn-success">Actualizar producto</button>
                 <button type="reset" class="btn btn-secondary">Restablecer</button>
             </div>
         </form>

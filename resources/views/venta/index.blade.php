@@ -28,20 +28,20 @@
     @can('crear-venta')
     <div class="mb-4">
         <a href="{{route('ventas.create')}}">
-            <button type="button" class="btn btn-primary">Agregar Nuevo Registro</button>
+            <button type="button" class="btn btn-primary">Agregar nuevo registro</button>
         </a>
     </div>
     @endcan
 
     <div class="mb-4">
     <a href="{{ route('ventas.reporte.diario') }}">
-        <button type="button" class="btn btn-secondary">Reporte Diario</button>
+        <button type="button" class="btn btn-secondary">Reporte diario</button>
     </a>
     <a href="{{ route('ventas.reporte.semanal') }}">
-        <button type="button" class="btn btn-secondary">Reporte Semanal</button>
+        <button type="button" class="btn btn-secondary">Reporte semanal</button>
     </a>
     <a href="{{ route('ventas.reporte.mensual') }}">
-        <button type="button" class="btn btn-secondary">Reporte Mensual</button>
+        <button type="button" class="btn btn-secondary">Reporte mensual</button>
     </a>
     </div>
 

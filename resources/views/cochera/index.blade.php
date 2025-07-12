@@ -162,7 +162,7 @@
                                             <form action="{{ route('cocheras.destroy', $cochera->id) }}" method="POST" style="display:inline">
                                                 @csrf
                                                 @method('DELETE')
-                                                <button type="submit" class="btn btn-sm btn-danger" onclick="return confirm('Are you sure you want to delete this record?')">
+                                                <button type="submit" class="btn btn-sm btn-danger" onclick="return confirm('¿Está seguro de que desea eliminar este registro?')">
                                                     <i class="fas fa-trash"></i>
                                                 </button>
                                             </form>

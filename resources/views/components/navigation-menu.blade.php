@@ -102,49 +102,49 @@
                 @can('ver-categoria')
                 <a class="nav-link" href="{{ route('categorias.index') }}">
                     <div class="sb-nav-link-icon"><i class="fa-solid fa-tag"></i></div>
-                    Categories
+                    Categorías
                 </a>
                 @endcan
                 @can('ver-presentacione')
                 <a class="nav-link" href="{{ route('presentaciones.index') }}">
                     <div class="sb-nav-link-icon"><i class="fa-solid fa-box-archive"></i></div>
-                    Presentations
+                    Presentaciones
                 </a>
                 @endcan
                 @can('ver-marca')
                 <a class="nav-link" href="{{ route('marcas.index') }}">
                     <div class="sb-nav-link-icon"><i class="fa-solid fa-bullhorn"></i></div>
-                    Brands
+                    Marcas
                 </a>
                 @endcan
                 @can('ver-tipo-vehiculo')
                 <a class="nav-link" href="{{ route('tipos_vehiculo.index') }}">
                     <div class="sb-nav-link-icon"><i class="fa-solid fa-car-side"></i></div>
-                    Vehicle Types
+                    Tipos de Vehículo
                 </a>
                 @endcan
 
-                <div class="sb-sidenav-menu-heading">Purchases & Suppliers</div>
+                <div class="sb-sidenav-menu-heading">Compras y Proveedores</div>
                 @can('ver-compra')
                 <a class="nav-link collapsed" href="#" data-bs-toggle="collapse" data-bs-target="#collapseCompras" aria-expanded="false">
                     <div class="sb-nav-link-icon"><i class="fa-solid fa-store"></i></div>
-                    Purchases
+                    Compras
                     <div class="sb-sidenav-collapse-arrow"><i class="fas fa-angle-down"></i></div>
                 </a>
                 <div class="collapse" id="collapseCompras" data-bs-parent="#sidenavAccordion">
                     <nav class="sb-sidenav-menu-nested nav">
-                        <a class="nav-link" href="{{ route('compras.index') }}">View Purchases</a>
-                        <a class="nav-link" href="{{ route('compras.create') }}">New Purchase</a>
+                        <a class="nav-link" href="{{ route('compras.index') }}">Ver compras</a>
+                        <a class="nav-link" href="{{ route('compras.create') }}">Nueva compra</a>
                         <a class="nav-link collapsed" href="#" data-bs-toggle="collapse" data-bs-target="#collapseReportesCompras" aria-expanded="false">
-                            Reports
+                            Reportes
                             <div class="sb-sidenav-collapse-arrow"><i class="fas fa-angle-down"></i></div>
                         </a>
                         <div class="collapse" id="collapseReportesCompras">
                             <nav class="sb-sidenav-menu-nested nav">
-                                <a class="nav-link" href="{{ route('compras.reporte.diario') }}">Daily Report</a>
-                                <a class="nav-link" href="{{ route('compras.reporte.semanal') }}">Weekly Report</a>
-                                <a class="nav-link" href="{{ route('compras.reporte.mensual') }}">Monthly Report</a>
-                                <a class="nav-link" href="{{ route('compras.reporte.personalizado') }}">Custom Report</a>
+                                <a class="nav-link" href="{{ route('compras.reporte.diario') }}">Reporte diario</a>
+                                <a class="nav-link" href="{{ route('compras.reporte.semanal') }}">Reporte semanal</a>
+                                <a class="nav-link" href="{{ route('compras.reporte.mensual') }}">Reporte mensual</a>
+                                <a class="nav-link" href="{{ route('compras.reporte.personalizado') }}">Reporte personalizado</a>
                             </nav>
                         </div>
                     </nav>
@@ -153,33 +153,33 @@
                 @can('ver-proveedore')
                 <a class="nav-link" href="{{ route('proveedores.index') }}">
                     <div class="sb-nav-link-icon"><i class="fa-solid fa-user-group"></i></div>
-                    Suppliers
+                    Proveedores
                 </a>
                 @endcan
 
-                <div class="sb-sidenav-menu-heading">Wash & Commissions</div>
+                <div class="sb-sidenav-menu-heading">Lavado y Comisiones</div>
                 @can('ver-lavador')
                 <a class="nav-link" href="{{ route('lavadores.index') }}">
                     <div class="sb-nav-link-icon"><i class="fa-solid fa-user-tie"></i></div>
-                    Washers
+                    Lavadores
                 </a>
                 @endcan
                 @can('ver-pago-comision')
                 <a class="nav-link" href="{{ route('pagos_comisiones.index') }}">
                     <div class="sb-nav-link-icon"><i class="fa-solid fa-money-bill-wave"></i></div>
-                    Commission Payments
+                    Pagos de Comisión
                 </a>
                 <a class="nav-link" href="{{ route('reporte.comisiones') }}">
                     <div class="sb-nav-link-icon"><i class="fa-solid fa-file-invoice-dollar"></i></div>
-                    Commission Report
+                    Reporte de Comisiones
                 </a>
                 @endcan
 
-                <div class="sb-sidenav-menu-heading">Administration</div>
+                <div class="sb-sidenav-menu-heading">Administración</div>
                 @can('ver-user')
                 <a class="nav-link" href="{{ route('users.index') }}">
                     <div class="sb-nav-link-icon"><i class="fa-solid fa-user"></i></div>
-                    Users
+                    Usuarios
                 </a>
                 @endcan
                 @can('ver-role')
@@ -191,14 +191,14 @@
                 @hasrole('administrador')
                 <a class="nav-link" href="{{ route('configuracion.edit') }}">
                     <div class="sb-nav-link-icon"><i class="fa-solid fa-gear"></i></div>
-                    Business Settings
+                    Configuración del Negocio
                 </a>
                 @endhasrole
             </div>
         </div>
         <div class="sb-sidenav-footer">
-            <div class="small">Welcome:</div>
-            {{ optional(auth()->user())->name ?? 'Guest' }}
+            <div class="small">Bienvenido:</div>
+            {{ optional(auth()->user())->name ?? 'Invitado' }}
         </div>
     </nav>
 </div>

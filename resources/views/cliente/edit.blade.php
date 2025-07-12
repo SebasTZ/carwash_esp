@@ -88,7 +88,7 @@
 
             </div>
             <div class="card-footer text-center">
-                <button type="submit" class="btn btn-primary">Save</button>
+                <button type="submit" class="btn btn-primary">Actualizar cliente</button>
             </div>
         </form>
     </div>

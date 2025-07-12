@@ -24,7 +24,7 @@
     @can('crear-cliente')
     <div class="mb-4">
         <a href="{{route('clientes.create')}}">
-            <button type="button" class="btn btn-primary">Add new record</button>
+            <button type="button" class="btn btn-primary">Agregar nuevo cliente</button>
         </a>
     </div>
     @endcan
@@ -71,7 +71,7 @@
                                     <form action="{{ route('clientes.destroy',['cliente'=>$cliente->id]) }}" method="post">
                                         @method('DELETE')
                                         @csrf
-                                        <button type="submit" class="btn btn-danger btn-sm" title="Delete" onclick="return confirm('Are you sure you want to delete this client?')">
+                                        <button type="submit" class="btn btn-danger btn-sm" title="Eliminar" onclick="return confirm('¿Estás seguro de que deseas eliminar este cliente?')">
                                             <i class="fas fa-trash"></i>
                                         </button>
                                     </form>

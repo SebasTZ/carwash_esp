@@ -31,7 +31,7 @@
                         <a class="nav-link active" aria-current="page" href="{{route('panel')}}">Inicio</a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link" href="#">Acerca de</a>
+                        <a class="nav-link" href="#">Sobre nosotros</a>
                     </li>
                 </ul>
 
@@ -62,7 +62,7 @@
         </button>
         <button class="carousel-control-next" type="button" data-bs-target="#carouselExample" data-bs-slide="next">
             <span class="carousel-control-next-icon" aria-hidden="true"></span>
-            <span class="visually-hidden">Siguiente</span>
+            <span class="visualmente-oculto">Siguiente</span>
         </button>
     </div>
 

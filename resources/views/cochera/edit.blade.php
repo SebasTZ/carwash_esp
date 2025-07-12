@@ -156,7 +156,7 @@
 
                         <div class="form-group text-right">
                             <a href="{{ route('cocheras.index') }}" class="btn btn-secondary">Cancelar</a>
-                            <button type="submit" class="btn btn-primary">Actualizar Registro</button>
+                            <button type="submit" class="btn btn-primary">Actualizar vehículo</button>
                         </div>
                     </form>
                 </div>

@@ -138,7 +138,7 @@
             </div>
             
             <div class="card-footer text-center">
-                <button type="submit" class="btn btn-primary">Guardar</button>
+                    <button type="submit" class="btn btn-success">Registrar producto</button>
             </div>
         </form>
     </div>

@@ -57,7 +57,7 @@
         </div>
         <div class="card-footer d-flex justify-content-end">
             <a href="{{ route('estacionamiento.index') }}" class="btn btn-secondary me-2">Cancelar</a>
-            <button type="submit" class="btn btn-primary">Registrar</button>
+            <button type="submit" class="btn btn-primary">Registrar estacionamiento</button>
         </div>
     </form>
 </div>

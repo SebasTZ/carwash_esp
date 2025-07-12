@@ -46,7 +46,7 @@
 
             </div>
             <div class="card-footer text-center">
-                <button type="submit" class="btn btn-primary">Actualizar</button>
+                <button type="submit" class="btn btn-primary">Actualizar categoría</button>
                 <button type="reset" class="btn btn-secondary">Restablecer</button>
             </div>
         </form>

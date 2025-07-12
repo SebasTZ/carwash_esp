@@ -22,7 +22,7 @@
                 <option value="inactivo" @if($tipoVehiculo->estado=='inactivo') selected @endif>Inactivo</option>
             </select>
         </div>
-        <button type="submit" class="btn btn-success">Actualizar</button>
+        <button type="submit" class="btn btn-success">Actualizar tipo de vehículo</button>
     </form>
     @endcan
 </div>

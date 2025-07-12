@@ -193,7 +193,7 @@
 
                         <!--Buttons--->
                         <div class="col-12 mt-4 text-center">
-                            <button type="submit" class="btn btn-success" id="guardar">Registrar Compra</button>
+                            <button type="submit" class="btn btn-success" id="guardar">Registrar compra</button>
                         </div>
 
                     </div>
@@ -214,8 +214,8 @@
                     Are you sure you want to cancel the purchase?
                 </div>
                 <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-                    <button id="btnCancelarCompra" type="button" class="btn btn-danger" data-bs-dismiss="modal">Confirm</button>
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
+                    <button id="btnCancelarCompra" type="button" class="btn btn-danger" data-bs-dismiss="modal">Confirmar</button>
                 </div>
             </div>
         </div>
