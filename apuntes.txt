@@ -1,0 +1,64 @@
+1. Pruebas y Validación
+2. Configurar Roles y Permisos
+3. Mejorar la Experiencia de Usuario (UI/UX)
+4. Exportación de Datos
+5. Optimización y Seguridad
+6. Despliegue a Producción
+7. Documentación
+8. Mantenimiento y Actualizaciones
+
+LIMPIEZA CACHE
+php artisan view:clear
+php artisan config:clear
+php artisan cache:clear
+php artisan route:clear
+
+REINICIAR LA BD:
+php artisan migrate:fresh
+RELLENAR LA BD Y ACTUALIZAR:
+php artisan migrate:fresh --seed
+
+npm run dev
+npm run build
+php artisan serve
+
+php artisan key:generate 
+php artisan test
+
+composer dump-autoload A veces, Laravel necesita refrescar el autoloader de Composer para reconocer nuevas clases o middlewares. 
+php artisan migrate Verificar la migración de permisos y roles
+php artisan db:seed --class=RolesAndPermissionsSeeder asegúrate de que el usuario administrador tenga los permisos necesarios
+
+USUARIOS:
+Ventas ventas@example.com IMAC2024
+Taller taller@example.com IMAC2024
+
+Cache se quedo con las versiones antiguas y lo que falto es actualizar:
+composer clear-cache
+Actualizar Composer cuando se cambia de version php:
+composer update
+Para Laravel tener activado en php.ini:
+extension=curl
+extension=fileinfo
+extension=gd
+extension=intl
+extension=mbstring
+extension=openssl
+extension=zip
+extension=pdo_mysql
+extension=mysqli
+---------------------------------
+
+Siempre---> commit y push en git
+admin@example.com
+ventas@example.com
+taller@example.com
+
+Se inicio sesion con admin@example.com y se dieron los siguientes errores:
+- Gestion de material: Queremos agregar materiales y sale error 403, queremos ver el producto y sale error 403, queremos ver el producto y sale error 403, quiero eliminar el producto y sale error 403
+- Gestion de pedidos: Queremos agregar un pedido sale error Undefined variable $clientes, queremos editar el pedido y sale error 403, queremos eliminar un pedido y sale error Route [adminventas.pedidos.index] not defined.
+- Gestion de usuario: sale error syntax error, unexpected identifier "admin", expecting ")"
+- Gestion de trabajos: Cuando le damos a editar sale el error Undefined variable $pedidos
+
+Carwash
+Carwash2025
