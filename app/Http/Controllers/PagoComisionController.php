@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+
 use App\Models\PagoComision;
 use App\Models\Lavador;
 use App\Models\ControlLavado;
@@ -10,6 +11,7 @@ use App\Exports\ComisionesLavadorExport;
 use Maatwebsite\Excel\Facades\Excel;
 use Illuminate\Support\Carbon;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Log;
 
 class PagoComisionController extends Controller
 {
@@ -62,13 +64,29 @@ class PagoComisionController extends Controller
         return redirect()->route('pagos_comisiones.index')->with('success', 'Pago registrado correctamente.');
     }
 
-    public function show(Lavador $lavador)
+
+    public function show(Lavador $lavador, Request $request)
     {
-        $pagos = PagoComision::where('lavador_id', $lavador->id)->orderBy('fecha_pago', 'desc')->get();
-        // Acceso directo al reporte de comisiones de este lavador
-        $reporteUrl = route('reporte.comisiones', ['lavador_id' => $lavador->id]);
-        return view('pagos_comisiones.show', compact('lavador', 'pagos', 'reporteUrl'));
+        // Si no hay fechas en la URL, usar primer y último día del mes actual
+        $fechaInicio = $request->input('fecha_inicio', now()->startOfMonth()->toDateString());
+        $fechaFin = $request->input('fecha_fin', now()->endOfMonth()->toDateString());
+
+        $pagosQuery = PagoComision::where('lavador_id', $lavador->id)
+            ->where('desde', '<=', $fechaFin)
+            ->where('hasta', '>=', $fechaInicio);
+
+        $pagos = $pagosQuery->orderBy('fecha_pago', 'desc')->get();
+
+        // Ruta al reporte de este lavador con el mismo rango de fechas
+        $reporteUrl = route('reporte.comisiones', [
+            'lavador_id' => $lavador->id,
+            'fecha_inicio' => $fechaInicio,
+            'fecha_fin' => $fechaFin
+        ]);
+
+        return view('pagos_comisiones.show', compact('lavador', 'pagos', 'reporteUrl', 'fechaInicio', 'fechaFin'));
     }
+
 
     public function reporteComisiones(Request $request)
     {
@@ -87,12 +105,10 @@ class PagoComisionController extends Controller
             $comisionTotal = $lavados->sum(function($lavado) {
                 return $lavado->tipoVehiculo ? $lavado->tipoVehiculo->comision : 0;
             });
-            // Total pagado en el rango
+            // Total pagado en el rango (pagos que se solapan con el rango)
             $pagado = $lavador->pagosComisiones()
-                ->where(function($q) use ($fechaInicio, $fechaFin) {
-                    $q->whereBetween('desde', [$fechaInicio, $fechaFin])
-                      ->orWhereBetween('hasta', [$fechaInicio, $fechaFin]);
-                })
+                ->where('desde', '<=', $fechaFin)
+                ->where('hasta', '>=', $fechaInicio)
                 ->sum('monto_pagado');
             $saldo = $comisionTotal - $pagado;
             $data[] = [
@@ -106,13 +122,14 @@ class PagoComisionController extends Controller
         return view('pagos_comisiones.reporte', compact('data', 'fechaInicio', 'fechaFin'));
     }
 
+
     public function exportarComisiones(Request $request)
     {
         $fechaInicio = $request->input('fecha_inicio', now()->startOfMonth()->toDateString());
         $fechaFin = $request->input('fecha_fin', now()->endOfMonth()->toDateString());
         
         $lavadores = Lavador::where('estado', 'activo')->get();
-        \Log::info('Lavadores activos exportados:', $lavadores->pluck('nombre')->toArray());
+        Log::info('Lavadores activos exportados:', $lavadores->pluck('nombre')->toArray());
         $data = [];
         
         foreach ($lavadores as $lavador) {
@@ -124,11 +141,10 @@ class PagoComisionController extends Controller
             $comisionTotal = $lavados->sum(function($lavado) {
                 return $lavado->tipoVehiculo ? $lavado->tipoVehiculo->comision : 0;
             });
+            // Total pagado en el rango (pagos que se solapan con el rango)
             $pagado = $lavador->pagosComisiones()
-                ->where(function($q) use ($fechaInicio, $fechaFin) {
-                    $q->whereBetween('desde', [$fechaInicio, $fechaFin])
-                      ->orWhereBetween('hasta', [$fechaInicio, $fechaFin]);
-                })
+                ->where('desde', '<=', $fechaFin)
+                ->where('hasta', '>=', $fechaInicio)
                 ->sum('monto_pagado');
             $saldo = $comisionTotal - $pagado;
             $data[] = [
@@ -145,7 +161,7 @@ class PagoComisionController extends Controller
             return strcmp($a['lavador']->nombre, $b['lavador']->nombre);
         });
         
-        \Log::info('Data enviada a Excel:', collect($data)->map(function($row) {
+        Log::info('Data enviada a Excel:', collect($data)->map(function($row) {
             return [
                 'nombre' => $row['lavador']->nombre,
                 'cantidad' => $row['cantidad'],

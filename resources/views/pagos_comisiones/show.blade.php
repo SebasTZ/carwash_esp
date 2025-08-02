@@ -42,9 +42,18 @@
                     @endif
                 </div>
                 <div class="card-footer text-end">
-                    <a href="{{ route('pagos_comisiones.index') }}" class="btn btn-secondary">
-                        <i class="fas fa-arrow-left me-1"></i> Volver a Pagos
-                    </a>
+                    @if(isset($fechaInicio) && isset($fechaFin))
+                        <a href="{{ route('pagos_comisiones.reporte', [
+                            'fecha_inicio' => $fechaInicio,
+                            'fecha_fin' => $fechaFin
+                        ]) }}" class="btn btn-secondary">
+                            <i class="fas fa-arrow-left me-1"></i> Volver al Reporte
+                        </a>
+                    @else
+                        <a href="{{ route('pagos_comisiones.index') }}" class="btn btn-secondary">
+                            <i class="fas fa-arrow-left me-1"></i> Volver a Pagos
+                        </a>
+                    @endif
                 </div>
             </div>
         </div>

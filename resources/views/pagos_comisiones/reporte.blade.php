@@ -25,6 +25,7 @@
                 <th>Comisión Total</th>
                 <th>Total Pagado</th>
                 <th>Pendiente</th>
+                <th>Acciones</th>
             </tr>
         </thead>
         <tbody>
@@ -35,6 +36,13 @@
                     <td>{{ number_format($row['comision_total'], 2) }}</td>
                     <td>{{ number_format($row['pagado'], 2) }}</td>
                     <td>{{ number_format($row['saldo'], 2) }}</td>
+                    <td>
+                        <a href="{{ route('pagos_comisiones.lavador', [
+                            'lavador' => $row['lavador']->id,
+                            'fecha_inicio' => $fechaInicio,
+                            'fecha_fin' => $fechaFin
+                        ]) }}" class="btn btn-sm btn-info">Historial</a>
+                    </td>
                 </tr>
             @endforeach
         </tbody>
@@ -54,7 +62,11 @@
         </thead>
         <tbody>
             @foreach(\App\Models\Lavador::where('estado', 'activo')->get() as $lavador)
-                @foreach($lavador->pagosComisiones()->orderBy('fecha_pago', 'desc')->get() as $pago)
+                @foreach($lavador->pagosComisiones()
+                    ->where('desde', '<=', $fechaFin)
+                    ->where('hasta', '>=', $fechaInicio)
+                    ->orderBy('fecha_pago', 'desc')
+                    ->get() as $pago)
                     <tr>
                         <td>{{ $lavador->nombre }}</td>
                         <td>{{ number_format($pago->monto_pagado, 2) }}</td>
