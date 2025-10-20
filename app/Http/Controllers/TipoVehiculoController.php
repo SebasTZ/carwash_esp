@@ -17,7 +17,7 @@ class TipoVehiculoController extends Controller
 
     public function index()
     {
-        $tipos = TipoVehiculo::all();
+        $tipos = TipoVehiculo::paginate(15);
         return view('tipos_vehiculo.index', compact('tipos'));
     }
 

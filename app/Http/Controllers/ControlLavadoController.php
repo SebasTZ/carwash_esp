@@ -46,7 +46,7 @@ class ControlLavadoController extends Controller
 
         $lavadores = Lavador::where('estado', 'activo')->get();
         $tiposVehiculo = TipoVehiculo::where('estado', 'activo')->get();
-        $lavados = $query->orderBy('hora_llegada', 'desc')->get();
+        $lavados = $query->orderBy('hora_llegada', 'desc')->paginate(15);
 
         return view('control.lavados', compact('lavados', 'lavadores', 'tiposVehiculo'));
     }

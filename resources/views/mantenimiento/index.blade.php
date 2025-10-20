@@ -72,7 +72,7 @@
                     </div>
                     
                     <div class="table-responsive">
-                        <table id="tabla-mantenimientos" class="table table-bordered table-striped">
+                        <table class="table table-bordered table-striped">
                             <thead>
                                 <tr>
                                     <th>ID</th>
@@ -178,6 +178,13 @@
                             </tbody>
                         </table>
                     </div>
+
+                    <!-- Paginación usando componente con preservación de filtros -->
+                    <x-pagination-info 
+                        :paginator="$mantenimientos" 
+                        entity="mantenimientos" 
+                        :preserve-query="true" 
+                    />
                 </div>
             </div>
         </div>
@@ -186,21 +193,9 @@
 @stop
 
 @section('css')
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/datatables/1.10.21/css/dataTables.bootstrap4.min.css">
+<!-- DataTables removido para usar paginación de Laravel -->
 @stop
 
 @section('js')
-<script src="https://cdnjs.cloudflare.com/ajax/libs/datatables/1.10.21/js/jquery.dataTables.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/datatables/1.10.21/js/dataTables.bootstrap4.min.js"></script>
-<script>
-    $(document).ready(function() {
-        $('#tabla-mantenimientos').DataTable({
-            "language": {
-                "url": "//cdn.datatables.net/plug-ins/1.10.25/i18n/Spanish.json"
-            },
-            "order": [[0, "desc"]],
-            "pageLength": 10
-        });
-    });
-</script>
+<!-- DataTables removido para usar paginación de Laravel -->
 @stop

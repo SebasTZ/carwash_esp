@@ -23,7 +23,7 @@ class marcaController extends Controller
      */
     public function index()
     {
-        $marcas = Marca::with('caracteristica')->latest()->get();
+        $marcas = Marca::with('caracteristica')->latest()->paginate(15);
         return view('marca.index',compact('marcas'));
     }
 

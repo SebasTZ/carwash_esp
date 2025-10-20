@@ -357,6 +357,14 @@
                     </tbody>
                 </table>
             </div>
+
+            <!-- Paginación usando componente con preservación de filtros -->
+            <x-pagination-info 
+                :paginator="$lavados" 
+                entity="lavados" 
+                :preserve-query="true" 
+                class="px-3" 
+            />
         </div>
     </div>
 </div>

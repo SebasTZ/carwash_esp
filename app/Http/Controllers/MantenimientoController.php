@@ -37,7 +37,7 @@ class MantenimientoController extends Controller
             $query->where('estado', '!=', 'entregado');
         }
         
-        $mantenimientos = $query->latest()->get();
+        $mantenimientos = $query->latest()->paginate(15);
         
         return view('mantenimiento.index', compact('mantenimientos'));
     }

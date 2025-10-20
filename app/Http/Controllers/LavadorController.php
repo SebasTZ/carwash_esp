@@ -17,7 +17,7 @@ class LavadorController extends Controller
 
     public function index()
     {
-        $lavadores = Lavador::all();
+        $lavadores = Lavador::paginate(15);
         return view('lavadores.index', compact('lavadores'));
     }
 

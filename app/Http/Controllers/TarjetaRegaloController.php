@@ -24,7 +24,7 @@ class TarjetaRegaloController extends Controller
 
     public function index()
     {
-        $tarjetas = TarjetaRegalo::with('cliente')->get();
+        $tarjetas = TarjetaRegalo::with('cliente')->paginate(15);
         // Si es AJAX o API, responde JSON. Si es web, muestra la vista.
         if (request()->ajax()) {
             return response()->json($tarjetas);

@@ -30,5 +30,8 @@
             @endforeach
         </tbody>
     </table>
+
+    <!-- Paginación usando componente -->
+    <x-pagination-info :paginator="$tipos" entity="tipos de vehículo" />
 </div>
 @endsection

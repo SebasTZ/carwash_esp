@@ -31,6 +31,13 @@
                     @endforeach
                 </tbody>
             </table>
+
+            <!-- Paginación Clientes Frecuentes usando componente -->
+            <x-pagination-multi 
+                :paginator="$clientes_frecuentes" 
+                entity="clientes" 
+                page-name="clientes_page" 
+            />
         </div>
     </div>
     <div class="card mb-4">
@@ -57,6 +64,13 @@
                     @endforeach
                 </tbody>
             </table>
+
+            <!-- Paginación Lavados Gratis usando componente -->
+            <x-pagination-multi 
+                :paginator="$lavados_gratis" 
+                entity="lavados gratis" 
+                page-name="lavados_page" 
+            />
         </div>
     </div>
     <a href="{{ route('fidelidad.export.excel') }}" class="btn btn-success mb-3">Exportar a Excel</a>

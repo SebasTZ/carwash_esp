@@ -23,7 +23,7 @@ class presentacioneController extends Controller
      */
     public function index()
     {
-        $presentaciones = Presentacione::with('caracteristica')->latest()->get();
+        $presentaciones = Presentacione::with('caracteristica')->latest()->paginate(15);
         return view('presentacione.index', compact('presentaciones'));
     }
 

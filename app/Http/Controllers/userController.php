@@ -26,7 +26,7 @@ class userController extends Controller
      */
     public function index()
     {
-        $users = User::all();
+        $users = User::paginate(15);
         return view('user.index', compact('users'));
     }
 
@@ -48,7 +48,9 @@ class userController extends Controller
             DB::beginTransaction();
 
             //Encriptar contraseña
-            $fieldHash = Hash::make($request->password);
+            /** @var string $password */
+            $password = $request->input('password');
+            $fieldHash = Hash::make($password);
             //Modificar el valor de password en nuestro request
             $request->merge(['password' => $fieldHash]);
 
@@ -56,7 +58,9 @@ class userController extends Controller
             $user = User::create($request->all());
 
             //Asignar su rol
-            $user->assignRole($request->role);
+            /** @var string $role */
+            $role = $request->input('role');
+            $user->assignRole($role);
 
             DB::commit();
         } catch (Exception $e) {
@@ -92,17 +96,21 @@ class userController extends Controller
             DB::beginTransaction();
 
             /*Comprobar el password y aplicar el Hash*/
-            if (empty($request->password)) {
+            /** @var string|null $password */
+            $password = $request->input('password');
+            if (empty($password)) {
                 $request = Arr::except($request, array('password'));
             } else {
-                $fieldHash = Hash::make($request->password);
+                $fieldHash = Hash::make($password);
                 $request->merge(['password' => $fieldHash]);
             }
 
             $user->update($request->all());
 
             /**Actualizar rol */
-            $user->syncRoles([$request->role]);
+            /** @var string $role */
+            $role = $request->input('role');
+            $user->syncRoles([$role]);
 
             DB::commit();
         } catch (Exception $e) {

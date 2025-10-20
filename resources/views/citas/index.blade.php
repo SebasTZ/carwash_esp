@@ -239,4 +239,7 @@
         </tbody>
     </table>
 </div>
+
+<!-- Paginación con preservación de filtros -->
+<x-pagination-info :paginator="$citas" entity="citas" :preserve-query="true" />
 @endsection

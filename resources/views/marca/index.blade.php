@@ -35,7 +35,7 @@
             Tabla de Marcas
         </div>
         <div class="card-body">
-            <table id="datatablesSimple" class="table table-striped fs-6">
+            <table class="table table-striped fs-6">
                 <thead>
                     <tr>
                         <th>Nombre</th>
@@ -125,6 +125,9 @@
                     @endforeach
                 </tbody>
             </table>
+
+            <!-- Paginación usando componente -->
+            <x-pagination-info :paginator="$marcas" entity="marcas" />
         </div>
     </div>
 
@@ -133,6 +136,5 @@
 @endsection
 
 @push('js')
-<script src="https://cdn.jsdelivr.net/npm/simple-datatables@latest" type="text/javascript"></script>
-<script src="{{ asset('js/datatables-simple-demo.js') }}"></script>
+<!-- DataTables removido para usar paginación de Laravel -->
 @endpush

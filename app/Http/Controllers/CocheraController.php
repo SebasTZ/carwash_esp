@@ -36,7 +36,7 @@ class CocheraController extends Controller
             $query->where('estado', 'activo');
         }
         
-        $cocheras = $query->latest()->get();
+        $cocheras = $query->latest()->paginate(15);
         
         return view('cochera.index', compact('cocheras'));
     }

@@ -51,6 +51,9 @@
                     @endforeach
                 </tbody>
             </table>
+
+            <!-- Paginación usando componente -->
+            <x-pagination-info :paginator="$tarjetas" entity="tarjetas de regalo" />
         </div>
     </div>
 </div>

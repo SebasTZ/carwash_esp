@@ -43,7 +43,7 @@ class ventaController extends Controller
         $ventas = Venta::with(['comprobante','cliente.persona','user'])
         ->where('estado',1)
         ->latest()
-        ->get();
+        ->paginate(15);
 
         return view('venta.index',compact('ventas'));
     }

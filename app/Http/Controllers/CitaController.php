@@ -48,7 +48,7 @@ class CitaController extends Controller
             $query->whereDate('fecha', now()->toDateString());
         }
 
-        $citas = $query->orderBy('fecha')->orderBy('posicion_cola')->get();
+        $citas = $query->orderBy('fecha')->orderBy('posicion_cola')->paginate(15);
 
         return view('citas.index', compact('citas'));
     }

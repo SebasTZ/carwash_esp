@@ -51,7 +51,7 @@
             Tabla de Ventas
         </div>
         <div class="card-body">
-            <table id="datatablesSimple" class="table table-striped">
+            <table class="table table-striped">
                 <thead>
                     <tr>
                         <th>Comprobante</th>
@@ -160,6 +160,9 @@
                     @endforeach
                 </tbody>
             </table>
+
+            <!-- Paginación usando componente -->
+            <x-pagination-info :paginator="$ventas" entity="ventas" />
         </div>
     </div>
 
@@ -167,12 +170,5 @@
 @endsection
 
 @push('js')
-<script src="https://cdn.jsdelivr.net/npm/simple-datatables@latest" type="text/javascript"></script>
-<script>
-    // Simple-DataTables
-    // https://github.com/fiduswriter/Simple-DataTables/wiki
-    window.addEventListener('DOMContentLoaded', event => {
-        const dataTable = new simpleDatatables.DataTable("#datatablesSimple", {})
-    });
-</script>
+<!-- DataTables removido para usar paginación de Laravel -->
 @endpush

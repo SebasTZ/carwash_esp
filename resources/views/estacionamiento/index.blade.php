@@ -23,7 +23,7 @@
                 <div class="alert alert-success">{{ session('success') }}</div>
             @endif
 
-            <table id="datatablesSimple" class="table table-striped">
+            <table class="table table-striped">
                 <thead>
                     <tr>
                         <th>Placa</th>
@@ -67,6 +67,9 @@
                     @endforeach
                 </tbody>
             </table>
+
+            <!-- Paginación usando componente -->
+            <x-pagination-info :paginator="$estacionamientos" entity="vehículos" />
         </div>
     </div>
 </div>

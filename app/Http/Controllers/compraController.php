@@ -33,7 +33,7 @@ class compraController extends Controller
         $compras = Compra::with('comprobante','proveedore.persona')
         ->where('estado',1)
         ->latest()
-        ->get(); 
+        ->paginate(15); 
         return view('compra.index',compact('compras'));
     }
 

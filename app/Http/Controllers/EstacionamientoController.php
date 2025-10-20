@@ -32,7 +32,7 @@ class EstacionamientoController extends Controller
         $estacionamientos = Estacionamiento::with('cliente.persona')
             ->where('estado', 'ocupado')
             ->latest()
-            ->get();
+            ->paginate(15);
 
         return view('estacionamiento.index', compact('estacionamientos'));
     }

@@ -34,5 +34,8 @@
             @endforeach
         </tbody>
     </table>
+
+    <!-- Paginación usando componente -->
+    <x-pagination-info :paginator="$pagos" entity="pagos" />
 </div>
 @endsection

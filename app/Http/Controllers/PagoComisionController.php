@@ -24,7 +24,7 @@ class PagoComisionController extends Controller
 
     public function index()
     {
-        $pagos = PagoComision::with('lavador')->get();
+        $pagos = PagoComision::with('lavador')->paginate(15);
         return view('pagos_comisiones.index', compact('pagos'));
     }
 

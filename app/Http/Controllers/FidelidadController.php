@@ -56,8 +56,8 @@ class FidelidadController extends Controller
 
     public function reporteView(Request $request)
     {
-        $clientes_frecuentes = \App\Models\Cliente::with('persona')->orderByDesc('lavados_acumulados')->get();
-        $lavados_gratis = \App\Models\Venta::where('lavado_gratis', true)->with('cliente.persona')->get();
+        $clientes_frecuentes = \App\Models\Cliente::with('persona')->orderByDesc('lavados_acumulados')->paginate(15);
+        $lavados_gratis = \App\Models\Venta::where('lavado_gratis', true)->with('cliente.persona')->paginate(15);
         return view('fidelidad.reporte', compact('clientes_frecuentes', 'lavados_gratis'));
     }
 

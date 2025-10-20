@@ -25,7 +25,7 @@ class ProveedorController extends Controller
      */
     public function index()
     {
-        $proveedores = Proveedore::with('persona.documento')->get();
+        $proveedores = Proveedore::with('persona.documento')->paginate(15);
         return view('proveedore.index', compact('proveedores'));
     }
 
