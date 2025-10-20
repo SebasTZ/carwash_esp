@@ -50,6 +50,102 @@ class Producto extends Model
         return $this->belongsTo(Presentacione::class);
     }
 
+    // ============================================
+    // QUERY SCOPES
+    // ============================================
+
+    /**
+     * Scope para filtrar productos activos
+     */
+    public function scopeActivos($query)
+    {
+        return $query->where('estado', 1);
+    }
+
+    /**
+     * Scope para filtrar productos con stock disponible
+     */
+    public function scopeConStock($query)
+    {
+        return $query->where('stock', '>', 0);
+    }
+
+    /**
+     * Scope para filtrar productos que NO son servicios de lavado
+     */
+    public function scopeNoServicio($query)
+    {
+        return $query->where('es_servicio_lavado', false);
+    }
+
+    /**
+     * Scope para filtrar solo servicios de lavado
+     */
+    public function scopeServiciosLavado($query)
+    {
+        return $query->where('es_servicio_lavado', true);
+    }
+
+    /**
+     * Scope para productos con stock bajo
+     */
+    public function scopeStockBajo($query, $limite = 10)
+    {
+        return $query->where('stock', '<=', $limite)
+            ->where('stock', '>', 0)
+            ->where('es_servicio_lavado', false);
+    }
+
+    /**
+     * Scope para buscar productos por nombre o código
+     */
+    public function scopeBuscar($query, $termino)
+    {
+        return $query->where(function($q) use ($termino) {
+            $q->where('nombre', 'LIKE', "%{$termino}%")
+              ->orWhere('codigo', 'LIKE', "%{$termino}%");
+        });
+    }
+
+    // ============================================
+    // ACCESSORS & MUTATORS
+    // ============================================
+
+    /**
+     * Obtiene el estado del stock
+     */
+    public function getStockStatusAttribute(): string
+    {
+        if ($this->es_servicio_lavado) {
+            return 'servicio';
+        }
+        if ($this->stock <= 0) {
+            return 'agotado';
+        }
+        if ($this->stock <= ($this->stock_minimo ?? 10)) {
+            return 'bajo';
+        }
+        return 'disponible';
+    }
+
+    /**
+     * Obtiene el color del badge según el estado del stock
+     */
+    public function getStockStatusColorAttribute(): string
+    {
+        return match($this->stock_status) {
+            'agotado' => 'danger',
+            'bajo' => 'warning',
+            'disponible' => 'success',
+            'servicio' => 'info',
+            default => 'secondary',
+        };
+    }
+
+    // ============================================
+    // MÉTODOS AUXILIARES
+    // ============================================
+
     public function handleUploadImage($image)
     {
         $file = $image;

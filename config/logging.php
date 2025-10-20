@@ -70,6 +70,20 @@ return [
             'days' => 14,
         ],
 
+        'ventas' => [
+            'driver' => 'daily',
+            'path' => storage_path('logs/ventas.log'),
+            'level' => 'info',
+            'days' => 14,
+        ],
+
+        'stock' => [
+            'driver' => 'daily',
+            'path' => storage_path('logs/stock.log'),
+            'level' => 'warning',
+            'days' => 30,
+        ],
+
         'slack' => [
             'driver' => 'slack',
             'url' => env('LOG_SLACK_WEBHOOK_URL'),

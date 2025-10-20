@@ -13,7 +13,17 @@ class AppServiceProvider extends ServiceProvider
      */
     public function register()
     {
-        //
+        // Registrar servicios como singletons
+        $this->app->singleton(\App\Services\VentaService::class);
+        $this->app->singleton(\App\Services\StockService::class);
+        $this->app->singleton(\App\Services\FidelizacionService::class);
+        $this->app->singleton(\App\Services\TarjetaRegaloService::class);
+        $this->app->singleton(\App\Services\ComprobanteService::class);
+
+        // Registrar repositorios como singletons
+        $this->app->singleton(\App\Repositories\VentaRepository::class);
+        $this->app->singleton(\App\Repositories\ProductoRepository::class);
+        $this->app->singleton(\App\Repositories\CaracteristicaRepository::class);
     }
 
     /**
@@ -23,6 +33,8 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot()
     {
-        //
+        // Registrar Observers
+        \App\Models\Producto::observe(\App\Observers\ProductoObserver::class);
+        \App\Models\Venta::observe(\App\Observers\VentaObserver::class);
     }
 }

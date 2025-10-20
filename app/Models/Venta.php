@@ -54,4 +54,84 @@ class Venta extends Model
         return $this->belongsToMany(Producto::class)->withTimestamps()
         ->withPivot('cantidad','precio_venta','descuento');
     }
+
+    // ============================================
+    // QUERY SCOPES
+    // ============================================
+
+    /**
+     * Scope para filtrar ventas del día
+     */
+    public function scopeDelDia($query, $fecha = null)
+    {
+        return $query->whereDate('fecha_hora', $fecha ?? today());
+    }
+
+    /**
+     * Scope para filtrar ventas de la semana
+     */
+    public function scopeDeLaSemana($query)
+    {
+        return $query->whereBetween('fecha_hora', [
+            now()->startOfWeek(),
+            now()->endOfWeek()
+        ]);
+    }
+
+    /**
+     * Scope para filtrar ventas del mes
+     */
+    public function scopeDelMes($query, $mes = null, $anio = null)
+    {
+        return $query->whereMonth('fecha_hora', $mes ?? now()->month)
+            ->whereYear('fecha_hora', $anio ?? now()->year);
+    }
+
+    /**
+     * Scope para cargar todas las relaciones comunes
+     */
+    public function scopeConRelaciones($query)
+    {
+        return $query->with([
+            'cliente.persona',
+            'productos',
+            'comprobante',
+            'user'
+        ]);
+    }
+
+    /**
+     * Scope para filtrar por medio de pago
+     */
+    public function scopePorMedioPago($query, $medio)
+    {
+        return $query->where('medio_pago', $medio);
+    }
+
+    /**
+     * Scope para filtrar ventas activas
+     */
+    public function scopeActivas($query)
+    {
+        return $query->where('estado', 1);
+    }
+
+    /**
+     * Scope para filtrar ventas con servicio de lavado
+     */
+    public function scopeConServicioLavado($query)
+    {
+        return $query->where('servicio_lavado', true);
+    }
+
+    /**
+     * Scope para filtrar por rango de fechas
+     */
+    public function scopeEntreFechas($query, $fechaInicio, $fechaFin)
+    {
+        return $query->whereBetween('fecha_hora', [
+            $fechaInicio . ' 00:00:00',
+            $fechaFin . ' 23:59:59'
+        ]);
+    }
 }

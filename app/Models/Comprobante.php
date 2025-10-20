@@ -9,6 +9,12 @@ class Comprobante extends Model
 {
     use HasFactory;
 
+    protected $fillable = [
+        'tipo_comprobante',
+        'serie',
+        'estado',
+    ];
+
     public function compras(){
         return $this->hasMany(Compra::class);
     }

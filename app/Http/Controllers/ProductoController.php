@@ -8,14 +8,18 @@ use App\Models\Categoria;
 use App\Models\Marca;
 use App\Models\Presentacione;
 use App\Models\Producto;
+use App\Repositories\CaracteristicaRepository;
+use App\Repositories\ProductoRepository;
 use Exception;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
 
 class ProductoController extends Controller
 {
-    function __construct()
-    {
+    public function __construct(
+        private CaracteristicaRepository $caracteristicaRepo,
+        private ProductoRepository $productoRepo
+    ) {
         $this->middleware('permission:ver-producto|crear-producto|editar-producto|eliminar-producto', ['only' => ['index']]);
         $this->middleware('permission:crear-producto', ['only' => ['create', 'store']]);
         $this->middleware('permission:editar-producto', ['only' => ['edit', 'update']]);
@@ -36,22 +40,11 @@ class ProductoController extends Controller
      */
     public function create()
     {
-        $marcas = Marca::join('caracteristicas as c', 'marcas.caracteristica_id', '=', 'c.id')
-            ->select('marcas.id as id', 'c.nombre as nombre')
-            ->where('c.estado', 1)
-            ->get();
-
-        $presentaciones = Presentacione::join('caracteristicas as c', 'presentaciones.caracteristica_id', '=', 'c.id')
-            ->select('presentaciones.id as id', 'c.nombre as nombre')
-            ->where('c.estado', 1)
-            ->get();
-
-        $categorias = Categoria::join('caracteristicas as c', 'categorias.caracteristica_id', '=', 'c.id')
-            ->select('categorias.id as id', 'c.nombre as nombre')
-            ->where('c.estado', 1)
-            ->get();
-
-        return view('producto.create', compact('marcas', 'presentaciones', 'categorias'));
+        return view('producto.create', [
+            'marcas' => $this->caracteristicaRepo->obtenerMarcasActivas(),
+            'presentaciones' => $this->caracteristicaRepo->obtenerPresentacionesActivas(),
+            'categorias' => $this->caracteristicaRepo->obtenerCategoriasActivas(),
+        ]);
     }
 
     /**
@@ -89,6 +82,10 @@ class ProductoController extends Controller
 
 
             DB::commit();
+            
+            // Limpiar caché de productos
+            $this->productoRepo->limpiarCache();
+            
         } catch (Exception $e) {
             DB::rollBack();
         }
@@ -109,22 +106,12 @@ class ProductoController extends Controller
      */
     public function edit(Producto $producto)
     {
-        $marcas = Marca::join('caracteristicas as c', 'marcas.caracteristica_id', '=', 'c.id')
-            ->select('marcas.id as id', 'c.nombre as nombre')
-            ->where('c.estado', 1)
-            ->get();
-
-        $presentaciones = Presentacione::join('caracteristicas as c', 'presentaciones.caracteristica_id', '=', 'c.id')
-            ->select('presentaciones.id as id', 'c.nombre as nombre')
-            ->where('c.estado', 1)
-            ->get();
-
-        $categorias = Categoria::join('caracteristicas as c', 'categorias.caracteristica_id', '=', 'c.id')
-            ->select('categorias.id as id', 'c.nombre as nombre')
-            ->where('c.estado', 1)
-            ->get();
-
-        return view('producto.edit',compact('producto','marcas','presentaciones','categorias'));
+        return view('producto.edit', [
+            'producto' => $producto,
+            'marcas' => $this->caracteristicaRepo->obtenerMarcasActivas(),
+            'presentaciones' => $this->caracteristicaRepo->obtenerPresentacionesActivas(),
+            'categorias' => $this->caracteristicaRepo->obtenerCategoriasActivas(),
+        ]);
     }
 
     /**
@@ -166,6 +153,10 @@ class ProductoController extends Controller
             $producto->categorias()->sync($categorias);
 
             DB::commit();
+            
+            // Limpiar caché de productos
+            $this->productoRepo->limpiarCache();
+            
         }catch(Exception $e){
             DB::rollBack();
         }

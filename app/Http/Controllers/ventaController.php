@@ -10,6 +10,11 @@ use App\Models\Venta;
 use App\Models\Fidelizacion;
 use App\Models\ControlLavado;
 use App\Models\ConfiguracionNegocio;
+use App\Repositories\ProductoRepository;
+use App\Services\VentaService;
+use App\Exceptions\VentaException;
+use App\Exceptions\StockInsuficienteException;
+use App\Exceptions\TarjetaRegaloException;
 use Exception;
 use App\Exports\VentasExport;
 use Maatwebsite\Excel\Facades\Excel;
@@ -22,8 +27,10 @@ use Illuminate\Support\Facades\Storage;
 
 class ventaController extends Controller
 {
-    function __construct()
-    {
+    public function __construct(
+        private ProductoRepository $productoRepo,
+        private VentaService $ventaService
+    ) {
         $this->middleware('permission:ver-venta|crear-venta|mostrar-venta|eliminar-venta', ['only' => ['index']]);
         $this->middleware('permission:crear-venta', ['only' => ['create', 'store']]);
         $this->middleware('permission:mostrar-venta', ['only' => ['show']]);
@@ -52,196 +59,58 @@ class ventaController extends Controller
      * Show the form for creating a new resource.
      */
     public function create()
-{
-    // Primero obtenemos los productos normales con su último precio de compra
-    $subquery = DB::table('compra_producto')
-        ->select('producto_id', DB::raw('MAX(created_at) as max_created_at'))
-        ->groupBy('producto_id');
+    {
+        // Usar el repository optimizado con caché
+        $productos = $this->productoRepo->obtenerParaVenta();
 
-    $productosNormales = Producto::join('compra_producto as cpr', function ($join) use ($subquery) {
-        $join->on('cpr.producto_id', '=', 'productos.id')
-            ->whereIn('cpr.created_at', function ($query) use ($subquery) {
-                $query->select('max_created_at')
-                    ->fromSub($subquery, 'subquery')
-                    ->whereRaw('subquery.producto_id = cpr.producto_id');
-            });
-    })
-        ->select('productos.nombre', 'productos.id', 'productos.stock', 'productos.codigo', 'cpr.precio_venta', 'productos.es_servicio_lavado')
-        ->where('productos.estado', 1)
-        ->where('productos.stock', '>', 0)
-        ->where('productos.es_servicio_lavado', false)
-        ->get();
+        $clientes = Cliente::activos()->get();
+        $comprobantes = Comprobante::all();
 
-    // Luego obtenemos los servicios de lavado
-    $serviciosLavado = Producto::select(
-            'nombre',
-            'id',
-            'stock',
-            'codigo',
-            'precio_venta', // Ya no usamos un valor predeterminado
-            'es_servicio_lavado'
-        )
-        ->where('estado', 1)
-        ->where('es_servicio_lavado', true)
-        ->get();
-
-    // Combinamos ambas colecciones
-    $productos = $productosNormales->concat($serviciosLavado);
-
-    $clientes = Cliente::whereHas('persona', function ($query) {
-        $query->where('estado', 1);
-    })->get();
-    $comprobantes = Comprobante::all();
-
-    return view('venta.create', compact('productos', 'clientes', 'comprobantes'));
-}
+        return view('venta.create', compact('productos', 'clientes', 'comprobantes'));
+    }
 
     /**
      * Store a newly created resource in storage.
      */
     public function store(StoreVentaRequest $request)
     {
-        try{
-            DB::beginTransaction();
+        try {
+            // Procesar la venta usando el servicio
+            $venta = $this->ventaService->procesarVenta($request->validated());
 
-            $medioPago = $request['medio_pago'];
-            $cliente = Cliente::find($request['cliente_id']);
-            $totalVenta = $request['total'];
-            $lavadoGratis = false;
-            $tarjetaRegaloId = null;
+            return redirect()
+                ->route('ventas.index')
+                ->with('success', "Venta #{$venta->numero_comprobante} realizada exitosamente");
 
-            // Validación y lógica de métodos de pago
-            if ($medioPago === 'tarjeta_regalo') {
-                $codigo = $request['tarjeta_regalo_codigo'];
-                $tarjeta = \App\Models\TarjetaRegalo::where('codigo', $codigo)->where('estado', 'activa')->first();
-                if (!$tarjeta) {
-                    return redirect()->route('ventas.create')->with('error', 'Tarjeta de regalo no válida o no activa.');
-                }
-                if ($tarjeta->saldo_actual < $totalVenta) {
-                    return redirect()->route('ventas.create')->with('error', 'Saldo insuficiente en la tarjeta de regalo.');
-                }
-                // Descontar saldo y actualizar estado si corresponde
-                $tarjeta->saldo_actual -= $totalVenta;
-                if ($tarjeta->saldo_actual <= 0) {
-                    $tarjeta->saldo_actual = 0;
-                    $tarjeta->estado = 'usada';
-                }
-                $tarjeta->save();
-                $tarjetaRegaloId = $tarjeta->id;
-            } elseif ($medioPago === 'lavado_gratis') {
-                if ($cliente->lavados_acumulados < 10) {
-                    return redirect()->route('ventas.create')->with('error', 'El cliente no tiene suficientes lavados acumulados para un lavado gratuito.');
-                }
-                $lavadoGratis = true;
-                $cliente->lavados_acumulados = 0;
-                $cliente->save();
-            } else {
-                // Efectivo o tarjeta de crédito: sumar lavado acumulado si es servicio de lavado
-                if ($request['servicio_lavado'] ?? 0) {
-                    $cliente->lavados_acumulados += 1;
-                    $cliente->save();
-                }
-            }
+        } catch (VentaException $e) {
+            return redirect()
+                ->route('ventas.create')
+                ->with('error', $e->getMessage())
+                ->withInput();
 
-            //Obtener el tipo de comprobante
-            $comprobante = Comprobante::find($request['comprobante_id']);
-            $numero_comprobante = Venta::generarNumeroComprobante($request['comprobante_id']);
-            $horarioLavado = isset($request['horario_lavado']) && $request['horario_lavado']
-                ? now()->format('Y-m-d') . ' ' . $request['horario_lavado'] . ':00'
-                : null;
+        } catch (StockInsuficienteException $e) {
+            return redirect()
+                ->route('ventas.create')
+                ->with('error', "Stock insuficiente: {$e->getMessage()}")
+                ->withInput();
 
-            // Llenar mi tabla venta
-            $ventaData = array_merge($request->validated(), [
-                'numero_comprobante' => $numero_comprobante,
-                'servicio_lavado' => $request['servicio_lavado'] ?? 0,
-                'horario_lavado' => $horarioLavado,
-                'lavado_gratis' => $lavadoGratis,
-                'tarjeta_regalo_id' => $tarjetaRegaloId,
-                'medio_pago' => $medioPago,
+        } catch (TarjetaRegaloException $e) {
+            return redirect()
+                ->route('ventas.create')
+                ->with('error', "Error con tarjeta de regalo: {$e->getMessage()}")
+                ->withInput();
+
+        } catch (Exception $e) {
+            \Log::error('Error al procesar venta', [
+                'error' => $e->getMessage(),
+                'trace' => $e->getTraceAsString(),
             ]);
 
-            // Verificar si el servicio de lavado está habilitado y si el horario de lavado está presente
-            if (($request['servicio_lavado'] ?? 0) == 1 && empty($request['horario_lavado'])) {
-                return redirect()->route('ventas.create')->with('error', 'Debe proporcionar un horario de culminación del lavado.');
-            }
-
-            $venta = Venta::create($ventaData);
-
-            //Llenar mi tabla venta_producto
-            //1. Recuperar los arrays
-            $arrayProducto_id = $request['arrayidproducto'] ?? [];
-            $arrayCantidad = $request['arraycantidad'] ?? [];
-            $arrayPrecioVenta = $request['arrayprecioventa'] ?? [];
-            $arrayDescuento = $request['arraydescuento'] ?? [];
-
-            //2.Realizar el llenado
-            $siseArray = count($arrayProducto_id);
-            $cont = 0;
-
-            while($cont < $siseArray){
-                $venta->productos()->syncWithoutDetaching([
-                    $arrayProducto_id[$cont] => [
-                        'cantidad' => $arrayCantidad[$cont],
-                        'precio_venta' => $arrayPrecioVenta[$cont],
-                        'descuento' => $arrayDescuento[$cont]
-                    ]
-                ]);
-
-                //Actualizar stock
-                $producto = Producto::find($arrayProducto_id[$cont]);
-                $stockActual = $producto->stock;
-                $cantidad = intval($arrayCantidad[$cont]);
-
-                // Solo actualizar stock si NO es un servicio de lavado
-                if (!$producto->es_servicio_lavado) {
-                    DB::table('productos')
-                    ->where('id', $producto->id)
-                    ->update([
-                        'stock' => $stockActual - $cantidad
-                    ]);
-                }
-
-                $cont++;
-            }
-
-            // Agregar puntos de fidelización
-            $cliente = $venta->cliente;
-            $puntos = $venta->total * 0.1; // Ejemplo: 10% del total de la venta en puntos
-
-            if ($cliente->fidelizacion) {
-                $cliente->fidelizacion->increment('puntos', $puntos);
-            } else {
-                Fidelizacion::create([
-                    'cliente_id' => $cliente->id,
-                    'puntos' => $puntos,
-                ]);
-            }
-
-            // Crear registro en control_lavados si corresponde
-            if (($request['servicio_lavado'] ?? 0) == 1) {
-                ControlLavado::create([
-                    'venta_id' => $venta->id,
-                    'cliente_id' => $venta->cliente_id,
-                    'lavador_id' => null,
-                    'hora_llegada' => now(),
-                    'horario_estimado' => $venta->horario_lavado,
-                    'inicio_lavado' => null,
-                    'fin_lavado' => null,
-                    'inicio_interior' => null,
-                    'fin_interior' => null,
-                    'hora_final' => null,
-                    'tiempo_total' => null,
-                    'estado' => 'En espera',
-                ]);
-            }
-
-            DB::commit();
-        }catch(Exception $e){
-            DB::rollBack();
-            return redirect()->route('ventas.create')->with('error', 'Error al realizar la venta: ' . $e->getMessage());
+            return redirect()
+                ->route('ventas.create')
+                ->with('error', 'Error inesperado al realizar la venta. Por favor, intente nuevamente.')
+                ->withInput();
         }
-
-        return redirect()->route('ventas.index')->with('success','Venta exitosa');
     }
 
     /**

@@ -9,6 +9,10 @@ class Documento extends Model
 {
     use HasFactory;
 
+    protected $fillable = [
+        'tipo_documento',
+    ];
+
     public function persona(){
         return $this->hasMany(Persona::class);
     }
