@@ -4,7 +4,7 @@
 
 **Branch actual:** `main`  
 **Commits pendientes:** 2 commits por hacer push  
-**Working tree:** ✅ Limpio (sin cambios pendientes)  
+**Working tree:** ✅ Limpio (sin cambios pendientes)
 
 ### Commits realizados:
 
@@ -47,14 +47,15 @@ Después de hacer push, verifica en GitHub:
 
 1. **Ir a:** https://github.com/SebasTZ/carwash_esp
 2. **Verificar que aparezcan los nuevos archivos:**
-   - ✅ `IMPLEMENTACION_AUDITORIA_LAVADORES.md`
-   - ✅ `RESUMEN_IMPLEMENTACION_AUDITORIA.md`
-   - ✅ `app/Models/AuditoriaLavador.php`
-   - ✅ `database/migrations/2025_10_20_200000_create_auditoria_lavadores_table.php`
+
+    - ✅ `IMPLEMENTACION_AUDITORIA_LAVADORES.md`
+    - ✅ `RESUMEN_IMPLEMENTACION_AUDITORIA.md`
+    - ✅ `app/Models/AuditoriaLavador.php`
+    - ✅ `database/migrations/2025_10_20_200000_create_auditoria_lavadores_table.php`
 
 3. **Verificar commits en el historial:**
-   - ✅ "feat: Implementar sistema de auditoría de lavadores"
-   - ✅ "docs: Agregar resumen ejecutivo de implementación de auditoría"
+    - ✅ "feat: Implementar sistema de auditoría de lavadores"
+    - ✅ "docs: Agregar resumen ejecutivo de implementación de auditoría"
 
 ---
 
@@ -63,40 +64,46 @@ Después de hacer push, verifica en GitHub:
 ### ✨ Funcionalidades Nuevas:
 
 1. **Sistema de Auditoría de Lavadores**
-   - Modelo `AuditoriaLavador`
-   - Tabla `auditoria_lavadores` en BD
-   - Registro automático de cambios
+
+    - Modelo `AuditoriaLavador`
+    - Tabla `auditoria_lavadores` en BD
+    - Registro automático de cambios
 
 2. **Validaciones y Seguridad**
-   - No permite cambiar lavador después de iniciar
-   - Confirmación requerida para iniciar lavado
-   - Trazabilidad de usuario responsable
+
+    - No permite cambiar lavador después de iniciar
+    - Confirmación requerida para iniciar lavado
+    - Trazabilidad de usuario responsable
 
 3. **Mejoras de UI/UX**
-   - Vista de historial de cambios
-   - Alertas mejoradas con iconos
-   - Modal de confirmación
+
+    - Vista de historial de cambios
+    - Alertas mejoradas con iconos
+    - Modal de confirmación
 
 4. **Sistema de Comisiones**
-   - Cálculo automático al finalizar
-   - Registro en `pago_comisiones`
+    - Cálculo automático al finalizar
+    - Registro en `pago_comisiones`
 
 ### 📁 Archivos Afectados:
 
 **Nuevos (3):**
-- `app/Models/AuditoriaLavador.php`
-- `database/migrations/2025_10_20_200000_create_auditoria_lavadores_table.php`
-- `IMPLEMENTACION_AUDITORIA_LAVADORES.md`
-- `RESUMEN_IMPLEMENTACION_AUDITORIA.md`
+
+-   `app/Models/AuditoriaLavador.php`
+-   `database/migrations/2025_10_20_200000_create_auditoria_lavadores_table.php`
+-   `IMPLEMENTACION_AUDITORIA_LAVADORES.md`
+-   `RESUMEN_IMPLEMENTACION_AUDITORIA.md`
 
 **Modificados (4):**
-- `app/Models/ControlLavado.php`
-- `app/Http/Controllers/ControlLavadoController.php`
-- `resources/views/control/show.blade.php`
-- `resources/views/control/lavados.blade.php`
+
+-   `app/Models/ControlLavado.php`
+-   `app/Http/Controllers/ControlLavadoController.php`
+-   `resources/views/control/show.blade.php`
+-   `resources/views/control/lavados.blade.php`
 
 **Eliminados (6):**
-- Todos los archivos con extensión `.copy.php`
+
+-   Todos los archivos con extensión `.copy.php`
 
 ---
 
@@ -123,20 +130,24 @@ php artisan test
 ### Pruebas Manuales:
 
 1. **Asignar lavador por primera vez:**
-   - ✅ Debe funcionar sin crear auditoría
+
+    - ✅ Debe funcionar sin crear auditoría
 
 2. **Cambiar lavador antes de iniciar:**
-   - ✅ Debe crear registro en `auditoria_lavadores`
-   - ✅ Debe mostrar en vista de detalle
+
+    - ✅ Debe crear registro en `auditoria_lavadores`
+    - ✅ Debe mostrar en vista de detalle
 
 3. **Intentar cambiar lavador después de iniciar:**
-   - ✅ Debe mostrar error: "No se puede cambiar el lavador..."
+
+    - ✅ Debe mostrar error: "No se puede cambiar el lavador..."
 
 4. **Iniciar lavado sin confirmación:**
-   - ✅ Debe mostrar modal de confirmación
+
+    - ✅ Debe mostrar modal de confirmación
 
 5. **Ver historial:**
-   - ✅ Debe mostrar todos los cambios con fechas
+    - ✅ Debe mostrar todos los cambios con fechas
 
 ---
 
@@ -145,51 +156,57 @@ php artisan test
 ### ⚠️ ANTES de hacer deployment:
 
 1. **Backup de Base de Datos:**
-   ```bash
-   # Hacer backup de la BD antes de migrar
-   mysqldump -u usuario -p nombre_bd > backup_$(date +%Y%m%d).sql
-   ```
+
+    ```bash
+    # Hacer backup de la BD antes de migrar
+    mysqldump -u usuario -p nombre_bd > backup_$(date +%Y%m%d).sql
+    ```
 
 2. **Modo Mantenimiento:**
-   ```bash
-   php artisan down
-   ```
+
+    ```bash
+    php artisan down
+    ```
 
 3. **Pull de Cambios:**
-   ```bash
-   git pull origin main
-   ```
+
+    ```bash
+    git pull origin main
+    ```
 
 4. **Instalar Dependencias:**
-   ```bash
-   composer install --optimize-autoloader --no-dev
-   ```
+
+    ```bash
+    composer install --optimize-autoloader --no-dev
+    ```
 
 5. **Ejecutar Migraciones:**
-   ```bash
-   php artisan migrate --force
-   ```
+
+    ```bash
+    php artisan migrate --force
+    ```
 
 6. **Limpiar Cachés:**
-   ```bash
-   php artisan config:cache
-   php artisan route:cache
-   php artisan view:cache
-   ```
+
+    ```bash
+    php artisan config:cache
+    php artisan route:cache
+    php artisan view:cache
+    ```
 
 7. **Salir de Modo Mantenimiento:**
-   ```bash
-   php artisan up
-   ```
+    ```bash
+    php artisan up
+    ```
 
 ### ✅ Verificaciones Post-Deployment:
 
-- [ ] Verificar que la tabla `auditoria_lavadores` existe
-- [ ] Probar asignar lavador
-- [ ] Probar cambiar lavador
-- [ ] Probar iniciar lavado con confirmación
-- [ ] Ver historial de cambios
-- [ ] Verificar logs en `storage/logs`
+-   [ ] Verificar que la tabla `auditoria_lavadores` existe
+-   [ ] Probar asignar lavador
+-   [ ] Probar cambiar lavador
+-   [ ] Probar iniciar lavado con confirmación
+-   [ ] Ver historial de cambios
+-   [ ] Verificar logs en `storage/logs`
 
 ---
 
@@ -201,33 +218,36 @@ php artisan test
 **Archivos modificados:** 4  
 **Archivos eliminados:** 6  
 **Tiempo de implementación:** ~45 minutos  
-**Estado de tests:** ✅ Pendiente de crear  
+**Estado de tests:** ✅ Pendiente de crear
 
 ---
 
 ## 📚 DOCUMENTACIÓN DISPONIBLE
 
 1. **`IMPLEMENTACION_AUDITORIA_LAVADORES.md`**
-   - Documentación técnica completa
-   - Casos de uso
-   - API endpoints
-   - Ejemplos de código
+
+    - Documentación técnica completa
+    - Casos de uso
+    - API endpoints
+    - Ejemplos de código
 
 2. **`RESUMEN_IMPLEMENTACION_AUDITORIA.md`**
-   - Resumen ejecutivo
-   - Comparativa antes/después
-   - Checklist de testing
-   - Próximos pasos
+
+    - Resumen ejecutivo
+    - Comparativa antes/después
+    - Checklist de testing
+    - Próximos pasos
 
 3. **`DEPLOYMENT_CHECKLIST.md`**
-   - Checklist para deployment
-   - Pasos detallados
-   - Verificaciones
+
+    - Checklist para deployment
+    - Pasos detallados
+    - Verificaciones
 
 4. **`README.md`**
-   - Información general del proyecto
-   - Arquitectura
-   - Instrucciones de instalación
+    - Información general del proyecto
+    - Arquitectura
+    - Instrucciones de instalación
 
 ---
 
@@ -286,13 +306,13 @@ git reset --hard HEAD~1
 
 ## ✅ CHECKLIST FINAL ANTES DE PUSH
 
-- [x] Código implementado y probado localmente
-- [x] Migración ejecutada exitosamente en local
-- [x] Archivos "copy" eliminados
-- [x] Commits creados con mensajes descriptivos
-- [x] Documentación completa creada
-- [x] Working tree limpio (sin cambios pendientes)
-- [ ] **PENDING: git push origin main** ⬅️ **HACER AHORA**
+-   [x] Código implementado y probado localmente
+-   [x] Migración ejecutada exitosamente en local
+-   [x] Archivos "copy" eliminados
+-   [x] Commits creados con mensajes descriptivos
+-   [x] Documentación completa creada
+-   [x] Working tree limpio (sin cambios pendientes)
+-   [ ] **PENDING: git push origin main** ⬅️ **HACER AHORA**
 
 ---
 
@@ -301,18 +321,20 @@ git reset --hard HEAD~1
 Si encuentras algún problema:
 
 1. **Revisar logs de Git:**
-   ```bash
-   git status
-   git log --oneline -5
-   ```
+
+    ```bash
+    git status
+    git log --oneline -5
+    ```
 
 2. **Revisar logs de Laravel:**
-   ```bash
-   tail -f storage/logs/laravel.log
-   ```
+
+    ```bash
+    tail -f storage/logs/laravel.log
+    ```
 
 3. **Contactar soporte de GitHub:**
-   - https://github.com/contact
+    - https://github.com/contact
 
 ---
 
