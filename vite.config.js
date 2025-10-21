@@ -12,6 +12,7 @@ export default defineConfig({
                 'resources/js/modules/VentaManager.js',
                 'resources/js/modules/CompraManager.js',
                 'resources/js/modules/LavadosManager.js',
+                'resources/js/modules/EstacionamientoManager.js',
             ],
             refresh: true,
         }),
@@ -41,6 +42,7 @@ export default defineConfig({
                         './resources/js/modules/VentaManager.js',
                         './resources/js/modules/CompraManager.js',
                         './resources/js/modules/LavadosManager.js',
+                        './resources/js/modules/EstacionamientoManager.js',
                     ],
                 },
                 // Nombres de archivo con hash para cache busting
