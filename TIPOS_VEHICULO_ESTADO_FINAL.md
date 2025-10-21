@@ -1,4 +1,5 @@
 # 📋 MIGRACIÓN COMPLETA - TipoVehiculo CRUD
+
 **Fecha:** 21 de Octubre 2025  
 **Duración:** ~15 minutos  
 **Migración #4** de la serie de modernización del sistema CarWash
@@ -8,10 +9,11 @@
 ## 🎯 **RESUMEN EJECUTIVO**
 
 Migración exitosa del CRUD de **Tipos de Vehículo** a componentes modernos (DynamicTable + FormValidator). Esta migración valida la **flexibilidad del patrón** al aplicarlo a una entidad con:
-- ✅ **Campos directos** (sin relación Caracteristica)
-- ✅ **Campo decimal** (comisión con validación numérica)
-- ✅ **Formatter de moneda** (S/ X.XX)
-- ✅ **Validación de rangos** (min/max para decimales)
+
+-   ✅ **Campos directos** (sin relación Caracteristica)
+-   ✅ **Campo decimal** (comisión con validación numérica)
+-   ✅ **Formatter de moneda** (S/ X.XX)
+-   ✅ **Validación de rangos** (min/max para decimales)
 
 **Resultado:** 91/91 tests passing | Build exitoso | Zero errores | ~15 minutos (-92% vs baseline)
 
@@ -20,6 +22,7 @@ Migración exitosa del CRUD de **Tipos de Vehículo** a componentes modernos (Dy
 ## 📊 **ESTADÍSTICAS DE LA MIGRACIÓN**
 
 ### **Tiempos y Eficiencia**
+
 ```
 ┌─────────────────┬──────────┬────────────┬──────────────┐
 │ Migración       │ Tiempo   │ Reducción  │ Errores      │
@@ -35,6 +38,7 @@ Mejora acumulada: 92% más rápido que baseline
 ```
 
 ### **Archivos Modificados**
+
 ```
 📁 resources/views/tipos_vehiculo/
   ├── index.blade.php       (+56 líneas de config DynamicTable)
@@ -48,13 +52,14 @@ Total: 3 vistas migradas | 3 backups creados | 140+ líneas de JS moderno
 ```
 
 ### **Tests y Build**
+
 ```
 ✅ AutoSave.test.js:       35/35 passing
-✅ DynamicTable.test.js:   13/13 passing  
+✅ DynamicTable.test.js:   13/13 passing
 ✅ FormValidator.test.js:  43/43 passing
 ─────────────────────────────────────────
    TOTAL:                  91/91 passing (100%)
-   
+
 ✅ npm run build:          Exitoso (sin warnings)
 ✅ Vite build:             10 chunks generados
 ```
@@ -64,17 +69,18 @@ Total: 3 vistas migradas | 3 backups creados | 140+ líneas de JS moderno
 ## 🏗️ **ESTRUCTURA DE LA ENTIDAD**
 
 ### **Model: TipoVehiculo**
+
 ```php
 // app/Models/TipoVehiculo.php
 class TipoVehiculo extends Model {
     protected $table = 'tipos_vehiculo';
-    
+
     protected $fillable = [
         'nombre',     // string - Nombre del tipo (ej: "Sedan", "SUV")
         'comision',   // decimal(8,2) - Comisión del lavador
         'estado'      // enum - 'activo' | 'inactivo'
     ];
-    
+
     // Relación
     public function controlLavados() {
         return $this->hasMany(ControlLavado::class);
@@ -83,6 +89,7 @@ class TipoVehiculo extends Model {
 ```
 
 ### **Controller: TipoVehiculoController**
+
 ```php
 // Métodos CRUD estándar:
 - index()   → Listado paginado (15 por página)
@@ -101,6 +108,7 @@ class TipoVehiculo extends Model {
 ```
 
 ### **Diferencias vs Migraciones Anteriores**
+
 ```diff
 Categorías:
 + Campos: nombre, descripcion, estado
@@ -126,59 +134,65 @@ TipoVehiculo: ⭐ NUEVA VARIANTE
 ### **1. INDEX.BLADE.PHP - DynamicTable con Currency Formatter**
 
 #### **Configuración de Columnas**
+
 ```javascript
 columns: [
     {
-        key: 'nombre',
-        label: 'Nombre',
+        key: "nombre",
+        label: "Nombre",
         sortable: true,
-        searchable: true
+        searchable: true,
     },
     {
-        key: 'comision',
-        label: 'Comisión',
+        key: "comision",
+        label: "Comisión",
         sortable: true,
         searchable: true,
         formatter: (value) => {
             const num = parseFloat(value);
             return isNaN(num) ? value : `S/ ${num.toFixed(2)}`;
-        }
+        },
         // Convierte: 15.5 → "S/ 15.50"
         //            20   → "S/ 20.00"
     },
     {
-        key: 'estado',
-        label: 'Estado',
+        key: "estado",
+        label: "Estado",
         sortable: true,
         searchable: true,
         formatter: (value) => {
             const estado = String(value).toLowerCase();
-            const badgeClass = estado === 'activo' ? 'bg-success' : 'bg-secondary';
-            return `<span class="badge ${badgeClass}">${estado.charAt(0).toUpperCase() + estado.slice(1)}</span>`;
-        }
+            const badgeClass =
+                estado === "activo" ? "bg-success" : "bg-secondary";
+            return `<span class="badge ${badgeClass}">${
+                estado.charAt(0).toUpperCase() + estado.slice(1)
+            }</span>`;
+        },
         // Genera badges Bootstrap: 🟢 Activo | ⚫ Inactivo
     },
     {
-        key: 'acciones',
-        label: 'Acciones',
+        key: "acciones",
+        label: "Acciones",
         sortable: false,
-        searchable: false
-    }
-]
+        searchable: false,
+    },
+];
 ```
 
 #### **Características Implementadas**
-- ✅ **Búsqueda en tiempo real** (searchPlaceholder: 'Buscar tipo de vehículo...')
-- ✅ **Ordenamiento por columnas** (nombre, comisión, estado)
-- ✅ **Paginación** (15 items por página)
-- ✅ **Formateo de moneda** con S/ (soles peruanos)
-- ✅ **Badges de estado** con colores Bootstrap
+
+-   ✅ **Búsqueda en tiempo real** (searchPlaceholder: 'Buscar tipo de vehículo...')
+-   ✅ **Ordenamiento por columnas** (nombre, comisión, estado)
+-   ✅ **Paginación** (15 items por página)
+-   ✅ **Formateo de moneda** con S/ (soles peruanos)
+-   ✅ **Badges de estado** con colores Bootstrap
 
 ---
 
 ### **2. CREATE.BLADE.PHP - FormValidator con Validación Decimal**
 
 #### **Reglas de Validación**
+
 ```javascript
 validationRules: {
     nombre: [
@@ -200,12 +214,20 @@ validationRules: {
 ```
 
 #### **HTML Form Fields**
+
 ```html
 <!-- Campo Nombre -->
-<input type="text" name="nombre" id="nombre" class="form-control" required>
+<input type="text" name="nombre" id="nombre" class="form-control" required />
 
 <!-- Campo Comisión (Decimal) -->
-<input type="number" step="0.01" name="comision" id="comision" class="form-control" required>
+<input
+    type="number"
+    step="0.01"
+    name="comision"
+    id="comision"
+    class="form-control"
+    required
+/>
 <!-- step="0.01" permite 2 decimales: 15.50, 20.75, etc. -->
 
 <!-- Campo Estado (Select) -->
@@ -217,6 +239,7 @@ validationRules: {
 ```
 
 #### **Opciones de Validación**
+
 ```javascript
 {
     validateOnBlur: true,   // Validar al salir del campo
@@ -230,6 +253,7 @@ validationRules: {
 ### **3. EDIT.BLADE.PHP - FormValidator con Pre-carga**
 
 #### **Diferencias vs Create**
+
 ```diff
 + Form ID: 'tipoVehiculoEditForm' (único)
 + Method: PUT (@method('PUT'))
@@ -242,15 +266,17 @@ validationRules: {
 ```
 
 #### **Validación Idéntica**
-- Mismas reglas que create.blade.php
-- Mismo comportamiento de validación
-- Mismos mensajes de error
+
+-   Mismas reglas que create.blade.php
+-   Mismo comportamiento de validación
+-   Mismos mensajes de error
 
 ---
 
 ## 🆕 **INNOVACIONES DE ESTA MIGRACIÓN**
 
 ### **1. Currency Formatter (Comisión)**
+
 ```javascript
 // ANTES (index-old.blade.php):
 <td>{{ $tipo->comision }}</td>
@@ -265,12 +291,14 @@ formatter: (value) => {
 ```
 
 **Beneficios:**
-- ✅ Formato consistente (siempre 2 decimales)
-- ✅ Símbolo de moneda (S/ soles)
-- ✅ Manejo de NaN (fallback a valor original)
-- ✅ Visual profesional
+
+-   ✅ Formato consistente (siempre 2 decimales)
+-   ✅ Símbolo de moneda (S/ soles)
+-   ✅ Manejo de NaN (fallback a valor original)
+-   ✅ Visual profesional
 
 ### **2. Validación de Decimales con Rangos**
+
 ```javascript
 // ANTES (create-old.blade.php):
 <input type="number" step="0.01" name="comision" required>
@@ -286,36 +314,44 @@ comision: [
 ```
 
 **Casos cubiertos:**
-- ❌ Texto: "abc" → "Debe ser un número válido"
-- ❌ Negativo: -10 → "No puede ser negativa"
-- ❌ Excesivo: 1500 → "No puede exceder 999.99"
-- ✅ Válido: 15.50 → Pasa validación
+
+-   ❌ Texto: "abc" → "Debe ser un número válido"
+-   ❌ Negativo: -10 → "No puede ser negativa"
+-   ❌ Excesivo: 1500 → "No puede exceder 999.99"
+-   ✅ Válido: 15.50 → Pasa validación
 
 ### **3. Input Decimal con step="0.01"**
+
 ```html
-<input type="number" step="0.01" name="comision">
+<input type="number" step="0.01" name="comision" />
 ```
-- Permite incrementos de 0.01 con flechas del input
-- Acepta decimales: 15.50, 20.75, 0.99
-- Compatible con teclado numérico móvil
+
+-   Permite incrementos de 0.01 con flechas del input
+-   Acepta decimales: 15.50, 20.75, 0.99
+-   Compatible con teclado numérico móvil
 
 ### **4. Badge de Estado con Colores**
+
 ```javascript
 formatter: (value) => {
     const estado = String(value).toLowerCase();
-    const badgeClass = estado === 'activo' ? 'bg-success' : 'bg-secondary';
-    return `<span class="badge ${badgeClass}">${estado.charAt(0).toUpperCase() + estado.slice(1)}</span>`;
-}
+    const badgeClass = estado === "activo" ? "bg-success" : "bg-secondary";
+    return `<span class="badge ${badgeClass}">${
+        estado.charAt(0).toUpperCase() + estado.slice(1)
+    }</span>`;
+};
 ```
-- 🟢 **Activo** → badge verde (bg-success)
-- ⚫ **Inactivo** → badge gris (bg-secondary)
-- Capitaliza primera letra automáticamente
+
+-   🟢 **Activo** → badge verde (bg-success)
+-   ⚫ **Inactivo** → badge gris (bg-secondary)
+-   Capitaliza primera letra automáticamente
 
 ---
 
 ## 📝 **CÓDIGO ANTES/DESPUÉS**
 
 ### **INDEX - Tabla de Comisión**
+
 ```blade
 <!-- ANTES: Sin formato -->
 <td>{{ $tipo->comision }}</td>
@@ -331,6 +367,7 @@ formatter: (value) => `S/ ${parseFloat(value).toFixed(2)}`
 ```
 
 ### **CREATE - Campo Comisión**
+
 ```blade
 <!-- ANTES: Solo validación HTML5 -->
 <div class="mb-3">
@@ -356,6 +393,7 @@ comision: [
 ```
 
 ### **EDIT - Estado Pre-seleccionado**
+
 ```blade
 <!-- ANTES: Sin opción vacía -->
 <select name="estado" class="form-control">
@@ -382,27 +420,32 @@ estado: [
 ## 🔍 **VALIDACIONES DEL PATRÓN**
 
 ### **Flexibilidad Confirmada**
+
 Esta migración **valida que el patrón funciona** en entidades con:
 
 1. ✅ **Campos directos** (como Categorías)
-   - No necesita relaciones Caracteristica
-   - Configuración más simple en DynamicTable
+
+    - No necesita relaciones Caracteristica
+    - Configuración más simple en DynamicTable
 
 2. ✅ **Campos decimales** (NOVEDAD)
-   - Formatter de moneda funciona perfectamente
-   - Validación min/max para decimales
+
+    - Formatter de moneda funciona perfectamente
+    - Validación min/max para decimales
 
 3. ✅ **Diferentes tipos de datos**
-   - String (nombre)
-   - Decimal (comision)
-   - Enum (estado)
+
+    - String (nombre)
+    - Decimal (comision)
+    - Enum (estado)
 
 4. ✅ **Validación personalizada por tipo**
-   - minLength/maxLength para strings
-   - min/max para numbers
-   - required para enums
+    - minLength/maxLength para strings
+    - min/max para numbers
+    - required para enums
 
 ### **Patrón Maduro**
+
 ```
 Categorías:      180 min → Estableció el patrón base
 Marcas:           30 min → Validó nested data
@@ -416,42 +459,47 @@ TipoVehiculo:     15 min → Probó flexibilidad con decimales
 
 ## 🎯 **COMPARATIVA: 4 MIGRACIONES**
 
-| Aspecto | Categorías | Marcas | Presentaciones | TipoVehiculo |
-|---------|-----------|--------|----------------|--------------|
-| **Tiempo** | 180 min | 30 min | 20 min | ~15 min |
-| **Estructura** | Directa | Nested (FK) | Nested (FK) | Directa + decimal |
-| **Campos** | 3 (string) | 1 (FK) | 1 (FK) | 3 (mixed types) |
-| **Formatters** | Estado badge | Caracteristica.nombre | Caracteristica.nombre | Estado + Currency |
-| **Validadores** | 2 tipos | 1 tipo | 1 tipo | 3 tipos |
-| **Problemas** | 5 resueltos | 0 | 0 | 0 |
-| **Innovación** | Patrón base | Dynamic modal | Replicación | Decimal validation |
-| **Tests** | 91/91 ✅ | 91/91 ✅ | 91/91 ✅ | 91/91 ✅ |
+| Aspecto         | Categorías   | Marcas                | Presentaciones        | TipoVehiculo       |
+| --------------- | ------------ | --------------------- | --------------------- | ------------------ |
+| **Tiempo**      | 180 min      | 30 min                | 20 min                | ~15 min            |
+| **Estructura**  | Directa      | Nested (FK)           | Nested (FK)           | Directa + decimal  |
+| **Campos**      | 3 (string)   | 1 (FK)                | 1 (FK)                | 3 (mixed types)    |
+| **Formatters**  | Estado badge | Caracteristica.nombre | Caracteristica.nombre | Estado + Currency  |
+| **Validadores** | 2 tipos      | 1 tipo                | 1 tipo                | 3 tipos            |
+| **Problemas**   | 5 resueltos  | 0                     | 0                     | 0                  |
+| **Innovación**  | Patrón base  | Dynamic modal         | Replicación           | Decimal validation |
+| **Tests**       | 91/91 ✅     | 91/91 ✅              | 91/91 ✅              | 91/91 ✅           |
 
 ---
 
 ## 🚀 **PRÓXIMOS PASOS**
 
 ### **Opción A: Continuar con Entidades Simples**
+
 Buscar más entidades de 2-4 campos para acumular migraciones rápidas:
-- Posibles candidatos: Colores, Estados, Formas de Pago, etc.
-- Objetivo: 5-7 migraciones simples antes de entidades complejas
-- Tiempo estimado: 10-15 min cada una
+
+-   Posibles candidatos: Colores, Estados, Formas de Pago, etc.
+-   Objetivo: 5-7 migraciones simples antes de entidades complejas
+-   Tiempo estimado: 10-15 min cada una
 
 ### **Opción B: Entidades de Complejidad Media**
-- **Servicios**: Multiple fields, relaciones moderadas (30-40 min)
-- **Proveedores**: Datos de contacto, validaciones email/phone (35-45 min)
-- **Empleados/Lavadores**: Relaciones con usuarios (40-50 min)
+
+-   **Servicios**: Multiple fields, relaciones moderadas (30-40 min)
+-   **Proveedores**: Datos de contacto, validaciones email/phone (35-45 min)
+-   **Empleados/Lavadores**: Relaciones con usuarios (40-50 min)
 
 ### **Opción C: Entidades Complejas**
-- **Productos**: Múltiples relaciones (Categoria, Marca, Presentacione), stock, precios (60-90 min)
-- **Clientes**: Datos personales, vehículos anidados, historial (60-75 min)
-- **Vehículos**: Relaciones Cliente+TipoVehiculo, placas, validaciones (45-60 min)
+
+-   **Productos**: Múltiples relaciones (Categoria, Marca, Presentacione), stock, precios (60-90 min)
+-   **Clientes**: Datos personales, vehículos anidados, historial (60-75 min)
+-   **Vehículos**: Relaciones Cliente+TipoVehiculo, placas, validaciones (45-60 min)
 
 ---
 
 ## 📊 **MÉTRICAS FINALES**
 
 ### **Eficiencia de Desarrollo**
+
 ```
 Velocidad promedio de las últimas 3 migraciones:
 (30 + 20 + 15) / 3 = 21.67 minutos
@@ -464,6 +512,7 @@ Total acumulado (4 migraciones):
 ```
 
 ### **Cobertura de Tests**
+
 ```
 ✅ 91 tests ejecutados 4 veces = 364 ejecuciones
 ✅ 100% passing rate en todas las migraciones
@@ -472,6 +521,7 @@ Total acumulado (4 migraciones):
 ```
 
 ### **Código Modernizado**
+
 ```
 📁 Vistas migradas:     12 archivos (4 entidades × 3 vistas)
 📁 Backups creados:     12 archivos (*-old.blade.php)
@@ -485,10 +535,11 @@ Total acumulado (4 migraciones):
 ## ✅ **CONCLUSIÓN**
 
 La migración de **TipoVehiculo** consolida el patrón establecido y demuestra su **flexibilidad** para manejar:
-- ✅ Campos directos (sin relaciones FK)
-- ✅ Datos decimales con validación de rangos
-- ✅ Formateo de moneda
-- ✅ Múltiples tipos de validadores
+
+-   ✅ Campos directos (sin relaciones FK)
+-   ✅ Datos decimales con validación de rangos
+-   ✅ Formateo de moneda
+-   ✅ Múltiples tipos de validadores
 
 **Tiempo récord:** ~15 minutos (-92% vs baseline)  
 **Calidad:** 91/91 tests passing, zero errores  
@@ -501,6 +552,6 @@ La migración de **TipoVehiculo** consolida el patrón establecido y demuestra s
 
 ---
 
-*Documentación generada el 21 de Octubre 2025*  
-*Sistema: CarWash ESP - Modernización Frontend*  
-*Patrón: DynamicTable + FormValidator + window.CarWash*
+_Documentación generada el 21 de Octubre 2025_  
+_Sistema: CarWash ESP - Modernización Frontend_  
+_Patrón: DynamicTable + FormValidator + window.CarWash_
