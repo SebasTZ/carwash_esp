@@ -64,6 +64,31 @@ class EstacionamientoController extends Controller
         try {
             DB::beginTransaction();
 
+            // ✅ CORRECCIÓN BUG #3: Validar capacidad máxima del estacionamiento
+            $capacidadMaxima = config('estacionamiento.capacidad_maxima', 20);
+            $espaciosOcupados = Estacionamiento::where('estado', 'ocupado')->count();
+            
+            if ($espaciosOcupados >= $capacidadMaxima) {
+                DB::rollBack();
+                return redirect()->back()->with('error', 
+                    "Estacionamiento lleno. Capacidad máxima: {$capacidadMaxima} vehículos. " .
+                    "Espacios ocupados: {$espaciosOcupados}"
+                );
+            }
+
+            // ✅ CORRECCIÓN BUG #4: Validar que la placa no esté duplicada (case-insensitive)
+            $placaExistente = Estacionamiento::whereRaw('UPPER(placa) = ?', [strtoupper($request->placa)])
+                ->where('estado', 'ocupado')
+                ->exists();
+                
+            if ($placaExistente) {
+                DB::rollBack();
+                return redirect()->back()->with('error', 
+                    "El vehículo con placa {$request->placa} ya está estacionado actualmente. " .
+                    "Por favor, verifique la placa o registre la salida del vehículo anterior."
+                );
+            }
+
             $cliente_id = $request->cliente_id;
 
             // Si es un cliente nuevo
@@ -80,9 +105,12 @@ class EstacionamientoController extends Controller
                 $cliente_id = $cliente->id;
             }
 
+            // Normalizar placa a mayúsculas
+            $placa = strtoupper($request->placa);
+
             Estacionamiento::create([
                 'cliente_id' => $cliente_id,
-                'placa' => $request->placa,
+                'placa' => $placa,
                 'marca' => $request->marca,
                 'modelo' => $request->modelo,
                 'telefono' => $request->telefono,
@@ -92,7 +120,11 @@ class EstacionamientoController extends Controller
             ]);
 
             DB::commit();
-            return redirect()->route('estacionamiento.index')->with('success', 'Vehículo registrado correctamente');
+            
+            $espaciosDisponibles = $capacidadMaxima - ($espaciosOcupados + 1);
+            return redirect()->route('estacionamiento.index')->with('success', 
+                "Vehículo registrado correctamente. Espacios disponibles: {$espaciosDisponibles}"
+            );
         } catch (\Exception $e) {
             DB::rollBack();
             return redirect()->back()->with('error', 'Error al registrar el vehículo: ' . $e->getMessage());

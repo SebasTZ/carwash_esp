@@ -14,7 +14,7 @@ class TipoVehiculoFactory extends Factory
         return [
             'nombre' => $this->faker->randomElement(['Moto', 'Sedan', 'SUV', 'Camioneta']),
             'comision' => $this->faker->randomFloat(2, 5, 20),
-            'estado' => 1,
+            'estado' => 'activo',
         ];
     }
 
@@ -62,7 +62,7 @@ class TipoVehiculoFactory extends Factory
     {
         return $this->state(function (array $attributes) {
             return [
-                'estado' => 0,
+                'estado' => 'inactivo',
             ];
         });
     }

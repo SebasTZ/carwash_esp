@@ -62,17 +62,25 @@ class ProductoObserver
 
     /**
      * Limpia el caché relacionado con productos
+     * 
+     * OPTIMIZACIÓN: Invalida cache automáticamente cuando:
+     * - Se crea un producto
+     * - Se actualiza un producto (precio, stock, estado)
+     * - Se elimina un producto
+     * - Se restaura un producto
      */
     private function limpiarCache(): void
     {
+        // Limpiar keys de cache (legacy y nueva)
         Cache::forget('productos:para_venta');
+        Cache::forget('productos_para_venta'); // Nueva key optimizada
         Cache::forget('productos:stock_bajo');
         
-        // Tags solo si el driver lo soporta
+        // Tags solo si el driver lo soporta (Redis, Memcached)
         try {
             Cache::tags(['productos'])->flush();
         } catch (\Exception $e) {
-            // Ignorar si el driver no soporta tags
+            // Ignorar si el driver no soporta tags (file, database)
         }
     }
 }

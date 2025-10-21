@@ -210,9 +210,13 @@ class ControlLavadoService
                 'estado' => 'Terminado',
             ]);
 
-            // El observer se encargará de registrar la comisión
-            // Pero por si acaso el observer no está registrado, lo hacemos aquí también
-            $this->comisionService->registrarComisionLavado($lavadoActualizado);
+            // ✅ CORRECCIÓN BUG #1: Comisión Duplicada
+            // El Observer (ControlLavadoObserver) ya se encarga de registrar la comisión automáticamente
+            // cuando detecta el cambio en 'fin_interior'. Eliminar la llamada manual evita duplicados.
+            // Ver: app/Observers/ControlLavadoObserver.php línea 38
+            //
+            // ANTES (DUPLICABA):
+            // $this->comisionService->registrarComisionLavado($lavadoActualizado);
 
             Log::channel('lavados')->info('Lavado completado', [
                 'lavado_id' => $lavado->id,

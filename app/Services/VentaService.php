@@ -6,6 +6,7 @@ use App\Models\Venta;
 use App\Models\Cliente;
 use App\Models\Producto;
 use App\Exceptions\VentaException;
+use App\Exceptions\StockInsuficienteException;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 
@@ -27,6 +28,10 @@ class VentaService
      */
     public function procesarVenta(array $data): Venta
     {
+        // OPTIMIZACIÓN: Validar stock COMPLETO antes de iniciar transacción
+        // Esto mejora UX mostrando TODOS los productos con problemas de una vez
+        $this->validarStockCompleto($data);
+
         return DB::transaction(function () use ($data) {
             // 1. Validar y procesar medio de pago
             $this->procesarMedioPago($data);
@@ -143,12 +148,18 @@ class VentaService
      */
     private function procesarProductos(Venta $venta, array $data): void
     {
-        $productos = $data['arrayidproducto'] ?? [];
+        $productosIds = $data['arrayidproducto'] ?? [];
         $cantidades = $data['arraycantidad'] ?? [];
         $preciosVenta = $data['arrayprecioventa'] ?? [];
         $descuentos = $data['arraydescuento'] ?? [];
 
-        foreach ($productos as $index => $productoId) {
+        // OPTIMIZACIÓN: Eager Loading - Cargar todos los productos de una vez
+        // Esto reduce de N queries a 1 sola query (N+1 query problem resuelto)
+        $productosCollection = Producto::whereIn('id', $productosIds)
+            ->get()
+            ->keyBy('id'); // Indexar por ID para acceso O(1)
+
+        foreach ($productosIds as $index => $productoId) {
             $cantidad = intval($cantidades[$index]);
             $precioVenta = floatval($preciosVenta[$index]);
             $descuento = floatval($descuentos[$index] ?? 0);
@@ -160,8 +171,12 @@ class VentaService
                 'descuento' => $descuento,
             ]);
 
-            // Actualizar stock usando el servicio
-            $producto = Producto::findOrFail($productoId);
+            // Obtener producto desde la colección (sin query adicional)
+            $producto = $productosCollection->get($productoId);
+            
+            if (!$producto) {
+                throw new \Exception("Producto con ID {$productoId} no encontrado");
+            }
             
             // Solo actualizar stock si NO es servicio de lavado
             if (!$producto->es_servicio_lavado) {
@@ -171,6 +186,60 @@ class VentaService
                     "Venta #{$venta->numero_comprobante}"
                 );
             }
+        }
+    }
+
+    /**
+     * OPTIMIZACIÓN: Valida stock completo ANTES de iniciar la transacción
+     * 
+     * Verifica que TODOS los productos tengan stock suficiente.
+     * Si alguno falla, lanza excepción con detalle de TODOS los productos problemáticos.
+     * Esto mejora UX mostrando todos los errores de una vez.
+     * 
+     * @param array $data Datos de la venta
+     * @throws StockInsuficienteException si uno o más productos no tienen stock
+     */
+    private function validarStockCompleto(array $data): void
+    {
+        $productosIds = $data['arrayidproducto'] ?? [];
+        $cantidades = $data['arraycantidad'] ?? [];
+
+        if (empty($productosIds)) {
+            return;
+        }
+
+        // Cargar todos los productos de una vez
+        $productos = Producto::whereIn('id', $productosIds)->get()->keyBy('id');
+
+        // Recolectar TODOS los productos con stock insuficiente
+        $errores = [];
+
+        foreach ($productosIds as $index => $productoId) {
+            $producto = $productos->get($productoId);
+            
+            if (!$producto) {
+                $errores[] = "Producto con ID {$productoId} no encontrado";
+                continue;
+            }
+
+            // NO validar stock para servicios de lavado
+            if ($producto->es_servicio_lavado) {
+                continue;
+            }
+
+            $cantidadRequerida = intval($cantidades[$index]);
+            $stockDisponible = $producto->stock;
+
+            // Si no hay stock suficiente, agregar a la lista de errores
+            if ($stockDisponible < $cantidadRequerida) {
+                $errores[] = "{$producto->nombre}: Disponible {$stockDisponible}, Requerido {$cantidadRequerida}";
+            }
+        }
+
+        // Si hay errores, lanzar excepción con TODOS los detalles
+        if (!empty($errores)) {
+            $mensajeCompleto = "Stock insuficiente para los siguientes productos:\n" . implode("\n", $errores);
+            throw new StockInsuficienteException($mensajeCompleto);
         }
     }
 

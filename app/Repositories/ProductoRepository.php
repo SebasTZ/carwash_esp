@@ -12,12 +12,15 @@ class ProductoRepository
 {
     /**
      * Obtiene productos para formulario de venta con caché
+     * 
+     * OPTIMIZACIÓN: Cache de 1 hora (3600 segundos) para reducir queries
+     * Se invalida automáticamente mediante ProductoObserver
      *
      * @return Collection
      */
     public function obtenerParaVenta(): Collection
     {
-        return Cache::remember('productos:para_venta', 600, function () {
+        return Cache::remember('productos_para_venta', 3600, function () {
             // Productos normales con último precio
             $productosNormales = $this->obtenerProductosNormalesConPrecio();
 
@@ -161,18 +164,23 @@ class ProductoRepository
 
     /**
      * Limpia el caché de productos
+     * 
+     * OPTIMIZACIÓN: Invalida cache cuando productos cambian
+     * Se llama automáticamente desde ProductoObserver
      *
      * @return void
      */
     public function limpiarCache(): void
     {
+        // Limpiar ambas keys (legacy y nueva)
         Cache::forget('productos:para_venta');
+        Cache::forget('productos_para_venta');
         
-        // Tags solo si el driver lo soporta
+        // Tags solo si el driver lo soporta (Redis, Memcached)
         try {
             Cache::tags(['productos'])->flush();
         } catch (\Exception $e) {
-            // Ignorar si el driver no soporta tags
+            // Ignorar si el driver no soporta tags (file, database)
         }
     }
 }
