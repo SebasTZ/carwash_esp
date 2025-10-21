@@ -79,6 +79,57 @@
 
 ---
 
+### 6. **ANALISIS_FRONTEND_COMPLETO.md** 🎨
+
+**Propósito:** Análisis exhaustivo del frontend  
+**Contiene:**
+
+-   Evaluación técnica detallada del código JavaScript y CSS
+-   Identificación de 10 problemas críticos de arquitectura
+-   Análisis de flujos críticos (Ventas, Lavados, Estacionamiento)
+-   Métricas de performance y accesibilidad
+-   Deuda técnica cuantificada
+-   Impacto económico estimado (S/ 8,000-12,000/mes en productividad perdida)
+
+**👉 Lee esto para entender el estado técnico del frontend**
+
+---
+
+### 7. **PLAN_PRUEBAS_FRONTEND.md** 🧪
+
+**Propósito:** Plan de testing completo para el frontend  
+**Contiene:**
+
+-   30+ casos de prueba E2E detallados (Playwright)
+-   Pruebas de performance con Lighthouse CI
+-   Tests de usabilidad y accesibilidad
+-   Pruebas de compatibilidad cross-browser
+-   Pruebas de seguridad frontend (XSS, validaciones)
+-   Plan de ejecución de 9 días
+-   Scripts listos para implementar
+
+**👉 Usa este plan para implementar testing automatizado**
+
+---
+
+### 8. **PLAN_OPTIMIZACION_FRONTEND.md** 🚀
+
+**Propósito:** Roadmap de mejoras frontend con código listo  
+**Contiene:**
+
+-   5 fases de optimización (14 días de trabajo)
+-   Migración completa a Vite con bundle optimization
+-   Código de módulos reutilizables (VentaManager, utilidades)
+-   Implementación de lazy loading y code splitting
+-   Mejoras de UX (loading states, persistencia, AJAX filters)
+-   Setup de testing con Playwright y Vitest
+-   Ejemplos de código completos y listos para usar
+-   ROI de 3-4 meses
+
+**👉 Sigue este plan paso a paso para modernizar el frontend**
+
+---
+
 ## 🗑️ ARCHIVOS ELIMINADOS (Consolidados)
 
 Los siguientes archivos fueron **eliminados el 20 de Octubre, 2025** porque su información fue consolidada en los documentos actuales:
