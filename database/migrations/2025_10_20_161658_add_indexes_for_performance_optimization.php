@@ -12,23 +12,24 @@ return new class extends Migration
     public function up(): void
     {
         Schema::table('ventas', function (Blueprint $table) {
-            // Índice para reportes por fecha
-            $table->index('fecha_hora', 'idx_ventas_fecha_hora');
-            
-            // Índice para filtrar por cliente
-            $table->index('cliente_id', 'idx_ventas_cliente_id');
-            
-            // Índice para filtrar por estado (activas/anuladas)
-            $table->index('estado', 'idx_ventas_estado');
-            
-            // Índice para filtrar por usuario que creó la venta
-            $table->index('user_id', 'idx_ventas_user_id');
-            
-            // Índice compuesto para reportes por fecha y estado (muy común)
-            $table->index(['fecha_hora', 'estado'], 'idx_ventas_fecha_estado');
-            
-            // Índice para búsqueda por número de comprobante
-            $table->index('numero_comprobante', 'idx_ventas_numero_comprobante');
+            if (!Schema::hasIndex('ventas', 'idx_ventas_fecha_hora')) {
+                $table->index('fecha_hora', 'idx_ventas_fecha_hora');
+            }
+            if (!Schema::hasIndex('ventas', 'idx_ventas_cliente_id')) {
+                $table->index('cliente_id', 'idx_ventas_cliente_id');
+            }
+            if (!Schema::hasIndex('ventas', 'idx_ventas_estado')) {
+                $table->index('estado', 'idx_ventas_estado');
+            }
+            if (!Schema::hasIndex('ventas', 'idx_ventas_user_id')) {
+                $table->index('user_id', 'idx_ventas_user_id');
+            }
+            if (!Schema::hasIndex('ventas', 'idx_ventas_fecha_estado')) {
+                $table->index(['fecha_hora', 'estado'], 'idx_ventas_fecha_estado');
+            }
+            if (!Schema::hasIndex('ventas', 'idx_ventas_numero_comprobante')) {
+                $table->index('numero_comprobante', 'idx_ventas_numero_comprobante');
+            }
         });
 
         Schema::table('compras', function (Blueprint $table) {

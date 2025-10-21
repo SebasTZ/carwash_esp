@@ -84,6 +84,20 @@ return [
             'days' => 30,
         ],
 
+        'lavados' => [
+            'driver' => 'daily',
+            'path' => storage_path('logs/lavados.log'),
+            'level' => 'info',
+            'days' => 30,
+        ],
+
+        'auditoria' => [
+            'driver' => 'daily',
+            'path' => storage_path('logs/auditoria.log'),
+            'level' => 'info',
+            'days' => 90,
+        ],
+
         'slack' => [
             'driver' => 'slack',
             'url' => env('LOG_SLACK_WEBHOOK_URL'),

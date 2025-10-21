@@ -4,10 +4,11 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\SoftDeletes;
 
 class ControlLavado extends Model
 {
-    use HasFactory;
+    use HasFactory, SoftDeletes;
 
     protected $table = 'control_lavados';
 
@@ -25,6 +26,16 @@ class ControlLavado extends Model
         'hora_final',
         'tiempo_total',
         'estado',
+    ];
+
+    protected $casts = [
+        'hora_llegada' => 'datetime',
+        'horario_estimado' => 'datetime',
+        'inicio_lavado' => 'datetime',
+        'fin_lavado' => 'datetime',
+        'inicio_interior' => 'datetime',
+        'fin_interior' => 'datetime',
+        'hora_final' => 'datetime',
     ];
 
     public function venta()

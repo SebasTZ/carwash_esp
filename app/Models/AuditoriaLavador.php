@@ -2,10 +2,13 @@
 
 namespace App\Models;
 
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
 class AuditoriaLavador extends Model
 {
+    use HasFactory;
+    
     protected $table = 'auditoria_lavadores';
     protected $fillable = [
         'control_lavado_id',
