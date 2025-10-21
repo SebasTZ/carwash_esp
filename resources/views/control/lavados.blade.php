@@ -409,45 +409,5 @@
 
 @push('js')
 <script src="https://cdn.jsdelivr.net/npm/bootstrap-select@1.14.0-beta3/dist/js/bootstrap-select.min.js"></script>
-<script>
-    // Activar tooltips de Bootstrap
-    var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]))
-    var tooltipList = tooltipTriggerList.map(function (tooltipTriggerEl) {
-        return new bootstrap.Tooltip(tooltipTriggerEl)
-    })
-
-    // Función para validar el formulario de asignación
-    function checkFormValidity(lavadoId) {
-        const form = document.getElementById('form-asignar-' + lavadoId);
-        const submitBtn = document.getElementById('btn-submit-' + lavadoId);
-        if (!submitBtn) return; // Si no hay botón, significa que ya está asignado o iniciado
-        
-        const lavadorSelect = form.querySelector('select[name="lavador_id"]');
-        const tipoVehiculoSelect = form.querySelector('select[name="tipo_vehiculo_id"]');
-        
-        // Validar que ambos campos estén seleccionados
-        const isValid = lavadorSelect.value !== '' && tipoVehiculoSelect.value !== '';
-        
-        // Agregar/remover clases de validación
-        if (!lavadorSelect.disabled) {
-            lavadorSelect.classList.toggle('is-invalid', !lavadorSelect.value);
-            lavadorSelect.classList.toggle('is-valid', lavadorSelect.value !== '');
-        }
-        
-        if (!tipoVehiculoSelect.disabled) {
-            tipoVehiculoSelect.classList.toggle('is-invalid', !tipoVehiculoSelect.value);
-            tipoVehiculoSelect.classList.toggle('is-valid', tipoVehiculoSelect.value !== '');
-        }
-    }
-
-    function checkFormValidity(lavadoId) {
-        const form = document.getElementById('form-asignar-' + lavadoId);
-        const btnSubmit = document.getElementById('btn-submit-' + lavadoId);
-        if (form.checkValidity()) {
-            btnSubmit.removeAttribute('disabled');
-        } else {
-            btnSubmit.setAttribute('disabled', 'disabled');
-        }
-    }
-</script>
+@vite(['resources/js/modules/LavadosManager.js'])
 @endpush
