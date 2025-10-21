@@ -146,29 +146,29 @@ window.CarWash {
 
 ```javascript
 // 300+ líneas de código inline
-let cantidad = parseInt($('#cantidad').val());
+let cantidad = parseInt($("#cantidad").val());
 if (!cantidad || cantidad <= 0) {
     Swal.fire({
-        icon: 'error',
-        text: 'Cantidad inválida',
+        icon: "error",
+        text: "Cantidad inválida",
         toast: true,
-        position: 'top-end',
+        position: "top-end",
         showConfirmButton: false,
-        timer: 3000
+        timer: 3000,
     });
     return;
 }
 
 if (cantidad > stock) {
     Swal.fire({
-        icon: 'error',
-        text: 'Stock insuficiente',
+        icon: "error",
+        text: "Stock insuficiente",
         // ... 10 líneas más
     });
     return;
 }
 
-let precio = parseFloat($('#precio').val());
+let precio = parseFloat($("#precio").val());
 // ... más validaciones manuales
 ```
 
@@ -176,11 +176,11 @@ let precio = parseFloat($('#precio').val());
 
 ```javascript
 // Código limpio y reutilizable
-const cantidad = parseInt($('#cantidad').val());
-const stock = parseInt($('#stock').val());
+const cantidad = parseInt($("#cantidad").val());
+const stock = parseInt($("#stock").val());
 
 if (!CarWash.isPositive(cantidad)) {
-    CarWash.showError('Cantidad inválida');
+    CarWash.showError("Cantidad inválida");
     return;
 }
 
@@ -220,7 +220,7 @@ async function guardar() {
         '¿Guardar cambios?',
         'Esta acción no se puede deshacer'
     );
-    
+
     if (confirmed) {
         // Guardar...
         CarWash.showSuccess('Guardado correctamente');
@@ -295,18 +295,18 @@ code resources/js/utils/README.md
 
 ### ✅ DO's
 
-- ✅ Usa `CarWash.*` para acceder a utilidades
-- ✅ Lee la documentación en `utils/README.md`
-- ✅ Migra gradualmente (vista por vista)
-- ✅ Prueba en desarrollo antes de producción
-- ✅ Consulta ejemplos en `EJEMPLO_MIGRACION.md`
+-   ✅ Usa `CarWash.*` para acceder a utilidades
+-   ✅ Lee la documentación en `utils/README.md`
+-   ✅ Migra gradualmente (vista por vista)
+-   ✅ Prueba en desarrollo antes de producción
+-   ✅ Consulta ejemplos en `EJEMPLO_MIGRACION.md`
 
 ### ❌ DON'Ts
 
-- ❌ No modifiques los archivos en `utils/` sin documentar
-- ❌ No uses código inline si existe una utilidad
-- ❌ No olvides compilar después de cambios (`npm run build`)
-- ❌ No elimines código antiguo sin backup
+-   ❌ No modifiques los archivos en `utils/` sin documentar
+-   ❌ No uses código inline si existe una utilidad
+-   ❌ No olvides compilar después de cambios (`npm run build`)
+-   ❌ No elimines código antiguo sin backup
 
 ---
 
@@ -320,7 +320,7 @@ code resources/js/utils/README.md
 console.log(CarWash);
 
 // 3. Prueba una función
-CarWash.showSuccess('Test');
+CarWash.showSuccess("Test");
 
 // 4. Verifica build
 // npm run build
@@ -335,9 +335,9 @@ CarWash.showSuccess('Test');
 
 ### Consultas Técnicas
 
-- **Utilidades:** Ver `resources/js/utils/README.md`
-- **Migración:** Ver `EJEMPLO_MIGRACION.md`
-- **Estado:** Ver `FASE_1_COMPLETADA.md`
+-   **Utilidades:** Ver `resources/js/utils/README.md`
+-   **Migración:** Ver `EJEMPLO_MIGRACION.md`
+-   **Estado:** Ver `FASE_1_COMPLETADA.md`
 
 ### Errores Comunes
 
@@ -358,17 +358,17 @@ CarWash.showSuccess('Test');
 
 ```
     ⭐️ ⭐️ ⭐️ ⭐️ ⭐️
-    
+
   ¡FELICITACIONES!
-  
+
   Has completado la Fase 1
   de optimización frontend
-  
+
   - 2,500 líneas de código
   - 80+ utilidades listas
   - Bundle optimizado 78%
   - Todo documentado
-  
+
     ⭐️ ⭐️ ⭐️ ⭐️ ⭐️
 ```
 
@@ -399,7 +399,7 @@ El frontend de CarWash ESP ahora tiene:
 ✅ Bundle optimizado y code splitting  
 ✅ Documentación completa y ejemplos  
 ✅ Auto-formateo y validaciones  
-✅ Interceptores de errores configurados  
+✅ Interceptores de errores configurados
 
 **Puedes empezar a usar las utilidades inmediatamente.**
 

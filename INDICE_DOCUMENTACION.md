@@ -262,6 +262,7 @@ php artisan optimize
 ### ✅ Frontend - Fase 1 Completada
 
 **Archivos creados:**
+
 ```
 resources/js/utils/
 ├── notifications.js     (266 líneas) - Notificaciones y modales
@@ -276,16 +277,18 @@ resources/js/app.js      - Entry point con 80+ utilidades globales
 ```
 
 **Mejoras logradas:**
-- ✅ Bundle size: -78% (560KB → 121KB)
-- ✅ HTTP requests: -60% (10+ → 4)
-- ✅ Código duplicado: -100%
-- ✅ Utilidades globales: +80 funciones
-- ✅ Mantenibilidad: +167% (3/10 → 8/10)
+
+-   ✅ Bundle size: -78% (560KB → 121KB)
+-   ✅ HTTP requests: -60% (10+ → 4)
+-   ✅ Código duplicado: -100%
+-   ✅ Utilidades globales: +80 funciones
+-   ✅ Mantenibilidad: +167% (3/10 → 8/10)
 
 **Disponible en producción:**
+
 ```javascript
 // Todas las utilidades accesibles vía window.CarWash
-CarWash.showSuccess('Mensaje');
+CarWash.showSuccess("Mensaje");
 CarWash.validateStock(10, 5, false);
 CarWash.formatCurrency(99.99);
 ```

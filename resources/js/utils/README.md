@@ -23,12 +23,12 @@ Todas las utilidades están disponibles globalmente en `window.CarWash`:
 
 ```javascript
 // Notificaciones
-CarWash.showSuccess('Venta registrada correctamente');
-CarWash.showError('Error al procesar la solicitud');
-CarWash.showWarning('Stock bajo en este producto');
+CarWash.showSuccess("Venta registrada correctamente");
+CarWash.showError("Error al procesar la solicitud");
+CarWash.showWarning("Stock bajo en este producto");
 
 // Confirmaciones
-const confirmed = await CarWash.showDeleteConfirm('este producto');
+const confirmed = await CarWash.showDeleteConfirm("este producto");
 if (confirmed) {
     // Proceder con la eliminación
 }
@@ -41,19 +41,19 @@ if (!stockValidation.valid) {
 }
 
 // Formateo
-const precio = CarWash.formatCurrency(125.50); // "S/ 125.50"
+const precio = CarWash.formatCurrency(125.5); // "S/ 125.50"
 const fecha = CarWash.formatDate(new Date()); // "21/10/2025"
 ```
 
 ### Desde módulos ES6
 
 ```javascript
-import { showSuccess, showError } from '@utils/notifications';
-import { validateStock, validatePrecio } from '@utils/validators';
-import { formatCurrency, formatDate } from '@utils/formatters';
+import { showSuccess, showError } from "@utils/notifications";
+import { validateStock, validatePrecio } from "@utils/validators";
+import { formatCurrency, formatDate } from "@utils/formatters";
 
 // Usar directamente
-showSuccess('Operación exitosa');
+showSuccess("Operación exitosa");
 const validation = validateStock(10, 5, false);
 const precio = formatCurrency(99.99);
 ```
@@ -66,16 +66,16 @@ const precio = formatCurrency(99.99);
 
 ```javascript
 // Toast de éxito (5 segundos)
-CarWash.showSuccess('Guardado exitosamente');
+CarWash.showSuccess("Guardado exitosamente");
 
 // Toast de error (6 segundos)
-CarWash.showError('No se pudo completar la operación');
+CarWash.showError("No se pudo completar la operación");
 
 // Toast de advertencia
-CarWash.showWarning('Revisa los datos ingresados');
+CarWash.showWarning("Revisa los datos ingresados");
 
 // Modal informativo
-CarWash.showInfo('Recuerda guardar tus cambios');
+CarWash.showInfo("Recuerda guardar tus cambios");
 ```
 
 #### Confirmaciones
@@ -83,14 +83,14 @@ CarWash.showInfo('Recuerda guardar tus cambios');
 ```javascript
 // Confirmación genérica
 const result = await CarWash.showConfirm(
-    '¿Continuar?',
-    'Esta acción modificará los datos',
-    'Sí, continuar',
-    'Cancelar'
+    "¿Continuar?",
+    "Esta acción modificará los datos",
+    "Sí, continuar",
+    "Cancelar"
 );
 
 // Confirmación para eliminar
-const deleteConfirmed = await CarWash.showDeleteConfirm('este producto');
+const deleteConfirmed = await CarWash.showDeleteConfirm("este producto");
 if (deleteConfirmed) {
     // Ejecutar eliminación
 }
@@ -100,13 +100,13 @@ if (deleteConfirmed) {
 
 ```javascript
 // Mostrar loading
-CarWash.showLoading('Procesando venta...');
+CarWash.showLoading("Procesando venta...");
 
 // Ocultar loading
 CarWash.hideLoading();
 
 // Loading en botón
-const button = document.getElementById('btnGuardar');
+const button = document.getElementById("btnGuardar");
 CarWash.setButtonLoading(button, true); // Mostrar
 // ... hacer operación async
 CarWash.setButtonLoading(button, false); // Ocultar
@@ -116,14 +116,14 @@ CarWash.setButtonLoading(button, false); // Ocultar
 
 ```javascript
 // Mostrar error en campo
-const campo = document.getElementById('cantidad');
-CarWash.showFieldError(campo, 'La cantidad debe ser mayor a 0');
+const campo = document.getElementById("cantidad");
+CarWash.showFieldError(campo, "La cantidad debe ser mayor a 0");
 
 // Limpiar error
 CarWash.clearFieldError(campo);
 
 // Limpiar todos los errores de un formulario
-const form = document.getElementById('miFormulario');
+const form = document.getElementById("miFormulario");
 CarWash.clearFormErrors(form);
 ```
 
@@ -135,9 +135,9 @@ CarWash.clearFormErrors(form);
 
 ```javascript
 const validation = CarWash.validateStock(
-    cantidad,    // 10
-    stock,       // 5
-    esServicio   // false
+    cantidad, // 10
+    stock, // 5
+    esServicio // false
 );
 
 if (!validation.valid) {
@@ -159,9 +159,9 @@ if (!validation.valid) {
 
 ```javascript
 const validation = CarWash.validateDescuento(
-    descuento,       // 100
-    precioUnitario,  // 50
-    cantidad         // 1
+    descuento, // 100
+    precioUnitario, // 50
+    cantidad // 1
 );
 
 if (!validation.valid) {
@@ -174,12 +174,12 @@ if (!validation.valid) {
 
 ```javascript
 // Fecha individual
-const validation = CarWash.validateFecha('2025-10-21');
+const validation = CarWash.validateFecha("2025-10-21");
 
 // Rango de fechas
 const validation = CarWash.validateRangoFechas(
-    fechaInicio,  // '2025-10-01'
-    fechaFin      // '2025-10-21'
+    fechaInicio, // '2025-10-01'
+    fechaFin // '2025-10-21'
 );
 ```
 
@@ -187,28 +187,28 @@ const validation = CarWash.validateRangoFechas(
 
 ```javascript
 // DNI (8 dígitos)
-const validation = CarWash.validateDNI('12345678');
+const validation = CarWash.validateDNI("12345678");
 
 // RUC (11 dígitos)
-const validation = CarWash.validateRUC('20123456789');
+const validation = CarWash.validateRUC("20123456789");
 
 // Placa vehicular
-const validation = CarWash.validatePlaca('ABC-123');
+const validation = CarWash.validatePlaca("ABC-123");
 
 // Teléfono
-const validation = CarWash.validateTelefono('987654321');
+const validation = CarWash.validateTelefono("987654321");
 
 // Email
-const validation = CarWash.validateEmail('user@example.com');
+const validation = CarWash.validateEmail("user@example.com");
 ```
 
 #### Validación de Tablas
 
 ```javascript
 // Verificar que una tabla tenga al menos una fila
-const validation = CarWash.validateTableNotEmpty('tabla_detalle');
+const validation = CarWash.validateTableNotEmpty("tabla_detalle");
 if (!validation.valid) {
-    CarWash.showError('Debe agregar al menos un producto');
+    CarWash.showError("Debe agregar al menos un producto");
 }
 ```
 
@@ -226,7 +226,7 @@ const safeString = CarWash.sanitizeString(userInput);
 #### Formateo de Moneda
 
 ```javascript
-const precio = CarWash.formatCurrency(125.50);
+const precio = CarWash.formatCurrency(125.5);
 // "S/ 125.50"
 
 const numero = CarWash.formatNumber(1234.567, 2);
@@ -259,15 +259,15 @@ CarWash.formatRelativeTime(fecha);
 
 ```javascript
 // RUC
-CarWash.formatRUC('20123456789');
+CarWash.formatRUC("20123456789");
 // "20-12345678-9"
 
 // Teléfono
-CarWash.formatTelefono('987654321');
+CarWash.formatTelefono("987654321");
 // "987 654 321"
 
 // Placa
-CarWash.formatPlaca('ABC123');
+CarWash.formatPlaca("ABC123");
 // "ABC-123"
 ```
 
@@ -279,11 +279,11 @@ CarWash.formatPercentage(18.5);
 // "18.50%"
 
 // Capitalizar
-CarWash.capitalize('juan pérez');
+CarWash.capitalize("juan pérez");
 // "Juan Pérez"
 
 // Truncar texto
-CarWash.truncateText('Texto muy largo...', 10);
+CarWash.truncateText("Texto muy largo...", 10);
 // "Texto muy ..."
 
 // Tamaño de archivo
@@ -291,7 +291,7 @@ CarWash.formatFileSize(1536);
 // "1.50 KB"
 
 // Número a palabras (para comprobantes)
-CarWash.numberToWords(125.50);
+CarWash.numberToWords(125.5);
 // "CIENTO VEINTICINCO CON 50/100 SOLES"
 ```
 
@@ -309,15 +309,15 @@ CarWash.initTooltips();
 CarWash.initPopovers();
 
 // Bootstrap Select
-CarWash.initBootstrapSelect('.selectpicker', {
+CarWash.initBootstrapSelect(".selectpicker", {
     liveSearch: true,
-    size: 7
+    size: 7,
 });
 
 // DataTables
-CarWash.initDataTable('miTabla', {
+CarWash.initDataTable("miTabla", {
     perPage: 10,
-    searchable: true
+    searchable: true,
 });
 ```
 
@@ -325,29 +325,29 @@ CarWash.initDataTable('miTabla', {
 
 ```javascript
 // Abrir modal
-CarWash.showBsModal('miModal');
+CarWash.showBsModal("miModal");
 
 // Cerrar modal
-CarWash.hideBsModal('miModal');
+CarWash.hideBsModal("miModal");
 ```
 
 #### Bootstrap Select Avanzado
 
 ```javascript
 // Refrescar después de cambios
-CarWash.refreshBootstrapSelect('#producto_id');
+CarWash.refreshBootstrapSelect("#producto_id");
 
 // Cambiar valor programáticamente
-CarWash.setBootstrapSelectValue('#lavador_id', '5');
+CarWash.setBootstrapSelectValue("#lavador_id", "5");
 
 // Deshabilitar/habilitar
-CarWash.toggleBootstrapSelect('#categoria_id', true); // disabled
+CarWash.toggleBootstrapSelect("#categoria_id", true); // disabled
 ```
 
 #### Validación de Formularios
 
 ```javascript
-const form = document.getElementById('formVenta');
+const form = document.getElementById("formVenta");
 
 // Habilitar validación Bootstrap
 CarWash.initFormValidation(form);
@@ -364,25 +364,25 @@ CarWash.clearFormValidation(form);
 
 ```html
 <!-- En tu HTML -->
-<img data-src="imagen-grande.jpg" alt="Descripción" class="img-fluid">
+<img data-src="imagen-grande.jpg" alt="Descripción" class="img-fluid" />
 ```
 
 ```javascript
 // Se inicializa automáticamente al cargar el DOM
 // O manualmente:
-CarWash.initLazyImages('img[data-src]');
+CarWash.initLazyImages("img[data-src]");
 ```
 
 #### Lazy Loading de Scripts
 
 ```javascript
 // Cargar jQuery de manera diferida (si no está en CDN)
-await CarWash.lazyLoadScript('/js/jquery.min.js', {
-    async: true
+await CarWash.lazyLoadScript("/js/jquery.min.js", {
+    async: true,
 });
 
 // Cargar CSS de forma diferida
-await CarWash.lazyLoadCSS('/css/extra-styles.css');
+await CarWash.lazyLoadCSS("/css/extra-styles.css");
 ```
 
 #### Debounce y Throttle
@@ -393,7 +393,7 @@ const buscarProducto = CarWash.debounce((query) => {
     // Hacer búsqueda
 }, 300);
 
-input.addEventListener('input', (e) => {
+input.addEventListener("input", (e) => {
     buscarProducto(e.target.value);
 });
 
@@ -402,7 +402,7 @@ const handleScroll = CarWash.throttle(() => {
     // Procesar scroll
 }, 100);
 
-window.addEventListener('scroll', handleScroll);
+window.addEventListener("scroll", handleScroll);
 ```
 
 ---
@@ -412,41 +412,45 @@ window.addEventListener('scroll', handleScroll);
 ### Reemplazar código existente
 
 **Antes:**
+
 ```javascript
 Swal.fire({
-    icon: 'success',
-    title: 'Guardado',
+    icon: "success",
+    title: "Guardado",
     toast: true,
-    position: 'top-end',
+    position: "top-end",
     showConfirmButton: false,
-    timer: 3000
+    timer: 3000,
 });
 ```
 
 **Después:**
+
 ```javascript
-CarWash.showSuccess('Guardado', 5000);
+CarWash.showSuccess("Guardado", 5000);
 ```
 
 ---
 
 **Antes:**
+
 ```javascript
-let cantidad = parseInt($('#cantidad').val());
+let cantidad = parseInt($("#cantidad").val());
 if (!cantidad || cantidad <= 0) {
     Swal.fire({
-        icon: 'error',
-        text: 'Debe ingresar una cantidad válida'
+        icon: "error",
+        text: "Debe ingresar una cantidad válida",
     });
     return;
 }
 ```
 
 **Después:**
+
 ```javascript
-const cantidad = parseInt($('#cantidad').val());
+const cantidad = parseInt($("#cantidad").val());
 if (!CarWash.isPositive(cantidad)) {
-    CarWash.showError('Debe ingresar una cantidad válida');
+    CarWash.showError("Debe ingresar una cantidad válida");
     return;
 }
 ```
@@ -459,10 +463,10 @@ Agrega atributos `data-*` para formateo automático:
 
 ```html
 <!-- Auto-formateo de moneda al perder foco -->
-<input type="text" data-currency name="precio" class="form-control">
+<input type="text" data-currency name="precio" class="form-control" />
 
 <!-- Auto-formateo de placa -->
-<input type="text" data-placa name="placa" class="form-control">
+<input type="text" data-placa name="placa" class="form-control" />
 
 <!-- Prevenir doble submit -->
 <form data-prevent-double-submit>
@@ -486,7 +490,7 @@ Para debug en desarrollo, las utilidades están disponibles en la consola:
 
 ```javascript
 // En DevTools Console
-CarWash.showSuccess('Test');
+CarWash.showSuccess("Test");
 CarWash.validateStock(10, 5, false);
 CarWash.formatCurrency(99.99);
 ```
@@ -499,44 +503,48 @@ CarWash.formatCurrency(99.99);
 
 ```javascript
 function agregarProducto() {
-    const cantidad = parseInt($('#cantidad').val());
-    const stock = parseInt($('#stock').val());
-    const precio = parseFloat($('#precio').val());
-    const descuento = parseFloat($('#descuento').val()) || 0;
-    const esServicio = $('#servicio_lavado').is(':checked');
-    
+    const cantidad = parseInt($("#cantidad").val());
+    const stock = parseInt($("#stock").val());
+    const precio = parseFloat($("#precio").val());
+    const descuento = parseFloat($("#descuento").val()) || 0;
+    const esServicio = $("#servicio_lavado").is(":checked");
+
     // Validar cantidad
     if (!CarWash.isPositive(cantidad)) {
-        CarWash.showError('Ingrese una cantidad válida');
+        CarWash.showError("Ingrese una cantidad válida");
         return;
     }
-    
+
     // Validar stock
     const stockValidation = CarWash.validateStock(cantidad, stock, esServicio);
     if (!stockValidation.valid) {
         CarWash.showError(stockValidation.message);
         return;
     }
-    
+
     // Validar precio
     const precioValidation = CarWash.validatePrecio(precio, 0);
     if (!precioValidation.valid) {
         CarWash.showError(precioValidation.message);
         return;
     }
-    
+
     // Validar descuento
-    const descuentoValidation = CarWash.validateDescuento(descuento, precio, cantidad);
+    const descuentoValidation = CarWash.validateDescuento(
+        descuento,
+        precio,
+        cantidad
+    );
     if (!descuentoValidation.valid) {
         CarWash.showError(descuentoValidation.message);
         return;
     }
-    
+
     // Todo OK, agregar a tabla
-    const subtotal = (precio * cantidad) - descuento;
+    const subtotal = precio * cantidad - descuento;
     // ... resto de la lógica
-    
-    CarWash.showSuccess('Producto agregado');
+
+    CarWash.showSuccess("Producto agregado");
 }
 ```
 
@@ -544,12 +552,12 @@ function agregarProducto() {
 
 ```javascript
 async function eliminarProducto(id) {
-    const confirmed = await CarWash.showDeleteConfirm('este producto');
-    
+    const confirmed = await CarWash.showDeleteConfirm("este producto");
+
     if (confirmed) {
         $(`#fila${id}`).remove();
         recalcularTotales();
-        CarWash.showSuccess('Producto eliminado');
+        CarWash.showSuccess("Producto eliminado");
     }
 }
 ```
@@ -559,39 +567,38 @@ async function eliminarProducto(id) {
 ```javascript
 async function guardarVenta(e) {
     e.preventDefault();
-    
-    const form = document.getElementById('form-venta');
-    const button = document.getElementById('btn-guardar');
-    
+
+    const form = document.getElementById("form-venta");
+    const button = document.getElementById("btn-guardar");
+
     // Validar tabla
-    const tableValidation = CarWash.validateTableNotEmpty('tabla_detalle');
+    const tableValidation = CarWash.validateTableNotEmpty("tabla_detalle");
     if (!tableValidation.valid) {
         CarWash.showError(tableValidation.message);
         return;
     }
-    
+
     // Validar formulario
     const formValidation = CarWash.validateForm(form);
     if (!formValidation.valid) {
-        formValidation.errors.forEach(error => {
+        formValidation.errors.forEach((error) => {
             CarWash.showError(error);
         });
         return;
     }
-    
+
     // Mostrar loading
     CarWash.setButtonLoading(button, true);
-    
+
     try {
-        const response = await axios.post('/ventas', {
+        const response = await axios.post("/ventas", {
             // ... datos
         });
-        
-        CarWash.showSuccess('Venta registrada correctamente');
+
+        CarWash.showSuccess("Venta registrada correctamente");
         setTimeout(() => {
-            window.location.href = '/ventas';
+            window.location.href = "/ventas";
         }, 1500);
-        
     } catch (error) {
         // El interceptor de axios ya muestra el error
         CarWash.setButtonLoading(button, false);

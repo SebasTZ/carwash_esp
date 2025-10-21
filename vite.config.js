@@ -8,6 +8,8 @@ export default defineConfig({
             input: [
                 'resources/css/app.css', 
                 'resources/js/app.js',
+                // Módulos de páginas específicas
+                'resources/js/modules/VentaManager.js',
             ],
             refresh: true,
         }),
@@ -31,6 +33,10 @@ export default defineConfig({
                         './resources/js/utils/formatters.js',
                         './resources/js/utils/bootstrap-init.js',
                         './resources/js/utils/lazy-loader.js',
+                    ],
+                    // Módulos de páginas
+                    'modules': [
+                        './resources/js/modules/VentaManager.js',
                     ],
                 },
                 // Nombres de archivo con hash para cache busting
