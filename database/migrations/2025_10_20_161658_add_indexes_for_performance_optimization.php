@@ -35,7 +35,7 @@ return new class extends Migration
         Schema::table('compras', function (Blueprint $table) {
             // Índices similares para compras
             $table->index('fecha_hora', 'idx_compras_fecha_hora');
-            $table->index('proveedor_id', 'idx_compras_proveedor_id');
+            $table->index('proveedore_id', 'idx_compras_proveedore_id');
             $table->index('estado', 'idx_compras_estado');
             $table->index(['fecha_hora', 'estado'], 'idx_compras_fecha_estado');
         });
@@ -55,9 +55,6 @@ return new class extends Migration
         });
 
         Schema::table('clientes', function (Blueprint $table) {
-            // Índice para filtrar clientes activos
-            $table->index('estado', 'idx_clientes_estado');
-            
             // Índice para fidelización (lavados acumulados)
             $table->index('lavados_acumulados', 'idx_clientes_lavados');
         });
@@ -93,7 +90,7 @@ return new class extends Migration
 
         Schema::table('compras', function (Blueprint $table) {
             $table->dropIndex('idx_compras_fecha_hora');
-            $table->dropIndex('idx_compras_proveedor_id');
+            $table->dropIndex('idx_compras_proveedore_id');
             $table->dropIndex('idx_compras_estado');
             $table->dropIndex('idx_compras_fecha_estado');
         });
@@ -106,7 +103,6 @@ return new class extends Migration
         });
 
         Schema::table('clientes', function (Blueprint $table) {
-            $table->dropIndex('idx_clientes_estado');
             $table->dropIndex('idx_clientes_lavados');
         });
 

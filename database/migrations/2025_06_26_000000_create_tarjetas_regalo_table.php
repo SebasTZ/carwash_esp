@@ -21,10 +21,22 @@ return new class extends Migration
 
             $table->foreign('cliente_id')->references('id')->on('clientes')->onDelete('set null');
         });
+
+        // Agregar foreign key a ventas ahora que tarjetas_regalo existe
+        Schema::table('ventas', function (Blueprint $table) {
+            $table->foreign('tarjeta_regalo_id')->references('id')->on('tarjetas_regalo')->onDelete('set null');
+        });
     }
 
     public function down(): void
     {
+        // Eliminar foreign key de ventas primero (solo si no es SQLite)
+        if (config('database.default') !== 'sqlite') {
+            Schema::table('ventas', function (Blueprint $table) {
+                $table->dropForeign(['tarjeta_regalo_id']);
+            });
+        }
+        
         Schema::dropIfExists('tarjetas_regalo');
     }
 };

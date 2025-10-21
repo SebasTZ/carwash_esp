@@ -31,6 +31,8 @@ return new class extends Migration
             // $table->boolean('pago_mixto')->default(false); // Eliminado si existía
             $table->boolean('servicio_lavado')->default(false);
             $table->dateTime('horario_lavado')->nullable();
+            $table->unsignedBigInteger('tarjeta_regalo_id')->nullable(); // ✅ CONSOLIDADO (FK se agrega después)
+            $table->boolean('lavado_gratis')->default(false); // ✅ CONSOLIDADO
             $table->timestamps();
         });
     }

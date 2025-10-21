@@ -18,6 +18,11 @@ return new class extends Migration {
 
     public function down()
     {
+        // En SQLite primero eliminar la tabla que depende (control_lavados)
+        // antes de eliminar tipos_vehiculo
+        if (config('database.default') === 'sqlite') {
+            Schema::dropIfExists('control_lavados');
+        }
         Schema::dropIfExists('tipos_vehiculo');
     }
 };

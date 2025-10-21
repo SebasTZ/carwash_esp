@@ -15,10 +15,8 @@ return new class extends Migration
     {
         Schema::create('documentos', function (Blueprint $table) {
             $table->id();
-
             $table->string('tipo_documento',30);
-            $table->string('numero_documento',20);
-
+            // Campo numero_documento eliminado (consolidado de update_colums_to_documentos_table)
             $table->timestamps();
         });
     }
