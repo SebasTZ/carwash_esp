@@ -36,13 +36,21 @@ Este proyecto implementa una arquitectura robusta con:
 
 ### **Testing Completo** 🧪
 
--   ✅ **169 tests** con 100% de aprobación
+**Backend:**
+-   ✅ **169 tests PHPUnit** con 100% de aprobación
 -   ✅ **461 aserciones** (+370 nuevas)
 -   ✅ **Cobertura completa:** Servicios, Repositorios, Observers, Events, Jobs, Integración, Performance
 -   ✅ **Zero regresiones** después de optimizaciones
 
+**Frontend:**
+-   ✅ **91 tests Vitest** con 100% de aprobación (91/91)
+-   ✅ **3 componentes reutilizables** completamente testeados
+-   ✅ **Testing infrastructure:** Vitest 3.2.4 + happy-dom
+-   ✅ **455% objetivo superado** (meta: 20 tests, alcanzado: 91)
+
 ## 📊 Características Principales
 
+### **Backend:**
 -   ✅ **Ventas con múltiples medios de pago**: Efectivo, tarjeta, tarjetas de regalo, lavados gratis
 -   ✅ **Control de stock inteligente**: Actualizaciones atómicas con locks pesimistas
 -   ✅ **Programa de fidelización**: Acumulación y canje de puntos
@@ -55,7 +63,25 @@ Este proyecto implementa una arquitectura robusta con:
 -   ✅ **Impresión térmica**: Tickets de venta
 -   ✅ **Gestión de estacionamiento**: Control de cocheras
 
-## 🛠️ Dependencias
+### **Frontend (En Desarrollo - Fase 3):**
+-   ✅ **DynamicTable** (520 líneas): Tablas reutilizables con CRUD, formatters, búsqueda, eventos
+-   ✅ **AutoSave** (525 líneas): Auto-guardado de formularios con debouncing, localStorage, reintentos
+-   ✅ **FormValidator** (570 líneas): Validación completa con 16+ reglas predefinidas, validadores custom
+-   🚧 **DateTimePicker, ImageUploader, AlertManager**: Próximamente
+-   🚧 **API REST + Testing E2E**: Mes 2-3
+
+## � Documentación
+
+**Documentación completa disponible en:** [`docs/`](docs/README.md)
+
+**Accesos rápidos:**
+- 📦 [API de Componentes Frontend](docs/components/COMPONENTS_API.md) - DynamicTable, AutoSave, FormValidator
+- 🗺️ [Roadmap Fase 3](docs/planning/FASE_3_ACELERADA.md) - Plan de desarrollo actual
+- ✅ [Resumen QA](docs/RESUMEN_FINAL_QA.md) - Proyecto de calidad completado
+- 🚀 [Mejoras Futuras](docs/MEJORAS_FUTURAS.md) - Roadmap de próximas funcionalidades
+- ⚙️ [Documentación Técnica](docs/documentacion_tecnica.md) - Stack y arquitectura
+
+## �🛠️ Dependencias
 
 -   Se debe tener instalado [XAMPP](https://www.apachefriends.org/es/download.html "XAMPP") (versión **PHP** **8.1** o superior)
 -   Se debe tener instalado [Composer](https://getcomposer.org/download/ "Composer")
@@ -127,7 +153,9 @@ php artisan serve
 
 ## 🧪 Testing
 
-El proyecto cuenta con una suite completa de tests con cobertura exhaustiva:
+El proyecto cuenta con suites completas de tests con cobertura exhaustiva:
+
+### **Backend Testing (PHPUnit):**
 
 ```bash
 # Ejecutar todos los tests
@@ -141,12 +169,39 @@ php artisan test --filter=Performance
 vendor/bin/phpunit --coverage-html coverage
 ```
 
-**Estadísticas de Testing:**
-
+**Estadísticas Backend:**
 -   ✅ **169 tests pasando (100%)**
 -   ✅ **461 assertions**
 -   ✅ **Zero regresiones**
 -   ✅ **Cobertura completa:** Services, Repositories, Observers, Events, Jobs, Integration, Performance, Cache
+
+### **Frontend Testing (Vitest):**
+
+```bash
+# Ejecutar todos los tests
+npm test
+
+# Ejecutar tests con UI
+npm run test:ui
+
+# Ver cobertura
+npm run test:coverage
+
+# Ejecutar tests específicos
+npm test DynamicTable
+npm test AutoSave
+npm test FormValidator
+```
+
+**Estadísticas Frontend:**
+-   ✅ **91 tests pasando (100%)**
+-   ✅ **3 componentes core completos**
+-   ✅ **1,615 líneas de código productivo**
+-   ✅ **Testing infrastructure:** Vitest 3.2.4 + happy-dom
+-   ✅ **Componentes testeados:**
+    -   DynamicTable: 13 tests (inicialización, rendering, búsqueda, formatters, CRUD, eventos)
+    -   AutoSave: 35 tests (debouncing, localStorage, reintentos, validación, callbacks)
+    -   FormValidator: 43 tests (16+ validadores, mensajes custom, eventos, control)
 
 **Suite de Tests:**
 - **Unit Tests:** 90 tests (Services, Repositories, Observers, Events, Jobs)
