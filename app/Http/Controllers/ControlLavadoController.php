@@ -44,6 +44,15 @@ class ControlLavadoController extends Controller
         $lavadores = Lavador::where('estado', 'activo')->get();
         $tiposVehiculo = TipoVehiculo::where('estado', 'activo')->get();
 
+        // Si es una petición AJAX, retornar solo la tabla
+        if ($request->ajax() || $request->wantsJson()) {
+            $html = view('control.lavados_tabla_partial', compact('lavados', 'lavadores', 'tiposVehiculo'))->render();
+            return response()->json([
+                'html' => $html,
+                'success' => true
+            ]);
+        }
+
         return view('control.lavados', compact('lavados', 'lavadores', 'tiposVehiculo'));
     }
 

@@ -25,12 +25,13 @@ La Fase 2 se centra en **extraer todo el código JavaScript inline de las vistas
 ### Análisis Inicial
 
 **Código inline original:**
-- **335 líneas de JavaScript** embebidas en la vista
-- 10 funciones globales: `agregarProducto()`, `eliminarProducto()`, `recalcularIGV()`, etc.
-- Validaciones manuales repetidas
-- Manipulación directa del DOM
-- Sin persistencia de datos
-- Sin confirmaciones para acciones destructivas
+
+-   **335 líneas de JavaScript** embebidas en la vista
+-   10 funciones globales: `agregarProducto()`, `eliminarProducto()`, `recalcularIGV()`, etc.
+-   Validaciones manuales repetidas
+-   Manipulación directa del DOM
+-   Sin persistencia de datos
+-   Sin confirmaciones para acciones destructivas
 
 ### ✨ Solución Implementada: VentaManager.js
 
@@ -52,7 +53,7 @@ class VentaState {
         this.igv = 0;
         this.total = 0;
     }
-    
+
     // Métodos principales:
     // - agregarProducto()
     // - eliminarProducto()
@@ -64,9 +65,10 @@ class VentaState {
 ```
 
 **Ventajas:**
-- Estado centralizado y predecible
-- Fácil de testear (funciones puras)
-- Persistencia automática en localStorage
+
+-   Estado centralizado y predecible
+-   Fácil de testear (funciones puras)
+-   Persistencia automática en localStorage
 
 #### Clase `VentaManager`
 
@@ -78,7 +80,7 @@ export class VentaManager {
         this.state = new VentaState();
         this.init();
     }
-    
+
     // Métodos principales:
     // - setupEventListeners()
     // - agregarProducto() - Con validaciones usando validators.js
@@ -92,10 +94,11 @@ export class VentaManager {
 ```
 
 **Ventajas:**
-- Separación de responsabilidades
-- Usa las utilidades de Fase 1 (validators.js, formatters.js, notifications.js)
-- Confirma acciones destructivas con SweetAlert2
-- Auto-guardado periódico
+
+-   Separación de responsabilidades
+-   Usa las utilidades de Fase 1 (validators.js, formatters.js, notifications.js)
+-   Confirma acciones destructivas con SweetAlert2
+-   Auto-guardado periódico
 
 ---
 
@@ -104,6 +107,7 @@ export class VentaManager {
 ### ✅ Agregar Producto
 
 **Antes (inline):**
+
 ```javascript
 function agregarProducto() {
     // 60 líneas de código
@@ -114,6 +118,7 @@ function agregarProducto() {
 ```
 
 **Después (VentaManager):**
+
 ```javascript
 agregarProducto() {
     // Validaciones con validators.js
@@ -122,33 +127,35 @@ agregarProducto() {
         showError(stockValidation.message);
         return;
     }
-    
+
     // Agregar al estado
     const producto = this.state.agregarProducto(...);
-    
+
     // Actualizar UI
     this.agregarFilaTabla(producto);
     this.actualizarTotales();
-    
+
     // Persistencia
     this.state.guardarEnLocalStorage();
-    
+
     showSuccess('Producto agregado correctamente');
 }
 ```
 
 **Mejoras:**
-- ✅ Validaciones reutilizables
-- ✅ Mensajes centralizados
-- ✅ Auto-guardado en localStorage
-- ✅ Notificaciones consistentes
-- ✅ Código 50% más corto
+
+-   ✅ Validaciones reutilizables
+-   ✅ Mensajes centralizados
+-   ✅ Auto-guardado en localStorage
+-   ✅ Notificaciones consistentes
+-   ✅ Código 50% más corto
 
 ---
 
 ### ✅ Eliminar Producto
 
 **Antes:**
+
 ```javascript
 function eliminarProducto(indice) {
     // Elimina directamente sin confirmar
@@ -157,34 +164,37 @@ function eliminarProducto(indice) {
 ```
 
 **Después:**
+
 ```javascript
 async eliminarProducto(indice) {
     const confirmado = await showConfirm(
         '¿Eliminar producto?',
         'Esta acción no se puede deshacer'
     );
-    
+
     if (!confirmado) return;
-    
+
     this.state.eliminarProducto(indice);
     $(`#fila${indice}`).remove();
     this.actualizarTotales();
     this.state.guardarEnLocalStorage();
-    
+
     showSuccess('Producto eliminado');
 }
 ```
 
 **Mejoras:**
-- ✅ Confirmación antes de eliminar
-- ✅ Async/await para mejor UX
-- ✅ Actualización automática de totales
+
+-   ✅ Confirmación antes de eliminar
+-   ✅ Async/await para mejor UX
+-   ✅ Actualización automática de totales
 
 ---
 
 ### ✅ Cancelar Venta
 
 **Antes:**
+
 ```javascript
 function cancelarVenta() {
     // Cancela directamente sin confirmar
@@ -193,26 +203,28 @@ function cancelarVenta() {
 ```
 
 **Después:**
+
 ```javascript
 async cancelarVenta() {
     const confirmado = await showConfirm(
         '¿Cancelar venta?',
         'Se perderán todos los productos agregados'
     );
-    
+
     if (!confirmado) return;
-    
+
     this.state.limpiar();
     this.state.limpiarLocalStorage();
     // ... limpiar UI
-    
+
     showSuccess('Venta cancelada');
 }
 ```
 
 **Mejoras:**
-- ✅ Confirmación antes de cancelar
-- ✅ Limpia localStorage automáticamente
+
+-   ✅ Confirmación antes de cancelar
+-   ✅ Limpia localStorage automáticamente
 
 ---
 
@@ -223,14 +235,14 @@ async cancelarVenta() {
 ```javascript
 async intentarRecuperarBorrador() {
     const hayBorrador = this.state.cargarDesdeLocalStorage();
-    
+
     if (!hayBorrador) return;
-    
+
     const recuperar = await showConfirm(
         '¿Recuperar venta anterior?',
         'Se encontró una venta sin completar. ¿Deseas recuperarla?'
     );
-    
+
     if (recuperar) {
         this.recuperarBorrador();
     }
@@ -238,9 +250,10 @@ async intentarRecuperarBorrador() {
 ```
 
 **Beneficios:**
-- ✅ No se pierde información si se cierra accidentalmente
-- ✅ Experiencia de usuario mejorada
-- ✅ Opción de recuperar o empezar de nuevo
+
+-   ✅ No se pierde información si se cierra accidentalmente
+-   ✅ Experiencia de usuario mejorada
+-   ✅ Opción de recuperar o empezar de nuevo
 
 ---
 
@@ -261,9 +274,10 @@ iniciarAutoGuardado() {
 ```
 
 **Beneficios:**
-- ✅ Guardado automático cada 30 segundos
-- ✅ Solo guarda si hay productos
-- ✅ Log en consola para debugging
+
+-   ✅ Guardado automático cada 30 segundos
+-   ✅ Solo guarda si hay productos
+-   ✅ Log en consola para debugging
 
 ---
 
@@ -272,33 +286,36 @@ iniciarAutoGuardado() {
 El `VentaManager` aprovecha **todas** las utilidades creadas en la Fase 1:
 
 ### De `notifications.js`:
+
 ```javascript
-import { 
-    showSuccess,      // ✅ Mensajes de éxito
-    showError,        // ✅ Mensajes de error
-    showConfirm,      // ✅ Confirmaciones async
-    setButtonLoading  // ✅ Loading en botones
-} from '@utils/notifications';
+import {
+    showSuccess, // ✅ Mensajes de éxito
+    showError, // ✅ Mensajes de error
+    showConfirm, // ✅ Confirmaciones async
+    setButtonLoading, // ✅ Loading en botones
+} from "@utils/notifications";
 ```
 
 ### De `validators.js`:
+
 ```javascript
-import { 
-    validateStock,          // ✅ Validar stock vs cantidad
-    validatePrecio,         // ✅ Validar precio > 0
-    validateDescuento,      // ✅ Validar descuento <= subtotal
-    isPositive,             // ✅ Verificar positivo
-    isInteger,              // ✅ Verificar entero
-    validateTableNotEmpty   // ✅ Validar tabla con productos
-} from '@utils/validators';
+import {
+    validateStock, // ✅ Validar stock vs cantidad
+    validatePrecio, // ✅ Validar precio > 0
+    validateDescuento, // ✅ Validar descuento <= subtotal
+    isPositive, // ✅ Verificar positivo
+    isInteger, // ✅ Verificar entero
+    validateTableNotEmpty, // ✅ Validar tabla con productos
+} from "@utils/validators";
 ```
 
 ### De `formatters.js`:
+
 ```javascript
-import { 
-    formatCurrency,   // ✅ Formatear S/ 125.50
-    parseCurrency     // ✅ Parsear "S/ 125.50" → 125.50
-} from '@utils/formatters';
+import {
+    formatCurrency, // ✅ Formatear S/ 125.50
+    parseCurrency, // ✅ Parsear "S/ 125.50" → 125.50
+} from "@utils/formatters";
 ```
 
 **Resultado:** Código limpio, reutilizable y fácil de mantener.
@@ -311,7 +328,7 @@ import {
 
 ```javascript
 input: [
-    'resources/css/app.css', 
+    'resources/css/app.css',
     'resources/js/app.js',
     'resources/js/modules/VentaManager.js',  // ← Nuevo entry point
 ],
@@ -328,6 +345,7 @@ manualChunks: {
 ```
 
 **Resultado del build:**
+
 ```
 ✓ 62 modules transformed
 public/build/assets/VentaManager.e67b0234.js    7.69 KB / gzip: 2.40 KiB
@@ -341,6 +359,7 @@ public/build/assets/vendor-core.8a569419.js     102.62 KB / gzip: 37.07 KiB
 ### venta/create.blade.php
 
 **Antes:**
+
 ```blade
 @push('js')
 <script>
@@ -350,6 +369,7 @@ public/build/assets/vendor-core.8a569419.js     102.62 KB / gzip: 37.07 KiB
 ```
 
 **Después:**
+
 ```blade
 @push('js')
 {{-- Cargar jQuery y Bootstrap Select desde CDN (temporal) --}}
@@ -368,17 +388,17 @@ public/build/assets/vendor-core.8a569419.js     102.62 KB / gzip: 37.07 KiB
 
 ### Antes vs Después
 
-| Métrica                     | Antes         | Después       | Mejora    |
-|-----------------------------|---------------|---------------|-----------|
-| Líneas de código inline     | 335           | 5             | -98.5%    |
-| Funciones globales          | 10            | 0             | -100%     |
-| Validaciones reutilizables  | 0             | 8             | +∞        |
-| Confirmaciones              | 0             | 3             | +∞        |
-| Persistencia (localStorage) | No            | Sí            | ✅        |
-| Auto-guardado               | No            | Sí (30s)      | ✅        |
-| Recuperación de borrador    | No            | Sí            | ✅        |
-| Formato de moneda           | Manual        | Automático    | ✅        |
-| Tests posibles              | Difícil       | Fácil         | ✅        |
+| Métrica                     | Antes   | Después    | Mejora |
+| --------------------------- | ------- | ---------- | ------ |
+| Líneas de código inline     | 335     | 5          | -98.5% |
+| Funciones globales          | 10      | 0          | -100%  |
+| Validaciones reutilizables  | 0       | 8          | +∞     |
+| Confirmaciones              | 0       | 3          | +∞     |
+| Persistencia (localStorage) | No      | Sí         | ✅     |
+| Auto-guardado               | No      | Sí (30s)   | ✅     |
+| Recuperación de borrador    | No      | Sí         | ✅     |
+| Formato de moneda           | Manual  | Automático | ✅     |
+| Tests posibles              | Difícil | Fácil      | ✅     |
 
 ---
 
@@ -387,48 +407,54 @@ public/build/assets/vendor-core.8a569419.js     102.62 KB / gzip: 37.07 KiB
 ### Checklist de Testing
 
 #### ✅ Agregar Producto
-- [ ] Seleccionar producto del dropdown
-- [ ] Ingresar cantidad válida
-- [ ] Validar cantidad > stock (debe mostrar error)
-- [ ] Ingresar descuento válido
-- [ ] Validar descuento > subtotal (debe mostrar error)
-- [ ] Producto se agrega a la tabla correctamente
-- [ ] Totales se calculan correctamente
-- [ ] Mensaje de éxito se muestra
+
+-   [ ] Seleccionar producto del dropdown
+-   [ ] Ingresar cantidad válida
+-   [ ] Validar cantidad > stock (debe mostrar error)
+-   [ ] Ingresar descuento válido
+-   [ ] Validar descuento > subtotal (debe mostrar error)
+-   [ ] Producto se agrega a la tabla correctamente
+-   [ ] Totales se calculan correctamente
+-   [ ] Mensaje de éxito se muestra
 
 #### ✅ Eliminar Producto
-- [ ] Hacer clic en botón eliminar
-- [ ] Modal de confirmación aparece
-- [ ] Cancelar no elimina el producto
-- [ ] Confirmar elimina el producto
-- [ ] Totales se recalculan
-- [ ] Mensaje de éxito se muestra
+
+-   [ ] Hacer clic en botón eliminar
+-   [ ] Modal de confirmación aparece
+-   [ ] Cancelar no elimina el producto
+-   [ ] Confirmar elimina el producto
+-   [ ] Totales se recalculan
+-   [ ] Mensaje de éxito se muestra
 
 #### ✅ Calcular Totales
-- [ ] Sumas se calculan correctamente
-- [ ] IGV se calcula solo en Facturas con checkbox marcado
-- [ ] Total = Sumas + IGV
-- [ ] Cambiar tipo de comprobante recalcula IGV
-- [ ] Cambiar porcentaje de IGV recalcula total
+
+-   [ ] Sumas se calculan correctamente
+-   [ ] IGV se calcula solo en Facturas con checkbox marcado
+-   [ ] Total = Sumas + IGV
+-   [ ] Cambiar tipo de comprobante recalcula IGV
+-   [ ] Cambiar porcentaje de IGV recalcula total
 
 #### ✅ Persistencia localStorage
-- [ ] Agregar productos y refrescar página
-- [ ] Modal de recuperación aparece
-- [ ] Recuperar restaura los productos
-- [ ] "Nueva venta" limpia el borrador
-- [ ] Auto-guardado funciona cada 30 segundos
+
+-   [ ] Agregar productos y refrescar página
+-   [ ] Modal de recuperación aparece
+-   [ ] Recuperar restaura los productos
+-   [ ] "Nueva venta" limpia el borrador
+-   [ ] Auto-guardado funciona cada 30 segundos
 
 #### ✅ Cancelar Venta
-- [ ] Hacer clic en "Cancelar Venta"
-- [ ] Modal de confirmación aparece
-- [ ] Confirmar limpia tabla y totales
-- [ ] localStorage se limpia
+
+-   [ ] Hacer clic en "Cancelar Venta"
+-   [ ] Modal de confirmación aparece
+-   [ ] Confirmar limpia tabla y totales
+-   [ ] localStorage se limpia
 
 #### ✅ Guardar Venta
-- [ ] Validar tabla vacía (debe mostrar error)
-- [ ] Validar servicio de lavado sin horario (debe mostrar error)
-- [ ] Botón muestra loading durante guardado
-- [ ] localStorage se limpia después de guardar
+
+-   [ ] Validar tabla vacía (debe mostrar error)
+-   [ ] Validar servicio de lavado sin horario (debe mostrar error)
+-   [ ] Botón muestra loading durante guardado
+-   [ ] localStorage se limpia después de guardar
 
 ---
 
@@ -441,8 +467,9 @@ public/build/assets/vendor-core.8a569419.js     102.62 KB / gzip: 37.07 KiB
 **Solución temporal:** Cargar jQuery desde CDN en la vista.
 
 **Solución futura (Fase 3):**
-- Migrar Bootstrap Select a una alternativa vanilla JS (ej: Choices.js)
-- O crear wrapper que cargue jQuery solo cuando sea necesario
+
+-   Migrar Bootstrap Select a una alternativa vanilla JS (ej: Choices.js)
+-   O crear wrapper que cargue jQuery solo cuando sea necesario
 
 ---
 
@@ -453,9 +480,10 @@ public/build/assets/vendor-core.8a569419.js     102.62 KB / gzip: 37.07 KiB
 **Solución temporal:** CDN funcionando correctamente.
 
 **Solución futura:**
-- Instalar Bootstrap Select vía npm
-- Importarlo en el módulo
-- Eliminar CDN de la vista
+
+-   Instalar Bootstrap Select vía npm
+-   Importarlo en el módulo
+-   Eliminar CDN de la vista
 
 ---
 
@@ -464,12 +492,13 @@ public/build/assets/vendor-core.8a569419.js     102.62 KB / gzip: 37.07 KiB
 ### Análisis Inicial
 
 **Código inline original:**
-- **237 líneas de JavaScript** embebidas en la vista
-- 12 funciones globales: `agregarProducto()`, `eliminarProducto()`, `recalcularIGV()`, `limpiarCampos()`, etc.
-- Validaciones manuales (precio_compra vs precio_venta)
-- Manipulación directa del DOM
-- Sin persistencia de datos
-- Sin confirmaciones para acciones destructivas
+
+-   **237 líneas de JavaScript** embebidas en la vista
+-   12 funciones globales: `agregarProducto()`, `eliminarProducto()`, `recalcularIGV()`, `limpiarCampos()`, etc.
+-   Validaciones manuales (precio_compra vs precio_venta)
+-   Manipulación directa del DOM
+-   Sin persistencia de datos
+-   Sin confirmaciones para acciones destructivas
 
 ### ✨ Solución Implementada: CompraManager.js
 
@@ -491,7 +520,7 @@ class CompraState {
         this.igv = 0;
         this.total = 0;
     }
-    
+
     // Métodos principales:
     // - agregarProducto(id, nombre, cantidad, precioCompra, precioVenta)
     // - eliminarProducto(indice)
@@ -503,9 +532,10 @@ class CompraState {
 ```
 
 **Diferencias clave con VentaState:**
-- Maneja `precioCompra` y `precioVenta` (en lugar de precio + descuento)
-- No valida stock (compras agregan inventario)
-- localStorage usa clave diferente: `'compra_borrador'`
+
+-   Maneja `precioCompra` y `precioVenta` (en lugar de precio + descuento)
+-   No valida stock (compras agregan inventario)
+-   localStorage usa clave diferente: `'compra_borrador'`
 
 #### Clase `CompraManager`
 
@@ -517,7 +547,7 @@ export class CompraManager {
         this.state = new CompraState();
         this.init();
     }
-    
+
     // Métodos principales:
     // - setupEventListeners()
     // - agregarProducto() - Validaciones específicas de compras
@@ -531,28 +561,30 @@ export class CompraManager {
 ```
 
 **Características especiales de compras:**
-- ✅ Valida `precioVenta >= precioCompra` (warning si precioVenta < precioCompra)
-- ✅ No valida stock (compras incrementan inventario)
-- ✅ Calcula subtotal basado en `cantidad * precioCompra`
+
+-   ✅ Valida `precioVenta >= precioCompra` (warning si precioVenta < precioCompra)
+-   ✅ No valida stock (compras incrementan inventario)
+-   ✅ Calcula subtotal basado en `cantidad * precioCompra`
 
 ---
 
 ### 📊 Métricas de Migración - Compras
 
-| Métrica | Antes | Después | Cambio |
-|---------|-------|---------|--------|
-| Líneas totales vista | ~468 líneas | 231 líneas | -50.6% |
-| JavaScript inline | 237 líneas | 0 líneas | **-100%** |
-| Funciones globales | 12 | 0 | -12 |
-| Módulos creados | 0 | 1 (CompraManager.js) | +1 |
-| Líneas CompraManager | 0 | 559 líneas | +559 |
-| Bundle size | N/A | 6.37 KB | N/A |
-| Gzipped | N/A | 2.05 KB | N/A |
+| Métrica              | Antes       | Después              | Cambio    |
+| -------------------- | ----------- | -------------------- | --------- |
+| Líneas totales vista | ~468 líneas | 231 líneas           | -50.6%    |
+| JavaScript inline    | 237 líneas  | 0 líneas             | **-100%** |
+| Funciones globales   | 12          | 0                    | -12       |
+| Módulos creados      | 0           | 1 (CompraManager.js) | +1        |
+| Líneas CompraManager | 0           | 559 líneas           | +559      |
+| Bundle size          | N/A         | 6.37 KB              | N/A       |
+| Gzipped              | N/A         | 2.05 KB              | N/A       |
 
 **Comparación con VentaManager:**
-- CompraManager: 559 líneas vs VentaManager: 705 líneas (-20.7%)
-- CompraManager bundle: 6.37 KB vs VentaManager: 7.69 KB (-17.2%)
-- Lógica más simple: no descuentos, no validación de stock
+
+-   CompraManager: 559 líneas vs VentaManager: 705 líneas (-20.7%)
+-   CompraManager bundle: 6.37 KB vs VentaManager: 7.69 KB (-17.2%)
+-   Lógica más simple: no descuentos, no validación de stock
 
 ---
 
@@ -565,10 +597,10 @@ export class CompraManager {
 ```javascript
 async agregarProducto() {
     // ... validaciones básicas
-    
+
     const precioCompra = parseFloat($('#precio_compra').val());
     const precioVenta = parseFloat($('#precio_venta').val());
-    
+
     // Warning si precioVenta < precioCompra (posible pérdida)
     if (precioVenta < precioCompra) {
         const continuar = await showConfirm(
@@ -576,18 +608,19 @@ async agregarProducto() {
             'El precio de venta es menor al precio de compra. ¿Deseas continuar?',
             'warning'
         );
-        
+
         if (!continuar) return;
     }
-    
+
     // Agregar producto si todo OK
 }
 ```
 
 **Beneficios:**
-- ✅ Previene errores de captura de precios
-- ✅ Alerta al usuario de posibles pérdidas
-- ✅ No bloquea (es warning, no error)
+
+-   ✅ Previene errores de captura de precios
+-   ✅ Alerta al usuario de posibles pérdidas
+-   ✅ No bloquea (es warning, no error)
 
 ---
 
@@ -607,7 +640,7 @@ guardarEnLocalStorage() {
         },
         timestamp: new Date().toISOString()
     };
-    
+
     localStorage.setItem('compra_borrador', JSON.stringify(data));
 }
 ```
@@ -619,9 +652,10 @@ guardarEnLocalStorage() {
 #### 3. Auto-guardado y Recuperación
 
 **Misma funcionalidad que VentaManager:**
-- ✅ Auto-guardado cada 30 segundos
-- ✅ Recuperación al cargar página
-- ✅ Confirmación para recuperar o descartar
+
+-   ✅ Auto-guardado cada 30 segundos
+-   ✅ Recuperación al cargar página
+-   ✅ Confirmación para recuperar o descartar
 
 ---
 
@@ -631,7 +665,7 @@ guardarEnLocalStorage() {
 
 ```javascript
 input: [
-    'resources/css/app.css', 
+    'resources/css/app.css',
     'resources/js/app.js',
     // Módulos de páginas específicas
     'resources/js/modules/VentaManager.js',
@@ -650,6 +684,7 @@ manualChunks: {
 ```
 
 **Build exitoso:**
+
 ```
 public/build/assets/CompraManager.7576c162.js    6.37 KiB / gzip: 2.05 KiB
 ```
@@ -659,6 +694,7 @@ public/build/assets/CompraManager.7576c162.js    6.37 KiB / gzip: 2.05 KiB
 ### 🧪 Testing Sugerido - Compras
 
 #### Escenario 1: Agregar productos con precios válidos
+
 1. Seleccionar producto
 2. Ingresar cantidad (positivo, entero)
 3. Ingresar precio_compra > 0
@@ -668,6 +704,7 @@ public/build/assets/CompraManager.7576c162.js    6.37 KiB / gzip: 2.05 KiB
 7. ✅ Totales calculados correctamente
 
 #### Escenario 2: Warning cuando precioVenta < precioCompra
+
 1. Seleccionar producto
 2. Ingresar precio_compra = 100
 3. Ingresar precio_venta = 80 (menor)
@@ -677,6 +714,7 @@ public/build/assets/CompraManager.7576c162.js    6.37 KiB / gzip: 2.05 KiB
 7. ✅ Comportamiento según elección
 
 #### Escenario 3: Persistencia en localStorage
+
 1. Agregar 2-3 productos
 2. Cerrar pestaña/navegador
 3. Abrir página de nuevo
@@ -685,6 +723,7 @@ public/build/assets/CompraManager.7576c162.js    6.37 KiB / gzip: 2.05 KiB
 6. ✅ Productos y totales restaurados
 
 #### Escenario 4: Auto-guardado
+
 1. Agregar productos
 2. Esperar 30+ segundos
 3. Abrir DevTools → Application → localStorage
@@ -692,6 +731,7 @@ public/build/assets/CompraManager.7576c162.js    6.37 KiB / gzip: 2.05 KiB
 5. ✅ Timestamp actualizado
 
 #### Escenario 5: Cancelar compra
+
 1. Agregar productos
 2. Click "Cancelar"
 3. ✅ Confirmación aparece
@@ -708,20 +748,26 @@ public/build/assets/CompraManager.7576c162.js    6.37 KiB / gzip: 2.05 KiB
 
 ```javascript
 // notifications.js
-import { showSuccess, showError, showConfirm } from '@utils/notifications';
+import { showSuccess, showError, showConfirm } from "@utils/notifications";
 
 // validators.js
-import { validatePrecio, validateCantidad, isPositive, isInteger } from '@utils/validators';
+import {
+    validatePrecio,
+    validateCantidad,
+    isPositive,
+    isInteger,
+} from "@utils/validators";
 
 // formatters.js
-import { formatCurrency, round } from '@utils/formatters';
+import { formatCurrency, round } from "@utils/formatters";
 ```
 
 **Validadores específicos usados:**
-- `validatePrecio()` - Para precio_compra y precio_venta
-- `isPositive()` - Verificar valores > 0
-- `isInteger()` - Verificar cantidad entera
-- `round()` - Redondear a 2 decimales
+
+-   `validatePrecio()` - Para precio_compra y precio_venta
+-   `isPositive()` - Verificar valores > 0
+-   `isInteger()` - Verificar cantidad entera
+-   `round()` - Redondear a 2 decimales
 
 ---
 
@@ -730,18 +776,20 @@ import { formatCurrency, round } from '@utils/formatters';
 ### Análisis Inicial
 
 **Código inline original:**
-- **41 líneas de JavaScript** embebidas en la vista
-- 2 funciones globales: `checkFormValidity()` (duplicada)
-- Tooltips de Bootstrap inicializados inline
-- Filtros con page reload completo (GET form)
-- Sin manejo de estado en navegación
-- Sin loading states
+
+-   **41 líneas de JavaScript** embebidas en la vista
+-   2 funciones globales: `checkFormValidity()` (duplicada)
+-   Tooltips de Bootstrap inicializados inline
+-   Filtros con page reload completo (GET form)
+-   Sin manejo de estado en navegación
+-   Sin loading states
 
 **Problema principal:**
-- Los filtros recargan toda la página (mala UX)
-- Pérdida de scroll position
-- No hay feedback visual durante carga
-- Historial del navegador se contamina
+
+-   Los filtros recargan toda la página (mala UX)
+-   Pérdida de scroll position
+-   No hay feedback visual durante carga
+-   Historial del navegador se contamina
 
 ### ✨ Solución Implementada: LavadosManager.js
 
@@ -757,16 +805,16 @@ Maneja el estado completo de los filtros:
 class LavadosState {
     constructor() {
         this.filtros = {
-            lavador_id: '',
-            estado: '',
-            fecha: '',
-            page: 1
+            lavador_id: "",
+            estado: "",
+            fecha: "",
+            page: 1,
         };
         this.lavados = [];
         this.pagination = null;
         this.isLoading = false;
     }
-    
+
     // Métodos principales:
     // - actualizarFiltros()
     // - obtenerParametrosURL()
@@ -776,9 +824,10 @@ class LavadosState {
 ```
 
 **Ventajas:**
-- Estado centralizado de filtros
-- Sincronización bidireccional con URL
-- Gestión de loading state
+
+-   Estado centralizado de filtros
+-   Sincronización bidireccional con URL
+-   Gestión de loading state
 
 #### Clase `LavadosManager`
 
@@ -790,7 +839,7 @@ export class LavadosManager {
         this.state = new LavadosState();
         this.init();
     }
-    
+
     // Métodos principales:
     // - setupEventListeners()
     // - aplicarFiltros() - AJAX sin page reload
@@ -803,32 +852,34 @@ export class LavadosManager {
 ```
 
 **Características especiales:**
-- ✅ Filtros AJAX (sin recarga de página)
-- ✅ Actualización automática al cambiar select/input
-- ✅ Paginación AJAX integrada
-- ✅ Navegación atrás/adelante funciona (popstate)
-- ✅ Loading states visuales
-- ✅ Fallback a recarga completa en error
+
+-   ✅ Filtros AJAX (sin recarga de página)
+-   ✅ Actualización automática al cambiar select/input
+-   ✅ Paginación AJAX integrada
+-   ✅ Navegación atrás/adelante funciona (popstate)
+-   ✅ Loading states visuales
+-   ✅ Fallback a recarga completa en error
 
 ---
 
 ### 📊 Métricas de Migración - Lavados
 
-| Métrica | Antes | Después | Cambio |
-|---------|-------|---------|--------|
-| Líneas totales vista | ~454 líneas | 413 líneas | -9% |
-| JavaScript inline | 41 líneas | 0 líneas | **-100%** |
-| Funciones globales | 2 (duplicadas) | 0 | -2 |
-| Módulos creados | 0 | 1 (LavadosManager.js) | +1 |
-| Líneas LavadosManager | 0 | 343 líneas | +343 |
-| Bundle size | N/A | 4.86 KB | N/A |
-| Gzipped | N/A | 1.66 KB | N/A |
+| Métrica               | Antes          | Después               | Cambio    |
+| --------------------- | -------------- | --------------------- | --------- |
+| Líneas totales vista  | ~454 líneas    | 413 líneas            | -9%       |
+| JavaScript inline     | 41 líneas      | 0 líneas              | **-100%** |
+| Funciones globales    | 2 (duplicadas) | 0                     | -2        |
+| Módulos creados       | 0              | 1 (LavadosManager.js) | +1        |
+| Líneas LavadosManager | 0              | 343 líneas            | +343      |
+| Bundle size           | N/A            | 4.86 KB               | N/A       |
+| Gzipped               | N/A            | 1.66 KB               | N/A       |
 
 **Comparación con otros managers:**
-- LavadosManager: 343 líneas (el más ligero)
-- CompraManager: 559 líneas (+63%)
-- VentaManager: 705 líneas (+106%)
-- Más ligero porque no gestiona productos, solo filtros
+
+-   LavadosManager: 343 líneas (el más ligero)
+-   CompraManager: 559 líneas (+63%)
+-   VentaManager: 705 líneas (+106%)
+-   Más ligero porque no gestiona productos, solo filtros
 
 ---
 
@@ -843,22 +894,23 @@ async aplicarFiltros() {
     const lavadorSelect = document.getElementById('filtro_lavador');
     const estadoSelect = document.getElementById('filtro_estado');
     const fechaInput = document.getElementById('fecha');
-    
+
     this.state.actualizarFiltros({
         lavador_id: lavadorSelect ? lavadorSelect.value : '',
         estado: estadoSelect ? estadoSelect.value : '',
         fecha: fechaInput ? fechaInput.value : ''
     });
-    
+
     await this.cargarLavados();
 }
 ```
 
 **Beneficios:**
-- ✅ Sin page reload (mejor UX)
-- ✅ Mantiene scroll position
-- ✅ Respuesta instantánea
-- ✅ Loading state visual
+
+-   ✅ Sin page reload (mejor UX)
+-   ✅ Mantiene scroll position
+-   ✅ Respuesta instantánea
+-   ✅ Loading state visual
 
 ---
 
@@ -884,10 +936,11 @@ window.addEventListener('popstate', (e) => {
 ```
 
 **Beneficios:**
-- ✅ URL compartible con filtros aplicados
-- ✅ Botones atrás/adelante funcionan
-- ✅ Bookmarkeable
-- ✅ Estado persistente en navegación
+
+-   ✅ URL compartible con filtros aplicados
+-   ✅ Botones atrás/adelante funcionan
+-   ✅ Bookmarkeable
+-   ✅ Estado persistente en navegación
 
 ---
 
@@ -899,13 +952,13 @@ window.addEventListener('popstate', (e) => {
 setupPaginationListeners() {
     document.addEventListener('click', (e) => {
         const paginationLink = e.target.closest('.pagination a');
-        
+
         if (paginationLink && !paginationLink.classList.contains('disabled')) {
             e.preventDefault();
-            
+
             const url = new URL(paginationLink.href);
             const page = url.searchParams.get('page');
-            
+
             if (page) {
                 this.state.actualizarFiltros({ page: parseInt(page) });
                 this.cargarLavados();
@@ -916,9 +969,10 @@ setupPaginationListeners() {
 ```
 
 **Beneficios:**
-- ✅ Paginación sin recarga
-- ✅ Mantiene filtros activos
-- ✅ Actualiza URL automáticamente
+
+-   ✅ Paginación sin recarga
+-   ✅ Mantiene filtros activos
+-   ✅ Actualiza URL automáticamente
 
 ---
 
@@ -929,11 +983,11 @@ setupPaginationListeners() {
 ```javascript
 mostrarCargando(mostrar) {
     const tabla = document.querySelector('.table-responsive');
-    
+
     if (mostrar) {
         tabla.style.opacity = '0.5';
         tabla.style.pointerEvents = 'none';
-        
+
         // Agregar spinner
         const spinner = document.createElement('div');
         spinner.className = 'loading-spinner text-center my-4';
@@ -953,9 +1007,10 @@ mostrarCargando(mostrar) {
 ```
 
 **Beneficios:**
-- ✅ Feedback visual inmediato
-- ✅ Previene clicks duplicados
-- ✅ Mejor percepción de performance
+
+-   ✅ Feedback visual inmediato
+-   ✅ Previene clicks duplicados
+-   ✅ Mejor percepción de performance
 
 ---
 
@@ -972,7 +1027,7 @@ initTooltips() {
         if (existingTooltip) {
             existingTooltip.dispose();
         }
-        
+
         // Crear nuevo tooltip
         new bootstrap.Tooltip(tooltipTriggerEl);
     });
@@ -980,8 +1035,9 @@ initTooltips() {
 ```
 
 **Beneficios:**
-- ✅ Tooltips funcionan después de actualizar tabla
-- ✅ No hay memory leaks (dispose anterior)
+
+-   ✅ Tooltips funcionan después de actualizar tabla
+-   ✅ No hay memory leaks (dispose anterior)
 
 ---
 
@@ -991,7 +1047,7 @@ initTooltips() {
 
 ```javascript
 input: [
-    'resources/css/app.css', 
+    'resources/css/app.css',
     'resources/js/app.js',
     // Módulos de páginas específicas
     'resources/js/modules/VentaManager.js',
@@ -1012,6 +1068,7 @@ manualChunks: {
 ```
 
 **Build exitoso:**
+
 ```
 public/build/assets/LavadosManager.19a6ec72.js    4.86 KiB / gzip: 1.66 KiB
 ```
@@ -1021,6 +1078,7 @@ public/build/assets/LavadosManager.19a6ec72.js    4.86 KiB / gzip: 1.66 KiB
 ### 🧪 Testing Sugerido - Lavados
 
 #### Escenario 1: Filtrar por lavador (AJAX)
+
 1. Abrir control/lavados
 2. Seleccionar un lavador del dropdown
 3. ✅ Tabla se actualiza sin recargar página
@@ -1029,24 +1087,28 @@ public/build/assets/LavadosManager.19a6ec72.js    4.86 KiB / gzip: 1.66 KiB
 6. ✅ Resultado filtrado correctamente
 
 #### Escenario 2: Filtrar por estado (AJAX)
+
 1. Seleccionar "En proceso"
 2. ✅ Tabla actualizada instantáneamente
 3. ✅ Solo lavados en proceso mostrados
 4. ✅ URL: ?estado=En%20proceso
 
 #### Escenario 3: Filtrar por fecha (AJAX)
+
 1. Seleccionar fecha del datepicker
 2. ✅ Tabla actualizada al cambiar
 3. ✅ URL: ?fecha=2025-10-21
 4. ✅ Solo lavados de esa fecha
 
 #### Escenario 4: Combinación de filtros
+
 1. Seleccionar lavador + estado + fecha
 2. ✅ Filtros aplicados en conjunto
 3. ✅ URL: ?lavador_id=X&estado=Y&fecha=Z
 4. ✅ Resultados correctos
 
 #### Escenario 5: Paginación AJAX
+
 1. Aplicar filtro con muchos resultados
 2. Click en "Siguiente" de paginación
 3. ✅ Sin recarga de página
@@ -1054,6 +1116,7 @@ public/build/assets/LavadosManager.19a6ec72.js    4.86 KiB / gzip: 1.66 KiB
 5. ✅ Mantiene filtros activos
 
 #### Escenario 6: Navegación atrás/adelante
+
 1. Aplicar varios filtros navegando
 2. Click botón "Atrás" del navegador
 3. ✅ Filtros anteriores restaurados
@@ -1061,6 +1124,7 @@ public/build/assets/LavadosManager.19a6ec72.js    4.86 KiB / gzip: 1.66 KiB
 5. ✅ No recarga página completa
 
 #### Escenario 7: URL compartible
+
 1. Aplicar filtros
 2. Copiar URL
 3. Pegar en nueva pestaña
@@ -1068,6 +1132,7 @@ public/build/assets/LavadosManager.19a6ec72.js    4.86 KiB / gzip: 1.66 KiB
 5. ✅ Tabla cargada con filtros
 
 #### Escenario 8: Error handling
+
 1. Simular error de red (DevTools offline)
 2. Intentar filtrar
 3. ✅ Mensaje de error aparece
@@ -1081,10 +1146,10 @@ public/build/assets/LavadosManager.19a6ec72.js    4.86 KiB / gzip: 1.66 KiB
 
 ```javascript
 // axios para AJAX
-import axios from 'axios';
+import axios from "axios";
 
 // notifications.js
-import { showError, showSuccess } from '@utils/notifications';
+import { showError, showSuccess } from "@utils/notifications";
 
 // Bootstrap (tooltips)
 // Ya cargado globalmente
@@ -1099,6 +1164,7 @@ import { showError, showSuccess } from '@utils/notifications';
 Para que LavadosManager funcione correctamente, el backend debe:
 
 **Opción 1: Retornar HTML parcial**
+
 ```php
 // En el controlador
 if ($request->ajax()) {
@@ -1107,6 +1173,7 @@ if ($request->ajax()) {
 ```
 
 **Opción 2: Retornar JSON con HTML**
+
 ```php
 if ($request->ajax()) {
     $html = view('control.lavados_tabla', compact('lavados'))->render();
@@ -1115,6 +1182,7 @@ if ($request->ajax()) {
 ```
 
 **Opción 3: Modificar para aceptar ambos** (recomendado)
+
 ```php
 if ($request->ajax() || $request->wantsJson()) {
     $html = view('control.lavados_tabla', compact('lavados'))->render();
@@ -1132,41 +1200,42 @@ return view('control.lavados', compact('lavados', 'lavadores', 'tiposVehiculo'))
 ### ✅ Vistas Completadas (3/4)
 
 1. **venta/create.blade.php** → VentaManager.js
-   - 705 líneas módulo
-   - 7.69 KB bundle (2.40 KB gzipped)
-   - 98.5% reducción inline JS
-   
+    - 705 líneas módulo
+    - 7.69 KB bundle (2.40 KB gzipped)
+    - 98.5% reducción inline JS
 2. **compra/create.blade.php** → CompraManager.js
-   - 559 líneas módulo
-   - 6.37 KB bundle (2.05 KB gzipped)
-   - 50.6% reducción total vista
+
+    - 559 líneas módulo
+    - 6.37 KB bundle (2.05 KB gzipped)
+    - 50.6% reducción total vista
 
 3. **control/lavados.blade.php** → LavadosManager.js
-   - 343 líneas módulo
-   - 4.86 KB bundle (1.66 KB gzipped)
-   - Filtros AJAX sin page reload
+    - 343 líneas módulo
+    - 4.86 KB bundle (1.66 KB gzipped)
+    - Filtros AJAX sin page reload
 
 ### ⏳ Vistas Pendientes (1/4)
 
 4. **estacionamiento/index.blade.php** → EstacionamientoManager.js
-   - AJAX disponibilidad
-   - WebSockets opcional
+    - AJAX disponibilidad
+    - WebSockets opcional
 
 ### 📈 Métricas Acumuladas
 
-| Métrica | Total |
-|---------|-------|
-| Managers creados | 3 |
+| Métrica                     | Total      |
+| --------------------------- | ---------- |
+| Managers creados            | 3          |
 | Líneas JS inline eliminadas | 608 líneas |
-| Bundle size total modules | 18.92 KB |
-| Gzipped total | 6.11 KB |
-| Vistas refactorizadas | 3 |
-| Nuevas funcionalidades | 11 |
+| Bundle size total modules   | 18.92 KB   |
+| Gzipped total               | 6.11 KB    |
+| Vistas refactorizadas       | 3          |
+| Nuevas funcionalidades      | 11         |
 
 **Desglose por manager:**
-- VentaManager: 705 líneas (7.69 KB / 2.40 KB gzip)
-- CompraManager: 559 líneas (6.37 KB / 2.05 KB gzip)
-- LavadosManager: 343 líneas (4.86 KB / 1.66 KB gzip)
+
+-   VentaManager: 705 líneas (7.69 KB / 2.40 KB gzip)
+-   CompraManager: 559 líneas (6.37 KB / 2.05 KB gzip)
+-   LavadosManager: 343 líneas (4.86 KB / 1.66 KB gzip)
 
 ---
 
@@ -1175,36 +1244,41 @@ return view('control.lavados', compact('lavados', 'lavadores', 'tiposVehiculo'))
 ### Tareas Pendientes en esta Vista
 
 1. **Testing manual exhaustivo** ✅ Prioridad Alta
-   - Probar todos los escenarios listados arriba
-   - Verificar en Chrome DevTools que no hay errores
-   - Comparar comportamiento con versión anterior
+
+    - Probar todos los escenarios listados arriba
+    - Verificar en Chrome DevTools que no hay errores
+    - Comparar comportamiento con versión anterior
 
 2. **Eliminar dependencia de jQuery** ⏳ Prioridad Media
-   - Migrar a vanilla JS o
-   - Crear wrapper para cargar jQuery dinámicamente
+
+    - Migrar a vanilla JS o
+    - Crear wrapper para cargar jQuery dinámicamente
 
 3. **Tests automatizados** ⏳ Prioridad Media
-   - Setup de Vitest para tests unitarios
-   - Tests para `VentaState` (funciones puras)
-   - Tests E2E con Playwright
+    - Setup de Vitest para tests unitarios
+    - Tests para `VentaState` (funciones puras)
+    - Tests E2E con Playwright
 
 ---
 
 ### Siguientes Vistas a Migrar
 
 #### 1. compra/create.blade.php
-- Lógica similar a ventas
-- Reutilizar `VentaManager` como base
-- Crear `CompraManager.js` con misma estructura
+
+-   Lógica similar a ventas
+-   Reutilizar `VentaManager` como base
+-   Crear `CompraManager.js` con misma estructura
 
 #### 2. control/lavados.blade.php
-- Convertir filtros de página reload a AJAX
-- Lazy loading de tabla de resultados
-- Estado en localStorage
+
+-   Convertir filtros de página reload a AJAX
+-   Lazy loading de tabla de resultados
+-   Estado en localStorage
 
 #### 3. estacionamiento/index.blade.php
-- AJAX para actualizar disponibilidad
-- WebSockets para tiempo real (opcional)
+
+-   AJAX para actualizar disponibilidad
+-   WebSockets para tiempo real (opcional)
 
 ---
 
@@ -1227,9 +1301,9 @@ d:\Sebas GOREHCO\carwash_esp\
 
 ### Documentación Relacionada
 
-- `FASE_1_COMPLETADA.md` - Utilidades creadas
-- `resources/js/utils/README.md` - Documentación de utilidades
-- `EJEMPLO_MIGRACION.md` - Ejemplos de migración
+-   `FASE_1_COMPLETADA.md` - Utilidades creadas
+-   `resources/js/utils/README.md` - Documentación de utilidades
+-   `EJEMPLO_MIGRACION.md` - Ejemplos de migración
 
 ---
 
@@ -1260,28 +1334,30 @@ d:\Sebas GOREHCO\carwash_esp\
 ## 🎉 Conclusión Parcial
 
 **Vistas migradas exitosamente:** 3 de 4 (75% completado)
-- ✅ `venta/create.blade.php` → VentaManager.js
-- ✅ `compra/create.blade.php` → CompraManager.js  
-- ✅ `control/lavados.blade.php` → LavadosManager.js
+
+-   ✅ `venta/create.blade.php` → VentaManager.js
+-   ✅ `compra/create.blade.php` → CompraManager.js
+-   ✅ `control/lavados.blade.php` → LavadosManager.js
 
 **Resultados acumulados:**
-- ✅ 608 líneas de código inline eliminadas (-100% en las 3 vistas)
-- ✅ Arquitectura modular y testeable (3 managers, 1,607 líneas)
-- ✅ 11 funcionalidades nuevas:
-  - Confirmaciones async en ventas/compras
-  - Persistencia localStorage (ventas/compras)
-  - Auto-guardado cada 30s (ventas/compras)
-  - Recuperación de borradores
-  - Validación precio compra/venta
-  - Filtros AJAX sin recarga
-  - Paginación AJAX
-  - Navegación con historial
-  - Loading states visuales
-  - Re-inicialización tooltips
-  - Sincronización URL
-- ✅ Integración completa con utilidades de Fase 1
-- ✅ Build exitoso para los 3 managers (18.92 KB total, 6.11 KB gzipped)
-- ✅ Patrón State/Manager consolidado y reutilizable
+
+-   ✅ 608 líneas de código inline eliminadas (-100% en las 3 vistas)
+-   ✅ Arquitectura modular y testeable (3 managers, 1,607 líneas)
+-   ✅ 11 funcionalidades nuevas:
+    -   Confirmaciones async en ventas/compras
+    -   Persistencia localStorage (ventas/compras)
+    -   Auto-guardado cada 30s (ventas/compras)
+    -   Recuperación de borradores
+    -   Validación precio compra/venta
+    -   Filtros AJAX sin recarga
+    -   Paginación AJAX
+    -   Navegación con historial
+    -   Loading states visuales
+    -   Re-inicialización tooltips
+    -   Sincronización URL
+-   ✅ Integración completa con utilidades de Fase 1
+-   ✅ Build exitoso para los 3 managers (18.92 KB total, 6.11 KB gzipped)
+-   ✅ Patrón State/Manager consolidado y reutilizable
 
 **Progreso Fase 2:** 75% completado (3 de 4 vistas)
 
