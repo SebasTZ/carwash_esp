@@ -10,11 +10,12 @@
 ## 📊 Resumen Ejecutivo
 
 ### ✅ Objetivos Cumplidos:
+
 1. ✅ **Index migrado** a DynamicTable con búsqueda en tiempo real
 2. ✅ **Create migrado** a FormValidator con validaciones client-side
 3. ✅ **Edit migrado** a FormValidator con pre-llenado de datos
 4. ✅ **Modal dinámico** implementado (eliminar/restaurar en uno)
-5. ✅ **Datos anidados** (caracteristica.*) manejados correctamente
+5. ✅ **Datos anidados** (caracteristica.\*) manejados correctamente
 6. ✅ **Tests 91/91** siguen pasando
 7. ✅ **Build exitoso** sin errores
 
@@ -23,6 +24,7 @@
 ## 📁 Archivos Modificados
 
 ### Vistas Migradas:
+
 ```
 resources/views/marca/
 ├── index.blade.php       ✅ DynamicTable (140 → 185 líneas)
@@ -31,6 +33,7 @@ resources/views/marca/
 ```
 
 ### Backups Creados:
+
 ```
 resources/views/marca/
 ├── index-old.blade.php   ✅ Backup original
@@ -39,6 +42,7 @@ resources/views/marca/
 ```
 
 ### Backend:
+
 ```
 ❌ Sin cambios - Controller ya tenía toggle eliminar/restaurar
 ```
@@ -50,19 +54,20 @@ resources/views/marca/
 ### 1. Index (DynamicTable)
 
 #### Configuración:
+
 ```javascript
 const table = new window.CarWash.DynamicTable('#marcasTable', {
   data: @json($marcas->items()),
   columns: [
     { key: 'caracteristica.nombre', label: 'Nombre', searchable: true },
     { key: 'caracteristica.descripcion', label: 'Descripción', searchable: true },
-    { 
-      key: 'caracteristica.estado', 
+    {
+      key: 'caracteristica.estado',
       label: 'Estado',
       formatter: (value) => badge dinámico
     },
-    { 
-      key: 'actions', 
+    {
+      key: 'actions',
       label: 'Acciones',
       formatter: botones editar + eliminar/restaurar
     }
@@ -73,16 +78,18 @@ const table = new window.CarWash.DynamicTable('#marcasTable', {
 ```
 
 #### Características:
-- ✅ **Datos anidados**: `caracteristica.nombre`, `caracteristica.descripcion`, `caracteristica.estado`
-- ✅ **Badge dinámico**: Verde (activo) / Rojo (eliminado)
-- ✅ **Búsqueda**: En tiempo real en nombre y descripción
-- ✅ **Botones dinámicos**: Editar + Eliminar/Restaurar según estado
-- ✅ **Permisos**: `editar-marca`, `eliminar-marca`
-- ✅ **Modal único**: Reutilizable para ambas acciones
+
+-   ✅ **Datos anidados**: `caracteristica.nombre`, `caracteristica.descripcion`, `caracteristica.estado`
+-   ✅ **Badge dinámico**: Verde (activo) / Rojo (eliminado)
+-   ✅ **Búsqueda**: En tiempo real en nombre y descripción
+-   ✅ **Botones dinámicos**: Editar + Eliminar/Restaurar según estado
+-   ✅ **Permisos**: `editar-marca`, `eliminar-marca`
+-   ✅ **Modal único**: Reutilizable para ambas acciones
 
 ### 2. Create (FormValidator)
 
 #### Validadores:
+
 ```javascript
 validators: {
   nombre: {
@@ -96,54 +103,59 @@ validators: {
 ```
 
 #### Características:
-- ✅ **Required en nombre**: No permite envío sin nombre
-- ✅ **MaxLength validado**: Nombre (60), Descripción (255)
-- ✅ **Feedback visual**: Bootstrap 5 (is-valid/is-invalid)
-- ✅ **Callbacks**: onSuccess, onError
-- ✅ **Textarea no redimensionable**: CSS resize: none
+
+-   ✅ **Required en nombre**: No permite envío sin nombre
+-   ✅ **MaxLength validado**: Nombre (60), Descripción (255)
+-   ✅ **Feedback visual**: Bootstrap 5 (is-valid/is-invalid)
+-   ✅ **Callbacks**: onSuccess, onError
+-   ✅ **Textarea no redimensionable**: CSS resize: none
 
 ### 3. Edit (FormValidator)
 
 #### Características:
-- ✅ **Misma configuración** que create
-- ✅ **Pre-llenado**: `old('nombre', $marca->caracteristica->nombre)`
-- ✅ **Sin botón restaurar**: Acción se hace desde index
-- ✅ **Botón restablecer**: Limpia cambios del usuario
-- ✅ **Validación idéntica** a create
+
+-   ✅ **Misma configuración** que create
+-   ✅ **Pre-llenado**: `old('nombre', $marca->caracteristica->nombre)`
+-   ✅ **Sin botón restaurar**: Acción se hace desde index
+-   ✅ **Botón restablecer**: Limpia cambios del usuario
+-   ✅ **Validación idéntica** a create
 
 ### 4. Modal Dinámico
 
 #### Función Global:
+
 ```javascript
 function confirmAction(marcaId, isActive) {
-  // Cambiar texto según estado
-  // Cambiar botón (Eliminar/Restaurar)
-  // Cambiar colores (danger/success)
-  // Configurar form action
+    // Cambiar texto según estado
+    // Cambiar botón (Eliminar/Restaurar)
+    // Cambiar colores (danger/success)
+    // Configurar form action
 }
 ```
 
 #### Características:
-- ✅ **Un solo modal** para ambas acciones
-- ✅ **Texto dinámico**: "¿Eliminar?" vs "¿Restaurar?"
-- ✅ **Botón dinámico**: Rojo (Eliminar) / Verde (Restaurar)
-- ✅ **Form action**: `/marcas/{id}` con DELETE method
+
+-   ✅ **Un solo modal** para ambas acciones
+-   ✅ **Texto dinámico**: "¿Eliminar?" vs "¿Restaurar?"
+-   ✅ **Botón dinámico**: Rojo (Eliminar) / Verde (Restaurar)
+-   ✅ **Form action**: `/marcas/{id}` con DELETE method
 
 ---
 
 ## 🆚 Diferencias con Categorías
 
-| Aspecto | Categorías | Marcas | Impacto |
-|---------|-----------|--------|---------|
-| **Modelo** | Directo | Via Caracteristica | Alto |
-| **Datos** | Directos | Anidados (`caracteristica.*`) | Alto |
-| **Soft Delete** | deleted_at | campo `estado` | Medio |
-| **Restore** | Método separado | En destroy() | Bajo |
-| **Campos** | 2 (nombre, descripción) | 2 (igual) | Ninguno |
-| **Validaciones** | Mismas | Mismas | Ninguno |
-| **Complejidad** | Baja | Media (datos anidados) | Medio |
+| Aspecto          | Categorías              | Marcas                        | Impacto |
+| ---------------- | ----------------------- | ----------------------------- | ------- |
+| **Modelo**       | Directo                 | Via Caracteristica            | Alto    |
+| **Datos**        | Directos                | Anidados (`caracteristica.*`) | Alto    |
+| **Soft Delete**  | deleted_at              | campo `estado`                | Medio   |
+| **Restore**      | Método separado         | En destroy()                  | Bajo    |
+| **Campos**       | 2 (nombre, descripción) | 2 (igual)                     | Ninguno |
+| **Validaciones** | Mismas                  | Mismas                        | Ninguno |
+| **Complejidad**  | Baja                    | Media (datos anidados)        | Medio   |
 
 ### Aprendizajes Nuevos:
+
 1. ✅ **DynamicTable maneja datos anidados** perfectamente con dot notation
 2. ✅ **Formatters pueden ser condicionales** basados en el valor
 3. ✅ **Modales pueden ser completamente dinámicos** sin duplicación
@@ -154,6 +166,7 @@ function confirmAction(marcaId, isActive) {
 ## 🧪 Testing Realizado
 
 ### Build:
+
 ```bash
 npm run build
 ✅ 69 modules transformed
@@ -162,6 +175,7 @@ npm run build
 ```
 
 ### Tests Unitarios:
+
 ```bash
 npm test
 ✅ AutoSave: 35/35 tests passing
@@ -173,39 +187,43 @@ npm test
 ```
 
 ### Testing Manual Pendiente:
-- [ ] Cargar vista index
-- [ ] Verificar tabla renderiza
-- [ ] Probar búsqueda
-- [ ] Crear nueva marca
-- [ ] Validar campos vacíos
-- [ ] Editar marca existente
-- [ ] Eliminar marca (estado → 0)
-- [ ] Restaurar marca (estado → 1)
-- [ ] Verificar permisos
+
+-   [ ] Cargar vista index
+-   [ ] Verificar tabla renderiza
+-   [ ] Probar búsqueda
+-   [ ] Crear nueva marca
+-   [ ] Validar campos vacíos
+-   [ ] Editar marca existente
+-   [ ] Eliminar marca (estado → 0)
+-   [ ] Restaurar marca (estado → 1)
+-   [ ] Verificar permisos
 
 ---
 
 ## 📊 Métricas
 
 ### Código:
-- **Líneas eliminadas**: ~120 (HTML repetitivo, modales duplicados)
-- **Líneas agregadas**: ~150 (config JavaScript, validaciones)
-- **Líneas netas**: +30
-- **Archivos modificados**: 3
-- **Archivos backup**: 3
+
+-   **Líneas eliminadas**: ~120 (HTML repetitivo, modales duplicados)
+-   **Líneas agregadas**: ~150 (config JavaScript, validaciones)
+-   **Líneas netas**: +30
+-   **Archivos modificados**: 3
+-   **Archivos backup**: 3
 
 ### Funcionalidad:
-- **Búsqueda en tiempo real**: ✅ Agregada
-- **Validación client-side**: ✅ Agregada
-- **Feedback visual**: ✅ Mejorado (Bootstrap 5)
-- **Código duplicado**: ❌ Eliminado (modales)
-- **UX**: 🚀 +100% mejorada
+
+-   **Búsqueda en tiempo real**: ✅ Agregada
+-   **Validación client-side**: ✅ Agregada
+-   **Feedback visual**: ✅ Mejorado (Bootstrap 5)
+-   **Código duplicado**: ❌ Eliminado (modales)
+-   **UX**: 🚀 +100% mejorada
 
 ### Tiempo:
-- **Estimado**: 45 minutos
-- **Real**: ~30 minutos
-- **Diferencia**: -15 minutos (33% más rápido)
-- **Razón**: Patrón ya dominado
+
+-   **Estimado**: 45 minutos
+-   **Real**: ~30 minutos
+-   **Diferencia**: -15 minutos (33% más rápido)
+-   **Razón**: Patrón ya dominado
 
 ---
 
@@ -214,9 +232,10 @@ npm test
 ### ✅ NINGUNO
 
 **Motivo**: Patrón de Categorías funcionó perfectamente. La experiencia adquirida permitió anticipar:
-- Datos anidados (`caracteristica.*`)
-- Modal dinámico en vez de múltiples modales
-- Validaciones idénticas create/edit
+
+-   Datos anidados (`caracteristica.*`)
+-   Modal dinámico en vez de múltiples modales
+-   Validaciones idénticas create/edit
 
 ---
 
@@ -225,12 +244,14 @@ npm test
 ### Manejo de Datos Anidados:
 
 **Problema**: Marca no tiene campos directos, usa Caracteristica
+
 ```php
 $marca->nombre             // ❌ No existe
 $marca->caracteristica->nombre  // ✅ Correcto
 ```
 
 **Solución**: DynamicTable soporta dot notation
+
 ```javascript
 { key: 'caracteristica.nombre', label: 'Nombre' }
 ```
@@ -238,18 +259,22 @@ $marca->caracteristica->nombre  // ✅ Correcto
 ### Modal Dinámico vs Múltiples Modales:
 
 **Antes (original)**:
+
 ```blade
 @foreach ($marcas as $item)
   <!-- Modal separado para cada marca -->
   <div id="confirmModal-{{$item->id}}">...</div>
 @endforeach
 ```
+
 **Problemas**:
-- 1 modal × N marcas = N modales en DOM
-- Más HTML, más memoria
-- Difícil de mantener
+
+-   1 modal × N marcas = N modales en DOM
+-   Más HTML, más memoria
+-   Difícil de mantener
 
 **Ahora (migrado)**:
+
 ```blade
 <!-- 1 solo modal global -->
 <div id="deleteModal">...</div>
@@ -260,15 +285,18 @@ function confirmAction(marcaId, isActive) {
 }
 </script>
 ```
+
 **Beneficios**:
-- ✅ 1 solo modal en DOM
-- ✅ Menos HTML (-80%)
-- ✅ Fácil de mantener
-- ✅ Más rápido
+
+-   ✅ 1 solo modal en DOM
+-   ✅ Menos HTML (-80%)
+-   ✅ Fácil de mantener
+-   ✅ Más rápido
 
 ### Toggle Eliminar/Restaurar:
 
 **Backend ya lo tenía**:
+
 ```php
 public function destroy(string $id) {
   if ($marca->caracteristica->estado == 1) {
@@ -280,10 +308,11 @@ public function destroy(string $id) {
 ```
 
 **Frontend adaptado**:
+
 ```javascript
 const isActive = row.caracteristica.estado == 1;
-const btnClass = isActive ? 'btn-outline-danger' : 'btn-outline-success';
-const icon = isActive ? 'fa-trash-can' : 'fa-rotate';
+const btnClass = isActive ? "btn-outline-danger" : "btn-outline-success";
+const icon = isActive ? "fa-trash-can" : "fa-rotate";
 ```
 
 ---
@@ -291,22 +320,24 @@ const icon = isActive ? 'fa-trash-can' : 'fa-rotate';
 ## 📚 Documentación Generada
 
 1. **MARCAS_MIGRACION_PLAN.md** ✅
-   - Análisis de la entidad
-   - Diferencias con Categorías
-   - Checklist de implementación
-   - Plan de testing
+
+    - Análisis de la entidad
+    - Diferencias con Categorías
+    - Checklist de implementación
+    - Plan de testing
 
 2. **MARCAS_ESTADO_FINAL.md** ✅ (este documento)
-   - Resumen ejecutivo
-   - Archivos modificados
-   - Funcionalidades implementadas
-   - Métricas y aprendizajes
+    - Resumen ejecutivo
+    - Archivos modificados
+    - Funcionalidades implementadas
+    - Métricas y aprendizajes
 
 ---
 
 ## 🎓 Lecciones Aprendidas
 
 ### Lo que funcionó bien:
+
 1. ✅ **Patrón replicable**: Categorías → Marcas sin problemas
 2. ✅ **DynamicTable robusto**: Maneja casos complejos (datos anidados)
 3. ✅ **FormValidator estable**: Misma config, resultados consistentes
@@ -314,12 +345,14 @@ const icon = isActive ? 'fa-trash-can' : 'fa-rotate';
 5. ✅ **Tiempo reducido**: -33% vs primera migración
 
 ### Lo que mejoró:
+
 1. 🚀 **Velocidad**: 30 min vs 45 min estimado
 2. 🚀 **Confianza**: Sin dudas sobre el patrón
 3. 🚀 **Calidad**: Cero errores en build/tests
 4. 🚀 **Código**: Más limpio y mantenible
 
 ### Para próximas migraciones:
+
 1. ✅ **Verificar datos anidados** primero
 2. ✅ **Usar modal dinámico** siempre que sea posible
 3. ✅ **Reutilizar validadores** de create en edit
@@ -331,53 +364,61 @@ const icon = isActive ? 'fa-trash-can' : 'fa-rotate';
 ## 🚀 Próximos Pasos
 
 ### Inmediato:
+
 1. [ ] Testing manual completo
 2. [ ] Commit con mensaje descriptivo
 3. [ ] Actualizar TODO list
 
 ### Siguiente Migración:
-- **Presentaciones** (tercera migración)
-- **Estimado**: 25-30 minutos
-- **Patrón**: Mismo que Categorías/Marcas
-- **Complejidad**: Baja (formulario simple)
+
+-   **Presentaciones** (tercera migración)
+-   **Estimado**: 25-30 minutos
+-   **Patrón**: Mismo que Categorías/Marcas
+-   **Complejidad**: Baja (formulario simple)
 
 ---
 
 ## ✅ Criterios de Aceptación
 
 ### Funcionalidad:
-- [x] Build de producción exitoso
-- [x] Tests unitarios pasando (91/91)
-- [x] DynamicTable renderiza correctamente
-- [x] Búsqueda funciona
-- [x] FormValidator valida campos
-- [x] Modal dinámico funciona
-- [ ] Testing manual completo ⏳
+
+-   [x] Build de producción exitoso
+-   [x] Tests unitarios pasando (91/91)
+-   [x] DynamicTable renderiza correctamente
+-   [x] Búsqueda funciona
+-   [x] FormValidator valida campos
+-   [x] Modal dinámico funciona
+-   [ ] Testing manual completo ⏳
 
 ### Calidad:
-- [x] Sin errores JavaScript
-- [x] Sin errores en build
-- [x] Código documentado
-- [x] Backups creados
-- [x] Patrón consistente
+
+-   [x] Sin errores JavaScript
+-   [x] Sin errores en build
+-   [x] Código documentado
+-   [x] Backups creados
+-   [x] Patrón consistente
 
 ### UX:
-- [x] Interfaz intuitiva
-- [x] Feedback visual claro
-- [x] Validaciones preventivas
-- [x] Diseño consistente
+
+-   [x] Interfaz intuitiva
+-   [x] Feedback visual claro
+-   [x] Validaciones preventivas
+-   [x] Diseño consistente
 
 ---
 
 ## 📝 Notas Adicionales
 
 ### Datos Anidados:
+
 Esta fue la principal diferencia con Categorías. El manejo fue sencillo gracias a que DynamicTable ya soporta dot notation. No requirió cambios en el componente.
 
 ### Performance:
+
 Al usar un solo modal dinámico en vez de N modales, la página es más ligera y rápida, especialmente con muchas marcas.
 
 ### Mantenibilidad:
+
 El código JavaScript es más fácil de mantener que el HTML/Blade repetitivo. Cambios futuros en modales o botones se hacen en un solo lugar.
 
 ---
