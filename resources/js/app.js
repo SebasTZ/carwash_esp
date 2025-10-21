@@ -15,6 +15,13 @@ import * as BootstrapInit from './utils/bootstrap-init';
 import * as LazyLoader from './utils/lazy-loader';
 
 // ========================================
+// Importar componentes modernos
+// ========================================
+import DynamicTable from './components/tables/DynamicTable.js';
+import AutoSave from './components/forms/AutoSave.js';
+import FormValidator from './components/forms/FormValidator.js';
+
+// ========================================
 // Exportar utilidades al objeto window
 // para uso en código inline existente (migración gradual)
 // ========================================
@@ -94,6 +101,11 @@ window.CarWash = {
     preloadImages: LazyLoader.preloadImages,
     debounce: LazyLoader.debounce,
     throttle: LazyLoader.throttle,
+    
+    // Componentes modernos
+    DynamicTable: DynamicTable,
+    AutoSave: AutoSave,
+    FormValidator: FormValidator,
 };
 
 // ========================================

@@ -89,9 +89,11 @@ export default defineConfig({
     resolve: {
         alias: {
             '@': resolve(__dirname, './resources/js'),
+            '@core': resolve(__dirname, './resources/js/core'),
             '@utils': resolve(__dirname, './resources/js/utils'),
             '@modules': resolve(__dirname, './resources/js/modules'),
             '@pages': resolve(__dirname, './resources/js/pages'),
+            '@components': resolve(__dirname, './resources/js/components'),
         },
     },
     

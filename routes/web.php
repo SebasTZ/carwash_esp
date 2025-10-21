@@ -82,6 +82,9 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/citas/export/personalizado', [CitaController::class, 'exportPersonalizado'])->name('citas.export.personalizado');
     Route::resource('citas', CitaController::class);
 
+    // Ruta de restauración de categorías
+    Route::patch('/categorias/{categoria}/restore', [categoriaController::class, 'restore'])->name('categorias.restore');
+
     // Resources Routes
     Route::resources([
         'categorias' => categoriaController::class,

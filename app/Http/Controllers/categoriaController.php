@@ -89,20 +89,37 @@ class categoriaController extends Controller
      */
     public function destroy(string $id)
     {
-        $message = '';
         $categoria = Categoria::find($id);
+        
         if ($categoria->caracteristica->estado == 1) {
             Caracteristica::where('id', $categoria->caracteristica->id)
-                ->update([
-                    'estado' => 0
-                ]);
-            $message = 'Categoría eliminada';
+                ->update(['estado' => 0]);
+            $message = 'Categoría eliminada correctamente';
         } else {
+            $message = 'La categoría ya está eliminada';
+        }
+
+        return redirect()->route('categorias.index')->with('success', $message);
+    }
+
+    /**
+     * Restore the specified resource.
+     */
+    public function restore(string $id)
+    {
+        $categoria = Categoria::find($id);
+        
+        if (!$categoria) {
+            return redirect()->route('categorias.index')
+                ->with('error', 'Categoría no encontrada');
+        }
+        
+        if ($categoria->caracteristica->estado == 0) {
             Caracteristica::where('id', $categoria->caracteristica->id)
-                ->update([
-                    'estado' => 1
-                ]);
-            $message = 'Categoría restaurada';
+                ->update(['estado' => 1]);
+            $message = 'Categoría restaurada correctamente';
+        } else {
+            $message = 'La categoría ya está activa';
         }
 
         return redirect()->route('categorias.index')->with('success', $message);
