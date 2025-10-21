@@ -459,6 +459,310 @@ public/build/assets/vendor-core.8a569419.js     102.62 KB / gzip: 37.07 KiB
 
 ---
 
+## 🎯 Vista Migrada: compra/create.blade.php
+
+### Análisis Inicial
+
+**Código inline original:**
+- **237 líneas de JavaScript** embebidas en la vista
+- 12 funciones globales: `agregarProducto()`, `eliminarProducto()`, `recalcularIGV()`, `limpiarCampos()`, etc.
+- Validaciones manuales (precio_compra vs precio_venta)
+- Manipulación directa del DOM
+- Sin persistencia de datos
+- Sin confirmaciones para acciones destructivas
+
+### ✨ Solución Implementada: CompraManager.js
+
+**Ubicación:** `resources/js/modules/CompraManager.js`  
+**Tamaño:** 559 líneas (incluyendo documentación JSDoc)  
+**Arquitectura:** 2 clases principales (patrón similar a VentaManager)
+
+#### Clase `CompraState`
+
+Maneja el estado completo de la compra:
+
+```javascript
+class CompraState {
+    constructor() {
+        this.productos = [];
+        this.contador = 0;
+        this.impuesto = 18;
+        this.sumas = 0;
+        this.igv = 0;
+        this.total = 0;
+    }
+    
+    // Métodos principales:
+    // - agregarProducto(id, nombre, cantidad, precioCompra, precioVenta)
+    // - eliminarProducto(indice)
+    // - calcularTotales()
+    // - recalcularIGV()
+    // - guardarEnLocalStorage() → 'compra_borrador'
+    // - cargarDesdeLocalStorage()
+}
+```
+
+**Diferencias clave con VentaState:**
+- Maneja `precioCompra` y `precioVenta` (en lugar de precio + descuento)
+- No valida stock (compras agregan inventario)
+- localStorage usa clave diferente: `'compra_borrador'`
+
+#### Clase `CompraManager`
+
+Coordina la interacción entre UI y estado:
+
+```javascript
+export class CompraManager {
+    constructor() {
+        this.state = new CompraState();
+        this.init();
+    }
+    
+    // Métodos principales:
+    // - setupEventListeners()
+    // - agregarProducto() - Validaciones específicas de compras
+    // - eliminarProducto() - Con confirmación async
+    // - actualizarTotales()
+    // - cancelarCompra() - Con confirmación
+    // - validarAntesDeGuardar()
+    // - intentarRecuperarBorrador()
+    // - iniciarAutoGuardado() - Cada 30 segundos
+}
+```
+
+**Características especiales de compras:**
+- ✅ Valida `precioVenta >= precioCompra` (warning si precioVenta < precioCompra)
+- ✅ No valida stock (compras incrementan inventario)
+- ✅ Calcula subtotal basado en `cantidad * precioCompra`
+
+---
+
+### 📊 Métricas de Migración - Compras
+
+| Métrica | Antes | Después | Cambio |
+|---------|-------|---------|--------|
+| Líneas totales vista | ~468 líneas | 231 líneas | -50.6% |
+| JavaScript inline | 237 líneas | 0 líneas | **-100%** |
+| Funciones globales | 12 | 0 | -12 |
+| Módulos creados | 0 | 1 (CompraManager.js) | +1 |
+| Líneas CompraManager | 0 | 559 líneas | +559 |
+| Bundle size | N/A | 6.37 KB | N/A |
+| Gzipped | N/A | 2.05 KB | N/A |
+
+**Comparación con VentaManager:**
+- CompraManager: 559 líneas vs VentaManager: 705 líneas (-20.7%)
+- CompraManager bundle: 6.37 KB vs VentaManager: 7.69 KB (-17.2%)
+- Lógica más simple: no descuentos, no validación de stock
+
+---
+
+### ✨ Funcionalidades Nuevas - Compras
+
+#### 1. Validación Precio Compra vs Precio Venta
+
+**Implementación:**
+
+```javascript
+async agregarProducto() {
+    // ... validaciones básicas
+    
+    const precioCompra = parseFloat($('#precio_compra').val());
+    const precioVenta = parseFloat($('#precio_venta').val());
+    
+    // Warning si precioVenta < precioCompra (posible pérdida)
+    if (precioVenta < precioCompra) {
+        const continuar = await showConfirm(
+            '⚠️ Advertencia de Precio',
+            'El precio de venta es menor al precio de compra. ¿Deseas continuar?',
+            'warning'
+        );
+        
+        if (!continuar) return;
+    }
+    
+    // Agregar producto si todo OK
+}
+```
+
+**Beneficios:**
+- ✅ Previene errores de captura de precios
+- ✅ Alerta al usuario de posibles pérdidas
+- ✅ No bloquea (es warning, no error)
+
+---
+
+#### 2. Persistencia en localStorage
+
+**Implementación:**
+
+```javascript
+guardarEnLocalStorage() {
+    const data = {
+        productos: this.productos,
+        contador: this.contador,
+        totales: {
+            sumas: this.sumas,
+            igv: this.igv,
+            total: this.total
+        },
+        timestamp: new Date().toISOString()
+    };
+    
+    localStorage.setItem('compra_borrador', JSON.stringify(data));
+}
+```
+
+**Clave diferente:** `'compra_borrador'` vs `'venta_borrador'` para evitar conflictos.
+
+---
+
+#### 3. Auto-guardado y Recuperación
+
+**Misma funcionalidad que VentaManager:**
+- ✅ Auto-guardado cada 30 segundos
+- ✅ Recuperación al cargar página
+- ✅ Confirmación para recuperar o descartar
+
+---
+
+### 🔧 Configuración Vite
+
+**Actualizado `vite.config.js`:**
+
+```javascript
+input: [
+    'resources/css/app.css', 
+    'resources/js/app.js',
+    // Módulos de páginas específicas
+    'resources/js/modules/VentaManager.js',
+    'resources/js/modules/CompraManager.js',  // ⬅️ AGREGADO
+],
+
+// ...
+
+manualChunks: {
+    // ...
+    'modules': [
+        './resources/js/modules/VentaManager.js',
+        './resources/js/modules/CompraManager.js',  // ⬅️ AGREGADO
+    ],
+}
+```
+
+**Build exitoso:**
+```
+public/build/assets/CompraManager.7576c162.js    6.37 KiB / gzip: 2.05 KiB
+```
+
+---
+
+### 🧪 Testing Sugerido - Compras
+
+#### Escenario 1: Agregar productos con precios válidos
+1. Seleccionar producto
+2. Ingresar cantidad (positivo, entero)
+3. Ingresar precio_compra > 0
+4. Ingresar precio_venta >= precio_compra
+5. Click "Agregar"
+6. ✅ Producto agregado a tabla
+7. ✅ Totales calculados correctamente
+
+#### Escenario 2: Warning cuando precioVenta < precioCompra
+1. Seleccionar producto
+2. Ingresar precio_compra = 100
+3. Ingresar precio_venta = 80 (menor)
+4. Click "Agregar"
+5. ✅ Modal de confirmación aparece
+6. Confirmar o cancelar
+7. ✅ Comportamiento según elección
+
+#### Escenario 3: Persistencia en localStorage
+1. Agregar 2-3 productos
+2. Cerrar pestaña/navegador
+3. Abrir página de nuevo
+4. ✅ Modal de recuperación aparece
+5. Aceptar recuperar
+6. ✅ Productos y totales restaurados
+
+#### Escenario 4: Auto-guardado
+1. Agregar productos
+2. Esperar 30+ segundos
+3. Abrir DevTools → Application → localStorage
+4. ✅ Verificar clave `compra_borrador` actualizada
+5. ✅ Timestamp actualizado
+
+#### Escenario 5: Cancelar compra
+1. Agregar productos
+2. Click "Cancelar"
+3. ✅ Confirmación aparece
+4. Confirmar
+5. ✅ Tabla vacía
+6. ✅ Totales en 0
+7. ✅ localStorage limpio
+
+---
+
+### 📦 Integración con Utilidades (Fase 1)
+
+**Mismo patrón que VentaManager:**
+
+```javascript
+// notifications.js
+import { showSuccess, showError, showConfirm } from '@utils/notifications';
+
+// validators.js
+import { validatePrecio, validateCantidad, isPositive, isInteger } from '@utils/validators';
+
+// formatters.js
+import { formatCurrency, round } from '@utils/formatters';
+```
+
+**Validadores específicos usados:**
+- `validatePrecio()` - Para precio_compra y precio_venta
+- `isPositive()` - Verificar valores > 0
+- `isInteger()` - Verificar cantidad entera
+- `round()` - Redondear a 2 decimales
+
+---
+
+## 📊 Resumen de Fase 2 - Estado Actual
+
+### ✅ Vistas Completadas (2/4)
+
+1. **venta/create.blade.php** → VentaManager.js
+   - 705 líneas módulo
+   - 7.69 KB bundle (2.40 KB gzipped)
+   - 98.5% reducción inline JS
+   
+2. **compra/create.blade.php** → CompraManager.js
+   - 559 líneas módulo
+   - 6.37 KB bundle (2.05 KB gzipped)
+   - 50.6% reducción total vista
+
+### ⏳ Vistas Pendientes (2/4)
+
+3. **control/lavados.blade.php** → LavadosManager.js
+   - Filtros AJAX (sin page reload)
+   - Lazy loading tabla
+   - Real-time updates
+
+4. **estacionamiento/index.blade.php** → EstacionamientoManager.js
+   - AJAX disponibilidad
+   - WebSockets opcional
+
+### 📈 Métricas Acumuladas
+
+| Métrica | Total |
+|---------|-------|
+| Managers creados | 2 |
+| Líneas JS inline eliminadas | 567 líneas |
+| Bundle size total modules | 14.06 KB |
+| Gzipped total | 4.45 KB |
+| Vistas refactorizadas | 2 |
+| Nuevas funcionalidades | 6 |
+
+---
+
 ## 🎯 Próximos Pasos
 
 ### Tareas Pendientes en esta Vista
@@ -548,19 +852,22 @@ d:\Sebas GOREHCO\carwash_esp\
 
 ## 🎉 Conclusión Parcial
 
-**Primera vista migrada con éxito:** `venta/create.blade.php`
+**Vistas migradas exitosamente:** `venta/create.blade.php` y `compra/create.blade.php` (2/4)
 
-**Resultados:**
-- ✅ 98.5% menos código inline (-330 líneas)
-- ✅ Arquitectura modular y testeable
-- ✅ 3 funcionalidades nuevas (confirmaciones, persistencia, auto-guardado)
+**Resultados acumulados:**
+- ✅ 567 líneas de código inline eliminadas
+- ✅ Arquitectura modular y testeable (2 managers)
+- ✅ 6 funcionalidades nuevas (confirmaciones, persistencia, auto-guardado, validaciones)
 - ✅ Integración completa con utilidades de Fase 1
-- ✅ Build exitoso (7.69 KB gzipped: 2.40 KB)
+- ✅ Build exitoso para ambos managers (14.06 KB total, 4.45 KB gzipped)
+- ✅ Patrón State/Manager establecido para siguientes vistas
 
-**Próximo milestone:** Testing manual completo y migrar `compra/create.blade.php`
+**Progreso Fase 2:** 50% completado (2 de 4 vistas)
+
+**Próximo milestone:** Testing manual de compras y migrar `control/lavados.blade.php`
 
 ---
 
 **Actualizado:** 21 de Octubre, 2025  
 **Por:** Equipo de Desarrollo CarWash ESP  
-**Estado:** ⏳ En progreso - Primera vista completada
+**Estado:** ⏳ En progreso - 2 vistas completadas de 4
