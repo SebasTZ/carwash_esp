@@ -725,9 +725,411 @@ import { formatCurrency, round } from '@utils/formatters';
 
 ---
 
+## 🎯 Vista Migrada: control/lavados.blade.php
+
+### Análisis Inicial
+
+**Código inline original:**
+- **41 líneas de JavaScript** embebidas en la vista
+- 2 funciones globales: `checkFormValidity()` (duplicada)
+- Tooltips de Bootstrap inicializados inline
+- Filtros con page reload completo (GET form)
+- Sin manejo de estado en navegación
+- Sin loading states
+
+**Problema principal:**
+- Los filtros recargan toda la página (mala UX)
+- Pérdida de scroll position
+- No hay feedback visual durante carga
+- Historial del navegador se contamina
+
+### ✨ Solución Implementada: LavadosManager.js
+
+**Ubicación:** `resources/js/modules/LavadosManager.js`  
+**Tamaño:** 343 líneas (incluyendo documentación JSDoc)  
+**Arquitectura:** 2 clases principales (patrón similar a VentaManager)
+
+#### Clase `LavadosState`
+
+Maneja el estado completo de los filtros:
+
+```javascript
+class LavadosState {
+    constructor() {
+        this.filtros = {
+            lavador_id: '',
+            estado: '',
+            fecha: '',
+            page: 1
+        };
+        this.lavados = [];
+        this.pagination = null;
+        this.isLoading = false;
+    }
+    
+    // Métodos principales:
+    // - actualizarFiltros()
+    // - obtenerParametrosURL()
+    // - cargarFiltrosDesdeURL()
+    // - actualizarHistorial()
+}
+```
+
+**Ventajas:**
+- Estado centralizado de filtros
+- Sincronización bidireccional con URL
+- Gestión de loading state
+
+#### Clase `LavadosManager`
+
+Coordina filtros AJAX y actualización de tabla:
+
+```javascript
+export class LavadosManager {
+    constructor() {
+        this.state = new LavadosState();
+        this.init();
+    }
+    
+    // Métodos principales:
+    // - setupEventListeners()
+    // - aplicarFiltros() - AJAX sin page reload
+    // - cargarLavados() - Fetch datos del servidor
+    // - actualizarTabla() - Reemplazar HTML dinámicamente
+    // - setupPaginationListeners() - Links AJAX
+    // - mostrarCargando() - Loading states
+    // - initTooltips() - Re-inicializar Bootstrap tooltips
+}
+```
+
+**Características especiales:**
+- ✅ Filtros AJAX (sin recarga de página)
+- ✅ Actualización automática al cambiar select/input
+- ✅ Paginación AJAX integrada
+- ✅ Navegación atrás/adelante funciona (popstate)
+- ✅ Loading states visuales
+- ✅ Fallback a recarga completa en error
+
+---
+
+### 📊 Métricas de Migración - Lavados
+
+| Métrica | Antes | Después | Cambio |
+|---------|-------|---------|--------|
+| Líneas totales vista | ~454 líneas | 413 líneas | -9% |
+| JavaScript inline | 41 líneas | 0 líneas | **-100%** |
+| Funciones globales | 2 (duplicadas) | 0 | -2 |
+| Módulos creados | 0 | 1 (LavadosManager.js) | +1 |
+| Líneas LavadosManager | 0 | 343 líneas | +343 |
+| Bundle size | N/A | 4.86 KB | N/A |
+| Gzipped | N/A | 1.66 KB | N/A |
+
+**Comparación con otros managers:**
+- LavadosManager: 343 líneas (el más ligero)
+- CompraManager: 559 líneas (+63%)
+- VentaManager: 705 líneas (+106%)
+- Más ligero porque no gestiona productos, solo filtros
+
+---
+
+### ✨ Funcionalidades Nuevas - Lavados
+
+#### 1. Filtros AJAX Sin Recarga
+
+**Implementación:**
+
+```javascript
+async aplicarFiltros() {
+    const lavadorSelect = document.getElementById('filtro_lavador');
+    const estadoSelect = document.getElementById('filtro_estado');
+    const fechaInput = document.getElementById('fecha');
+    
+    this.state.actualizarFiltros({
+        lavador_id: lavadorSelect ? lavadorSelect.value : '',
+        estado: estadoSelect ? estadoSelect.value : '',
+        fecha: fechaInput ? fechaInput.value : ''
+    });
+    
+    await this.cargarLavados();
+}
+```
+
+**Beneficios:**
+- ✅ Sin page reload (mejor UX)
+- ✅ Mantiene scroll position
+- ✅ Respuesta instantánea
+- ✅ Loading state visual
+
+---
+
+#### 2. Sincronización con URL y Historial
+
+**Implementación:**
+
+```javascript
+actualizarHistorial() {
+    const params = this.obtenerParametrosURL();
+    const newURL = `${window.location.pathname}?${params.toString()}`;
+    window.history.pushState({ filtros: this.filtros }, '', newURL);
+}
+
+// Listener para botones atrás/adelante
+window.addEventListener('popstate', (e) => {
+    if (e.state && e.state.filtros) {
+        this.state.filtros = e.state.filtros;
+        this.aplicarFiltrosIniciales();
+        this.cargarLavados();
+    }
+});
+```
+
+**Beneficios:**
+- ✅ URL compartible con filtros aplicados
+- ✅ Botones atrás/adelante funcionan
+- ✅ Bookmarkeable
+- ✅ Estado persistente en navegación
+
+---
+
+#### 3. Paginación AJAX
+
+**Implementación:**
+
+```javascript
+setupPaginationListeners() {
+    document.addEventListener('click', (e) => {
+        const paginationLink = e.target.closest('.pagination a');
+        
+        if (paginationLink && !paginationLink.classList.contains('disabled')) {
+            e.preventDefault();
+            
+            const url = new URL(paginationLink.href);
+            const page = url.searchParams.get('page');
+            
+            if (page) {
+                this.state.actualizarFiltros({ page: parseInt(page) });
+                this.cargarLavados();
+            }
+        }
+    });
+}
+```
+
+**Beneficios:**
+- ✅ Paginación sin recarga
+- ✅ Mantiene filtros activos
+- ✅ Actualiza URL automáticamente
+
+---
+
+#### 4. Loading States Visuales
+
+**Implementación:**
+
+```javascript
+mostrarCargando(mostrar) {
+    const tabla = document.querySelector('.table-responsive');
+    
+    if (mostrar) {
+        tabla.style.opacity = '0.5';
+        tabla.style.pointerEvents = 'none';
+        
+        // Agregar spinner
+        const spinner = document.createElement('div');
+        spinner.className = 'loading-spinner text-center my-4';
+        spinner.innerHTML = `
+            <div class="spinner-border text-primary" role="status">
+                <span class="visually-hidden">Cargando...</span>
+            </div>
+            <p class="mt-2 text-muted">Actualizando datos...</p>
+        `;
+        tabla.parentElement.insertBefore(spinner, tabla);
+    } else {
+        tabla.style.opacity = '1';
+        tabla.style.pointerEvents = 'auto';
+        document.querySelector('.loading-spinner')?.remove();
+    }
+}
+```
+
+**Beneficios:**
+- ✅ Feedback visual inmediato
+- ✅ Previene clicks duplicados
+- ✅ Mejor percepción de performance
+
+---
+
+#### 5. Re-inicialización de Tooltips
+
+**Implementación:**
+
+```javascript
+initTooltips() {
+    const tooltipTriggerList = document.querySelectorAll('[data-bs-toggle="tooltip"]');
+    tooltipTriggerList.forEach(tooltipTriggerEl => {
+        // Destruir tooltip anterior si existe
+        const existingTooltip = bootstrap.Tooltip.getInstance(tooltipTriggerEl);
+        if (existingTooltip) {
+            existingTooltip.dispose();
+        }
+        
+        // Crear nuevo tooltip
+        new bootstrap.Tooltip(tooltipTriggerEl);
+    });
+}
+```
+
+**Beneficios:**
+- ✅ Tooltips funcionan después de actualizar tabla
+- ✅ No hay memory leaks (dispose anterior)
+
+---
+
+### 🔧 Configuración Vite
+
+**Actualizado `vite.config.js`:**
+
+```javascript
+input: [
+    'resources/css/app.css', 
+    'resources/js/app.js',
+    // Módulos de páginas específicas
+    'resources/js/modules/VentaManager.js',
+    'resources/js/modules/CompraManager.js',
+    'resources/js/modules/LavadosManager.js',  // ⬅️ AGREGADO
+],
+
+// ...
+
+manualChunks: {
+    // ...
+    'modules': [
+        './resources/js/modules/VentaManager.js',
+        './resources/js/modules/CompraManager.js',
+        './resources/js/modules/LavadosManager.js',  // ⬅️ AGREGADO
+    ],
+}
+```
+
+**Build exitoso:**
+```
+public/build/assets/LavadosManager.19a6ec72.js    4.86 KiB / gzip: 1.66 KiB
+```
+
+---
+
+### 🧪 Testing Sugerido - Lavados
+
+#### Escenario 1: Filtrar por lavador (AJAX)
+1. Abrir control/lavados
+2. Seleccionar un lavador del dropdown
+3. ✅ Tabla se actualiza sin recargar página
+4. ✅ Loading spinner aparece brevemente
+5. ✅ URL actualizada con ?lavador_id=X
+6. ✅ Resultado filtrado correctamente
+
+#### Escenario 2: Filtrar por estado (AJAX)
+1. Seleccionar "En proceso"
+2. ✅ Tabla actualizada instantáneamente
+3. ✅ Solo lavados en proceso mostrados
+4. ✅ URL: ?estado=En%20proceso
+
+#### Escenario 3: Filtrar por fecha (AJAX)
+1. Seleccionar fecha del datepicker
+2. ✅ Tabla actualizada al cambiar
+3. ✅ URL: ?fecha=2025-10-21
+4. ✅ Solo lavados de esa fecha
+
+#### Escenario 4: Combinación de filtros
+1. Seleccionar lavador + estado + fecha
+2. ✅ Filtros aplicados en conjunto
+3. ✅ URL: ?lavador_id=X&estado=Y&fecha=Z
+4. ✅ Resultados correctos
+
+#### Escenario 5: Paginación AJAX
+1. Aplicar filtro con muchos resultados
+2. Click en "Siguiente" de paginación
+3. ✅ Sin recarga de página
+4. ✅ URL actualizada: ?page=2&lavador_id=X
+5. ✅ Mantiene filtros activos
+
+#### Escenario 6: Navegación atrás/adelante
+1. Aplicar varios filtros navegando
+2. Click botón "Atrás" del navegador
+3. ✅ Filtros anteriores restaurados
+4. ✅ Tabla actualizada correctamente
+5. ✅ No recarga página completa
+
+#### Escenario 7: URL compartible
+1. Aplicar filtros
+2. Copiar URL
+3. Pegar en nueva pestaña
+4. ✅ Filtros aplicados automáticamente
+5. ✅ Tabla cargada con filtros
+
+#### Escenario 8: Error handling
+1. Simular error de red (DevTools offline)
+2. Intentar filtrar
+3. ✅ Mensaje de error aparece
+4. ✅ Fallback: recarga completa después de 1.5s
+
+---
+
+### 📦 Integración con Utilidades (Fase 1)
+
+**Dependencias de LavadosManager:**
+
+```javascript
+// axios para AJAX
+import axios from 'axios';
+
+// notifications.js
+import { showError, showSuccess } from '@utils/notifications';
+
+// Bootstrap (tooltips)
+// Ya cargado globalmente
+```
+
+**Nota:** LavadosManager NO usa validators/formatters porque no gestiona productos, solo filtros simples.
+
+---
+
+### ⚠️ Nota Importante: Backend AJAX
+
+Para que LavadosManager funcione correctamente, el backend debe:
+
+**Opción 1: Retornar HTML parcial**
+```php
+// En el controlador
+if ($request->ajax()) {
+    return view('control.lavados_tabla', compact('lavados'));
+}
+```
+
+**Opción 2: Retornar JSON con HTML**
+```php
+if ($request->ajax()) {
+    $html = view('control.lavados_tabla', compact('lavados'))->render();
+    return response()->json(['html' => $html]);
+}
+```
+
+**Opción 3: Modificar para aceptar ambos** (recomendado)
+```php
+if ($request->ajax() || $request->wantsJson()) {
+    $html = view('control.lavados_tabla', compact('lavados'))->render();
+    return response()->json(['html' => $html]);
+}
+
+// Respuesta normal para peticiones estándar
+return view('control.lavados', compact('lavados', 'lavadores', 'tiposVehiculo'));
+```
+
+---
+
 ## 📊 Resumen de Fase 2 - Estado Actual
 
-### ✅ Vistas Completadas (2/4)
+### ✅ Vistas Completadas (3/4)
 
 1. **venta/create.blade.php** → VentaManager.js
    - 705 líneas módulo
@@ -739,12 +1141,12 @@ import { formatCurrency, round } from '@utils/formatters';
    - 6.37 KB bundle (2.05 KB gzipped)
    - 50.6% reducción total vista
 
-### ⏳ Vistas Pendientes (2/4)
-
 3. **control/lavados.blade.php** → LavadosManager.js
-   - Filtros AJAX (sin page reload)
-   - Lazy loading tabla
-   - Real-time updates
+   - 343 líneas módulo
+   - 4.86 KB bundle (1.66 KB gzipped)
+   - Filtros AJAX sin page reload
+
+### ⏳ Vistas Pendientes (1/4)
 
 4. **estacionamiento/index.blade.php** → EstacionamientoManager.js
    - AJAX disponibilidad
@@ -754,12 +1156,17 @@ import { formatCurrency, round } from '@utils/formatters';
 
 | Métrica | Total |
 |---------|-------|
-| Managers creados | 2 |
-| Líneas JS inline eliminadas | 567 líneas |
-| Bundle size total modules | 14.06 KB |
-| Gzipped total | 4.45 KB |
-| Vistas refactorizadas | 2 |
-| Nuevas funcionalidades | 6 |
+| Managers creados | 3 |
+| Líneas JS inline eliminadas | 608 líneas |
+| Bundle size total modules | 18.92 KB |
+| Gzipped total | 6.11 KB |
+| Vistas refactorizadas | 3 |
+| Nuevas funcionalidades | 11 |
+
+**Desglose por manager:**
+- VentaManager: 705 líneas (7.69 KB / 2.40 KB gzip)
+- CompraManager: 559 líneas (6.37 KB / 2.05 KB gzip)
+- LavadosManager: 343 líneas (4.86 KB / 1.66 KB gzip)
 
 ---
 
@@ -852,22 +1259,36 @@ d:\Sebas GOREHCO\carwash_esp\
 
 ## 🎉 Conclusión Parcial
 
-**Vistas migradas exitosamente:** `venta/create.blade.php` y `compra/create.blade.php` (2/4)
+**Vistas migradas exitosamente:** 3 de 4 (75% completado)
+- ✅ `venta/create.blade.php` → VentaManager.js
+- ✅ `compra/create.blade.php` → CompraManager.js  
+- ✅ `control/lavados.blade.php` → LavadosManager.js
 
 **Resultados acumulados:**
-- ✅ 567 líneas de código inline eliminadas
-- ✅ Arquitectura modular y testeable (2 managers)
-- ✅ 6 funcionalidades nuevas (confirmaciones, persistencia, auto-guardado, validaciones)
+- ✅ 608 líneas de código inline eliminadas (-100% en las 3 vistas)
+- ✅ Arquitectura modular y testeable (3 managers, 1,607 líneas)
+- ✅ 11 funcionalidades nuevas:
+  - Confirmaciones async en ventas/compras
+  - Persistencia localStorage (ventas/compras)
+  - Auto-guardado cada 30s (ventas/compras)
+  - Recuperación de borradores
+  - Validación precio compra/venta
+  - Filtros AJAX sin recarga
+  - Paginación AJAX
+  - Navegación con historial
+  - Loading states visuales
+  - Re-inicialización tooltips
+  - Sincronización URL
 - ✅ Integración completa con utilidades de Fase 1
-- ✅ Build exitoso para ambos managers (14.06 KB total, 4.45 KB gzipped)
-- ✅ Patrón State/Manager establecido para siguientes vistas
+- ✅ Build exitoso para los 3 managers (18.92 KB total, 6.11 KB gzipped)
+- ✅ Patrón State/Manager consolidado y reutilizable
 
-**Progreso Fase 2:** 50% completado (2 de 4 vistas)
+**Progreso Fase 2:** 75% completado (3 de 4 vistas)
 
-**Próximo milestone:** Testing manual de compras y migrar `control/lavados.blade.php`
+**Próximo milestone:** Completar `estacionamiento/index.blade.php` (última vista)
 
 ---
 
 **Actualizado:** 21 de Octubre, 2025  
 **Por:** Equipo de Desarrollo CarWash ESP  
-**Estado:** ⏳ En progreso - 2 vistas completadas de 4
+**Estado:** ⏳ En progreso - 3 vistas completadas, 1 pendiente
