@@ -1202,15 +1202,17 @@ return view('control.lavados', compact('lavados', 'lavadores', 'tiposVehiculo'))
 ### Análisis Inicial
 
 **Código inline original:**
-- **0 líneas de JavaScript** embebidas (vista simple sin JS)
-- Solo confirmaciones nativas con `onclick="return confirm()"`
-- Sin actualización automática de tiempos
-- Sin mejoras de UX
+
+-   **0 líneas de JavaScript** embebidas (vista simple sin JS)
+-   Solo confirmaciones nativas con `onclick="return confirm()"`
+-   Sin actualización automática de tiempos
+-   Sin mejoras de UX
 
 **Oportunidad de mejora:**
-- Actualizar tiempos transcurridos sin recargar
-- Mejorar confirmaciones con SweetAlert2
-- Preparar para futuras mejoras AJAX
+
+-   Actualizar tiempos transcurridos sin recargar
+-   Mejorar confirmaciones con SweetAlert2
+-   Preparar para futuras mejoras AJAX
 
 ### ✨ Solución Implementada: EstacionamientoManager.js
 
@@ -1244,7 +1246,7 @@ export class EstacionamientoManager {
         this.state = new EstacionamientoState();
         this.init();
     }
-    
+
     // Métodos principales:
     // - iniciarActualizacionTiempos() - Cada 30 segundos
     // - actualizarTiemposEnPagina() - Actualiza DOM sin AJAX
@@ -1255,33 +1257,35 @@ export class EstacionamientoManager {
 ```
 
 **Características especiales:**
-- ✅ Actualiza tiempos cada 30s sin recargar página
-- ✅ Parser inteligente de fechas dd/mm/yyyy HH:mm
-- ✅ Formato legible según contexto (minutos/horas/días)
-- ✅ Confirmación mejorada con datos del vehículo
-- ✅ Efecto visual sutil al actualizar (fade amarillo)
-- ✅ Auto-refresh completo preparado (opcional)
+
+-   ✅ Actualiza tiempos cada 30s sin recargar página
+-   ✅ Parser inteligente de fechas dd/mm/yyyy HH:mm
+-   ✅ Formato legible según contexto (minutos/horas/días)
+-   ✅ Confirmación mejorada con datos del vehículo
+-   ✅ Efecto visual sutil al actualizar (fade amarillo)
+-   ✅ Auto-refresh completo preparado (opcional)
 
 ---
 
 ### 📊 Métricas de Migración - Estacionamiento
 
-| Métrica | Antes | Después | Cambio |
-|---------|-------|---------|--------|
-| Líneas totales vista | 76 líneas | 79 líneas | +3.9% |
-| JavaScript inline | 0 líneas | 0 líneas | +0% |
-| Funciones globales | 0 | 0 | - |
-| Módulos creados | 0 | 1 (EstacionamientoManager.js) | +1 |
-| Líneas EstacionamientoManager | 0 | 368 líneas | +368 |
-| Bundle size | N/A | 4.60 KB | N/A |
-| Gzipped | N/A | 1.70 KB | N/A |
+| Métrica                       | Antes     | Después                       | Cambio |
+| ----------------------------- | --------- | ----------------------------- | ------ |
+| Líneas totales vista          | 76 líneas | 79 líneas                     | +3.9%  |
+| JavaScript inline             | 0 líneas  | 0 líneas                      | +0%    |
+| Funciones globales            | 0         | 0                             | -      |
+| Módulos creados               | 0         | 1 (EstacionamientoManager.js) | +1     |
+| Líneas EstacionamientoManager | 0         | 368 líneas                    | +368   |
+| Bundle size                   | N/A       | 4.60 KB                       | N/A    |
+| Gzipped                       | N/A       | 1.70 KB                       | N/A    |
 
 **Comparación con otros managers:**
-- EstacionamientoManager: 368 líneas
-- LavadosManager: 343 líneas (similar, -6.8%)
-- CompraManager: 559 líneas (+51.9%)
-- VentaManager: 705 líneas (+91.6%)
-- **Segundo más ligero** después de LavadosManager
+
+-   EstacionamientoManager: 368 líneas
+-   LavadosManager: 343 líneas (similar, -6.8%)
+-   CompraManager: 559 líneas (+51.9%)
+-   VentaManager: 705 líneas (+91.6%)
+-   **Segundo más ligero** después de LavadosManager
 
 ---
 
@@ -1302,20 +1306,21 @@ actualizarTiemposEnPagina() {
     // Parse fecha de entrada
     const horaEntrada = new Date(año, mes - 1, dia, horas, minutos);
     const ahora = new Date();
-    
+
     // Calcular diferencia
     const diffMinutos = Math.floor((ahora - horaEntrada) / 60000);
-    
+
     // Actualizar texto
     tiempoCell.textContent = this.formatearTiempoTranscurrido(diffMinutos);
 }
 ```
 
 **Beneficios:**
-- ✅ Sin peticiones al servidor (cálculo en cliente)
-- ✅ Actualización cada 30 segundos
-- ✅ Formato legible y contextual
-- ✅ Efecto visual al cambiar
+
+-   ✅ Sin peticiones al servidor (cálculo en cliente)
+-   ✅ Actualización cada 30 segundos
+-   ✅ Formato legible y contextual
+-   ✅ Efecto visual al cambiar
 
 ---
 
@@ -1327,15 +1332,15 @@ actualizarTiemposEnPagina() {
 formatearTiempoTranscurrido(minutos) {
     if (minutos < 1) return 'menos de 1 minuto';
     if (minutos < 60) return `${minutos} minuto${minutos !== 1 ? 's' : ''}`;
-    
+
     if (minutos < 1440) { // < 24 horas
         const horas = Math.floor(minutos / 60);
         const mins = minutos % 60;
-        return mins === 0 
+        return mins === 0
             ? `${horas} hora${horas !== 1 ? 's' : ''}`
             : `${horas} hora${horas !== 1 ? 's' : ''} ${mins} minuto${mins !== 1 ? 's' : ''}`;
     }
-    
+
     const dias = Math.floor(minutos / 1440);
     const horas = Math.floor((minutos % 1440) / 60);
     return horas === 0
@@ -1345,9 +1350,10 @@ formatearTiempoTranscurrido(minutos) {
 ```
 
 **Ejemplos de formato:**
-- 45 minutos → "45 minutos"
-- 90 minutos → "1 hora 30 minutos"
-- 1500 minutos → "1 día 1 hora"
+
+-   45 minutos → "45 minutos"
+-   90 minutos → "1 hora 30 minutos"
+-   1500 minutos → "1 día 1 hora"
 
 ---
 
@@ -1360,7 +1366,7 @@ async confirmarRegistrarSalida(form) {
     const placa = '...';
     const tiempoTexto = '...';
     const tarifa = parseFloat('...');
-    
+
     const mensaje = `
         <div class="text-start">
             <p><strong>Placa:</strong> ${placa}</p>
@@ -1370,7 +1376,7 @@ async confirmarRegistrarSalida(form) {
             <p class="text-muted">El sistema calculará el monto exacto...</p>
         </div>
     `;
-    
+
     const confirmado = await this.mostrarConfirmacionHTML(
         '¿Registrar salida del vehículo?',
         mensaje
@@ -1379,9 +1385,10 @@ async confirmarRegistrarSalida(form) {
 ```
 
 **Beneficios:**
-- ✅ Muestra información antes de confirmar
-- ✅ Previene errores de salida incorrecta
-- ✅ UX más profesional con SweetAlert2
+
+-   ✅ Muestra información antes de confirmar
+-   ✅ Previene errores de salida incorrecta
+-   ✅ UX más profesional con SweetAlert2
 
 ---
 
@@ -1411,7 +1418,7 @@ iniciarAutoRefresh(intervalMs = 300000) {
 
 ```javascript
 input: [
-    'resources/css/app.css', 
+    'resources/css/app.css',
     'resources/js/app.js',
     'resources/js/modules/VentaManager.js',
     'resources/js/modules/CompraManager.js',
@@ -1430,6 +1437,7 @@ manualChunks: {
 ```
 
 **Build exitoso:**
+
 ```
 public/build/assets/EstacionamientoManager.ca2b2a08.js    4.60 KiB / gzip: 1.70 KiB
 ```
@@ -1439,12 +1447,14 @@ public/build/assets/EstacionamientoManager.ca2b2a08.js    4.60 KiB / gzip: 1.70 
 ### 🧪 Testing Sugerido - Estacionamiento
 
 #### Escenario 1: Actualización automática de tiempos
+
 1. Abrir estacionamiento/index
 2. Esperar 30+ segundos
 3. ✅ Tiempos actualizados sin recarga
 4. ✅ Efecto visual sutil (fade amarillo)
 
 #### Escenario 2: Formato de tiempo correcto
+
 1. Verificar vehículo con < 1 hora
 2. ✅ Muestra "X minutos"
 3. Verificar vehículo con 2-3 horas
@@ -1453,6 +1463,7 @@ public/build/assets/EstacionamientoManager.ca2b2a08.js    4.60 KiB / gzip: 1.70 
 6. ✅ Muestra "X días Y horas"
 
 #### Escenario 3: Confirmación mejorada salida
+
 1. Click "Registrar Salida"
 2. ✅ Modal con datos del vehículo
 3. ✅ Muestra placa, tiempo, tarifa
@@ -1461,6 +1472,7 @@ public/build/assets/EstacionamientoManager.ca2b2a08.js    4.60 KiB / gzip: 1.70 
 6. ✅ Comportamiento según elección
 
 #### Escenario 4: Confirmación eliminar
+
 1. Click botón eliminar
 2. ✅ Modal con placa del vehículo
 3. ✅ Confirmación clara
@@ -1472,8 +1484,8 @@ public/build/assets/EstacionamientoManager.ca2b2a08.js    4.60 KiB / gzip: 1.70 
 **Dependencias:**
 
 ```javascript
-import axios from 'axios';
-import { showError, showSuccess } from '@utils/notifications';
+import axios from "axios";
+import { showError, showSuccess } from "@utils/notifications";
 // SweetAlert2 cargado globalmente
 ```
 
@@ -1496,6 +1508,7 @@ import { showError, showSuccess } from '@utils/notifications';
     - 50.6% reducción total vista
 
 3. **control/lavados.blade.php** → LavadosManager.js
+
     - 343 líneas módulo
     - 4.86 KB bundle (1.66 KB gzipped)
     - Filtros AJAX sin page reload
@@ -1507,15 +1520,15 @@ import { showError, showSuccess } from '@utils/notifications';
 
 ### 📈 Métricas Finales Acumuladas
 
-| Métrica                     | Total            |
-| --------------------------- | ---------------- |
-| Managers creados            | **4**            |
-| Líneas totales managers     | **1,975 líneas** |
-| Líneas JS inline eliminadas | **608 líneas**   |
-| Bundle size total modules   | **23.52 KB**     |
-| Gzipped total               | **7.81 KB**      |
+| Métrica                     | Total             |
+| --------------------------- | ----------------- |
+| Managers creados            | **4**             |
+| Líneas totales managers     | **1,975 líneas**  |
+| Líneas JS inline eliminadas | **608 líneas**    |
+| Bundle size total modules   | **23.52 KB**      |
+| Gzipped total               | **7.81 KB**       |
 | Vistas refactorizadas       | **4 de 4 (100%)** |
-| Nuevas funcionalidades      | **15**           |
+| Nuevas funcionalidades      | **15**            |
 
 **Desglose por manager:**
 
@@ -1662,6 +1675,7 @@ d:\Sebas GOREHCO\carwash_esp\
 **Progreso Fase 2:** 100% completado (4 de 4 vistas) 🎉
 
 **Logros destacados:**
+
 1. **Sin dependencias nuevas** - Reutiliza utilidades de Fase 1
 2. **Bundle size controlado** - Solo 7.81 KB gzipped
 3. **Progressive enhancement** - Funciona sin JS (fallback)
