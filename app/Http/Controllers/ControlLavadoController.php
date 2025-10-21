@@ -3,6 +3,8 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
+use App\Models\AuditoriaLavador;
 use App\Models\ControlLavado;
 use App\Models\User;
 use App\Models\Lavador;
@@ -53,7 +55,7 @@ class ControlLavadoController extends Controller
 
     public function show($id)
     {
-        $lavado = ControlLavado::with(['venta', 'cliente'])->findOrFail($id);
+        $lavado = ControlLavado::with(['venta', 'cliente', 'auditoriaLavadores.lavadorAnterior', 'auditoriaLavadores.lavadorNuevo'])->findOrFail($id);
         return view('control.show', compact('lavado'));
     }
 
@@ -73,22 +75,55 @@ class ControlLavadoController extends Controller
         ]);
 
         $lavado = ControlLavado::findOrFail($lavado);
+        
+        // Validar que no se puede cambiar el lavador después de iniciar el lavado
+        if ($lavado->inicio_lavado) {
+            return redirect()->route('control.lavados')->with('error', 'No se puede cambiar el lavador después de iniciar el lavado.');
+        }
+        
+        // Guardar el lavador anterior para auditoría
+        $lavadorAnterior = $lavado->lavador_id;
+        
+        // Actualizar lavador y tipo de vehículo
         $lavado->lavador_id = $request->lavador_id;
         $lavado->tipo_vehiculo_id = $request->tipo_vehiculo_id;
         $lavado->save();
 
+        // Registrar en auditoría solo si hubo cambio de lavador
+        if ($lavadorAnterior !== null && $lavadorAnterior != $request->lavador_id) {
+            AuditoriaLavador::create([
+                'control_lavado_id' => $lavado->id,
+                'lavador_id_anterior' => $lavadorAnterior,
+                'lavador_id_nuevo' => $request->lavador_id,
+                'usuario_id' => Auth::id(),
+                'motivo' => $request->motivo ?? 'Cambio de lavador',
+                'fecha_cambio' => now(),
+            ]);
+        }
+
         return redirect()->route('control.lavados')->with('success', 'Lavador y tipo de vehículo asignados correctamente.');
     }
 
-    public function inicioLavado($id)
+    public function inicioLavado(Request $request, $id)
     {
         $lavado = ControlLavado::findOrFail($id);
-        if (!$lavado->inicio_lavado) {
-            $lavado->inicio_lavado = now();
-            $lavado->estado = 'En proceso';
-            $lavado->save();
+        
+        // Validar que el lavado no haya sido iniciado previamente
+        if ($lavado->inicio_lavado) {
+            return redirect()->route('control.lavados')->with('error', 'El lavado ya fue iniciado.');
         }
-        return redirect()->route('control.lavados');
+        
+        // Confirmación previa antes de iniciar el lavado
+        if ($request->confirmar != 'si') {
+            return redirect()->route('control.lavados')->with('confirmar_inicio', $lavado->id);
+        }
+        
+        // Iniciar el lavado
+        $lavado->inicio_lavado = now();
+        $lavado->estado = 'En proceso';
+        $lavado->save();
+        
+        return redirect()->route('control.lavados')->with('success', 'Lavado iniciado correctamente.');
     }
 
     public function finLavado($id)
@@ -119,8 +154,35 @@ class ControlLavadoController extends Controller
             $lavado->hora_final = now();
             $lavado->estado = 'Terminado';
             $lavado->save();
+            
+            // Calcular y registrar comisión
+            $this->registrarComisionLavador($lavado);
         }
         return redirect()->route('control.lavados');
+    }
+
+    protected function registrarComisionLavador($lavado)
+    {
+        // Calcular la comisión según reglas de negocio
+        $montoComision = $this->calcularComision($lavado);
+        
+        if ($montoComision > 0 && $lavado->lavador_id) {
+            \App\Models\PagoComision::create([
+                'lavador_id' => $lavado->lavador_id,
+                'monto_pagado' => $montoComision,
+                'desde' => $lavado->hora_llegada,
+                'hasta' => $lavado->hora_final,
+                'observacion' => 'Comisión por lavado ID ' . $lavado->id,
+                'fecha_pago' => now(),
+            ]);
+        }
+    }
+
+    protected function calcularComision($lavado)
+    {
+        // Ejemplo: comisión fija de 10 por lavado
+        // Aquí puedes implementar una lógica más compleja basada en tipo de vehículo, etc.
+        return 10;
     }
 
     public function exportDiario()

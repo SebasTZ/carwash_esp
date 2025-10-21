@@ -51,4 +51,9 @@ class ControlLavado extends Model
     {
         return $this->hasMany(\App\Models\PagoComision::class, 'lavador_id', 'lavador_id');
     }
+
+    public function auditoriaLavadores()
+    {
+        return $this->hasMany(\App\Models\AuditoriaLavador::class, 'control_lavado_id');
+    }
 }

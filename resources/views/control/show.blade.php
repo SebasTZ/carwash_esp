@@ -75,6 +75,19 @@
                         <dt class="col-sm-5">Estado</dt>
                         <dd class="col-sm-7">{{ $lavado->estado }}</dd>
                     </dl>
+                    
+                    @if($lavado->auditoriaLavadores && $lavado->auditoriaLavadores->count())
+                        <hr>
+                        <h6>Historial de cambios de lavador:</h6>
+                        <ul class="list-unstyled">
+                            @foreach($lavado->auditoriaLavadores as $auditoria)
+                                <li>
+                                    <span class="badge bg-secondary">{{ $auditoria->fecha_cambio }}</span>
+                                    <span>Cambio de <strong>{{ $auditoria->lavadorAnterior->nombre ?? '-' }}</strong> a <strong>{{ $auditoria->lavadorNuevo->nombre ?? '-' }}</strong> por usuario ID {{ $auditoria->usuario_id }}. Motivo: {{ $auditoria->motivo }}</span>
+                                </li>
+                            @endforeach
+                        </ul>
+                    @endif
                 </div>
                 <div class="card-footer text-center">
                     <a href="{{ route('control.lavados') }}" class="btn btn-secondary">Volver a la lista</a>
