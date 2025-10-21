@@ -20,7 +20,7 @@
     </ol>
 
     <div class="card">
-        <form action="{{ route('marcas.store') }}" method="post" id="marcaForm">
+        <form action="{{ route('marcas.store') }}" method="post">
             @csrf
             <div class="card-body text-bg-light">
 
@@ -32,7 +32,6 @@
                         @error('nombre')
                         <small class="text-danger">{{'*'.$message}}</small>
                         @enderror
-                        <div class="invalid-feedback"></div>
                     </div>
 
                     <div class="col-12">
@@ -41,7 +40,6 @@
                         @error('descripcion')
                         <small class="text-danger">{{'*'.$message}}</small>
                         @enderror
-                        <div class="invalid-feedback"></div>
                     </div>
                 </div>
 
@@ -56,48 +54,5 @@
 @endsection
 
 @push('js')
-<script>
-window.addEventListener('load', () => {
-    // Validar que CarWash y FormValidator existan
-    if (!window.CarWash || !window.CarWash.FormValidator) {
-        console.error('FormValidator no está disponible');
-        return;
-    }
 
-    const formElement = document.querySelector('#marcaForm');
-    if (!formElement) {
-        console.error('Elemento #marcaForm no encontrado');
-        return;
-    }
-
-    // Configurar FormValidator
-    const validator = new window.CarWash.FormValidator('#marcaForm', {
-        validators: {
-            nombre: {
-                required: { 
-                    message: 'El nombre es obligatorio' 
-                },
-                maxLength: { 
-                    value: 60, 
-                    message: 'El nombre no puede exceder 60 caracteres' 
-                }
-            },
-            descripcion: {
-                maxLength: { 
-                    value: 255, 
-                    message: 'La descripción no puede exceder 255 caracteres' 
-                }
-            }
-        },
-        onSuccess: () => {
-            console.log('✅ Validación exitosa, enviando formulario...');
-        },
-        onError: (errors) => {
-            console.log('❌ Errores de validación:', errors);
-        }
-    });
-
-    console.log('✅ FormValidator de Marca (create) inicializado');
-});
-</script>
 @endpush
