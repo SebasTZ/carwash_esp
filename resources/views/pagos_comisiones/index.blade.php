@@ -6,36 +6,48 @@
     @can('crear-pago-comision')
         <a href="{{ route('pagos_comisiones.create') }}" class="btn btn-primary mb-3">Registrar Pago</a>
     @endcan
-    <table class="table table-bordered">
-        <thead>
-            <tr>
-                <th>Lavador</th>
-                <th>Monto Pagado</th>
-                <th>Desde</th>
-                <th>Hasta</th>
-                <th>Fecha de Pago</th>
-                <th>Acciones</th>
-            </tr>
-        </thead>
-        <tbody>
-            @foreach($pagos as $pago)
-                <tr>
-                    <td>{{ $pago->lavador->nombre }}</td>
-                    <td>{{ $pago->monto_pagado }}</td>
-                    <td>{{ $pago->desde }}</td>
-                    <td>{{ $pago->hasta }}</td>
-                    <td>{{ $pago->fecha_pago }}</td>
-                    <td>
-                        @can('ver-historial-pago-comision')
-                            <a href="{{ route('pagos_comisiones.lavador', $pago->lavador_id) }}" class="btn btn-sm btn-info">Historial</a>
-                        @endcan
-                    </td>
-                </tr>
-            @endforeach
-        </tbody>
-    </table>
+    
+    <table id="pagosTable" class="table table-bordered"></table>
 
     <!-- Paginación usando componente -->
     <x-pagination-info :paginator="$pagos" entity="pagos" />
 </div>
+
+<script type="module">
+window.addEventListener('load', () => {
+    const { DynamicTable } = window.CarWash;
+
+    const columns = [
+        { key: 'lavador.nombre', label: 'Lavador' },
+        { 
+            key: 'monto_pagado', 
+            label: 'Monto Pagado',
+            formatter: (value) => `S/ ${parseFloat(value).toFixed(2)}`
+        },
+        { key: 'desde', label: 'Desde' },
+        { key: 'hasta', label: 'Hasta' },
+        { key: 'fecha_pago', label: 'Fecha de Pago' },
+        {
+            key: 'actions',
+            label: 'Acciones',
+            formatter: (value, row) => {
+                @can('ver-historial-pago-comision')
+                    return `<a href="/pagos_comisiones/lavador/${row.lavador_id}" class="btn btn-sm btn-info">Historial</a>`;
+                @else
+                    return '-';
+                @endcan
+            }
+        }
+    ];
+
+    const data = @json($pagos->items());
+
+    new DynamicTable('#pagosTable', {
+        columns,
+        data,
+        searchPlaceholder: 'Buscar pagos...',
+        emptyMessage: 'No hay pagos registrados'
+    });
+});
+</script>
 @endsection

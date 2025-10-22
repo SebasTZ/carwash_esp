@@ -4,85 +4,49 @@
 <div class="container">
     <h1>Registrar Pago de Comisión</h1>
     @can('crear-pago-comision')
-    <form id="pagoForm" action="{{ route('pagos_comisiones.store') }}" method="POST" novalidate>
+    <form action="{{ route('pagos_comisiones.store') }}" method="POST">
         @csrf
         <div class="mb-3">
             <label for="lavador_id" class="form-label">Lavador</label>
             <select name="lavador_id" id="lavador_id" class="form-control" required>
-                <option value="">Seleccione un lavador</option>
                 @foreach($lavadores as $lavador)
                     <option value="{{ $lavador->id }}">{{ $lavador->nombre }}</option>
                 @endforeach
             </select>
-            <div class="invalid-feedback"></div>
         </div>
         <div class="mb-3">
             <label for="monto_pagado" class="form-label">Monto Pagado</label>
             <input type="number" step="0.01" name="monto_pagado" id="monto_pagado" class="form-control" required>
-            <div class="invalid-feedback"></div>
         </div>
         <div class="mb-3">
             <label for="desde" class="form-label">Desde</label>
             <input type="date" name="desde" id="desde" class="form-control" required>
-            <div class="invalid-feedback"></div>
         </div>
         <div class="mb-3">
             <label for="hasta" class="form-label">Hasta</label>
             <input type="date" name="hasta" id="hasta" class="form-control" required>
-            <div class="invalid-feedback"></div>
         </div>
         <div class="mb-3">
             <label for="fecha_pago" class="form-label">Fecha de Pago</label>
             <input type="date" name="fecha_pago" id="fecha_pago" class="form-control" required>
-            <div class="invalid-feedback"></div>
         </div>
         <div class="mb-3">
             <label for="observacion" class="form-label">Observación</label>
-            <textarea name="observacion" id="observacion" class="form-control" rows="3"></textarea>
-            <div class="invalid-feedback"></div>
+            <textarea name="observacion" id="observacion" class="form-control"></textarea>
         </div>
         <button type="submit" class="btn btn-success">Guardar</button>
-        <a href="{{ route('pagos_comisiones.index') }}" class="btn btn-secondary">Cancelar</a>
     </form>
     @endcan
 
     @if(session('warning'))
-        <div class="alert alert-warning mt-3">
+        <div class="alert alert-warning">
             {{ session('warning') }}
         </div>
     @endif
     @if(session('success'))
-        <div class="alert alert-success mt-3">
+        <div class="alert alert-success">
             {{ session('success') }}
         </div>
     @endif
 </div>
-
-<script type="module">
-window.addEventListener('load', () => {
-    const { FormValidator } = window.CarWash;
-
-    const validator = new FormValidator('#pagoForm', {
-        lavador_id: {
-            required: { message: 'Debe seleccionar un lavador' }
-        },
-        monto_pagado: {
-            required: { message: 'El monto es obligatorio' },
-            number: { message: 'Debe ser un número válido' },
-            min: { value: 0.01, message: 'El monto debe ser mayor a 0' }
-        },
-        desde: {
-            required: { message: 'La fecha inicial es obligatoria' }
-        },
-        hasta: {
-            required: { message: 'La fecha final es obligatoria' }
-        },
-        fecha_pago: {
-            required: { message: 'La fecha de pago es obligatoria' }
-        }
-    });
-
-    validator.init();
-});
-</script>
 @endsection
