@@ -22,7 +22,7 @@
     </ol>
 
     <div class="card">
-        <form action="{{ route('productos.store') }}" method="post" enctype="multipart/form-data" id="productoForm" novalidate>
+        <form action="{{ route('productos.store') }}" method="post" enctype="multipart/form-data">
             @csrf
             <div class="card-body text-bg-light">
 
@@ -32,7 +32,6 @@
                     <div class="col-md-6">
                         <label for="codigo" class="form-label">Código:</label>
                         <input type="text" name="codigo" id="codigo" class="form-control" value="{{old('codigo')}}">
-                        <div class="invalid-feedback"></div>
                         @error('codigo')
                         <small class="text-danger">{{'*'.$message}}</small>
                         @enderror
@@ -40,9 +39,8 @@
 
                     <!---Nombre---->
                     <div class="col-md-6">
-                        <label for="nombre" class="form-label">Nombre: <span class="text-danger">*</span></label>
-                        <input type="text" name="nombre" id="nombre" class="form-control" value="{{old('nombre')}}" required>
-                        <div class="invalid-feedback"></div>
+                        <label for="nombre" class="form-label">Nombre:</label>
+                        <input type="text" name="nombre" id="nombre" class="form-control" value="{{old('nombre')}}">
                         @error('nombre')
                         <small class="text-danger">{{'*'.$message}}</small>
                         @enderror
@@ -52,7 +50,6 @@
                     <div class="col-12">
                         <label for="descripcion" class="form-label">Descripción:</label>
                         <textarea name="descripcion" id="descripcion" rows="3" class="form-control">{{old('descripcion')}}</textarea>
-                        <div class="invalid-feedback"></div>
                         @error('descripcion')
                         <small class="text-danger">{{'*'.$message}}</small>
                         @enderror
@@ -62,7 +59,6 @@
                     <div class="col-md-6">
                         <label for="fecha_vencimiento" class="form-label">Fecha de vencimiento:</label>
                         <input type="date" name="fecha_vencimiento" id="fecha_vencimiento" class="form-control" value="{{old('fecha_vencimiento')}}">
-                        <div class="invalid-feedback"></div>
                         @error('fecha_vencimiento')
                         <small class="text-danger">{{'*'.$message}}</small>
                         @enderror
@@ -72,7 +68,6 @@
                     <div class="col-md-6">
                         <label for="img_path" class="form-label">Imagen:</label>
                         <input type="file" name="img_path" id="img_path" class="form-control" accept="image/*">
-                        <div class="invalid-feedback"></div>
                         @error('img_path')
                         <small class="text-danger">{{'*'.$message}}</small>
                         @enderror
@@ -80,14 +75,12 @@
 
                     <!---Brand---->
                     <div class="col-md-6">
-                        <label for="marca_id" class="form-label">Marca: <span class="text-danger">*</span></label>
-                        <select data-size="4" title="Seleccione una marca" data-live-search="true" name="marca_id" id="marca_id" class="form-control selectpicker show-tick" required>
-                            <option value="">Seleccione...</option>
+                        <label for="marca_id" class="form-label">Marca:</label>
+                        <select data-size="4" title="Seleccione una marca" data-live-search="true" name="marca_id" id="marca_id" class="form-control selectpicker show-tick">
                             @foreach ($marcas as $item)
                             <option value="{{$item->id}}" {{ old('marca_id') == $item->id ? 'selected' : '' }}>{{$item->nombre}}</option>
                             @endforeach
                         </select>
-                        <div class="invalid-feedback"></div>
                         @error('marca_id')
                         <small class="text-danger">{{'*'.$message}}</small>
                         @enderror
@@ -95,14 +88,12 @@
 
                     <!---Presentation---->
                     <div class="col-md-6">
-                        <label for="presentacione_id" class="form-label">Presentación: <span class="text-danger">*</span></label>
-                        <select data-size="4" title="Seleccione una presentación" data-live-search="true" name="presentacione_id" id="presentacione_id" class="form-control selectpicker show-tick" required>
-                            <option value="">Seleccione...</option>
+                        <label for="presentacione_id" class="form-label">Presentación:</label>
+                        <select data-size="4" title="Seleccione una presentación" data-live-search="true" name="presentacione_id" id="presentacione_id" class="form-control selectpicker show-tick">
                             @foreach ($presentaciones as $item)
                             <option value="{{$item->id}}" {{ old('presentacione_id') == $item->id ? 'selected' : '' }}>{{$item->nombre}}</option>
                             @endforeach
                         </select>
-                        <div class="invalid-feedback"></div>
                         @error('presentacione_id')
                         <small class="text-danger">{{'*'.$message}}</small>
                         @enderror
@@ -116,7 +107,6 @@
                             <option value="{{$item->id}}" {{ (in_array($item->id , old('categorias',[]))) ? 'selected' : '' }}>{{$item->nombre}}</option>
                             @endforeach
                         </select>
-                        <div class="invalid-feedback"></div>
                         @error('categorias')
                         <small class="text-danger">{{'*'.$message}}</small>
                         @enderror
@@ -139,7 +129,6 @@
                     <div class="col-md-6" id="precio_servicio_div" style="display: none;">
                         <label for="precio_venta" class="form-label">Precio del servicio:</label>
                         <input type="number" name="precio_venta" id="precio_venta" class="form-control" step="0.01" value="{{ old('precio_venta') }}">
-                        <div class="invalid-feedback"></div>
                         @error('precio_venta')
                         <small class="text-danger">{{'*'.$message}}</small>
                         @enderror
@@ -149,35 +138,13 @@
             </div>
             
             <div class="card-footer text-center">
-                <button type="submit" class="btn btn-success">Registrar producto</button>
-                <a href="{{ route('productos.index') }}" class="btn btn-secondary">Cancelar</a>
+                    <button type="submit" class="btn btn-success">Registrar producto</button>
             </div>
         </form>
     </div>
 
 
 </div>
-
-<script type="module">
-window.addEventListener('load', () => {
-    const { FormValidator } = window.CarWash;
-
-    const validator = new FormValidator('#productoForm', {
-        nombre: {
-            required: { message: 'El nombre es obligatorio' }
-        },
-        marca_id: {
-            required: { message: 'Debe seleccionar una marca' }
-        },
-        presentacione_id: {
-            required: { message: 'Debe seleccionar una presentación' }
-        }
-        // Campos opcionales: codigo, descripcion, fecha_vencimiento, img_path, categorias, precio_venta
-    });
-
-    validator.init();
-});
-</script>
 @endsection
 
 @push('js')

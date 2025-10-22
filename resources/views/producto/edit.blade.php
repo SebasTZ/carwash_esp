@@ -22,7 +22,7 @@
     </ol>
 
     <div class="card text-bg-light">
-        <form action="{{route('productos.update',['producto'=>$producto])}}" method="post" enctype="multipart/form-data">
+        <form action="{{route('productos.update',['producto'=>$producto])}}" method="post" enctype="multipart/form-data" id="productoEditForm" novalidate>
             @method('PATCH')
             @csrf
             <div class="card-body">
@@ -32,6 +32,7 @@
                     <div class="col-md-6">
                         <label for="codigo" class="form-label">Código:</label>
                         <input type="text" name="codigo" id="codigo" class="form-control" value="{{old('codigo',$producto->codigo)}}">
+                        <div class="invalid-feedback"></div>
                         @error('codigo')
                         <small class="text-danger">{{'*'.$message}}</small>
                         @enderror
@@ -39,8 +40,9 @@
 
                     <!---Nombre---->
                     <div class="col-md-6">
-                        <label for="nombre" class="form-label">Nombre:</label>
-                        <input type="text" name="nombre" id="nombre" class="form-control" value="{{old('nombre',$producto->nombre)}}">
+                        <label for="nombre" class="form-label">Nombre: <span class="text-danger">*</span></label>
+                        <input type="text" name="nombre" id="nombre" class="form-control" value="{{old('nombre',$producto->nombre)}}" required>
+                        <div class="invalid-feedback"></div>
                         @error('nombre')
                         <small class="text-danger">{{'*'.$message}}</small>
                         @enderror
@@ -50,6 +52,7 @@
                     <div class="col-12">
                         <label for="descripcion" class="form-label">Descripción:</label>
                         <textarea name="descripcion" id="descripcion" rows="3" class="form-control">{{old('descripcion',$producto->descripcion)}}</textarea>
+                        <div class="invalid-feedback"></div>
                         @error('descripcion')
                         <small class="text-danger">{{'*'.$message}}</small>
                         @enderror
@@ -59,6 +62,7 @@
                     <div class="col-md-6">
                         <label for="fecha_vencimiento" class="form-label">Fecha de vencimiento:</label>
                         <input type="date" name="fecha_vencimiento" id="fecha_vencimiento" class="form-control" value="{{old('fecha_vencimiento',$producto->fecha_vencimiento)}}">
+                        <div class="invalid-feedback"></div>
                         @error('fecha_vencimiento')
                         <small class="text-danger">{{'*'.$message}}</small>
                         @enderror
@@ -68,6 +72,7 @@
                     <div class="col-md-6">
                         <label for="img_path" class="form-label">Imagen:</label>
                         <input type="file" name="img_path" id="img_path" class="form-control" accept="image/*">
+                        <div class="invalid-feedback"></div>
                         @error('img_path')
                         <small class="text-danger">{{'*'.$message}}</small>
                         @enderror
@@ -75,8 +80,8 @@
 
                     <!---Brand---->
                     <div class="col-md-6">
-                        <label for="marca_id" class="form-label">Marca:</label>
-                        <select data-size="4" title="Seleccione una marca" data-live-search="true" name="marca_id" id="marca_id" class="form-control selectpicker show-tick">
+                        <label for="marca_id" class="form-label">Marca: <span class="text-danger">*</span></label>
+                        <select data-size="4" title="Seleccione una marca" data-live-search="true" name="marca_id" id="marca_id" class="form-control selectpicker show-tick" required>
                             @foreach ($marcas as $item)
                             @if ($producto->marca_id == $item->id)
                             <option selected value="{{$item->id}}" {{ old('marca_id') == $item->id ? 'selected' : '' }}>{{$item->nombre}}</option>
@@ -85,6 +90,7 @@
                             @endif
                             @endforeach
                         </select>
+                        <div class="invalid-feedback"></div>
                         @error('marca_id')
                         <small class="text-danger">{{'*'.$message}}</small>
                         @enderror
@@ -92,8 +98,8 @@
 
                     <!---Presentation---->
                     <div class="col-md-6">
-                        <label for="presentacione_id" class="form-label">Presentación:</label>
-                        <select data-size="4" title="Seleccione una presentación" data-live-search="true" name="presentacione_id" id="presentacione_id" class="form-control selectpicker show-tick">
+                        <label for="presentacione_id" class="form-label">Presentación: <span class="text-danger">*</span></label>
+                        <select data-size="4" title="Seleccione una presentación" data-live-search="true" name="presentacione_id" id="presentacione_id" class="form-control selectpicker show-tick" required>
                             @foreach ($presentaciones as $item)
                             @if ($producto->presentacione_id == $item->id)
                             <option selected value="{{$item->id}}" {{ old('presentacione_id') == $item->id ? 'selected' : '' }}>{{$item->nombre}}</option>
@@ -102,6 +108,7 @@
                             @endif
                             @endforeach
                         </select>
+                        <div class="invalid-feedback"></div>
                         @error('presentacione_id')
                         <small class="text-danger">{{'*'.$message}}</small>
                         @enderror
@@ -119,6 +126,7 @@
                             @endif
                             @endforeach
                         </select>
+                        <div class="invalid-feedback"></div>
                         @error('categorias')
                         <small class="text-danger">{{'*'.$message}}</small>
                         @enderror
@@ -141,6 +149,7 @@
                     <div class="col-md-6" id="precio_servicio_div" style="display: none;">
                         <label for="precio_venta" class="form-label">Precio del servicio:</label>
                         <input type="number" name="precio_venta" id="precio_venta" class="form-control" step="0.01" value="{{ old('precio_venta', $producto->precio_venta) }}">
+                        <div class="invalid-feedback"></div>
                         @error('precio_venta')
                         <small class="text-danger">{{'*'.$message}}</small>
                         @enderror
@@ -150,8 +159,9 @@
 
             </div>
             <div class="card-footer text-center">
-                    <button type="submit" class="btn btn-success">Actualizar producto</button>
+                <button type="submit" class="btn btn-success">Actualizar producto</button>
                 <button type="reset" class="btn btn-secondary">Restablecer</button>
+                <a href="{{ route('productos.index') }}" class="btn btn-secondary">Cancelar</a>
             </div>
         </form>
     </div>
@@ -159,6 +169,27 @@
 
 
 </div>
+
+<script type="module">
+window.addEventListener('load', () => {
+    const { FormValidator } = window.CarWash;
+
+    const validator = new FormValidator('#productoEditForm', {
+        nombre: {
+            required: { message: 'El nombre es obligatorio' }
+        },
+        marca_id: {
+            required: { message: 'Debe seleccionar una marca' }
+        },
+        presentacione_id: {
+            required: { message: 'Debe seleccionar una presentación' }
+        }
+        // Campos opcionales: codigo, descripcion, fecha_vencimiento, img_path, categorias, precio_venta
+    });
+
+    validator.init();
+});
+</script>
 @endsection
 
 @push('js')
