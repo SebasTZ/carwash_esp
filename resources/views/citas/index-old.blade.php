@@ -145,134 +145,101 @@
 @endif
 
 <div class="table-responsive">
-    <table id="citasTable" class="table table-bordered table-hover"></table>
+    <table class="table table-bordered table-hover">
+        <thead class="thead-dark">
+            <tr>
+                <th>#</th>
+                <th>Cliente</th>
+                <th>Fecha</th>
+                <th>Hora</th>
+                <th>Posición</th>
+                <th>Estado</th>
+                <th>Acciones</th>
+            </tr>
+        </thead>
+        <tbody>
+            @forelse($citas as $cita)
+            <tr>
+                <td>{{ $cita->id }}</td>
+                <td>{{ $cita->cliente->persona->razon_social }} - {{ $cita->cliente->persona->numero_documento }}</td>
+                <td>{{ $cita->fecha->format('d/m/Y') }}</td>
+                <td>{{ \Carbon\Carbon::parse($cita->hora)->format('H:i') }}</td>
+                <td><span class="badge bg-info">{{ $cita->posicion_cola }}</span></td>
+                <td>
+                    @switch($cita->estado)
+                        @case('pendiente')
+                            <span class="badge bg-warning">Pendiente</span>
+                            @break
+                        @case('en_proceso')
+                            <span class="badge bg-primary">En Proceso</span>
+                            @break
+                        @case('completada')
+                            <span class="badge bg-success">Completada</span>
+                            @break
+                        @case('cancelada')
+                            <span class="badge bg-danger">Cancelada</span>
+                            @break
+                    @endswitch
+                </td>
+                <td>
+                    <div class="btn-group" role="group">
+                        <a href="{{ route('citas.show', $cita) }}" class="btn btn-info btn-sm" title="Ver detalles">
+                            <i class="fas fa-eye"></i>
+                        </a>
+                        @if($cita->estado != 'completada' && $cita->estado != 'cancelada')
+                        <a href="{{ route('citas.edit', $cita) }}" class="btn btn-primary btn-sm" title="Editar">
+                            <i class="fas fa-edit"></i>
+                        </a>
+                        @endif
+
+                        @if($cita->estado == 'pendiente')
+                        <form action="{{ route('citas.iniciar', $cita) }}" method="POST" style="display:inline">
+                            @csrf
+                            <button type="submit" class="btn btn-success btn-sm" title="Iniciar Cita">
+                                <i class="fas fa-play"></i>
+                            </button>
+                        </form>
+                        @endif
+
+                        @if($cita->estado == 'en_proceso')
+                        <form action="{{ route('citas.completar', $cita) }}" method="POST" style="display:inline">
+                            @csrf
+                            <button type="submit" class="btn btn-success btn-sm" title="Completar Cita">
+                                <i class="fas fa-check"></i>
+                            </button>
+                        </form>
+                        @endif
+
+                        @if($cita->estado != 'completada' && $cita->estado != 'cancelada')
+                        <form action="{{ route('citas.cancelar', $cita) }}" method="POST" style="display:inline">
+                            @csrf
+                            <button type="submit" class="btn btn-danger btn-sm" title="Cancelar Cita"
+                                onclick="return confirm('¿Está seguro de que desea cancelar esta cita?')">
+                                <i class="fas fa-times"></i>
+                            </button>
+                        </form>
+                        @endif
+
+                        <form action="{{ route('citas.destroy', $cita) }}" method="POST" style="display:inline">
+                            @csrf
+                            @method('DELETE')
+                            <button type="submit" class="btn btn-danger btn-sm" title="Eliminar"
+                                onclick="return confirm('¿Está seguro de que desea eliminar esta cita?')">
+                                <i class="fas fa-trash"></i>
+                            </button>
+                        </form>
+                    </div>
+                </td>
+            </tr>
+            @empty
+            <tr>
+                <td colspan="7" class="text-center">No hay citas registradas</td>
+            </tr>
+            @endforelse
+        </tbody>
+    </table>
 </div>
 
 <!-- Paginación con preservación de filtros -->
 <x-pagination-info :paginator="$citas" entity="citas" :preserve-query="true" />
-
-<script type="module">
-window.addEventListener('load', () => {
-    const { DynamicTable } = window.CarWash;
-
-    const columns = [
-        { key: 'id', label: '#' },
-        { 
-            key: 'cliente.persona.razon_social', 
-            label: 'Cliente',
-            formatter: (value, row) => {
-                const doc = row.cliente?.persona?.numero_documento || '';
-                return `${value} - ${doc}`;
-            }
-        },
-        { 
-            key: 'fecha', 
-            label: 'Fecha',
-            formatter: (value) => {
-                const date = new Date(value + 'T00:00:00');
-                return date.toLocaleDateString('es-ES', { day: '2-digit', month: '2-digit', year: 'numeric' });
-            }
-        },
-        { 
-            key: 'hora', 
-            label: 'Hora',
-            formatter: (value) => {
-                if (!value) return '-';
-                const [hours, minutes] = value.split(':');
-                return `${hours}:${minutes}`;
-            }
-        },
-        { 
-            key: 'posicion_cola', 
-            label: 'Posición',
-            formatter: (value) => `<span class="badge bg-info">${value}</span>`
-        },
-        {
-            key: 'estado',
-            label: 'Estado',
-            formatter: (value) => {
-                const badges = {
-                    'pendiente': '<span class="badge bg-warning">Pendiente</span>',
-                    'en_proceso': '<span class="badge bg-primary">En Proceso</span>',
-                    'completada': '<span class="badge bg-success">Completada</span>',
-                    'cancelada': '<span class="badge bg-danger">Cancelada</span>'
-                };
-                return badges[value] || value;
-            }
-        },
-        {
-            key: 'actions',
-            label: 'Acciones',
-            formatter: (value, row) => {
-                let buttons = `<div class="btn-group" role="group">`;
-                
-                // Ver detalles
-                buttons += `<a href="/citas/${row.id}" class="btn btn-info btn-sm" title="Ver detalles">
-                    <i class="fas fa-eye"></i>
-                </a>`;
-                
-                // Editar (solo si no está completada/cancelada)
-                if (row.estado !== 'completada' && row.estado !== 'cancelada') {
-                    buttons += `<a href="/citas/${row.id}/edit" class="btn btn-primary btn-sm" title="Editar">
-                        <i class="fas fa-edit"></i>
-                    </a>`;
-                }
-                
-                // Iniciar (solo si está pendiente)
-                if (row.estado === 'pendiente') {
-                    buttons += `<form action="/citas/${row.id}/iniciar" method="POST" style="display:inline">
-                        @csrf
-                        <button type="submit" class="btn btn-success btn-sm" title="Iniciar Cita">
-                            <i class="fas fa-play"></i>
-                        </button>
-                    </form>`;
-                }
-                
-                // Completar (solo si está en proceso)
-                if (row.estado === 'en_proceso') {
-                    buttons += `<form action="/citas/${row.id}/completar" method="POST" style="display:inline">
-                        @csrf
-                        <button type="submit" class="btn btn-success btn-sm" title="Completar Cita">
-                            <i class="fas fa-check"></i>
-                        </button>
-                    </form>`;
-                }
-                
-                // Cancelar (solo si no está completada/cancelada)
-                if (row.estado !== 'completada' && row.estado !== 'cancelada') {
-                    buttons += `<form action="/citas/${row.id}/cancelar" method="POST" style="display:inline">
-                        @csrf
-                        <button type="submit" class="btn btn-danger btn-sm" title="Cancelar Cita"
-                            onclick="return confirm('¿Está seguro de que desea cancelar esta cita?')">
-                            <i class="fas fa-times"></i>
-                        </button>
-                    </form>`;
-                }
-                
-                // Eliminar
-                buttons += `<form action="/citas/${row.id}" method="POST" style="display:inline">
-                    @csrf
-                    <input type="hidden" name="_method" value="DELETE">
-                    <button type="submit" class="btn btn-danger btn-sm" title="Eliminar"
-                        onclick="return confirm('¿Está seguro de que desea eliminar esta cita?')">
-                        <i class="fas fa-trash"></i>
-                    </button>
-                </form>`;
-                
-                buttons += `</div>`;
-                return buttons;
-            }
-        }
-    ];
-
-    const data = @json($citas->items());
-
-    new DynamicTable('#citasTable', {
-        columns,
-        data,
-        searchPlaceholder: 'Buscar citas...',
-        emptyMessage: 'No hay citas registradas'
-    });
-});
-</script>
 @endsection

@@ -32,7 +32,7 @@
         </div>
     </div>
     <div class="card-body">
-        <form action="{{ route('citas.store') }}" method="POST" id="citaForm" novalidate>
+        <form action="{{ route('citas.store') }}" method="POST" id="citaForm">
             @csrf
             
             <div class="mb-4">
@@ -45,9 +45,8 @@
                     </option>
                     @endforeach
                 </select>
-                <div class="invalid-feedback"></div>
                 @error('cliente_id')
-                <div class="text-danger">{{ $message }}</div>
+                <div class="invalid-feedback">{{ $message }}</div>
                 @enderror
                 <small class="form-text text-muted">Si el cliente no está en la lista, use el botón "Crear Nuevo Cliente".</small>
             </div>
@@ -60,9 +59,8 @@
                     <div class="mb-3">
                         <label for="fecha" class="form-label">Fecha <span class="text-danger">*</span></label>
                         <input type="date" class="form-control @error('fecha') is-invalid @enderror" id="fecha" name="fecha" value="{{ old('fecha', date('Y-m-d')) }}" required min="{{ date('Y-m-d') }}">
-                        <div class="invalid-feedback"></div>
                         @error('fecha')
-                        <div class="text-danger">{{ $message }}</div>
+                        <div class="invalid-feedback">{{ $message }}</div>
                         @enderror
                     </div>
                 </div>
@@ -70,9 +68,8 @@
                     <div class="mb-3">
                         <label for="hora" class="form-label">Hora <span class="text-danger">*</span></label>
                         <input type="time" class="form-control @error('hora') is-invalid @enderror" id="hora" name="hora" value="{{ old('hora') }}" required>
-                        <div class="invalid-feedback"></div>
                         @error('hora')
-                        <div class="text-danger">{{ $message }}</div>
+                        <div class="invalid-feedback">{{ $message }}</div>
                         @enderror
                     </div>
                 </div>
@@ -81,9 +78,8 @@
             <div class="mb-3">
                 <label for="notas" class="form-label">Notas</label>
                 <textarea class="form-control @error('notas') is-invalid @enderror" id="notas" name="notas" rows="3">{{ old('notas') }}</textarea>
-                <div class="invalid-feedback"></div>
                 @error('notas')
-                <div class="text-danger">{{ $message }}</div>
+                <div class="invalid-feedback">{{ $message }}</div>
                 @enderror
                 <small class="form-text text-muted">Ingrese cualquier información adicional sobre la cita.</small>
             </div>
@@ -96,32 +92,9 @@
                 <button type="submit" class="btn btn-primary">
                     <i class="fas fa-save"></i> Guardar Cita
                 </button>
-                <a href="{{ route('citas.index') }}" class="btn btn-secondary">
-                    <i class="fas fa-times"></i> Cancelar
-                </a>
             </div>
         </form>
     </div>
 </div>
 
-<script type="module">
-window.addEventListener('load', () => {
-    const { FormValidator } = window.CarWash;
-
-    const validator = new FormValidator('#citaForm', {
-        cliente_id: {
-            required: { message: 'Debe seleccionar un cliente' }
-        },
-        fecha: {
-            required: { message: 'La fecha es obligatoria' }
-        },
-        hora: {
-            required: { message: 'La hora es obligatoria' }
-        }
-        // notas: Sin validaciones (campo opcional)
-    });
-
-    validator.init();
-});
-</script>
 @endsection
