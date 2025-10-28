@@ -30,59 +30,53 @@
                 @endif
             </div>
 
-            <form id="profileForm" action="{{route('profile.update',['profile' => $user ])}}" method="POST">
+            <form action="{{route('profile.update',['profile' => $user ])}}" method="POST">
                 @method('PATCH')
                 @csrf
-                <!-- Nombre -->
+                <!----Nombre---->
                 <div class="row mb-4">
                     <div class="col-sm-4">
                         <div class="input-group">
                             <span class="input-group-text"><i class="fa-solid fa-square-check"></i></span>
-                            <input type="text" class="form-control" value="Nombre(s)" disabled>
+                            <input disabled type="text" class="form-control" value="Nombre(s)">
                         </div>
                     </div>
                     <div class="col-sm-8">
-                        <input autocomplete="off" type="text" name="name" id="name" class="form-control" value="{{old('name',$user->name)}}" disabled>
+                        <input disabled autocomplete="off" type="text" name="name" id="name" class="form-control" value="{{old('name',$user->name)}}">
                     </div>
                 </div>
-                <!-- Email -->
+
+                <!----Email---->
                 <div class="row mb-4">
                     <div class="col-sm-4">
                         <div class="input-group">
                             <span class="input-group-text"><i class="fa-solid fa-square-check"></i></span>
-                            <input type="text" class="form-control" value="Correo electrónico" disabled>
+                            <input disabled type="text" class="form-control" value="Correo electrónico">
                         </div>
                     </div>
                     <div class="col-sm-8">
-                        <input autocomplete="off" type="email" name="email" id="email" class="form-control" value="{{old('email',$user->email)}}" disabled>
+                        <input disabled autocomplete="off" type="email" name="email" id="email" class="form-control" value="{{old('email',$user->email)}}">
                     </div>
                 </div>
-                <!-- Password -->
+
+                <!----Password--->
                 <div class="row mb-4">
                     <div class="col-sm-4">
                         <div class="input-group">
                             <span class="input-group-text"><i class="fa-solid fa-square-check"></i></span>
-                            <input type="text" class="form-control" value="Contraseña" disabled>
+                            <input disabled type="text" class="form-control" value="Contraseña">
                         </div>
                     </div>
                     <div class="col-sm-8">
-                        <input type="password" name="password" id="password" class="form-control" disabled>
+                        <input disabled type="password" name="password" id="password" class="form-control">
                     </div>
                 </div>
+
                 <div class="col text-center">
-                    <input class="btn btn-success" type="submit" value="Guardar cambios" disabled>
-                    <button type="button" id="editProfileBtn" class="btn btn-primary ms-2">Editar</button>
+                    <input disabled class="btn btn-success" type="submit" value="Guardar cambios">
                 </div>
+
             </form>
-            <script type="module">
-                import ProfileFormManager from '/resources/js/components/forms/ProfileFormManager.js';
-                document.addEventListener('DOMContentLoaded', () => {
-                    const manager = new ProfileFormManager('#profileForm');
-                    document.getElementById('editProfileBtn').addEventListener('click', () => {
-                        manager.enableFields();
-                    });
-                });
-            </script>
         </div>
     </div>
 
