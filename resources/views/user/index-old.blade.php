@@ -126,16 +126,3 @@
 @push('js')
 <!-- DataTables removido para usar paginación de Laravel -->
 @endpush
-@vite(['resources/js/components/tables/UserTableManager.js'])
-<script>
-    document.addEventListener('DOMContentLoaded', function() {
-        if (window.UserTableManager) {
-            window.UserTableManager.init({
-                el: '#users-dynamic-table',
-                users: @json($users),
-                canEdit: @json(auth()->user()->can('editar-user')),
-                canDelete: @json(auth()->user()->can('eliminar-user'))
-            });
-        }
-    });
-</script>

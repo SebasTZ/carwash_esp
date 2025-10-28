@@ -134,3 +134,24 @@
 @push('js')
 
 @endpush
+@vite(['resources/js/components/forms/UserFormManager.js', 'resources/js/components/forms/FormValidator.js'])
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        if (window.FormValidator) {
+            new FormValidator('#user-edit-form');
+        }
+        if (window.UserFormManager) {
+            window.UserFormManager.init({
+                el: '#user-edit-form-fields',
+                user: @json($user),
+                roles: @json($roles),
+                old: {
+                    name: @json(old('name')),
+                    email: @json(old('email')),
+                    role: @json(old('role')),
+                    status: @json(old('status'))
+                }
+            });
+        }
+    });
+</script>

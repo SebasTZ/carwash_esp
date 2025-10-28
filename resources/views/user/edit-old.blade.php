@@ -1,6 +1,6 @@
 @extends('layouts.app')
 
-@section('title','Crear Usuario')
+@section('title','Editar Usuario')
 
 @push('css')
 
@@ -8,29 +8,29 @@
 
 @section('content')
 <div class="container-fluid px-4">
-    <h1 class="mt-4 text-center">Crear Usuario</h1>
+    <h1 class="mt-4 text-center">Editar Usuario</h1>
     <ol class="breadcrumb mb-4">
         <li class="breadcrumb-item"><a href="{{ route('panel') }}">Inicio</a></li>
         <li class="breadcrumb-item"><a href="{{ route('users.index')}}">Usuarios</a></li>
-        <li class="breadcrumb-item active">Crear Usuario</li>
+        <li class="breadcrumb-item active">Editar Usuario</li>
     </ol>
 
     <div class="card text-bg-light">
-        <form action="{{ route('users.store') }}" method="post">
+        <form action="{{ route('users.update',['user' => $user]) }}" method="post">
+            @method('PATCH')
             @csrf
             <div class="card-header">
                 <p class="">Nota: Los usuarios son quienes pueden acceder al sistema</p>
             </div>
             <div class="card-body">
-
                 <!---Nombre---->
                 <div class="row mb-4">
                     <label for="name" class="col-lg-2 col-form-label">Nombre(s):</label>
                     <div class="col-lg-4">
-                        <input autocomplete="off" type="text" name="name" id="name" class="form-control" value="{{old('name')}}" aria-labelledby="nameHelpBlock">
+                        <input type="text" name="name" id="name" class="form-control" value="{{old('name',$user->name)}}">
                     </div>
                     <div class="col-lg-4">
-                        <div class="form-text" id="nameHelpBlock">
+                        <div class="form-text">
                             Ingresa un solo nombre
                         </div>
                     </div>
@@ -45,11 +45,11 @@
                 <div class="row mb-4">
                     <label for="email" class="col-lg-2 col-form-label">Correo electrónico:</label>
                     <div class="col-lg-4">
-                        <input autocomplete="off" type="email" name="email" id="email" class="form-control" value="{{old('email')}}" aria-labelledby="emailHelpBlock">
+                        <input type="email" name="email" id="email" class="form-control" value="{{old('email',$user->email)}}">
                     </div>
                     <div class="col-lg-4">
-                        <div class="form-text" id="emailHelpBlock">
-                            Dirección de correo
+                        <div class="form-text">
+                            Correo electrónico
                         </div>
                     </div>
                     <div class="col-lg-2">
@@ -59,15 +59,15 @@
                     </div>
                 </div>
 
-                <!---Password---->
+                <!---Contraseña---->
                 <div class="row mb-4">
                     <label for="password" class="col-lg-2 col-form-label">Contraseña:</label>
                     <div class="col-lg-4">
-                        <input type="password" name="password" id="password" class="form-control" aria-labelledby="passwordHelpBlock">
+                        <input type="password" name="password" id="password" class="form-control">
                     </div>
                     <div class="col-lg-4">
-                        <div class="form-text" id="passwordHelpBlock">
-                            Ingresa una contraseña segura. Debe incluir números.
+                        <div class="form-text">
+                            Ingrese una contraseña segura. Debe incluir números.
                         </div>
                     </div>
                     <div class="col-lg-2">
@@ -77,15 +77,15 @@
                     </div>
                 </div>
 
-                <!---Confirm_Password---->
+                <!---Confirmar_Contraseña---->
                 <div class="row mb-4">
                     <label for="password_confirm" class="col-lg-2 col-form-label">Confirmar:</label>
                     <div class="col-lg-4">
-                        <input type="password" name="password_confirm" id="password_confirm" class="form-control" aria-labelledby="passwordConfirmHelpBlock">
+                        <input type="password" name="password_confirm" id="password_confirm" class="form-control">
                     </div>
                     <div class="col-lg-4">
-                        <div class="form-text" id="passwordConfirmHelpBlock">
-                            Vuelve a ingresar tu contraseña.
+                        <div class="form-text">
+                            Vuelva a ingresar su contraseña.
                         </div>
                     </div>
                     <div class="col-lg-2">
@@ -97,18 +97,21 @@
 
                 <!---Roles---->
                 <div class="row mb-4">
-                    <label for="role" class="col-lg-2 col-form-label">Rol:</label>
+                    <label for="role" class="col-lg-2 col-form-label">Seleccionar rol:</label>
                     <div class="col-lg-4">
-                        <select name="role" id="role" class="form-select" aria-labelledby="rolHelpBlock">
-                            <option value="" selected disabled>Selecciona:</option>
+                        <select name="role" id="role" class="form-select">
                             @foreach ($roles as $item)
+                            @if ( in_array($item->name,$user->roles->pluck('name')->toArray()) )
+                            <option selected value="{{$item->name}}" @selected(old('role')==$item->name)>{{$item->name}}</option>
+                            @else
                             <option value="{{$item->name}}" @selected(old('role')==$item->name)>{{$item->name}}</option>
+                            @endif
                             @endforeach
                         </select>
                     </div>
                     <div class="col-lg-4">
-                        <div class="form-text" id="rolHelpBlock">
-                            Elige un rol para el usuario.
+                        <div class="form-text">
+                            Elija un rol para el usuario.
                         </div>
                     </div>
                     <div class="col-lg-2">
@@ -120,35 +123,14 @@
 
             </div>
             <div class="card-footer text-center">
-                <button type="submit" class="btn btn-primary">Registrar usuario</button>
+                <button type="submit" class="btn btn-primary">Actualizar usuario</button>
+                <button type="reset" class="btn btn-secondary">Restablecer</button>
             </div>
         </form>
     </div>
-
-
 </div>
 @endsection
 
 @push('js')
 
 @endpush
-@vite(['resources/js/components/forms/UserFormManager.js', 'resources/js/components/forms/FormValidator.js'])
-<script>
-    document.addEventListener('DOMContentLoaded', function() {
-        if (window.FormValidator) {
-            new FormValidator('#user-create-form');
-        }
-        if (window.UserFormManager) {
-            window.UserFormManager.init({
-                el: '#user-create-form-fields',
-                roles: @json($roles),
-                old: {
-                    name: @json(old('name')),
-                    email: @json(old('email')),
-                    role: @json(old('role')),
-                    status: @json(old('status'))
-                }
-            });
-        }
-    });
-</script>
