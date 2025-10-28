@@ -1,8 +1,9 @@
-@extends('adminlte::page')
+@extends('layouts.app')
 
 @section('title', 'Detalles de Mantenimiento')
 
-@section('content_header')
+
+@section('content')
 <div class="container-fluid">
     <div class="row mb-2">
         <div class="col-sm-6">
@@ -16,8 +17,26 @@
             </ol>
         </div>
     </div>
+    @if(session('success'))
+        <div class="alert alert-success alert-dismissible fade show" role="alert">
+            {{ session('success') }}
+            <button type="button" class="close" data-dismiss="alert" aria-label="Cerrar">
+                <span aria-hidden="true">&times;</span>
+            </button>
+        </div>
+    @endif
+    @if(session('error'))
+        <div class="alert alert-danger alert-dismissible fade show" role="alert">
+            {{ session('error') }}
+            <button type="button" class="close" data-dismiss="alert" aria-label="Cerrar">
+                <span aria-hidden="true">&times;</span>
+            </button>
+        </div>
+    @endif
+    <!-- Estado del mantenimiento y acciones -->
+    ...existing code...
 </div>
-@stop
+@endsection
 
 @section('content')
 <div class="container-fluid">

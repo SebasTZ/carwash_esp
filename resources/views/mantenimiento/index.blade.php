@@ -119,83 +119,29 @@
                                         @endif
                                     </td>
                                     <td>
-                                        @if($mantenimiento->estado == 'recibido')
-                                            <span class="badge badge-secondary">Recibido</span>
-                                        @elseif($mantenimiento->estado == 'en_proceso')
-                                            <span class="badge badge-primary">En Proceso</span>
-                                        @elseif($mantenimiento->estado == 'terminado')
-                                            <span class="badge badge-warning">Terminado</span>
-                                        @elseif($mantenimiento->estado == 'entregado')
-                                            <span class="badge badge-success">Entregado</span>
-                                        @endif
-                                    </td>
-                                    <td>
-                                        @if($mantenimiento->pagado)
-                                            <span class="badge badge-success">Pagado</span>
-                                            @if($mantenimiento->venta_id)
-                                                <a href="{{ route('ventas.show', $mantenimiento->venta_id) }}" class="badge badge-info" title="Ver venta">
-                                                    #{{ $mantenimiento->venta_id }}
-                                                </a>
-                                            @endif
-                                        @else
-                                            <span class="badge badge-danger">Pendiente</span>
-                                        @endif
-                                    </td>
-                                    <td>
-                                        @if($mantenimiento->costo_final)
-                                            S/ {{ number_format($mantenimiento->costo_final, 2) }}
-                                        @elseif($mantenimiento->costo_estimado)
-                                            S/ {{ number_format($mantenimiento->costo_estimado, 2) }} <small class="text-muted">(Est.)</small>
-                                        @else
-                                            -
-                                        @endif
-                                    </td>
-                                    <td>
-                                        <a href="{{ route('mantenimientos.show', $mantenimiento->id) }}" class="btn btn-sm btn-info" title="Ver detalles">
-                                            <i class="fas fa-eye"></i>
-                                        </a>
-                                        
-                                        @if($mantenimiento->estado != 'entregado')
-                                            <a href="{{ route('mantenimientos.edit', $mantenimiento->id) }}" class="btn btn-sm btn-primary" title="Editar">
-                                                <i class="fas fa-edit"></i>
-                                            </a>
-                                            
-                                            <form action="{{ route('mantenimientos.destroy', $mantenimiento->id) }}" method="POST" style="display:inline">
-                                                @csrf
-                                                @method('DELETE')
-                                                <button type="submit" class="btn btn-sm btn-danger" onclick="return confirm('¿Está seguro que desea eliminar este registro?')">
-                                                    <i class="fas fa-trash"></i>
-                                                </button>
-                                            </form>
-                                        @endif
-                                    </td>
-                                </tr>
-                                @empty
-                                <tr>
-                                    <td colspan="11" class="text-center">No hay registros disponibles</td>
-                                </tr>
-                                @endforelse
-                            </tbody>
-                        </table>
-                    </div>
-
-                    <!-- Paginación usando componente con preservación de filtros -->
-                    <x-pagination-info 
-                        :paginator="$mantenimientos" 
-                        entity="mantenimientos" 
-                        :preserve-query="true" 
-                    />
-                </div>
-            </div>
-        </div>
-    </div>
-</div>
-@stop
-
-@section('css')
-<!-- DataTables removido para usar paginación de Laravel -->
-@stop
-
-@section('js')
-<!-- DataTables removido para usar paginación de Laravel -->
-@stop
+                                        <div id="dynamicTableMantenimiento"></div>
+                                        <script type="module">
+                                            import DynamicTable from '/js/components/DynamicTable.js';
+                                            document.addEventListener('DOMContentLoaded', function() {
+                                                new DynamicTable({
+                                                    elementId: 'dynamicTableMantenimiento',
+                                                    columns: [
+                                                        { key: 'id', label: 'ID' },
+                                                        { key: 'placa', label: 'Placa', render: row => `<span class='badge badge-dark'>${row.placa}</span>` },
+                                                        { key: 'cliente', label: 'Cliente' },
+                                                        { key: 'vehiculo', label: 'Vehículo' },
+                                                        { key: 'tipo_servicio', label: 'Tipo de Servicio' },
+                                                        { key: 'fecha_ingreso', label: 'Ingreso' },
+                                                        { key: 'fecha_entrega_estimada', label: 'Entrega Est.' },
+                                                        { key: 'estado', label: 'Estado', render: row => row.estado_badge },
+                                                        { key: 'pagado', label: 'Pagado', render: row => row.pagado_badge },
+                                                        { key: 'costo', label: 'Costo' },
+                                                        { key: 'acciones', label: 'Acciones', render: row => row.acciones, width: 120 }
+                                                    ],
+                                                    dataUrl: '/api/mantenimientos',
+                                                    rowClass: row => row.estado === 'atrasado' ? 'table-danger' : '',
+                                                    pagination: true,
+                                                    preserveQuery: true
+                                                });
+                                            });
+                                        </script>

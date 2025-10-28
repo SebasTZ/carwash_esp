@@ -1,4 +1,4 @@
-@extends('adminlte::page')
+@extends('layouts.app')
 
 @section('title', 'Register Maintenance')
 
@@ -80,118 +80,35 @@
                                                 <option value="Camión" {{ old('tipo_vehiculo') == 'Camión' ? 'selected' : '' }}>Truck</option>
                                                 <option value="Van" {{ old('tipo_vehiculo') == 'Van' ? 'selected' : '' }}>Van</option>
                                                 <option value="Otro" {{ old('tipo_vehiculo') == 'Otro' ? 'selected' : '' }}>Other</option>
-                                            </select>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                            
-                            <div class="col-md-6">
-                                <div class="card card-outline card-primary">
-                                    <div class="card-header">
-                                        <h3 class="card-title">Service Details</h3>
-                                    </div>
-                                    <div class="card-body">
-                                        <div class="form-group">
-                                            <label for="tipo_servicio">Service Type <span class="text-danger">*</span></label>
-                                            <input type="text" name="tipo_servicio" id="tipo_servicio" class="form-control" value="{{ old('tipo_servicio') }}" required placeholder="E.g.: Oil change, Alignment and balancing, etc." maxlength="100">
-                                        </div>
-                                        
-                                        <div class="row">
-                                            <div class="col-md-6">
-                                                <div class="form-group">
-                                                    <label for="fecha_ingreso">Entry Date <span class="text-danger">*</span></label>
-                                                    <input type="date" name="fecha_ingreso" id="fecha_ingreso" class="form-control" value="{{ old('fecha_ingreso') ?: date('Y-m-d') }}" required>
-                                                </div>
+                                            @csrf
+                                            <div id="form-validator-mantenimiento-create"></div>
+                                            <script>
+                                            document.addEventListener('DOMContentLoaded', function() {
+                                                if (window.FormValidator) {
+                                                    window.FormValidator.render({
+                                                        target: document.getElementById('form-validator-mantenimiento-create'),
+                                                        action: "{{ route('mantenimientos.store') }}",
+                                                        method: "POST",
+                                                        fields: [
+                                                            { name: "cliente_id", label: "Cliente", type: "select", required: true, options: [ { value: "", label: "Seleccione un cliente" }, @foreach($clientes as $cliente) { value: "{{ $cliente->id }}", label: "{{ $cliente->persona->razon_social }} - {{ $cliente->persona->documento->tipo_documento }} {{ $cliente->persona->numero_documento }}" }, @endforeach ], value: "{{ old('cliente_id') }}" },
+                                                            { name: "placa", label: "Placa", type: "text", required: true, value: "{{ old('placa') }}", maxlength: 20 },
+                                                            { name: "modelo", label: "Modelo", type: "text", required: true, value: "{{ old('modelo') }}", maxlength: 100 },
+                                                            { name: "tipo_vehiculo", label: "Tipo de Vehículo", type: "select", required: true, options: [ { value: "", label: "Seleccione" }, { value: "Automóvil", label: "Automóvil" }, { value: "Camioneta", label: "Camioneta" }, { value: "SUV", label: "SUV" }, { value: "Motocicleta", label: "Motocicleta" }, { value: "Camión", label: "Camión" }, { value: "Van", label: "Van" }, { value: "Otro", label: "Otro" } ], value: "{{ old('tipo_vehiculo') }}" },
+                                                            { name: "tipo_servicio", label: "Tipo de Servicio", type: "text", required: true, value: "{{ old('tipo_servicio') }}", maxlength: 100 },
+                                                            { name: "fecha_ingreso", label: "Fecha de Ingreso", type: "date", required: true, value: "{{ old('fecha_ingreso') ?: date('Y-m-d') }}" },
+                                                            { name: "fecha_entrega_estimada", label: "Fecha de Entrega Estimada", type: "date", value: "{{ old('fecha_entrega_estimada') }}" },
+                                                            { name: "mecanico_responsable", label: "Mecánico Responsable", type: "text", value: "{{ old('mecanico_responsable') }}", maxlength: 100 },
+                                                            { name: "costo_estimado", label: "Costo Estimado (S/)", type: "number", step: "0.01", min: 0, value: "{{ old('costo_estimado') }}" },
+                                                            { name: "descripcion_trabajo", label: "Diagnóstico / Trabajo a Realizar", type: "textarea", required: true, value: `{{ old('descripcion_trabajo') }}` },
+                                                            { name: "observaciones", label: "Observaciones Adicionales", type: "textarea", value: `{{ old('observaciones') }}` }
+                                                        ],
+                                                        submit: { label: "Registrar Mantenimiento", class: "btn btn-success" },
+                                                        csrf: "{{ csrf_token() }}"
+                                                    });
+                                                }
+                                            });
+                                            </script>
+                                            <div class="form-group text-right mt-3">
+                                                <a href="{{ route('mantenimientos.index') }}" class="btn btn-secondary">Cancelar</a>
                                             </div>
-                                            <div class="col-md-6">
-                                                <div class="form-group">
-                                                    <label for="fecha_entrega_estimada">Estimated Delivery Date</label>
-                                                    <input type="date" name="fecha_entrega_estimada" id="fecha_entrega_estimada" class="form-control" value="{{ old('fecha_entrega_estimada') }}">
-                                                </div>
-                                            </div>
-                                        </div>
-                                        
-                                        <div class="form-group">
-                                            <label for="mecanico_responsable">Responsible Mechanic</label>
-                                            <input type="text" name="mecanico_responsable" id="mecanico_responsable" class="form-control" value="{{ old('mecanico_responsable') }}" placeholder="(Optional)" maxlength="100">
-                                        </div>
-                                        
-                                        <div class="form-group">
-                                            <label for="costo_estimado">Estimated Cost (S/)</label>
-                                            <input type="number" name="costo_estimado" id="costo_estimado" class="form-control" step="0.01" min="0" value="{{ old('costo_estimado') }}" placeholder="(Optional)">
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                        
-                        <div class="row mt-3">
-                            <div class="col-12">
-                                <div class="card card-outline card-primary">
-                                    <div class="card-header">
-                                        <h3 class="card-title">Work Description</h3>
-                                    </div>
-                                    <div class="card-body">
-                                        <div class="form-group">
-                                            <label for="descripcion_trabajo">Diagnosis / Work to be Done <span class="text-danger">*</span></label>
-                                            <textarea name="descripcion_trabajo" id="descripcion_trabajo" class="form-control" rows="5" required placeholder="Describe the work to be done, initial diagnosis or problems reported by the client">{{ old('descripcion_trabajo') }}</textarea>
-                                        </div>
-                                        
-                                        <div class="form-group">
-                                            <label for="observaciones">Additional Observations</label>
-                                            <textarea name="observaciones" id="observaciones" class="form-control" rows="3" placeholder="Additional observations about the vehicle, required parts, etc.">{{ old('observaciones') }}</textarea>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-
-                        <div class="row">
-                            <div class="col-12">
-                                <div class="form-group text-right">
-                                    <a href="{{ route('mantenimientos.index') }}" class="btn btn-secondary">Cancel</a>
-                                    <button type="submit" class="btn btn-success">Register Maintenance</button>
-                                </div>
-                            </div>
-                        </div>
-                    </form>
-                </div>
-            </div>
-        </div>
-    </div>
-</div>
-@stop
-
-@section('css')
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.13/css/select2.min.css">
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/select2-bootstrap-theme/0.1.0-beta.10/select2-bootstrap.min.css">
-@stop
-
-@section('js')
-<script src="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.13/js/select2.min.js"></script>
-<script>
-    $(document).ready(function() {
-        $('.select2').select2({
-            theme: 'bootstrap',
-            placeholder: 'Select a client',
-            allowClear: true
-        });
-        
-        // Convert plate to uppercase automatically
-        $('#placa').on('input', function() {
-            $(this).val($(this).val().toUpperCase());
-        });
-        
-        // Suggest estimated delivery date (2 days after by default)
-        $('#fecha_ingreso').on('change', function() {
-            if (!$('#fecha_entrega_estimada').val()) {
-                const fechaIngreso = new Date($(this).val());
-                fechaIngreso.setDate(fechaIngreso.getDate() + 2);
-                const fechaEntrega = fechaIngreso.toISOString().split('T')[0];
-                $('#fecha_entrega_estimada').val(fechaEntrega);
-            }
-        });
-    });
-</script>
-@stop
+                                        </form>
