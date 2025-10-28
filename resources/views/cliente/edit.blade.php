@@ -16,7 +16,7 @@
     </ol>
 
     <div class="card text-bg-light">
-        <form action="{{ route('clientes.update',['cliente'=>$cliente]) }}" method="post">
+        <form id="clienteEditForm" action="{{ route('clientes.update',['cliente'=>$cliente]) }}" method="post">
             @method('PATCH')
             @csrf
             <div class="card-header">
@@ -34,54 +34,40 @@
                         <label id="label-juridica" for="razon_social" class="form-label">Company name:</label>
                         @endif
 
-                        <input required type="text" name="razon_social" id="razon_social" class="form-control" value="{{old('razon_social',$cliente->persona->razon_social)}}">
+                        <input type="text" name="razon_social" id="razon_social" class="form-control" value="{{old('razon_social',$cliente->persona->razon_social)}}" data-rule-required="true">
 
-                        @error('razon_social')
-                        <small class="text-danger">{{'*'.$message}}</small>
-                        @enderror
+                        <div class="invalid-feedback"></div>
                     </div>
 
                     <!------Dirección---->
                     <div class="col-12">
                         <label for="direccion" class="form-label">Address:</label>
-                        <input required type="text" name="direccion" id="direccion" class="form-control" value="{{old('direccion',$cliente->persona->direccion)}}">
-                        @error('direccion')
-                        <small class="text-danger">{{'*'.$message}}</small>
-                        @enderror
+                        <input type="text" name="direccion" id="direccion" class="form-control" value="{{old('direccion',$cliente->persona->direccion)}}" data-rule-required="true">
+                        <div class="invalid-feedback"></div>
                     </div>
 
                     <!------Teléfono---->
                     <div class="col-12">
                         <label for="telefono" class="form-label">Phone:</label>
-                        <input required type="text" name="telefono" id="telefono" class="form-control" value="{{old('telefono',$cliente->persona->telefono)}}">
-                        @error('telefono')
-                        <small class="text-danger">{{'*'.$message}}</small>
-                        @enderror
+                        <input type="text" name="telefono" id="telefono" class="form-control" value="{{old('telefono',$cliente->persona->telefono)}}" data-rule-required="true">
+                        <div class="invalid-feedback"></div>
                     </div>
 
                     <!--------------Documento------->
                     <div class="col-md-6">
                         <label for="documento_id" class="form-label">Document type:</label>
-                        <select class="form-select" name="documento_id" id="documento_id">
+                        <select class="form-select" name="documento_id" id="documento_id" data-rule-required="true">
                             @foreach ($documentos as $item)
-                            @if ($cliente->persona->documento_id == $item->id)
-                            <option selected value="{{$item->id}}" {{ old('documento_id') == $item->id ? 'selected' : '' }}>{{$item->tipo_documento}}</option>
-                            @else
-                            <option value="{{$item->id}}" {{ old('documento_id') == $item->id ? 'selected' : '' }}>{{$item->tipo_documento}}</option>
-                            @endif
+                            <option value="{{$item->id}}" {{ (old('documento_id', $cliente->persona->documento_id) == $item->id) ? 'selected' : '' }}>{{$item->tipo_documento}}</option>
                             @endforeach
                         </select>
-                        @error('documento_id')
-                        <small class="text-danger">{{'*'.$message}}</small>
-                        @enderror
+                        <div class="invalid-feedback"></div>
                     </div>
 
                     <div class="col-md-6">
                         <label for="numero_documento" class="form-label">Document number:</label>
-                        <input required type="text" name="numero_documento" id="numero_documento" class="form-control" value="{{old('numero_documento',$cliente->persona->numero_documento)}}">
-                        @error('numero_documento')
-                        <small class="text-danger">{{'*'.$message}}</small>
-                        @enderror
+                        <input type="text" name="numero_documento" id="numero_documento" class="form-control" value="{{old('numero_documento',$cliente->persona->numero_documento)}}" data-rule-required="true">
+                        <div class="invalid-feedback"></div>
                     </div>
 
                 </div>
@@ -96,5 +82,36 @@
 @endsection
 
 @push('js')
+
+<script type="module">
+    document.addEventListener('DOMContentLoaded', function() {
+        new window.CarWash.FormValidator({
+            formId: 'clienteEditForm',
+            validateOnBlur: true,
+            validateOnInput: false
+        });
+
+        const documentoSelect = document.getElementById('documento_id');
+        const numeroInput = document.getElementById('numero_documento');
+
+        function adjustDocumentoLength() {
+            const selectedText = documentoSelect.options[documentoSelect.selectedIndex].text;
+            if (selectedText === 'DNI') {
+                numeroInput.maxLength = 8;
+                numeroInput.minLength = 8;
+            } else if (selectedText === 'RUC') {
+                numeroInput.maxLength = 11;
+                numeroInput.minLength = 11;
+            } else {
+                numeroInput.removeAttribute('maxlength');
+                numeroInput.removeAttribute('minlength');
+            }
+        }
+
+        documentoSelect.addEventListener('change', adjustDocumentoLength);
+        // estado inicial
+        if (documentoSelect.value) adjustDocumentoLength();
+    });
+</script>
 
 @endpush
