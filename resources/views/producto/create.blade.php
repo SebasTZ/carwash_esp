@@ -3,13 +3,7 @@
 @section('title','Crear Producto')
 
 @push('css')
-<style>
-    #descripcion {
-        resize: none;
-    }
-</style>
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-select@1.14.0-beta3/dist/css/bootstrap-select.min.css">
-<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.4/jquery.min.js"></script>
 @endpush
 
 @section('content')
@@ -20,23 +14,30 @@
         <li class="breadcrumb-item"><a href="{{ route('productos.index')}}">Productos</a></li>
         <li class="breadcrumb-item active">Crear producto</li>
     </ol>
+</div>
 
-    <div class="card">
-        <form action="{{ route('productos.store') }}" method="post" enctype="multipart/form-data" id="productoForm" novalidate>
-            @csrf
-            <div class="card-body text-bg-light">
-
-                <div class="row g-4">
-
-                    <!----Codigo---->
-                    <div class="col-md-6">
-                        <label for="codigo" class="form-label">Código:</label>
-                        <input type="text" name="codigo" id="codigo" class="form-control" value="{{old('codigo')}}">
-                        <div class="invalid-feedback"></div>
-                        @error('codigo')
-                        <small class="text-danger">{{'*'.$message}}</small>
-                        @enderror
-                    </div>
+<div id="formProductoContainer"></div>
+<script type="module">
+    import FormValidator from '/js/components/FormValidator.js';
+    import ProductoForm from '/js/modules/ProductoForm.js';
+    document.addEventListener('DOMContentLoaded', function() {
+        new ProductoForm({
+            elementId: 'formProductoContainer',
+            categorias: @json($categorias ?? []),
+            marcas: @json($marcas ?? []),
+            presentaciones: @json($presentaciones ?? []),
+            old: @json(old()),
+            errors: @json($errors->all()),
+            action: '{{ route('productos.store') }}',
+            method: 'POST'
+        });
+        new FormValidator({
+            formSelector: '#formProductoContainer form',
+            validateOnInput: false
+        });
+    });
+</script>
+@endsection
 
                     <!---Nombre---->
                     <div class="col-md-6">

@@ -3,13 +3,7 @@
 @section('title','Editar Producto')
 
 @push('css')
-<style>
-    #descripcion {
-        resize: none;
-    }
-</style>
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-select@1.14.0-beta3/dist/css/bootstrap-select.min.css">
-<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.4/jquery.min.js"></script>
 @endpush
 
 @section('content')
@@ -20,23 +14,31 @@
         <li class="breadcrumb-item"><a href="{{ route('productos.index')}}">Productos</a></li>
         <li class="breadcrumb-item active">Editar producto</li>
     </ol>
+</div>
 
-    <div class="card text-bg-light">
-        <form action="{{route('productos.update',['producto'=>$producto])}}" method="post" enctype="multipart/form-data" id="productoEditForm" novalidate>
-            @method('PATCH')
-            @csrf
-            <div class="card-body">
-
-                <div class="row g-4">
-                    <!----Codigo---->
-                    <div class="col-md-6">
-                        <label for="codigo" class="form-label">Código:</label>
-                        <input type="text" name="codigo" id="codigo" class="form-control" value="{{old('codigo',$producto->codigo)}}">
-                        <div class="invalid-feedback"></div>
-                        @error('codigo')
-                        <small class="text-danger">{{'*'.$message}}</small>
-                        @enderror
-                    </div>
+<div id="formProductoEditContainer"></div>
+<script type="module">
+    import FormValidator from '/js/components/FormValidator.js';
+    import ProductoForm from '/js/modules/ProductoForm.js';
+    document.addEventListener('DOMContentLoaded', function() {
+        new ProductoForm({
+            elementId: 'formProductoEditContainer',
+            categorias: @json($categorias ?? []),
+            marcas: @json($marcas ?? []),
+            presentaciones: @json($presentaciones ?? []),
+            producto: @json($producto),
+            old: @json(old()),
+            errors: @json($errors->all()),
+            action: '{{ route('productos.update', ['producto'=>$producto]) }}',
+            method: 'PATCH'
+        });
+        new FormValidator({
+            formSelector: '#formProductoEditContainer form',
+            validateOnInput: false
+        });
+    });
+</script>
+@endsection
 
                     <!---Nombre---->
                     <div class="col-md-6">
