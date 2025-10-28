@@ -2,9 +2,6 @@
 
 @section('title', 'Reporte de Fidelidad')
 
-{{-- BACKUP DE LA VISTA ORIGINAL PARA REFERENCIA --}}
-{{-- Esta vista fue migrada a componentes JS modernos. --}}
-
 @section('content')
 <div class="container-fluid px-4">
     <h1 class="mt-4 text-center">Reporte de Fidelidad</h1>
