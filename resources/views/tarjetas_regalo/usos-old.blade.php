@@ -16,7 +16,7 @@
             Usos de Tarjetas de Regalo
         </div>
         <div class="card-body">
-            <table id="tarjetaRegaloUsosTable" class="table table-striped">
+            <table class="table table-striped">
                 <thead>
                     <tr>
                         <th>Código de Tarjeta</th>
@@ -38,12 +38,6 @@
                     @endforeach
                 </tbody>
             </table>
-            <script type="module">
-                import TarjetaRegaloUsosTableManager from '/resources/js/components/tables/TarjetaRegaloUsosTableManager.js';
-                document.addEventListener('DOMContentLoaded', () => {
-                    new TarjetaRegaloUsosTableManager('#tarjetaRegaloUsosTable');
-                });
-            </script>
         </div>
     </div>
 </div>

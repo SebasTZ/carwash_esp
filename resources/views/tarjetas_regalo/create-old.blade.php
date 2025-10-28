@@ -16,7 +16,7 @@
             Nueva Tarjeta de Regalo
         </div>
         <div class="card-body">
-            <form id="tarjetaRegaloForm" action="{{ route('tarjetas_regalo.store') }}" method="POST">
+            <form action="{{ route('tarjetas_regalo.store') }}" method="POST">
                 @csrf
                 <div class="mb-3">
                     <label for="codigo" class="form-label">Código de Tarjeta</label>
@@ -45,12 +45,6 @@
                 </div>
                 <button type="submit" class="btn btn-success">Crear</button>
             </form>
-            <script type="module">
-                import TarjetaRegaloFormManager from '/resources/js/components/forms/TarjetaRegaloFormManager.js';
-                document.addEventListener('DOMContentLoaded', () => {
-                    new TarjetaRegaloFormManager('#tarjetaRegaloForm');
-                });
-            </script>
         </div>
     </div>
 </div>

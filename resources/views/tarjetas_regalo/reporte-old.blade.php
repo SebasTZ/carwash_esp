@@ -21,7 +21,7 @@
         </div>
         <div class="card-body">
             <a href="{{ route('tarjetas_regalo.export.excel') }}" class="btn btn-success mb-3">Exportar a Excel</a>
-            <table id="tarjetaRegaloTable" class="table table-striped">
+            <table class="table table-striped">
                 <thead>
                     <tr>
                         <th>Código</th>
@@ -51,12 +51,6 @@
                     @endforeach
                 </tbody>
             </table>
-            <script type="module">
-                import TarjetaRegaloTableManager from '/resources/js/components/tables/TarjetaRegaloTableManager.js';
-                document.addEventListener('DOMContentLoaded', () => {
-                    new TarjetaRegaloTableManager('#tarjetaRegaloTable');
-                });
-            </script>
 
             <!-- Paginación usando componente -->
             <x-pagination-info :paginator="$tarjetas" entity="tarjetas de regalo" />

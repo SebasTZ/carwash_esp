@@ -16,7 +16,7 @@
             Editar Tarjeta de Regalo
         </div>
         <div class="card-body">
-            <form id="tarjetaRegaloForm" action="{{ route('tarjetas_regalo.update', $tarjeta->id) }}" method="POST">
+            <form action="{{ route('tarjetas_regalo.update', $tarjeta->id) }}" method="POST">
                 @csrf
                 @method('PUT')
                 <div class="mb-3">
@@ -50,12 +50,6 @@
                 </div>
                 <button type="submit" class="btn btn-success">Actualizar</button>
             </form>
-            <script type="module">
-                import TarjetaRegaloFormManager from '/resources/js/components/forms/TarjetaRegaloFormManager.js';
-                document.addEventListener('DOMContentLoaded', () => {
-                    new TarjetaRegaloFormManager('#tarjetaRegaloForm');
-                });
-            </script>
             <form action="{{ route('tarjetas_regalo.destroy', $tarjeta->id) }}" method="POST" class="mt-3">
                 @csrf
                 @method('DELETE')
