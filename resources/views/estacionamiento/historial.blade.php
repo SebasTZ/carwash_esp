@@ -14,34 +14,32 @@
             </a>
         </div>
         <div class="card-body">
-            <table id="datatablesSimple" class="table table-striped">
-                <thead>
-                    <tr>
-                        <th>Placa</th>
-                        <th>Cliente</th>
-                        <th>Marca/Modelo</th>
-                        <th>Entrada</th>
-                        <th>Salida</th>
-                        <th>Tiempo Total</th>
-                        <th>Tarifa/Hora</th>
-                        <th>Monto Total</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    @foreach($estacionamientos as $estacionamiento)
-                    <tr>
-                        <td>{{ $estacionamiento->placa }}</td>
-                        <td>{{ $estacionamiento->cliente->persona->razon_social }}</td>
-                        <td>{{ $estacionamiento->marca }} / {{ $estacionamiento->modelo }}</td>
-                        <td>{{ $estacionamiento->hora_entrada->format('d/m/Y H:i') }}</td>
-                        <td>{{ $estacionamiento->hora_salida->format('d/m/Y H:i') }}</td>
-                        <td>{{ $estacionamiento->hora_entrada->diffForHumans($estacionamiento->hora_salida, true) }}</td>
-                        <td>S/. {{ number_format($estacionamiento->tarifa_hora, 2) }}</td>
-                        <td>S/. {{ number_format($estacionamiento->monto_total, 2) }}</td>
-                    </tr>
-                    @endforeach
-                </tbody>
-            </table>
+            <div id="dynamic-table-estacionamiento-historial"></div>
+            <script>
+            document.addEventListener('DOMContentLoaded', function() {
+                if (window.DynamicTable) {
+                    window.DynamicTable.render({
+                        target: document.getElementById('dynamic-table-estacionamiento-historial'),
+                        data: @json($estacionamientos),
+                        columns: [
+                            { data: 'placa', title: 'Placa' },
+                            { data: 'cliente', title: 'Cliente', formatter: (value, row) => row.cliente?.persona?.razon_social || '' },
+                            { data: 'marca', title: 'Marca' },
+                            { data: 'modelo', title: 'Modelo' },
+                            { data: 'hora_entrada', title: 'Entrada', formatter: 'datetime' },
+                            { data: 'hora_salida', title: 'Salida', formatter: 'datetime' },
+                            { data: 'tiempo_total', title: 'Tiempo Total', formatter: (value, row) => row.hora_entrada_humano || '' },
+                            { data: 'tarifa_hora', title: 'Tarifa/Hora', formatter: (value) => `S/. ${parseFloat(value).toFixed(2)}` },
+                            { data: 'monto_total', title: 'Monto Total', formatter: (value) => `S/. ${parseFloat(value).toFixed(2)}` }
+                        ],
+                        pagination: true,
+                        pageSize: 10,
+                        searchable: true,
+                        searchPlaceholder: 'Buscar historial...'
+                    });
+                }
+            });
+            </script>
         </div>
     </div>
 </div>

@@ -13,53 +13,31 @@
         </a>
     </div>
 
-    <form action="{{ route('estacionamiento.store') }}" method="POST" class="card shadow-sm border-0 mx-auto" style="max-width: 800px;">
-        @csrf
-        <div class="card-header bg-primary text-white">
-            <h5 class="mb-0">Información del Cliente y Vehículo</h5>
-        </div>
-        <div class="card-body">
-            <div class="row g-3">
-                <div class="col-md-6">
-                    <label for="cliente_id" class="form-label">Cliente</label>
-                    <select class="form-select select2" id="cliente_id" name="cliente_id" required>
-                        <option value="">Seleccione un cliente</option>
-                        @foreach($clientes as $cliente)
-                            <option value="{{ $cliente->id }}">
-                                {{ $cliente->persona->razon_social }}
-                            </option>
-                        @endforeach
-                    </select>
-                </div>
-                <div class="col-md-6">
-                    <label for="placa" class="form-label">Placa del Vehículo</label>
-                    <input type="text" class="form-control text-uppercase" id="placa" name="placa" required>
-                </div>
-
-                <div class="col-md-6">
-                    <label for="marca" class="form-label">Marca</label>
-                    <input type="text" class="form-control" id="marca" name="marca" required>
-                </div>
-                <div class="col-md-6">
-                    <label for="modelo" class="form-label">Modelo</label>
-                    <input type="text" class="form-control" id="modelo" name="modelo" required>
-                </div>
-
-                <div class="col-md-6">
-                    <label for="telefono" class="form-label">Teléfono</label>
-                    <input type="text" class="form-control" id="telefono" name="telefono" required>
-                </div>
-                <div class="col-md-6">
-                    <label for="tarifa_hora" class="form-label">Tarifa por Hora (S/)</label>
-                    <input type="number" step="0.01" class="form-control" id="tarifa_hora" name="tarifa_hora" required placeholder="Ingrese la tarifa por hora">
-                </div>
-            </div>
-        </div>
-        <div class="card-footer d-flex justify-content-end">
-            <a href="{{ route('estacionamiento.index') }}" class="btn btn-secondary me-2">Cancelar</a>
-            <button type="submit" class="btn btn-primary">Registrar estacionamiento</button>
-        </div>
-    </form>
+    <div id="form-validator-estacionamiento-create"></div>
+    <script>
+    document.addEventListener('DOMContentLoaded', function() {
+        if (window.FormValidator) {
+            window.FormValidator.render({
+                target: document.getElementById('form-validator-estacionamiento-create'),
+                action: "{{ route('estacionamiento.store') }}",
+                method: "POST",
+                fields: [
+                    { name: "cliente_id", label: "Cliente", type: "select", required: true, options: [ { value: "", label: "Seleccione un cliente" }, @foreach($clientes as $cliente) { value: "{{ $cliente->id }}", label: "{{ $cliente->persona->razon_social }}" }, @endforeach ] },
+                    { name: "placa", label: "Placa del Vehículo", type: "text", required: true, class: "text-uppercase" },
+                    { name: "marca", label: "Marca", type: "text", required: true },
+                    { name: "modelo", label: "Modelo", type: "text", required: true },
+                    { name: "telefono", label: "Teléfono", type: "text", required: true },
+                    { name: "tarifa_hora", label: "Tarifa por Hora (S/)", type: "number", step: "0.01", required: true, placeholder: "Ingrese la tarifa por hora" }
+                ],
+                submit: { label: "Registrar estacionamiento", class: "btn btn-primary" },
+                csrf: "{{ csrf_token() }}"
+            });
+        }
+    });
+    </script>
+    <div class="d-flex justify-content-end mt-3">
+        <a href="{{ route('estacionamiento.index') }}" class="btn btn-secondary me-2">Cancelar</a>
+    </div>
 </div>
 
 @push('css')

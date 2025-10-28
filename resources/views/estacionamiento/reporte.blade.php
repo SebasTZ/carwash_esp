@@ -79,40 +79,33 @@
                 </div>
             </div>
 
-            <table id="datatablesSimple" class="table table-striped">
-                <thead>
-                    <tr>
-                        <th>Placa</th>
-                        <th>Cliente</th>
-                        <th>Marca/Modelo</th>
-                        <th>Entrada</th>
-                        <th>Salida</th>
-                        <th>Tiempo</th>
-                        <th>Tarifa/Hora</th>
-                        <th>Monto Total</th>
-                        <th>Estado</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    @foreach($estacionamientos as $estacionamiento)
-                    <tr>
-                        <td>{{ $estacionamiento->placa }}</td>
-                        <td>{{ $estacionamiento->cliente->persona->razon_social }}</td>
-                        <td>{{ $estacionamiento->marca }} / {{ $estacionamiento->modelo }}</td>
-                        <td>{{ $estacionamiento->hora_entrada->format('d/m/Y H:i') }}</td>
-                        <td>{{ $estacionamiento->hora_salida ? $estacionamiento->hora_salida->format('d/m/Y H:i') : '-' }}</td>
-                        <td>{{ $estacionamiento->hora_salida ? $estacionamiento->hora_entrada->diffForHumans($estacionamiento->hora_salida, true) : '-' }}</td>
-                        <td>S/. {{ number_format($estacionamiento->tarifa_hora, 2) }}</td>
-                        <td>S/. {{ number_format($estacionamiento->monto_total ?? 0, 2) }}</td>
-                        <td>
-                            <span class="badge rounded-pill bg-{{ $estacionamiento->estado == 'ocupado' ? 'warning' : 'success' }}">
-                                {{ $estacionamiento->estado }}
-                            </span>
-                        </td>
-                    </tr>
-                    @endforeach
-                </tbody>
-            </table>
+            <div id="dynamic-table-estacionamiento-reporte"></div>
+            <script>
+            document.addEventListener('DOMContentLoaded', function() {
+                if (window.DynamicTable) {
+                    window.DynamicTable.render({
+                        target: document.getElementById('dynamic-table-estacionamiento-reporte'),
+                        data: @json($estacionamientos),
+                        columns: [
+                            { data: 'placa', title: 'Placa' },
+                            { data: 'cliente', title: 'Cliente', formatter: (value, row) => row.cliente?.persona?.razon_social || '' },
+                            { data: 'marca', title: 'Marca' },
+                            { data: 'modelo', title: 'Modelo' },
+                            { data: 'hora_entrada', title: 'Entrada', formatter: 'datetime' },
+                            { data: 'hora_salida', title: 'Salida', formatter: 'datetime' },
+                            { data: 'tiempo', title: 'Tiempo', formatter: (value, row) => row.hora_entrada_humano || '' },
+                            { data: 'tarifa_hora', title: 'Tarifa/Hora', formatter: (value) => `S/. ${parseFloat(value).toFixed(2)}` },
+                            { data: 'monto_total', title: 'Monto Total', formatter: (value) => `S/. ${parseFloat(value).toFixed(2)}` },
+                            { data: 'estado', title: 'Estado', formatter: (value) => `<span class='badge rounded-pill bg-${value === 'ocupado' ? 'warning' : 'success'}'>${value}</span>` }
+                        ],
+                        pagination: true,
+                        pageSize: 10,
+                        searchable: true,
+                        searchPlaceholder: 'Buscar en reporte...'
+                    });
+                }
+            });
+            </script>
         </div>
     </div>
 </div>

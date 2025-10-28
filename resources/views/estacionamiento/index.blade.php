@@ -23,53 +23,55 @@
                 <div class="alert alert-success">{{ session('success') }}</div>
             @endif
 
-            <table class="table table-striped">
-                <thead>
-                    <tr>
-                        <th>Placa</th>
-                        <th>Cliente</th>
-                        <th>Marca/Modelo</th>
-                        <th>Contacto</th>
-                        <th>Hora de Entrada</th>
-                        <th>Tiempo</th>
-                        <th>Tarifa/Hora</th>
-                        <th>Acciones</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    @foreach($estacionamientos as $estacionamiento)
-                    <tr>
-                        <td>{{ $estacionamiento->placa }}</td>
-                        <td>{{ $estacionamiento->cliente->persona->razon_social }}</td>
-                        <td>{{ $estacionamiento->marca }} / {{ $estacionamiento->modelo }}</td>
-                        <td>{{ $estacionamiento->telefono }}</td>
-                        <td>{{ $estacionamiento->hora_entrada->format('d/m/Y H:i') }}</td>
-                        <td>{{ $estacionamiento->hora_entrada->diffForHumans(null, true) }}</td>
-                        <td>S/. {{ number_format($estacionamiento->tarifa_hora, 2) }}</td>
-                        <td>
-                            <form action="{{ route('estacionamiento.registrar-salida', $estacionamiento) }}" method="POST" class="d-inline">
-                                @csrf
-                                <button type="submit" class="btn btn-warning btn-sm" onclick="return confirm('¿Está seguro de registrar la salida?')">
-                                    <i class="fas fa-sign-out-alt"></i> Registrar Salida
-                                </button>
-                            </form>
-                            @can('eliminar-estacionamiento')
-                            <form action="{{ route('estacionamiento.destroy', $estacionamiento) }}" method="POST" class="d-inline">
-                                @csrf
-                                @method('DELETE')
-                                <button type="submit" class="btn btn-danger btn-sm" onclick="return confirm('¿Está seguro de eliminar este registro?')">
-                                    <i class="fas fa-trash"></i>
-                                </button>
-                            </form>
-                            @endcan
-                        </td>
-                    </tr>
-                    @endforeach
-                </tbody>
-            </table>
-
-            <!-- Paginación usando componente -->
-            <x-pagination-info :paginator="$estacionamientos" entity="vehículos" />
+            <div id="dynamic-table-estacionamiento"></div>
+            <script>
+            document.addEventListener('DOMContentLoaded', function() {
+                if (window.DynamicTable) {
+                    window.DynamicTable.render({
+                        target: document.getElementById('dynamic-table-estacionamiento'),
+                        data: @json($estacionamientos->items()),
+                        columns: [
+                            { data: 'placa', title: 'Placa' },
+                            { data: 'cliente', title: 'Cliente', formatter: (value, row) => row.cliente?.persona?.razon_social || '' },
+                            { data: 'marca', title: 'Marca' },
+                            { data: 'modelo', title: 'Modelo' },
+                            { data: 'telefono', title: 'Contacto' },
+                            { data: 'hora_entrada', title: 'Hora de Entrada', formatter: 'datetime' },
+                            { data: 'tiempo', title: 'Tiempo', formatter: (value, row) => row.hora_entrada_humano || '' },
+                            { data: 'tarifa_hora', title: 'Tarifa/Hora', formatter: (value) => `S/. ${parseFloat(value).toFixed(2)}` },
+                        ],
+                        showActions: true,
+                        actionsConfig: {
+                            custom: [
+                                {
+                                    label: 'Registrar Salida',
+                                    class: 'btn btn-warning btn-sm',
+                                    icon: 'fas fa-sign-out-alt',
+                                    callback: (row, data) => {
+                                        window.location.href = `/estacionamiento/${data.id}/salida`;
+                                    }
+                                },
+                                {
+                                    label: 'Eliminar',
+                                    class: 'btn btn-danger btn-sm',
+                                    icon: 'fas fa-trash',
+                                    callback: (row, data) => {
+                                        if (confirm('¿Está seguro de eliminar este registro?')) {
+                                            window.location.href = `/estacionamiento/${data.id}/eliminar`;
+                                        }
+                                    },
+                                    show: @can('eliminar-estacionamiento') true @else false @endcan
+                                }
+                            ]
+                        },
+                        pagination: true,
+                        pageSize: 10,
+                        searchable: true,
+                        searchPlaceholder: 'Buscar vehículo...'
+                    });
+                }
+            });
+            </script>
         </div>
     </div>
 </div>
