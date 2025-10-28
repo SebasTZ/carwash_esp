@@ -71,72 +71,9 @@
             Tabla de Ventas {{ $reporte }}
         </div>
         <div class="card-body">
-            <table id="datatablesSimple" class="table table-striped">
-                <thead>
-                    <tr>
-                        <th>Comprobante</th>
-                        <th>Cliente</th>
-                        <th>Fecha y Hora</th>
-                        <th>Vendedor</th>
-                        <th>Total</th>
-                        <th>Comentarios</th>
-                        <th>Método de Pago</th>
-                        <th>Efectivo</th>
-                        <th>Billetera Digital</th>
-                        <th>Tarjeta de Regalo</th>
-                        <th>Lavado Gratis</th>
-                        <th>Servicio de Lavado</th>
-                        <th>Hora Fin de Lavado</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    @php
-                        $total = 0;
-                        $paymentMethods = [
-                            'efectivo' => 'Efectivo',
-                            'tarjeta_regalo' => 'Tarjeta de Regalo',
-                            'lavado_gratis' => 'Lavado Gratis',
-                            'tarjeta_credito' => 'Tarjeta de Crédito',
-                        ];
-                    @endphp
-                    @foreach ($ventas as $item)
-                    @php
-                        // Sumar solo si el método de pago NO es tarjeta_regalo ni lavado_gratis
-                        if ($item->medio_pago !== 'tarjeta_regalo' && $item->medio_pago !== 'lavado_gratis') {
-                            $total += $item->total;
-                        }
-                    @endphp
-                    <tr>
-                        <td>
-                            <p class="fw-semibold mb-1">{{$item->comprobante->tipo_comprobante}}</p>
-                            <p class="text-muted mb-0">{{$item->numero_comprobante}}</p>
-                        </td>
-                        <td>
-                            <p class="fw-semibold mb-1">{{ ucfirst($item->cliente->persona->tipo_persona) }}</p>
-                            <p class="text-muted mb-0">{{$item->cliente->persona->razon_social}}</p>
-                        </td>
-                        <td>
-                            <div class="row-not-space">
-                                <p class="fw-semibold mb-1"><span class="m-1"><i class="fa-solid fa-calendar-days"></i></span>{{\Carbon\Carbon::parse($item->fecha_hora)->format('d-m-Y')}}</p>
-                                <p class="fw-semibold mb-0"><span class="m-1"><i class="fa-solid fa-clock"></i></span>{{\Carbon\Carbon::parse($item->fecha_hora)->format('H:i')}}</p>
-                            </div>
-                        </td>
-                        <td>{{$item->user->name}}</td>
-                        <td>{{$item->total}}</td>
-                        <td>{{$item->comentarios}}</td>
-                        <td>{{ $paymentMethods[$item->medio_pago] ?? ucfirst(str_replace('_', ' ', $item->medio_pago)) }}</td>
-                        <td>{{$item->efectivo}}</td>
-                        <td>{{$item->billetera_digital}}</td>
-                        <td>{{ $item->tarjeta_regalo_id ? 'Sí' : 'No' }}</td>
-                        <td>{{ $item->lavado_gratis ? 'Sí' : 'No' }}</td>
-                        <td>{{$item->servicio_lavado ? 'Sí' : 'No'}}</td>
-                        <td>{{$item->horario_lavado ? \Carbon\Carbon::parse($item->horario_lavado)->format('d-m-Y H:i') : 'N/D'}}</td>
-                    </tr>
-                    @endforeach
-                </tbody>
-            </table>
+            <div id="ventas-reporte-dynamic-table"></div>
             <div class="mt-4">
-                <h4>Total: {{$total}}</h4>
+                <h4 id="ventas-reporte-total"></h4>
             </div>
         </div>
     </div>
@@ -145,10 +82,41 @@
 @endsection
 
 @push('js')
-<script src="https://cdn.jsdelivr.net/npm/simple-datatables@latest" type="text/javascript"></script>
+@vite(['resources/js/components/DynamicTable.js', 'resources/js/modules/VentaManager.js'])
 <script>
-    window.addEventListener('DOMContentLoaded', event => {
-        const dataTable = new simpleDatatables.DataTable("#datatablesSimple", {})
+    document.addEventListener('DOMContentLoaded', function() {
+        if (window.DynamicTable) {
+            window.DynamicTable.init({
+                el: '#ventas-reporte-dynamic-table',
+                data: @json($ventas),
+                columns: [
+                    { label: 'Comprobante', field: 'comprobante' },
+                    { label: 'Cliente', field: 'cliente' },
+                    { label: 'Fecha y Hora', field: 'fecha_hora' },
+                    { label: 'Vendedor', field: 'vendedor' },
+                    { label: 'Total', field: 'total' },
+                    { label: 'Comentarios', field: 'comentarios' },
+                    { label: 'Método de Pago', field: 'medio_pago' },
+                    { label: 'Efectivo', field: 'efectivo' },
+                    { label: 'Billetera Digital', field: 'billetera_digital' },
+                    { label: 'Tarjeta de Regalo', field: 'tarjeta_regalo' },
+                    { label: 'Lavado Gratis', field: 'lavado_gratis' },
+                    { label: 'Servicio de Lavado', field: 'servicio_lavado' },
+                    { label: 'Hora Fin de Lavado', field: 'horario_lavado' },
+                ],
+                pagination: true,
+                onRender: function(rows) {
+                    // Calcular el total solo para métodos de pago permitidos
+                    let total = 0;
+                    rows.forEach(function(row) {
+                        if (row.medio_pago !== 'tarjeta_regalo' && row.medio_pago !== 'lavado_gratis') {
+                            total += parseFloat(row.total);
+                        }
+                    });
+                    document.getElementById('ventas-reporte-total').innerText = 'Total: ' + total;
+                }
+            });
+        }
     });
 </script>
 @endpush

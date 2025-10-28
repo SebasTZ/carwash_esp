@@ -105,10 +105,19 @@ routes/
 
 ### Módulo de Ventas
 
--   Registro de ventas
+-   Registro de ventas (migrado a FormValidator y lógica JS con VentaManager.js)
+-   Listado y reporte de ventas (migrados a DynamicTable.js para tablas dinámicas, filtros y paginación)
 -   Generación de tickets
 -   Reportes diarios/semanales/mensuales
 -   Exportación a Excel
+
+**Notas técnicas:**
+
+-   Las vistas principales (`create`, `index`, `reporte`) ahora utilizan componentes JS modernos para una mejor experiencia de usuario y validación en tiempo real.
+-   Se eliminaron dependencias de jQuery en favor de módulos JS nativos y componentes reutilizables.
+-   El módulo `VentaManager.js` centraliza la lógica de gestión de ventas, productos, clientes y detalle de venta.
+-   La tabla de ventas y reportes usa `DynamicTable.js` para paginación, búsqueda y acciones (ver, eliminar) sin recarga de página.
+-   El formulario de registro de venta usa `FormValidator.js` para validación dinámica y feedback inmediato.
 
 ### Control de Inventario
 
