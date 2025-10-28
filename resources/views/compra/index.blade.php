@@ -1,11 +1,9 @@
+
 @extends('layouts.app')
 
 @section('title','Compras')
-@push('css-datatable')
-<link href="https://cdn.jsdelivr.net/npm/simple-datatables@latest/dist/style.css" rel="stylesheet" type="text/css">
-@endpush
+
 @push('css')
-<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 <style>
     .row-not-space {
         width: 110px;
@@ -38,84 +36,30 @@
             Tabla de Compras
         </div>
         <div class="card-body">
-            <table class="table table-striped">
-                <thead>
-                    <tr>
-                        <th>Comprobante</th>
-                        <th>Proveedor</th>
-                        <th>Fecha y Hora</th>
-                        <th>Total</th>
-                        <th>Acciones</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    @foreach ($compras as $item)
-                    <tr>
-                        <td>
-                            <p class="fw-semibold mb-1">{{$item->comprobante->tipo_comprobante}}</p>
-                            <p class="text-muted mb-0">{{$item->numero_comprobante}}</p>
-                        </td>
-                        <td>
-                            <p class="fw-semibold mb-1">{{ ucfirst($item->proveedore->persona->tipo_persona) }}</p>
-                            <p class="text-muted mb-0">{{$item->proveedore->persona->razon_social}}</p>
-                        </td>
-                        <td>
-                            <div class="row-not-space">
-                                <p class="fw-semibold mb-1"><span class="m-1"><i class="fa-solid fa-calendar-days"></i></span>{{\Carbon\Carbon::parse($item->fecha_hora)->format('d-m-Y')}}</p>
-                                <p class="fw-semibold mb-0"><span class="m-1"><i class="fa-solid fa-clock"></i></span>{{\Carbon\Carbon::parse($item->fecha_hora)->format('H:i')}}</p>
-                            </div>
-                        </td>
-                        <td>
-                            {{$item->total}}
-                        </td>
-                        <td>
-                            <div class="btn-group" role="group" aria-label="Basic mixed styles example">
-                                @can('mostrar-compra')
-                                <form action="{{route('compras.show', ['compra'=>$item]) }}" method="get">
-                                    <button type="submit" class="btn btn-success">
-                                        Ver
-                                    </button>
-                                </form>
-                                @endcan
-                                @can('eliminar-compra')
-                                <button type="button" class="btn btn-danger" data-bs-toggle="modal" data-bs-target="#confirmModal-{{$item->id}}">Eliminar</button>
-                                @endcan
-                            </div>
-                        </td>
-                    </tr>
-                    <!-- Confirmation Modal-->
-                    <div class="modal fade" id="confirmModal-{{$item->id}}" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
-                        <div class="modal-dialog">
-                            <div class="modal-content">
-                                <div class="modal-header">
-                                    <h1 class="modal-title fs-5" id="exampleModalLabel">Mensaje de Confirmación</h1>
-                                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                                </div>
-                                <div class="modal-body">
-                                    ¿Está seguro de que desea eliminar el registro?
-                                </div>
-                                <div class="modal-footer">
-                                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
-                                    <form action="{{ route('compras.destroy',['compra'=>$item->id]) }}" method="post">
-                                        @method('DELETE')
-                                        @csrf
-                                        <button type="submit" class="btn btn-danger">Confirmar</button>
-                                    </form>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                    @endforeach
-                </tbody>
-            </table>
-
-            <!-- Paginación usando componente -->
-            <x-pagination-info :paginator="$compras" entity="compras" />
+            <div id="dynamicTableCompras"></div>
+            <script type="module">
+                import DynamicTable from '/js/components/DynamicTable.js';
+                document.addEventListener('DOMContentLoaded', function() {
+                    new DynamicTable({
+                        elementId: 'dynamicTableCompras',
+                        columns: [
+                            { key: 'comprobante', label: 'Comprobante', render: row => `<p class='fw-semibold mb-1'>${row.comprobante}</p><p class='text-muted mb-0'>${row.numero_comprobante}</p>` },
+                            { key: 'proveedor', label: 'Proveedor', render: row => `<p class='fw-semibold mb-1'>${row.tipo_persona}</p><p class='text-muted mb-0'>${row.razon_social}</p>` },
+                            { key: 'fecha_hora', label: 'Fecha y Hora', render: row => `<div class='row-not-space'><p class='fw-semibold mb-1'><span class='m-1'><i class='fa-solid fa-calendar-days'></i></span>${row.fecha}</p><p class='fw-semibold mb-0'><span class='m-1'><i class='fa-solid fa-clock'></i></span>${row.hora}</p></div>` },
+                            { key: 'total', label: 'Total', render: row => row.total },
+                            { key: 'acciones', label: 'Acciones', render: row => row.acciones, width: 180 }
+                        ],
+                        dataUrl: '/api/compras',
+                        pagination: true,
+                        preserveQuery: true
+                    });
+                });
+            </script>
         </div>
     </div>
 </div>
 @endsection
 
 @push('js')
-<!-- DataTables removido para usar paginación de Laravel -->
+<!-- DynamicTable maneja la paginación y acciones -->
 @endpush
