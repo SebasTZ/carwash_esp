@@ -1,5 +1,6 @@
 @extends('layouts.app')
 
+@vite('resources/js/app.js')
 @section('content')
 <div class="container">
     <h1>Editar Lavador</h1>
@@ -39,55 +40,13 @@
 
 <script type="module">
     document.addEventListener('DOMContentLoaded', () => {
-        if (typeof window.CarWash?.FormValidator !== 'function') {
-            console.error('FormValidator no está disponible en window.CarWash');
-            return;
-        }
-
         const formElement = document.getElementById('lavadorEditForm');
         if (!formElement) {
             console.error('Formulario no encontrado');
             return;
         }
-
-        const validationRules = {
-            nombre: [
-                { type: 'required', message: 'El nombre es obligatorio' },
-                { type: 'minLength', value: 3, message: 'El nombre debe tener al menos 3 caracteres' },
-                { type: 'maxLength', value: 100, message: 'El nombre no puede exceder 100 caracteres' }
-            ],
-            dni: [
-                { type: 'required', message: 'El DNI es obligatorio' },
-                { type: 'digits', message: 'El DNI debe contener solo números' },
-                { type: 'minLength', value: 8, message: 'El DNI debe tener 8 dígitos' },
-                { type: 'maxLength', value: 8, message: 'El DNI debe tener 8 dígitos' }
-            ],
-            telefono: [
-                { type: 'phone', message: 'El teléfono debe tener un formato válido (9 dígitos)' }
-            ],
-            estado: [
-                { type: 'required', message: 'Debe seleccionar un estado' }
-            ]
-        };
-
-        try {
-            const validator = new window.CarWash.FormValidator(formElement, validationRules, {
-                validateOnBlur: true,
-                validateOnInput: false,
-                showErrors: true
-            });
-
-            formElement.addEventListener('submit', (e) => {
-                if (!validator.validateAll()) {
-                    e.preventDefault();
-                    console.warn('Formulario con errores de validación');
-                }
-            });
-
-            console.log('✅ FormValidator inicializado correctamente para editar Lavador');
-        } catch (error) {
-            console.error('❌ Error al inicializar FormValidator:', error);
-        }
+        new window.CarWash.LavadorEditFormManager(formElement);
+        console.log('✅ LavadorEditFormManager inicializado correctamente para editar Lavador');
     });
 </script>
 @endsection

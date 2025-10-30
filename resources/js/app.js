@@ -20,6 +20,9 @@ import * as LazyLoader from './utils/lazy-loader';
 import DynamicTable from './components/tables/DynamicTable.js';
 import AutoSave from './components/forms/AutoSave.js';
 import FormValidator from './components/forms/FormValidator.js';
+import LavadorTableManager from './components/tables/LavadorTableManager.js';
+import LavadorFormManager from './components/forms/LavadorFormManager.js';
+import LavadorEditFormManager from './components/forms/LavadorEditFormManager.js';
 
 // ========================================
 // Exportar utilidades al objeto window
@@ -106,6 +109,10 @@ window.CarWash = {
     DynamicTable: DynamicTable,
     AutoSave: AutoSave,
     FormValidator: FormValidator,
+    // Lavadores
+    LavadorTableManager: LavadorTableManager,
+    LavadorFormManager: LavadorFormManager,
+    LavadorEditFormManager: LavadorEditFormManager,
 };
 
 // ========================================

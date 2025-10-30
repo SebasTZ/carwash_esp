@@ -6,13 +6,17 @@ export default defineConfig({
     plugins: [
         laravel({
             input: [
-                'resources/css/app.css', 
+                'resources/css/app.css',
                 'resources/js/app.js',
                 // Módulos de páginas específicas
                 'resources/js/modules/VentaManager.js',
                 'resources/js/modules/CompraManager.js',
                 'resources/js/modules/LavadosManager.js',
                 'resources/js/modules/EstacionamientoManager.js',
+                // Componentes JS de Lavadores
+                'resources/js/components/tables/LavadorTableManager.js',
+                'resources/js/components/forms/LavadorFormManager.js',
+                'resources/js/components/forms/LavadorEditFormManager.js',
             ],
             refresh: true,
         }),

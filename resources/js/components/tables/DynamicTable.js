@@ -181,7 +181,32 @@ export default class DynamicTable extends Component {
             return;
         }
 
-        tbody.innerHTML = this.filteredData.map(row => this.renderRow(row)).join('');
+        // Renderizar filas usando innerHTML para celdas con HTML
+        tbody.innerHTML = '';
+        this.filteredData.forEach(row => {
+            const tr = document.createElement('tr');
+            tr.setAttribute('data-row-id', row[this.tableOptions.rowIdKey]);
+            this.tableOptions.columns.forEach(col => {
+                const value = this.getNestedValue(row, col.key);
+                const formattedValue = this.formatValue(value, col.formatter, row);
+                const td = document.createElement('td');
+                td.className = col.class || '';
+                // Si el valor parece HTML (acciones, badges, etc.), usar innerHTML
+                if (col.key === 'acciones' || /<.+>/.test(formattedValue)) {
+                    td.innerHTML = formattedValue;
+                } else {
+                    td.textContent = formattedValue;
+                }
+                tr.appendChild(td);
+            });
+            // Acciones extra
+            if (this.tableOptions.actions.length > 0) {
+                const td = document.createElement('td');
+                td.innerHTML = this.renderActions(row);
+                tr.appendChild(td);
+            }
+            tbody.appendChild(tr);
+        });
     }
 
     /**
