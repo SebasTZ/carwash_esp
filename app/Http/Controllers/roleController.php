@@ -23,8 +23,21 @@ class roleController extends Controller
      */
     public function index()
     {
-        $roles = Role::paginate(15);
-        return view('role.index', compact('roles'));
+        // Paginar roles y cargar permisos
+        $rolesPaginated = Role::with('permissions')->paginate(15);
+        // Transformar cada rol para incluir permisos como array
+        $roles = $rolesPaginated->getCollection()->map(function($role) {
+            return [
+                'id' => $role->id,
+                'name' => $role->name,
+                'permission' => $role->permissions->pluck('name')->toArray()
+            ];
+        })->toArray();
+        // Enviar los datos paginados y los roles transformados
+        return view('role.index', [
+            'roles' => $roles,
+            'rolesPaginated' => $rolesPaginated
+        ]);
     }
 
     /**
@@ -32,11 +45,8 @@ class roleController extends Controller
      */
     public function create()
     {
-        $permisos = Permission::all();
-        $permisos = $permisos->map(function($permiso) {
-            $permiso->label_en = PermissionHelper::getLabel($permiso->name, 'en');
-            return $permiso;
-        });
+        // Solo enviar los nombres de los permisos como array de strings
+        $permisos = Permission::pluck('name')->toArray();
         return view('role.create', compact('permisos'));
     }
 
@@ -80,11 +90,8 @@ class roleController extends Controller
      */
     public function edit(Role $role)
     {
-        $permisos = Permission::all();
-        $permisos = $permisos->map(function($permiso) {
-            $permiso->label_en = PermissionHelper::getLabel($permiso->name, 'en');
-            return $permiso;
-        });
+        // Solo enviar los nombres de los permisos como array de strings
+        $permisos = Permission::pluck('name')->toArray();
         return view('role.edit', compact('role', 'permisos'));
     }
 

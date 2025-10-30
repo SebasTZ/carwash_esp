@@ -11,8 +11,11 @@ export const RoleTableManager = {
         roles.forEach(role => {
             tableHtml += `<tr>
                 <td>${role.name}</td>
-                <td>${role.permission ? role.permission.join(', ') : ''}</td>
                 <td>`;
+            if (role.permission && role.permission.length) {
+                tableHtml += role.permission.map(p => `<span class="badge bg-info text-dark m-1">${p}</span>`).join('');
+            }
+            tableHtml += `</td><td>`;
             if (canEdit) {
                 tableHtml += `<a href="/roles/${role.id}/edit" class="btn btn-sm btn-warning me-1">Editar</a>`;
             }

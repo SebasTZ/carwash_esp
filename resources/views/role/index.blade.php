@@ -43,10 +43,14 @@
 @endsection
 
 @push('js')
-@vite(['resources/js/components/DynamicTable.js', 'resources/js/modules/RoleTableManager.js'])
+<script>
+    window.Laravel = window.Laravel || {};
+    window.Laravel.csrfToken = '{{ csrf_token() }}';
+</script>
+@vite(['resources/js/components/tables/RoleTableManager.js'])
 <script>
     document.addEventListener('DOMContentLoaded', function() {
-        if (window.DynamicTable && window.RoleTableManager) {
+        if (window.RoleTableManager) {
             window.RoleTableManager.init({
                 el: '#roles-dynamic-table',
                 roles: @json($roles),
