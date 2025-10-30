@@ -2,82 +2,42 @@
 
 @section('content')
 <div class="container">
-    <h1>Reporte de Comisiones por Lavador</h1>
-    <form method="GET" action="{{ route('pagos_comisiones.reporte') }}" class="row g-3 mb-3">
-        <div class="col-md-4">
-            <label for="fecha_inicio" class="form-label">Desde</label>
-            <input type="date" name="fecha_inicio" id="fecha_inicio" class="form-control" value="{{ $fechaInicio }}">
-        </div>
-        <div class="col-md-4">
-            <label for="fecha_fin" class="form-label">Hasta</label>
-            <input type="date" name="fecha_fin" id="fecha_fin" class="form-control" value="{{ $fechaFin }}">
-        </div>
-        <div class="col-md-4 d-flex align-items-end">
-            <button type="submit" class="btn btn-primary">Filtrar</button>
-            <a href="{{ route('pagos_comisiones.reporte.export', ['fecha_inicio' => $fechaInicio, 'fecha_fin' => $fechaFin]) }}" class="btn btn-success ms-2">Exportar a Excel</a>
-        </div>
-    </form>
-    <table class="table table-bordered">
-        <thead>
-            <tr>
-                <th>Lavador</th>
-                <th>Número de Lavados</th>
-                <th>Comisión Total</th>
-                <th>Total Pagado</th>
-                <th>Pendiente</th>
-                <th>Acciones</th>
-            </tr>
-        </thead>
-        <tbody>
-            @foreach($data as $row)
-                <tr>
-                    <td>{{ $row['lavador']->nombre }}</td>
-                    <td>{{ $row['cantidad'] }}</td>
-                    <td>{{ number_format($row['comision_total'], 2) }}</td>
-                    <td>{{ number_format($row['pagado'], 2) }}</td>
-                    <td>{{ number_format($row['saldo'], 2) }}</td>
-                    <td>
-                        <a href="{{ route('pagos_comisiones.lavador', [
-                            'lavador' => $row['lavador']->id,
-                            'fecha_inicio' => $fechaInicio,
-                            'fecha_fin' => $fechaFin
-                        ]) }}" class="btn btn-sm btn-info">Historial</a>
-                    </td>
-                </tr>
-            @endforeach
-        </tbody>
-    </table>
-
-    <h2 class="mt-5">Historial de Pagos de Comisión</h2>
-    <table class="table table-bordered">
-        <thead>
-            <tr>
-                <th>Lavador</th>
-                <th>Monto Pagado</th>
-                <th>Desde</th>
-                <th>Hasta</th>
-                <th>Fecha de Pago</th>
-                <th>Observación</th>
-            </tr>
-        </thead>
-        <tbody>
+    <div id="pago-comision-reporte-table-container"></div>
+</div>
+@push('js')
+@vite(['resources/js/components/tables/PagoComisionReporteTableManager.js'])
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        if (window.PagoComisionReporteTableManager) {
+            // Preparamos los datos para JS
+            const reporte = @json($data);
+            // Historial plano para JS
+            const historial = [];
             @foreach(\App\Models\Lavador::where('estado', 'activo')->get() as $lavador)
                 @foreach($lavador->pagosComisiones()
                     ->where('desde', '<=', $fechaFin)
                     ->where('hasta', '>=', $fechaInicio)
                     ->orderBy('fecha_pago', 'desc')
                     ->get() as $pago)
-                    <tr>
-                        <td>{{ $lavador->nombre }}</td>
-                        <td>{{ number_format($pago->monto_pagado, 2) }}</td>
-                        <td>{{ \Carbon\Carbon::parse($pago->desde)->format('d/m/Y') }}</td>
-                        <td>{{ \Carbon\Carbon::parse($pago->hasta)->format('d/m/Y') }}</td>
-                        <td>{{ \Carbon\Carbon::parse($pago->fecha_pago)->format('d/m/Y') }}</td>
-                        <td>{{ $pago->observacion ?? '-' }}</td>
-                    </tr>
+                    historial.push({
+                        lavador_nombre: @json($lavador->nombre),
+                        monto_pagado: @json($pago->monto_pagado),
+                        desde: @json($pago->desde),
+                        hasta: @json($pago->hasta),
+                        fecha_pago: @json($pago->fecha_pago),
+                        observacion: @json($pago->observacion)
+                    });
                 @endforeach
             @endforeach
-        </tbody>
-    </table>
-</div>
+            window.PagoComisionReporteTableManager.init({
+                el: '#pago-comision-reporte-table-container',
+                reporte,
+                historial,
+                fechaInicio: @json($fechaInicio),
+                fechaFin: @json($fechaFin)
+            });
+        }
+    });
+</script>
+@endpush
 @endsection

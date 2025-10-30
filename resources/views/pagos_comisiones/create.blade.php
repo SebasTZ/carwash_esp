@@ -1,49 +1,15 @@
+@push('js')
+<script>
+    window.Laravel = window.Laravel || {};
+    window.Laravel.csrfToken = '{{ csrf_token() }}';
+</script>
 @extends('layouts.app')
 
 @section('content')
 <div class="container">
     <h1>Registrar Pago de Comisión</h1>
     @can('crear-pago-comision')
-    <form id="pagoForm" action="{{ route('pagos_comisiones.store') }}" method="POST" novalidate>
-        @csrf
-        <div class="mb-3">
-            <label for="lavador_id" class="form-label">Lavador</label>
-            <select name="lavador_id" id="lavador_id" class="form-control" required>
-                <option value="">Seleccione un lavador</option>
-                @foreach($lavadores as $lavador)
-                    <option value="{{ $lavador->id }}">{{ $lavador->nombre }}</option>
-                @endforeach
-            </select>
-            <div class="invalid-feedback"></div>
-        </div>
-        <div class="mb-3">
-            <label for="monto_pagado" class="form-label">Monto Pagado</label>
-            <input type="number" step="0.01" name="monto_pagado" id="monto_pagado" class="form-control" required>
-            <div class="invalid-feedback"></div>
-        </div>
-        <div class="mb-3">
-            <label for="desde" class="form-label">Desde</label>
-            <input type="date" name="desde" id="desde" class="form-control" required>
-            <div class="invalid-feedback"></div>
-        </div>
-        <div class="mb-3">
-            <label for="hasta" class="form-label">Hasta</label>
-            <input type="date" name="hasta" id="hasta" class="form-control" required>
-            <div class="invalid-feedback"></div>
-        </div>
-        <div class="mb-3">
-            <label for="fecha_pago" class="form-label">Fecha de Pago</label>
-            <input type="date" name="fecha_pago" id="fecha_pago" class="form-control" required>
-            <div class="invalid-feedback"></div>
-        </div>
-        <div class="mb-3">
-            <label for="observacion" class="form-label">Observación</label>
-            <textarea name="observacion" id="observacion" class="form-control" rows="3"></textarea>
-            <div class="invalid-feedback"></div>
-        </div>
-        <button type="submit" class="btn btn-success">Guardar</button>
-        <a href="{{ route('pagos_comisiones.index') }}" class="btn btn-secondary">Cancelar</a>
-    </form>
+    <div id="pago-comision-form-container"></div>
     @endcan
 
     @if(session('warning'))
@@ -58,31 +24,26 @@
     @endif
 </div>
 
-<script type="module">
-window.addEventListener('load', () => {
-    const { FormValidator } = window.CarWash;
-
-    const validator = new FormValidator('#pagoForm', {
-        lavador_id: {
-            required: { message: 'Debe seleccionar un lavador' }
-        },
-        monto_pagado: {
-            required: { message: 'El monto es obligatorio' },
-            number: { message: 'Debe ser un número válido' },
-            min: { value: 0.01, message: 'El monto debe ser mayor a 0' }
-        },
-        desde: {
-            required: { message: 'La fecha inicial es obligatoria' }
-        },
-        hasta: {
-            required: { message: 'La fecha final es obligatoria' }
-        },
-        fecha_pago: {
-            required: { message: 'La fecha de pago es obligatoria' }
+@push('js')
+@vite(['resources/js/components/forms/PagoComisionFormManager.js'])
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        if (window.PagoComisionFormManager) {
+            window.PagoComisionFormManager.init({
+                el: '#pago-comision-form-container',
+                lavadores: @json($lavadores),
+                old: {
+                    lavador_id: @json(old('lavador_id')),
+                    monto_pagado: @json(old('monto_pagado')),
+                    desde: @json(old('desde')),
+                    hasta: @json(old('hasta')),
+                    fecha_pago: @json(old('fecha_pago')),
+                    observacion: @json(old('observacion'))
+                },
+                errors: @json($errors->toArray())
+            });
         }
     });
-
-    validator.init();
-});
 </script>
+@endpush
 @endsection

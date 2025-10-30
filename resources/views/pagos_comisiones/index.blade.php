@@ -19,14 +19,26 @@ window.addEventListener('load', () => {
 
     const columns = [
         { key: 'lavador.nombre', label: 'Lavador' },
-        { 
-            key: 'monto_pagado', 
+        {
+            key: 'monto_pagado',
             label: 'Monto Pagado',
-            formatter: (value) => `S/ ${parseFloat(value).toFixed(2)}`
+            formatter: (value) => `<span class='badge bg-success'>S/ ${parseFloat(value).toFixed(2)}</span>`
         },
-        { key: 'desde', label: 'Desde' },
-        { key: 'hasta', label: 'Hasta' },
-        { key: 'fecha_pago', label: 'Fecha de Pago' },
+        {
+            key: 'desde',
+            label: 'Desde',
+            formatter: (value) => value ? new Date(value).toLocaleDateString('es-PE') : ''
+        },
+        {
+            key: 'hasta',
+            label: 'Hasta',
+            formatter: (value) => value ? new Date(value).toLocaleDateString('es-PE') : ''
+        },
+        {
+            key: 'fecha_pago',
+            label: 'Fecha de Pago',
+            formatter: (value) => value ? new Date(value).toLocaleDateString('es-PE') : ''
+        },
         {
             key: 'actions',
             label: 'Acciones',
