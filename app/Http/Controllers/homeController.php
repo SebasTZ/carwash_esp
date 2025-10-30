@@ -10,7 +10,12 @@ class homeController extends Controller
         if(!Auth::check()){
             return view('welcome');
         }
-        return view('panel.index');
+        $dashboardData = []; // TODO: Replace with actual dashboard data
+        $userPermissions = []; // TODO: Replace with actual user permissions
+        return view('panel.index', [
+            'dashboardData' => $dashboardData,
+            'userPermissions' => $userPermissions,
+        ]);
     }
 
 }

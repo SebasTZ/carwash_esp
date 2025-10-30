@@ -1,7 +1,7 @@
 // TarjetaRegaloFormManager.js
 // Componente para gestionar el formulario de creación/edición de tarjetas de regalo
 
-import FormValidator from './FormValidator';
+import FormValidator from '../forms/FormValidator';
 
 export default class TarjetaRegaloFormManager {
     constructor(formSelector) {

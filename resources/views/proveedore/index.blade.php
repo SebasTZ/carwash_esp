@@ -31,6 +31,9 @@
     @endcan
 
     <div class="card">
+        <pre style="background:#f8f9fa;border:1px solid #ccc;padding:10px;max-height:300px;overflow:auto;">
+            {{ json_encode($proveedores->items(), JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE) }}
+        </pre>
         <div class="card-header">
             <i class="fas fa-table me-1"></i>
             Tabla de Proveedores
@@ -49,7 +52,7 @@
         if (window.DynamicTable && window.ProveedorTableManager) {
             window.ProveedorTableManager.init({
                 el: '#proveedores-dynamic-table',
-                proveedores: @json($proveedores),
+                proveedores: @json($proveedores->items()),
                 canEdit: @json(auth()->user()->can('crear-proveedore')),
                 canDelete: @json(auth()->user()->can('eliminar-proveedore'))
             });

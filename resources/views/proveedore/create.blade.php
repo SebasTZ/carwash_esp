@@ -20,6 +20,9 @@
     </ol>
 
     <div class="card text-bg-light">
+        <pre style="background:#f8f9fa;border:1px solid #ccc;padding:10px;max-height:300px;overflow:auto;">
+            {{ json_encode($documentos, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE) }}
+        </pre>
         <form id="proveedor-form" action="{{ route('proveedores.store') }}" method="post" data-validate>
             @csrf
             <div class="card-body">
@@ -34,7 +37,7 @@
 @endsection
 
 @push('js')
-@vite(['resources/js/components/FormValidator.js', 'resources/js/modules/ProveedorFormManager.js'])
+@vite(['resources/js/components/forms/FormValidator.js', 'resources/js/modules/ProveedorFormManager.js'])
 <script>
     document.addEventListener('DOMContentLoaded', function() {
         if (window.FormValidator) {

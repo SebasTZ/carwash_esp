@@ -35,7 +35,7 @@
 @endsection
 
 @push('js')
-@vite(['resources/js/components/FormValidator.js', 'resources/js/modules/RoleFormManager.js'])
+@vite(['resources/js/components/forms/FormValidator.js', 'resources/js/modules/RoleFormManager.js'])
 <script>
     document.addEventListener('DOMContentLoaded', function() {
         if (window.FormValidator) {

@@ -166,7 +166,7 @@
 @push('js')
 <script src="https://cdn.jsdelivr.net/npm/bootstrap-select@1.14.0-beta3/dist/js/bootstrap-select.min.js"></script>
 <!-- Cargar FormValidator y el módulo VentaManager.js -->
-@vite(['resources/js/components/FormValidator.js', 'resources/js/modules/VentaManager.js'])
+@vite(['resources/js/components/forms/FormValidator.js', 'resources/js/modules/VentaManager.js'])
 <script>
     document.addEventListener('DOMContentLoaded', function() {
         // Inicializar FormValidator en el formulario de venta

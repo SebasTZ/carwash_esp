@@ -1,7 +1,7 @@
 // ProfileFormManager.js
 // Componente para gestionar el formulario de perfil de usuario
 
-import FormValidator from './FormValidator';
+import FormValidator from '../forms/FormValidator';
 
 export default class ProfileFormManager {
     constructor(formSelector) {
