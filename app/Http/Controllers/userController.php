@@ -26,7 +26,8 @@ class userController extends Controller
      */
     public function index()
     {
-        $users = User::paginate(15);
+        // Cargar usuarios con sus roles
+        $users = User::with('roles')->paginate(15);
         return view('user.index', compact('users'));
     }
 

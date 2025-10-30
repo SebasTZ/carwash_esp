@@ -13,6 +13,9 @@ class User extends Authenticatable
 {
     use HasApiTokens, HasFactory, Notifiable, HasRoles;
 
+    // Incluir status_text en la serialización JSON
+    protected $appends = ['status_text'];
+
     /**
      * The attributes that are mass assignable.
      *
@@ -46,5 +49,11 @@ class User extends Authenticatable
 
     public function ventas(){
         return $this->hasMany(Venta::class);
+    }
+
+    // Accessor para mostrar el estado como texto
+    public function getStatusTextAttribute()
+    {
+        return $this->estado == 1 ? 'activo' : 'inactivo';
     }
 }

@@ -23,101 +23,7 @@
             </div>
             <div class="card-body">
 
-                <!---Nombre---->
-                <div class="row mb-4">
-                    <label for="name" class="col-lg-2 col-form-label">Nombre(s):</label>
-                    <div class="col-lg-4">
-                        <input autocomplete="off" type="text" name="name" id="name" class="form-control" value="{{old('name')}}" aria-labelledby="nameHelpBlock">
-                    </div>
-                    <div class="col-lg-4">
-                        <div class="form-text" id="nameHelpBlock">
-                            Ingresa un solo nombre
-                        </div>
-                    </div>
-                    <div class="col-lg-2">
-                        @error('name')
-                        <small class="text-danger">{{'*'.$message}}</small>
-                        @enderror
-                    </div>
-                </div>
-
-                <!---Email---->
-                <div class="row mb-4">
-                    <label for="email" class="col-lg-2 col-form-label">Correo electrónico:</label>
-                    <div class="col-lg-4">
-                        <input autocomplete="off" type="email" name="email" id="email" class="form-control" value="{{old('email')}}" aria-labelledby="emailHelpBlock">
-                    </div>
-                    <div class="col-lg-4">
-                        <div class="form-text" id="emailHelpBlock">
-                            Dirección de correo
-                        </div>
-                    </div>
-                    <div class="col-lg-2">
-                        @error('email')
-                        <small class="text-danger">{{'*'.$message}}</small>
-                        @enderror
-                    </div>
-                </div>
-
-                <!---Password---->
-                <div class="row mb-4">
-                    <label for="password" class="col-lg-2 col-form-label">Contraseña:</label>
-                    <div class="col-lg-4">
-                        <input type="password" name="password" id="password" class="form-control" aria-labelledby="passwordHelpBlock">
-                    </div>
-                    <div class="col-lg-4">
-                        <div class="form-text" id="passwordHelpBlock">
-                            Ingresa una contraseña segura. Debe incluir números.
-                        </div>
-                    </div>
-                    <div class="col-lg-2">
-                        @error('password')
-                        <small class="text-danger">{{'*'.$message}}</small>
-                        @enderror
-                    </div>
-                </div>
-
-                <!---Confirm_Password---->
-                <div class="row mb-4">
-                    <label for="password_confirm" class="col-lg-2 col-form-label">Confirmar:</label>
-                    <div class="col-lg-4">
-                        <input type="password" name="password_confirm" id="password_confirm" class="form-control" aria-labelledby="passwordConfirmHelpBlock">
-                    </div>
-                    <div class="col-lg-4">
-                        <div class="form-text" id="passwordConfirmHelpBlock">
-                            Vuelve a ingresar tu contraseña.
-                        </div>
-                    </div>
-                    <div class="col-lg-2">
-                        @error('password_confirm')
-                        <small class="text-danger">{{'*'.$message}}</small>
-                        @enderror
-                    </div>
-                </div>
-
-                <!---Roles---->
-                <div class="row mb-4">
-                    <label for="role" class="col-lg-2 col-form-label">Rol:</label>
-                    <div class="col-lg-4">
-                        <select name="role" id="role" class="form-select" aria-labelledby="rolHelpBlock">
-                            <option value="" selected disabled>Selecciona:</option>
-                            @foreach ($roles as $item)
-                            <option value="{{$item->name}}" @selected(old('role')==$item->name)>{{$item->name}}</option>
-                            @endforeach
-                        </select>
-                    </div>
-                    <div class="col-lg-4">
-                        <div class="form-text" id="rolHelpBlock">
-                            Elige un rol para el usuario.
-                        </div>
-                    </div>
-                    <div class="col-lg-2">
-                        @error('role')
-                        <small class="text-danger">{{'*'.$message}}</small>
-                        @enderror
-                    </div>
-                </div>
-
+                <div id="user-create-form-fields"></div>
             </div>
             <div class="card-footer text-center">
                 <button type="submit" class="btn btn-primary">Registrar usuario</button>
@@ -130,18 +36,13 @@
 @endsection
 
 @push('js')
-
-@endpush
-@vite(['resources/js/components/forms/UserFormManager.js', 'resources/js/components/forms/FormValidator.js'])
+@vite(['resources/js/components/tables/UserFormManager.js', 'resources/js/components/forms/FormValidator.js'])
 <script>
     document.addEventListener('DOMContentLoaded', function() {
-        if (window.FormValidator) {
-            new FormValidator('#user-create-form');
-        }
         if (window.UserFormManager) {
             window.UserFormManager.init({
                 el: '#user-create-form-fields',
-                roles: @json($roles),
+                roles: @json($roles->pluck('name')->toArray()),
                 old: {
                     name: @json(old('name')),
                     email: @json(old('email')),
@@ -150,5 +51,9 @@
                 }
             });
         }
+        if (window.FormValidator) {
+            new FormValidator('#user-create-form');
+        }
     });
 </script>
+@endpush
