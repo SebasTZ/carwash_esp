@@ -293,7 +293,7 @@ export function numberToWords(num) {
     
     if (num === 0) return 'CERO';
     
-    const entero = Math.floor(num);
+    let entero = Math.floor(num);
     const decimal = Math.round((num - entero) * 100);
     
     let palabras = '';
