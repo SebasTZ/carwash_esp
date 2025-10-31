@@ -90,12 +90,17 @@ window.addEventListener('load', () => {
                     message: 'La descripción no puede exceder 255 caracteres' 
                 }
             }
-        },
-        onSuccess: () => {
-            console.log('✅ Validación exitosa, enviando formulario...');
-        },
-        onError: (errors) => {
-            console.log('❌ Errores de validación:', errors);
+        }
+    });
+
+    formElement.addEventListener('submit', function(e) {
+        console.log('Evento submit disparado');
+        if (!validator.validate()) {
+            e.preventDefault();
+            console.warn('Formulario con errores de validación');
+        } else {
+            console.log('Formulario válido, enviando...');
+            formElement.submit();
         }
     });
 

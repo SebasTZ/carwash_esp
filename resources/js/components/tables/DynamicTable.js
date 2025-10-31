@@ -284,7 +284,12 @@ export default class DynamicTable extends Component {
     formatValue(value, formatter, row) {
         if (value === null || value === undefined) return '-';
 
-        // Formatters personalizados
+        // Si el formatter es una función, llamarla directamente
+        if (typeof formatter === 'function') {
+            return formatter(value, row);
+        }
+
+        // Formatters personalizados por nombre
         if (formatter && this.tableOptions.customFormatters[formatter]) {
             return this.tableOptions.customFormatters[formatter](value, row);
         }
@@ -293,10 +298,8 @@ export default class DynamicTable extends Component {
         switch (formatter) {
             case 'currency':
                 return this.formatCurrency(value);
-            
             case 'date':
                 return this.formatDate(value);
-            
             case 'datetime':
                 return this.formatDateTime(value);
             

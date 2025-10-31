@@ -60,8 +60,8 @@
 
 @push('js')
 <script>
+
 window.addEventListener('load', () => {
-    // Validar que CarWash y DynamicTable existan
     if (!window.CarWash || !window.CarWash.DynamicTable) {
         console.error('DynamicTable no está disponible');
         return;
@@ -73,70 +73,73 @@ window.addEventListener('load', () => {
         return;
     }
 
-    // Configurar DynamicTable
-    const table = new window.CarWash.DynamicTable('#marcasTable', {
-        data: @json($marcas->items()),
+    const marcasData = @json($marcas->items());
+    console.log('Datos de marcas:', marcasData);
+    const canEdit = {{ auth()->user()->can('editar-marca') ? 'true' : 'false' }};
+    const canDelete = {{ auth()->user()->can('eliminar-marca') ? 'true' : 'false' }};
+
+    const actions = [];
+    if (canEdit) {
+        actions.push({
+            label: 'Editar',
+            class: 'btn-outline-primary',
+            icon: 'fa-edit',
+            callback: (row) => {
+                window.location.href = `/marcas/${row.id}/edit`;
+            }
+        });
+    }
+    if (canDelete) {
+        actions.push({
+            label: 'Eliminar',
+            class: 'btn-outline-danger',
+            icon: 'fa-trash-can',
+            show: (row) => row.caracteristica.estado == 1,
+            callback: (row) => {
+                confirmAction(row.id, true);
+            }
+        });
+        actions.push({
+            label: 'Restaurar',
+            class: 'btn-outline-success',
+            icon: 'fa-rotate',
+            show: (row) => row.caracteristica.estado != 1,
+            callback: (row) => {
+                confirmAction(row.id, false);
+            }
+        });
+    }
+
+    const config = {
+        searchable: true,
+        searchPlaceholder: 'Buscar marcas...',
+        perPage: 15,
+        data: marcasData,
         columns: [
-            { 
-                key: 'caracteristica.nombre', 
+            {
+                key: 'caracteristica.nombre',
                 label: 'Nombre',
-                searchable: true 
+                searchable: true
             },
-            { 
-                key: 'caracteristica.descripcion', 
+            {
+                key: 'caracteristica.descripcion',
                 label: 'Descripción',
                 searchable: true
             },
-            { 
-                key: 'caracteristica.estado', 
+            {
+                key: 'caracteristica.estado',
                 label: 'Estado',
-                formatter: (value) => {
-                    return value == 1 
-                        ? '<span class="badge rounded-pill text-bg-success">activo</span>'
-                        : '<span class="badge rounded-pill text-bg-danger">eliminado</span>';
-                }
-            },
-            { 
-                key: 'actions', 
-                label: 'Acciones',
                 formatter: (value, row) => {
-                    const canEdit = {{ auth()->user()->can('editar-marca') ? 'true' : 'false' }};
-                    const canDelete = {{ auth()->user()->can('eliminar-marca') ? 'true' : 'false' }};
-                    const isActive = row.caracteristica.estado == 1;
-                    
-                    let actions = '<div class="d-flex justify-content-center gap-2">';
-                    
-                    // Botón Editar
-                    if (canEdit) {
-                        actions += `
-                            <a href="/marcas/${row.id}/edit" class="btn btn-sm btn-outline-primary" title="Editar">
-                                <i class="fas fa-edit"></i>
-                            </a>
-                        `;
+                    console.log('Estado recibido:', value, typeof value);
+                    if (value === 1 || value === true || value === "1" || value === "true") {
+                        return '<span class="badge rounded-pill text-bg-success">Activo</span>';
+                    } else {
+                        return '<span class="badge rounded-pill text-bg-secondary">Inactivo</span>';
                     }
-                    
-                    // Botón Eliminar/Restaurar
-                    if (canDelete) {
-                        const btnClass = isActive ? 'btn-outline-danger' : 'btn-outline-success';
-                        const icon = isActive ? 'fa-trash-can' : 'fa-rotate';
-                        const title = isActive ? 'Eliminar' : 'Restaurar';
-                        
-                        actions += `
-                            <button onclick="confirmAction(${row.id}, ${isActive})" 
-                                    class="btn btn-sm ${btnClass}" 
-                                    title="${title}">
-                                <i class="fas ${icon}"></i>
-                            </button>
-                        `;
-                    }
-                    
-                    actions += '</div>';
-                    return actions;
                 }
             }
         ],
-        searchable: true,
-        searchPlaceholder: 'Buscar marcas...',
+        actions: actions,
         language: {
             search: 'Buscar:',
             noData: 'No hay marcas registradas',
@@ -145,8 +148,9 @@ window.addEventListener('load', () => {
             infoEmpty: 'Mostrando 0 marcas',
             infoFiltered: '(filtrado de {max} marcas totales)'
         }
-    });
+    };
 
+    new window.CarWash.DynamicTable(tableElement, config);
     console.log('✅ DynamicTable de Marcas inicializada');
 });
 
