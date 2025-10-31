@@ -36,12 +36,10 @@
             Tabla de Compras
         </div>
         <div class="card-body">
-            <div id="dynamicTableCompras"></div>
-            <script type="module">
-                import DynamicTable from '/js/components/DynamicTable.js';
+            <table id="dynamicTableCompras"></table>
+            <script>
                 document.addEventListener('DOMContentLoaded', function() {
-                    new DynamicTable({
-                        elementId: 'dynamicTableCompras',
+                    const config = {
                         columns: [
                             { key: 'comprobante', label: 'Comprobante', render: row => `<p class='fw-semibold mb-1'>${row.comprobante}</p><p class='text-muted mb-0'>${row.numero_comprobante}</p>` },
                             { key: 'proveedor', label: 'Proveedor', render: row => `<p class='fw-semibold mb-1'>${row.tipo_persona}</p><p class='text-muted mb-0'>${row.razon_social}</p>` },
@@ -52,7 +50,9 @@
                         dataUrl: '/api/compras',
                         pagination: true,
                         preserveQuery: true
-                    });
+                    };
+                    new window.CarWash.DynamicTable('#dynamicTableCompras', config);
+                    console.log('✅ DynamicTable inicializado correctamente para Compras');
                 });
             </script>
         </div>

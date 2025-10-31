@@ -35,12 +35,10 @@
             Tabla de Compras {{ $reporte }}
         </div>
         <div class="card-body">
-            <div id="dynamicTableComprasReporte"></div>
-            <script type="module">
-                import DynamicTable from '/js/components/DynamicTable.js';
+            <table id="dynamicTableComprasReporte"></table>
+            <script>
                 document.addEventListener('DOMContentLoaded', function() {
-                    new DynamicTable({
-                        elementId: 'dynamicTableComprasReporte',
+                    const config = {
                         columns: [
                             { key: 'comprobante', label: 'Comprobante', render: row => `<p class='fw-semibold mb-1'>${row.comprobante}</p><p class='text-muted mb-0'>${row.numero_comprobante}</p>` },
                             { key: 'proveedor', label: 'Proveedor', render: row => `<p class='fw-semibold mb-1'>${row.tipo_persona}</p><p class='text-muted mb-0'>${row.razon_social}</p>` },
@@ -51,7 +49,9 @@
                         dataUrl: '/api/compras/reporte?tipo={{ $reporte }}',
                         pagination: true,
                         preserveQuery: true
-                    });
+                    };
+                    new window.CarWash.DynamicTable('#dynamicTableComprasReporte', config);
+                    console.log('✅ DynamicTable inicializado correctamente para Reporte de Compras');
                 });
             </script>
         </div>

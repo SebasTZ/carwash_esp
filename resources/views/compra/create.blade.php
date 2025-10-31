@@ -4,7 +4,7 @@
 @section('title','Registrar Compra')
 
 @push('css')
-<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-select@1.14.0-beta3/dist/css/bootstrap-select.min.css">
+<link rel="stylesheet" href="/css/bootstrap-select.min.css">
 @endpush
 
 @section('content')
@@ -18,11 +18,9 @@
 </div>
 
 <div id="formCompraContainer"></div>
-<script type="module">
-    import FormValidator from '/js/components/FormValidator.js';
-    import CompraForm from '/js/modules/CompraForm.js';
+<script>
     document.addEventListener('DOMContentLoaded', function() {
-        new CompraForm({
+        new window.CarWash.CompraForm({
             elementId: 'formCompraContainer',
             productos: @json($productos),
             proveedores: @json($proveedores),
@@ -31,11 +29,12 @@
             old: @json(old()),
             errors: @json($errors->all()),
             action: '{{ route('compras.store') }}',
-            method: 'POST'
-        });
-        new FormValidator({
-            formSelector: '#formCompraContainer form',
-            validateOnInput: false
+            method: 'POST',
+            onFormReady: function(form) {
+                new window.CarWash.FormValidator(form, {
+                    validateOnInput: false
+                });
+            }
         });
     });
 </script>

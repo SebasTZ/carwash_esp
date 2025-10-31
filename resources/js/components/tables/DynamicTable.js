@@ -55,20 +55,40 @@ export default class DynamicTable extends Component {
             customFormatters: {},
             ...options
         };
-        
+
+        // Log de configuración inicial
+        console.log('[DynamicTable] Opciones:', tableOptions);
+
         // Pasar selector correctamente a Component
-        const componentOptions = typeof selector === 'string' 
-            ? { selector } 
-            : { element: selector };
-        
+        let componentOptions;
+        let element = null;
+        if (typeof selector === 'string') {
+            element = document.querySelector(selector);
+            if (!element) {
+                console.error(`[DynamicTable] Error: No se encontró el elemento con selector '${selector}'. La tabla no se inicializará.`);
+                return;
+            }
+            componentOptions = { element };
+        } else {
+            element = selector;
+            if (!element) {
+                console.error('[DynamicTable] Error: El elemento de la tabla es null o undefined. La tabla no se inicializará.');
+                return;
+            }
+            componentOptions = { element };
+        }
+
         super(componentOptions);
-        
+
         // Asignar tableOptions DESPUÉS de super()
         this.tableOptions = tableOptions;
         this.data = [...this.tableOptions.data];
         this.filteredData = [...this.data];
         this.searchTerm = '';
-        
+
+        // Log de data inicial
+        console.log('[DynamicTable] Data inicial:', this.data);
+
         // Ahora sí inicializar (después de que tableOptions esté listo)
         this.init();
     }
@@ -142,6 +162,9 @@ export default class DynamicTable extends Component {
             wrapper.appendChild(this.element);
         }
 
+        // Log de renderizado de tabla
+        console.log('[DynamicTable] Renderizando tabla. Data actual:', this.data);
+
         this.renderHeader();
         this.renderBody();
     }
@@ -170,6 +193,7 @@ export default class DynamicTable extends Component {
         const tbody = this.element.querySelector('tbody');
         
         if (this.filteredData.length === 0) {
+            console.log('[DynamicTable] No hay datos para mostrar. Mostrando tabla vacía.');
             tbody.innerHTML = `
                 <tr>
                     <td colspan="${this.tableOptions.columns.length + (this.tableOptions.actions.length > 0 ? 1 : 0)}" 

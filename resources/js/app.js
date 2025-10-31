@@ -1,4 +1,8 @@
 import './bootstrap';
+import $ from 'jquery';
+window.$ = $;
+window.jQuery = $;
+import 'bootstrap-select/dist/js/bootstrap-select.min.js';
 
 /**
  * CarWash ESP - Frontend Application
@@ -18,6 +22,7 @@ import * as LazyLoader from './utils/lazy-loader';
 // Importar componentes modernos
 // ========================================
 import DynamicTable from './components/tables/DynamicTable.js';
+import CompraForm from './modules/CompraForm.js';
 import AutoSave from './components/forms/AutoSave.js';
 import FormValidator from './components/forms/FormValidator.js';
 import LavadorTableManager from './components/tables/LavadorTableManager.js';
@@ -109,6 +114,7 @@ window.CarWash = {
     DynamicTable: DynamicTable,
     AutoSave: AutoSave,
     FormValidator: FormValidator,
+    CompraForm: CompraForm,
     // Lavadores
     LavadorTableManager: LavadorTableManager,
     LavadorFormManager: LavadorFormManager,

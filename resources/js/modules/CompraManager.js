@@ -520,6 +520,7 @@ export class CompraManager {
 document.addEventListener('DOMContentLoaded', () => {
     // Solo inicializar si estamos en la página de crear compra
     if (document.getElementById('btn_agregar') && window.location.pathname.includes('/compras/')) {
+        console.log('[CompraManager] Inicializando módulo de compra...');
         window.compraManager = new CompraManager();
         console.log('🚀 CompraManager inicializado');
     }

@@ -1,7 +1,11 @@
 export default class CompraForm {
-    constructor({ elementId, productos = [], proveedores = [], comprobantes = [], impuesto = 18, old = {}, errors = [], action = '', method = 'POST' }) {
+    constructor({ elementId, productos = [], proveedores = [], comprobantes = [], impuesto = 18, old = {}, errors = [], action = '', method = 'POST', onFormReady = null }) {
+        console.log('[CompraForm] Data recibida:', { productos, proveedores, comprobantes, impuesto, old, errors, action, method });
         const container = document.getElementById(elementId);
-        if (!container) return;
+        if (!container) {
+            console.warn('[CompraForm] No se encontró el contenedor:', elementId);
+            return;
+        }
         container.innerHTML = `
             <form action="${action}" method="${method}">
                 <div class="mb-3">
@@ -30,7 +34,7 @@ export default class CompraForm {
                     <label for="comprobante_id" class="form-label">Comprobante</label>
                     <select name="comprobante_id" id="comprobante_id" class="form-control" required>
                         <option value="">Seleccione...</option>
-                        ${comprobantes.map(c => `<option value='${c.id}' ${old.comprobante_id == c.id ? 'selected' : ''}>${c.nombre}</option>`).join('')}
+                        ${comprobantes.map(c => `<option value='${c.id}' ${old.comprobante_id == c.id ? 'selected' : ''}>${c.tipo_comprobante}</option>`).join('')}
                     </select>
                 </div>
                 <div class="mb-3">
@@ -40,5 +44,11 @@ export default class CompraForm {
                 <button type="submit" class="btn btn-primary">Registrar compra</button>
             </form>
         `;
+        if (typeof onFormReady === 'function') {
+            const form = container.querySelector('form');
+            if (form) {
+                onFormReady(form);
+            }
+        }
     }
 }

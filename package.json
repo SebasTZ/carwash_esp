@@ -18,5 +18,9 @@
         "terser": "^5.44.0",
         "vite": "^3.0.0",
         "vitest": "^3.2.4"
+    },
+    "dependencies": {
+        "bootstrap-select": "^1.13.18",
+        "jquery": "^3.7.1"
     }
 }
