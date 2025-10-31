@@ -114,12 +114,8 @@
         scrollToError: true,
         focusOnError: true,
         disableSubmitOnInvalid: false, // Permitir submit para ver errores del servidor
-        onValid: (form) => {
-            console.log('Formulario válido, enviando...');
-            // El formulario se enviará normalmente
-        },
+        onValid: (form) => {        },
         onInvalid: (errors) => {
-            console.log('Errores de validación:', errors);
             
             // Mostrar notificación
             if (window.CarWash && window.CarWash.showError) {
@@ -127,14 +123,10 @@
             }
         },
         onFieldValid: (field, value) => {
-            console.log(`Campo ${field} válido:`, value);
-        },
+       },
         onFieldInvalid: (field, error) => {
-            console.log(`Campo ${field} inválido:`, error);
         }
     });
-
-    console.log('FormValidator inicializado en formulario de creación');
 
     // Prevenir doble submit
     const form = document.getElementById('form-categoria');

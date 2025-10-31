@@ -73,7 +73,6 @@
 <script>
     // Esperar a que TODO esté listo (DOM + scripts)
     window.addEventListener('load', function() {
-        console.log('🔄 Iniciando configuración de DynamicTable...');
         
         // Verificar que el contenedor existe
         const container = document.getElementById('categorias-table');
@@ -81,15 +80,12 @@
             console.error('❌ Contenedor #categorias-table no encontrado');
             return;
         }
-        console.log('✅ Contenedor encontrado:', container);
         
         // Verificar que window.CarWash existe
         if (!window.CarWash || !window.CarWash.DynamicTable) {
             console.error('❌ window.CarWash.DynamicTable no está disponible');
-            console.log('window.CarWash:', window.CarWash);
             return;
         }
-        console.log('✅ window.CarWash.DynamicTable disponible');
 
         const DynamicTable = window.CarWash.DynamicTable;
         
@@ -97,9 +93,6 @@
         const categoriasData = @json($categorias->items());
         const canEdit = {{ auth()->user()->can('editar-categoria') ? 'true' : 'false' }};
         const canDelete = {{ auth()->user()->can('eliminar-categoria') ? 'true' : 'false' }};
-
-        console.log('📊 Datos recibidos:', categoriasData);
-        console.log('🔐 Permisos - Editar:', canEdit, 'Eliminar:', canDelete);
 
         // Configurar DynamicTable
         try {
@@ -150,8 +143,6 @@
                     }] : [])
                 ]
             });
-
-            console.log('✅ DynamicTable inicializado con', categoriasData.length, 'categorías');
 
             // Función para mostrar modal de confirmación
             function showDeleteModal(categoria) {

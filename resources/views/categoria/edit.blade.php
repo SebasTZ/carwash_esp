@@ -140,24 +140,17 @@
         focusOnError: true,
         disableSubmitOnInvalid: false,
         onValid: (form) => {
-            console.log('Formulario de edición válido, enviando...');
         },
         onInvalid: (errors) => {
-            console.log('Errores de validación:', errors);
-            
             if (window.CarWash && window.CarWash.showError) {
                 window.CarWash.showError('Por favor, corrija los errores en el formulario');
             }
         },
         onFieldValid: (field, value) => {
-            console.log(`Campo ${field} válido:`, value);
         },
         onFieldInvalid: (field, error) => {
-            console.log(`Campo ${field} inválido:`, error);
         }
     });
-
-    console.log('FormValidator inicializado en formulario de edición');
 
     // Prevenir doble submit
     const form = document.getElementById('form-categoria-edit');
@@ -180,7 +173,6 @@
     // Manejar reset
     form.addEventListener('reset', function() {
         validator.clearErrors();
-        console.log('Formulario restablecido');
     });
     });
 </script>
