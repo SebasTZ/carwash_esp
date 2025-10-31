@@ -74,7 +74,6 @@ window.addEventListener('load', () => {
     }
 
     const marcasData = @json($marcas->items());
-    console.log('Datos de marcas:', marcasData);
     const canEdit = {{ auth()->user()->can('editar-marca') ? 'true' : 'false' }};
     const canDelete = {{ auth()->user()->can('eliminar-marca') ? 'true' : 'false' }};
 
@@ -130,7 +129,6 @@ window.addEventListener('load', () => {
                 key: 'caracteristica.estado',
                 label: 'Estado',
                 formatter: (value, row) => {
-                    console.log('Estado recibido:', value, typeof value);
                     if (value === 1 || value === true || value === "1" || value === "true") {
                         return '<span class="badge rounded-pill text-bg-success">Activo</span>';
                     } else {
@@ -151,7 +149,6 @@ window.addEventListener('load', () => {
     };
 
     new window.CarWash.DynamicTable(tableElement, config);
-    console.log('✅ DynamicTable de Marcas inicializada');
 });
 
 // Función global para confirmar acción
