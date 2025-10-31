@@ -68,12 +68,17 @@
                 showErrors: true
             });
 
-            formElement.addEventListener('submit', (e) => {
-                if (!validator.validateAll()) {
-                    e.preventDefault();
-                    console.warn('Formulario con errores de validación');
-                }
-            });
+                formElement.addEventListener('submit', (e) => {
+                    console.log('Evento submit disparado');
+                    if (!validator.validate()) {
+                        e.preventDefault();
+                        console.warn('Formulario con errores de validación');
+                    } else {
+                        console.log('Formulario válido, enviando...');
+                        // Ejecutar el submit real
+                        formElement.submit();
+                    }
+                });
 
             console.log('✅ FormValidator inicializado correctamente para crear TipoVehiculo');
         } catch (error) {

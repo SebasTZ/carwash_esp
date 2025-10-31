@@ -48,11 +48,27 @@
             return;
         }
 
+        const tiposData = @json($tipos->items());
+        const canEdit = String(@json((bool)auth()->user()->can('editar-tipo-vehiculo'))) === 'true';
+
+        const actions = [];
+        if (canEdit) {
+            actions.push({
+                label: 'Editar',
+                class: 'btn-info',
+                icon: '',
+                callback: (row) => {
+                    window.location.href = `/tipos_vehiculo/${row.id}/edit`;
+                }
+            });
+        }
+
         const config = {
             searchable: true,
             searchPlaceholder: 'Buscar tipo de vehículo...',
             sortable: true,
             perPage: 15,
+            data: tiposData,
             columns: [
                 {
                     key: 'nombre',
@@ -80,14 +96,9 @@
                         const badgeClass = estado === 'activo' ? 'bg-success' : 'bg-secondary';
                         return `<span class="badge ${badgeClass}">${estado.charAt(0).toUpperCase() + estado.slice(1)}</span>`;
                     }
-                },
-                {
-                    key: 'acciones',
-                    label: 'Acciones',
-                    sortable: false,
-                    searchable: false
                 }
-            ]
+            ],
+            actions: actions
         };
 
         try {

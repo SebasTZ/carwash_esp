@@ -70,9 +70,14 @@
             });
 
             formElement.addEventListener('submit', (e) => {
-                if (!validator.validateAll()) {
+                console.log('Evento submit disparado');
+                if (!validator.validate()) {
                     e.preventDefault();
                     console.warn('Formulario con errores de validación');
+                } else {
+                    console.log('Formulario válido, enviando...');
+                    // Ejecutar el submit real
+                    formElement.submit();
                 }
             });
 
