@@ -73,7 +73,7 @@ window.addEventListener('load', () => {
 
     // Configurar FormValidator
     const validator = new window.CarWash.FormValidator('#presentacioneForm', {
-        validators: {
+    validators: {
             nombre: {
                 required: { 
                     message: 'El nombre es obligatorio' 
@@ -91,14 +91,13 @@ window.addEventListener('load', () => {
             }
         },
         onSuccess: () => {
-            console.log('✅ Validación exitosa, enviando formulario...');
+        onValid: () => {
+            formElement.submit();
         },
         onError: (errors) => {
-            console.log('❌ Errores de validación:', errors);
         }
     });
 
-    console.log('✅ FormValidator de Presentación (create) inicializado');
 });
 </script>
 @endpush

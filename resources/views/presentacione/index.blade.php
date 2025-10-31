@@ -63,77 +63,71 @@
 window.addEventListener('load', () => {
     // Validar que CarWash y DynamicTable existan
     if (!window.CarWash || !window.CarWash.DynamicTable) {
-        console.error('DynamicTable no está disponible');
         return;
     }
 
     const tableElement = document.querySelector('#presentacionesTable');
     if (!tableElement) {
-        console.error('Elemento #presentacionesTable no encontrado');
         return;
     }
+
+    // Permisos desde Blade
+    const canEdit = {{ auth()->user()->can('editar-presentacione') ? 'true' : 'false' }};
+    const canDelete = {{ auth()->user()->can('eliminar-presentacione') ? 'true' : 'false' }};
 
     // Configurar DynamicTable
     const table = new window.CarWash.DynamicTable('#presentacionesTable', {
         data: @json($presentaciones->items()),
         columns: [
-            { 
-                key: 'caracteristica.nombre', 
+            {
+                key: 'caracteristica.nombre',
                 label: 'Nombre',
-                searchable: true 
+                searchable: true
             },
-            { 
-                key: 'caracteristica.descripcion', 
+            {
+                key: 'caracteristica.descripcion',
                 label: 'Descripción',
                 searchable: true
             },
-            { 
-                key: 'caracteristica.estado', 
+            {
+                key: 'caracteristica.estado',
                 label: 'Estado',
                 formatter: (value) => {
-                    return value == 1 
+                    return value == 1
                         ? '<span class="badge rounded-pill text-bg-success">activo</span>'
                         : '<span class="badge rounded-pill text-bg-danger">eliminado</span>';
                 }
-            },
-            { 
-                key: 'actions', 
-                label: 'Acciones',
-                formatter: (value, row) => {
-                    const canEdit = {{ auth()->user()->can('editar-presentacione') ? 'true' : 'false' }};
-                    const canDelete = {{ auth()->user()->can('eliminar-presentacione') ? 'true' : 'false' }};
-                    const isActive = row.caracteristica.estado == 1;
-                    
-                    let actions = '<div class="d-flex justify-content-center gap-2">';
-                    
-                    // Botón Editar
-                    if (canEdit) {
-                        actions += `
-                            <a href="/presentaciones/${row.id}/edit" class="btn btn-sm btn-outline-primary" title="Editar">
-                                <i class="fas fa-edit"></i>
-                            </a>
-                        `;
-                    }
-                    
-                    // Botón Eliminar/Restaurar
-                    if (canDelete) {
-                        const btnClass = isActive ? 'btn-outline-danger' : 'btn-outline-success';
-                        const icon = isActive ? 'fa-trash-can' : 'fa-rotate';
-                        const title = isActive ? 'Eliminar' : 'Restaurar';
-                        
-                        actions += `
-                            <button onclick="confirmAction(${row.id}, ${isActive})" 
-                                    class="btn btn-sm ${btnClass}" 
-                                    title="${title}">
-                                <i class="fas ${icon}"></i>
-                            </button>
-                        `;
-                    }
-                    
-                    actions += '</div>';
-                    return actions;
-                }
             }
+        ],
+        actions: [
+            ...(canEdit ? [{
+                label: 'Editar',
+                class: 'btn-outline-primary',
+                icon: 'fa-edit',
+                callback: (row) => {
+                    window.location.href = `/presentaciones/${row.id}/edit`;
+                }
+            }] : []),
+            ...(canDelete ? [
+                {
+                    label: 'Eliminar',
+                    class: 'btn-outline-danger',
+                    icon: 'fa-trash-can',
+                    show: (row) => row.caracteristica.estado == 1,
+                    callback: (row) => {
+                        confirmAction(row.id, true);
+                    }
+                },
+                {
+                    label: 'Restaurar',
+                    class: 'btn-outline-success',
+                    icon: 'fa-rotate',
+                    show: (row) => row.caracteristica.estado != 1,
+                    callback: (row) => {
+                        confirmAction(row.id, false);
+                    }
+                }
+            ] : [])
         ],
         searchable: true,
         searchPlaceholder: 'Buscar presentaciones...',
@@ -147,7 +141,6 @@ window.addEventListener('load', () => {
         }
     });
 
-    console.log('✅ DynamicTable de Presentaciones inicializada');
 });
 
 // Función global para confirmar acción

@@ -64,19 +64,17 @@
 window.addEventListener('load', () => {
     // Validar que CarWash y FormValidator existan
     if (!window.CarWash || !window.CarWash.FormValidator) {
-        console.error('FormValidator no está disponible');
         return;
     }
 
     const formElement = document.querySelector('#presentacioneForm');
     if (!formElement) {
-        console.error('Elemento #presentacioneForm no encontrado');
-        return;
+       return;
     }
 
     // Configurar FormValidator (misma config que create)
     const validator = new window.CarWash.FormValidator('#presentacioneForm', {
-        validators: {
+    validators: {
             nombre: {
                 required: { 
                     message: 'El nombre es obligatorio' 
@@ -94,14 +92,13 @@ window.addEventListener('load', () => {
             }
         },
         onSuccess: () => {
-            console.log('✅ Validación exitosa, enviando formulario...');
+        onValid: () => {
+            formElement.submit();
         },
         onError: (errors) => {
-            console.log('❌ Errores de validación:', errors);
-        }
+       }
     });
 
-    console.log('✅ FormValidator de Presentación (edit) inicializado');
 });
 </script>
 @endpush
