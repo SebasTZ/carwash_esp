@@ -137,7 +137,7 @@ class TarjetaRegaloController extends Controller
 
     public function reporteView(Request $request)
     {
-        $tarjetas = \App\Models\TarjetaRegalo::with('cliente.persona')->get();
+        $tarjetas = \App\Models\TarjetaRegalo::with('cliente.persona')->paginate(15);
         return view('tarjetas_regalo.reporte', compact('tarjetas'));
     }
 

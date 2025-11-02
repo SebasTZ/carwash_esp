@@ -50,12 +50,6 @@
                 </div>
                 <button type="submit" class="btn btn-success">Actualizar</button>
             </form>
-            <script type="module">
-                import TarjetaRegaloFormManager from '/resources/js/components/forms/TarjetaRegaloFormManager.js';
-                document.addEventListener('DOMContentLoaded', () => {
-                    new TarjetaRegaloFormManager('#tarjetaRegaloForm');
-                });
-            </script>
             <form action="{{ route('tarjetas_regalo.destroy', $tarjeta->id) }}" method="POST" class="mt-3">
                 @csrf
                 @method('DELETE')

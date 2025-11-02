@@ -20,7 +20,12 @@
                 @csrf
                 <div class="mb-3">
                     <label for="codigo" class="form-label">Código de Tarjeta</label>
-                    <input type="text" class="form-control" id="codigo" name="codigo" required maxlength="30">
+                    <div class="input-group">
+                        <input type="text" class="form-control" id="codigo" name="codigo" required maxlength="30" placeholder="Generar código...">
+                        <button type="button" class="btn btn-outline-primary" id="generarCodigoBtn">
+                            <i class="fa-solid fa-rotate me-1"></i>Generar
+                        </button>
+                    </div>
                 </div>
                 <div class="mb-3">
                     <label for="valor_inicial" class="form-label">Valor Inicial</label>
@@ -45,10 +50,31 @@
                 </div>
                 <button type="submit" class="btn btn-success">Crear</button>
             </form>
-            <script type="module">
-                import TarjetaRegaloFormManager from '/resources/js/components/forms/TarjetaRegaloFormManager.js';
+            <script>
                 document.addEventListener('DOMContentLoaded', () => {
-                    new TarjetaRegaloFormManager('#tarjetaRegaloForm');
+                    const generarCodigoBtn = document.getElementById('generarCodigoBtn');
+                    const codigoInput = document.getElementById('codigo');
+
+                    // Función para generar código serial único
+                    function generarCodigoSerial() {
+                        // Formato: TRG-YYYYMMDD-XXXXX (donde XXXXX es aleatorio de 5 dígitos)
+                        const fecha = new Date();
+                        const año = fecha.getFullYear();
+                        const mes = String(fecha.getMonth() + 1).padStart(2, '0');
+                        const dia = String(fecha.getDate()).padStart(2, '0');
+                        const aleatorio = String(Math.floor(Math.random() * 100000)).padStart(5, '0');
+                        
+                        return `TRG-${año}${mes}${dia}-${aleatorio}`;
+                    }
+
+                    generarCodigoBtn.addEventListener('click', (e) => {
+                        e.preventDefault();
+                        codigoInput.value = generarCodigoSerial();
+                        codigoInput.focus();
+                    });
+
+                    // Generar código al cargar la página (opcional)
+                    // codigoInput.value = generarCodigoSerial();
                 });
             </script>
         </div>

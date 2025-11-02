@@ -51,12 +51,6 @@
                     @endforeach
                 </tbody>
             </table>
-            <script type="module">
-                import TarjetaRegaloTableManager from '/resources/js/components/tables/TarjetaRegaloTableManager.js';
-                document.addEventListener('DOMContentLoaded', () => {
-                    new TarjetaRegaloTableManager('#tarjetaRegaloTable');
-                });
-            </script>
 
             <!-- Paginación usando componente -->
             <x-pagination-info :paginator="$tarjetas" entity="tarjetas de regalo" />

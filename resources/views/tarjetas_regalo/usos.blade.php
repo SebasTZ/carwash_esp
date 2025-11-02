@@ -38,12 +38,6 @@
                     @endforeach
                 </tbody>
             </table>
-            <script type="module">
-                import TarjetaRegaloUsosTableManager from '/resources/js/components/tables/TarjetaRegaloUsosTableManager.js';
-                document.addEventListener('DOMContentLoaded', () => {
-                    new TarjetaRegaloUsosTableManager('#tarjetaRegaloUsosTable');
-                });
-            </script>
         </div>
     </div>
 </div>
