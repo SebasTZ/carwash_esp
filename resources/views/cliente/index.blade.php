@@ -35,7 +35,53 @@
             Clients Table
         </div>
         <div class="card-body">
-            <div id="clientesTable"></div>
+            <table class="table table-striped fs-6">
+                <thead>
+                    <tr>
+                        <th>Name</th>
+                        <th>Document</th>
+                        <th>Phone</th>
+                        <th>Email</th>
+                        <th>Status</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach ($clientes as $cliente)
+                    <tr>
+                        <td>{{ $cliente->persona->razon_social }}</td>
+                        <td>{{ $cliente->persona->numero_documento }}</td>
+                        <td>{{ $cliente->persona->telefono }}</td>
+                        <td>{{ $cliente->persona->email }}</td>
+                        <td>
+                            @if ($cliente->persona->estado == 1)
+                            <span class="badge rounded-pill text-bg-success">active</span>
+                            @else
+                            <span class="badge rounded-pill text-bg-danger">deleted</span>
+                            @endif
+                        </td>
+                        <td>
+                            <div class="d-flex justify-content-around">
+                                <div>
+                                    <a class="btn btn-info btn-sm" href="{{route('clientes.edit',['cliente'=>$cliente])}}" title="Edit">
+                                        <i class="fas fa-edit"></i>
+                                    </a>
+                                </div>
+                                <div>
+                                    <form action="{{ route('clientes.destroy',['cliente'=>$cliente->id]) }}" method="post">
+                                        @method('DELETE')
+                                        @csrf
+                                        <button type="submit" class="btn btn-danger btn-sm" title="Eliminar" onclick="return confirm('¿Estás seguro de que deseas eliminar este cliente?')">
+                                            <i class="fas fa-trash"></i>
+                                        </button>
+                                    </form>
+                                </div>
+                            </div>
+                        </td>
+                    </tr>
+                    @endforeach
+                </tbody>
+            </table>
 
             <!-- Paginación usando componente -->
             <x-pagination-info :paginator="$clientes" entity="clientes" />
@@ -45,48 +91,5 @@
 @endsection
 
 @push('js')
-<script type="module">
-    document.addEventListener('DOMContentLoaded', function() {
-        const data = @json($clientes->items());
-
-        new window.CarWash.DynamicTable({
-            containerId: 'clientesTable',
-            data: data,
-            columns: [
-                { field: 'persona.razon_social', label: 'Name', sortable: true },
-                { field: 'persona.numero_documento', label: 'Document', sortable: true },
-                { field: 'persona.telefono', label: 'Phone' },
-                { field: 'persona.email', label: 'Email' },
-                {
-                    field: 'persona.estado',
-                    label: 'Status',
-                    formatter: (value) => value == 1
-                        ? '<span class="badge rounded-pill text-bg-success">active</span>'
-                        : '<span class="badge rounded-pill text-bg-danger">deleted</span>'
-                },
-                {
-                    field: 'id',
-                    label: 'Actions',
-                    formatter: (value) => {
-                        const editUrl = `{{ route('clientes.index') }}/${value}/edit`;
-                        const deleteUrl = `{{ route('clientes.index') }}/${value}`;
-                        return `
-                            <a class="btn btn-info btn-sm" href="${editUrl}" title="Edit"><i class="fas fa-edit"></i></a>
-                            <form action="${deleteUrl}" method="post" style="display:inline;">
-                                @csrf
-                                @method('DELETE')
-                                <button type="submit" class="btn btn-danger btn-sm" title="Eliminar" onclick="return confirm('¿Estás seguro de que deseas eliminar este cliente?')">
-                                    <i class="fas fa-trash"></i>
-                                </button>
-                            </form>
-                        `;
-                    }
-                }
-            ],
-            searchable: true,
-            searchPlaceholder: 'Buscar por nombre o documento...',
-            emptyMessage: 'No hay clientes registrados'
-        });
-    });
-</script>
+<!-- DataTables removido para usar paginación de Laravel -->
 @endpush

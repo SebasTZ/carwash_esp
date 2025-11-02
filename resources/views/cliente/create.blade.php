@@ -3,8 +3,11 @@
 @section('title','Create Client')
 
 @push('css')
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.4/jquery.min.js"></script>
 <style>
-    #box-razon-social { display: none; }
+    #box-razon-social {
+        display: none;
+    }
 </style>
 @endpush
 
@@ -18,7 +21,7 @@
     </ol>
 
     <div class="card">
-        <form id="clienteForm" action="{{ route('clientes.store') }}" method="post">
+        <form action="{{ route('clientes.store') }}" method="post">
             @csrf
             <div class="card-body text-bg-light">
 
@@ -27,12 +30,14 @@
                     <!-- Client type -->
                     <div class="col-md-6">
                         <label for="tipo_persona" class="form-label">Client type:</label>
-                        <select class="form-select" name="tipo_persona" id="tipo_persona" data-rule-required="true">
+                        <select class="form-select" name="tipo_persona" id="tipo_persona">
                             <option value="" selected disabled>Select an option</option>
                             <option value="natural" {{ old('tipo_persona') == 'natural' ? 'selected' : '' }}>Natural person</option>
                             <option value="juridica" {{ old('tipo_persona') == 'juridica' ? 'selected' : '' }}>Legal entity</option>
                         </select>
-                        <div class="invalid-feedback"></div>
+                        @error('tipo_persona')
+                        <small class="text-danger">{{'*'.$message}}</small>
+                        @enderror
                     </div>
 
                     <!-------Razón social------->
@@ -40,40 +45,51 @@
                         <label id="label-natural" for="razon_social" class="form-label">Names and surnames:</label>
                         <label id="label-juridica" for="razon_social" class="form-label">Company name:</label>
 
-                        <input type="text" name="razon_social" id="razon_social" class="form-control" value="{{old('razon_social')}}" data-rule-required="true">
-                        <div class="invalid-feedback"></div>
+                        <input required type="text" name="razon_social" id="razon_social" class="form-control" value="{{old('razon_social')}}">
+
+                        @error('razon_social')
+                        <small class="text-danger">{{'*'.$message}}</small>
+                        @enderror
                     </div>
 
                     <!------Dirección---->
                     <div class="col-12">
                         <label for="direccion" class="form-label">Address:</label>
-                        <input type="text" name="direccion" id="direccion" class="form-control" value="{{old('direccion')}}" data-rule-required="true">
-                        <div class="invalid-feedback"></div>
+                        <input required type="text" name="direccion" id="direccion" class="form-control" value="{{old('direccion')}}">
+                        @error('direccion')
+                        <small class="text-danger">{{'*'.$message}}</small>
+                        @enderror
                     </div>
 
                     <!------Teléfono---->
                     <div class="col-12">
                         <label for="telefono" class="form-label">Phone:</label>
-                        <input type="text" name="telefono" id="telefono" class="form-control" value="{{old('telefono')}}" data-rule-required="true">
-                        <div class="invalid-feedback"></div>
+                        <input required type="text" name="telefono" id="telefono" class="form-control" value="{{old('telefono')}}">
+                        @error('telefono')
+                        <small class="text-danger">{{'*'.$message}}</small>
+                        @enderror
                     </div>
 
                     <!--------------Documento------->
                     <div class="col-md-6">
                         <label for="documento_id" class="form-label">Document type:</label>
-                        <select class="form-select" name="documento_id" id="documento_id" data-rule-required="true">
+                        <select class="form-select" name="documento_id" id="documento_id">
                             <option value="" selected disabled>Select an option</option>
                             @foreach ($documentos as $item)
                             <option value="{{$item->id}}" {{ old('documento_id') == $item->id ? 'selected' : '' }}>{{$item->tipo_documento}}</option>
                             @endforeach
                         </select>
-                        <div class="invalid-feedback"></div>
+                        @error('documento_id')
+                        <small class="text-danger">{{'*'.$message}}</small>
+                        @enderror
                     </div>
 
                     <div class="col-md-6">
                         <label for="numero_documento" class="form-label">Document number:</label>
-                        <input type="text" name="numero_documento" id="numero_documento" class="form-control" value="{{old('numero_documento')}}" data-rule-required="true">
-                        <div class="invalid-feedback"></div>
+                        <input required type="text" name="numero_documento" id="numero_documento" class="form-control" value="{{old('numero_documento')}}">
+                        @error('numero_documento')
+                        <small class="text-danger">{{'*'.$message}}</small>
+                        @enderror
                     </div>
                 </div>
 
@@ -89,55 +105,35 @@
 @endsection
 
 @push('js')
-<script type="module">
-    document.addEventListener('DOMContentLoaded', function() {
-        // Inicializar FormValidator
-        new window.CarWash.FormValidator({
-            formId: 'clienteForm',
-            validateOnBlur: true,
-            validateOnInput: false
+<script>
+    $(document).ready(function() {
+        $('#tipo_persona').on('change', function() {
+            let selectValue = $(this).val();
+            //natural //juridica
+            if (selectValue == 'natural') {
+                $('#label-juridica').hide();
+                $('#label-natural').show();
+            } else {
+                $('#label-natural').hide();
+                $('#label-juridica').show();
+            }
+
+            $('#box-razon-social').show();
         });
 
-        const tipoSelect = document.getElementById('tipo_persona');
-        const boxRazon = document.getElementById('box-razon-social');
-        const labelNatural = document.getElementById('label-natural');
-        const labelJuridica = document.getElementById('label-juridica');
-        const documentoSelect = document.getElementById('documento_id');
-        const numeroInput = document.getElementById('numero_documento');
-
-        function toggleRazonLabels() {
-            const v = tipoSelect.value;
-            if (!v) return;
-            if (v === 'natural') {
-                labelJuridica.style.display = 'none';
-                labelNatural.style.display = 'block';
+        $('#documento_id').on('change', function() {
+            let documentoSeleccionado = $('#documento_id option:selected').text();
+            if (documentoSeleccionado === 'DNI') {
+                $('#numero_documento').attr('maxlength', 8);
+                $('#numero_documento').attr('minlength', 8);
+            } else if (documentoSeleccionado === 'RUC') {
+                $('#numero_documento').attr('maxlength', 11);
+                $('#numero_documento').attr('minlength', 11);
             } else {
-                labelNatural.style.display = 'none';
-                labelJuridica.style.display = 'block';
+                $('#numero_documento').removeAttr('maxlength');
+                $('#numero_documento').removeAttr('minlength');
             }
-            boxRazon.style.display = 'block';
-        }
-
-        function adjustDocumentoLength() {
-            const selectedText = documentoSelect.options[documentoSelect.selectedIndex].text;
-            if (selectedText === 'DNI') {
-                numeroInput.maxLength = 8;
-                numeroInput.minLength = 8;
-            } else if (selectedText === 'RUC') {
-                numeroInput.maxLength = 11;
-                numeroInput.minLength = 11;
-            } else {
-                numeroInput.removeAttribute('maxlength');
-                numeroInput.removeAttribute('minlength');
-            }
-        }
-
-        tipoSelect.addEventListener('change', toggleRazonLabels);
-        documentoSelect.addEventListener('change', adjustDocumentoLength);
-
-        // Ejecutar estado inicial si hay valores old()
-        if (tipoSelect.value) toggleRazonLabels();
-        if (documentoSelect.value) adjustDocumentoLength();
+        });
     });
 </script>
 @endpush
