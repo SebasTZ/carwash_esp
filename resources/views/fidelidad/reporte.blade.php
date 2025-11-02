@@ -15,26 +15,29 @@
             Clientes Frecuentes
         </div>
         <div class="card-body">
-            <div id="dynamicTableFidelidad"></div>
-            <script type="module">
-                import DynamicTable from '/js/components/DynamicTable.js';
-                document.addEventListener('DOMContentLoaded', function() {
-                    new DynamicTable({
-                        elementId: 'dynamicTableFidelidad',
-                        columns: [
-                            { key: 'razon_social', label: 'Cliente' },
-                            { key: 'lavados_acumulados', label: 'Lavados Acumulados' }
-                        ],
-                        dataUrl: '/api/fidelidad/clientes-frecuentes',
-                        pagination: true,
-                        preserveQuery: true
-                    });
-                });
-            </script>
-        </div>
-    </div>
-</div>
-@endsection
+            <table class="table table-striped">
+                <thead>
+                    <tr>
+                        <th>Cliente</th>
+                        <th>Lavados Acumulados</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach ($clientes_frecuentes as $cliente)
+                    <tr>
+                        <td>{{ $cliente->persona->razon_social }}</td>
+                        <td>{{ $cliente->lavados_acumulados }}</td>
+                    </tr>
+                    @endforeach
+                </tbody>
+            </table>
+
+            <!-- Paginación Clientes Frecuentes usando componente -->
+            <x-pagination-multi 
+                :paginator="$clientes_frecuentes" 
+                entity="clientes" 
+                page-name="clientes_page" 
+            />
         </div>
     </div>
     <div class="card mb-4">
