@@ -3,7 +3,53 @@
 @section('title','Editar Producto')
 
 @push('css')
-<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-select@1.14.0-beta3/dist/css/bootstrap-select.min.css">
+<style>
+    .form-select {
+        display: block;
+        width: 100%;
+        padding: 0.375rem 0.75rem;
+        font-size: 1rem;
+        font-weight: 400;
+        line-height: 1.5;
+        color: #212529;
+        background-color: #fff;
+        background-clip: padding-box;
+        border: 1px solid #dee2e6;
+        appearance: none;
+        border-radius: 0.375rem;
+        transition: border-color 0.15s ease-in-out, box-shadow 0.15s ease-in-out;
+    }
+
+    .form-select:focus {
+        border-color: #80bdff;
+        outline: 0;
+        box-shadow: 0 0 0 0.2rem rgba(0, 123, 255, 0.25);
+    }
+
+    .form-select:hover {
+        border-color: #adb5bd;
+    }
+
+    /* Para selectores múltiples */
+    .form-select[multiple] {
+        height: auto;
+        padding: 0.375rem 0.75rem;
+        min-height: 100px;
+        background-image: none;
+    }
+
+    .form-select[multiple] option {
+        padding: 0.5rem;
+        margin: 0;
+        line-height: 1.5;
+    }
+
+    .form-select[multiple] option:checked {
+        background: linear-gradient(#0d6efd, #0d6efd);
+        background-color: #0d6efd !important;
+        color: white;
+    }
+</style>
 @endpush
 
 @section('content')
@@ -16,125 +62,115 @@
     </ol>
 </div>
 
-<div id="formProductoEditContainer"></div>
-<script type="module">
-    import FormValidator from '/js/components/FormValidator.js';
-    import ProductoForm from '/js/modules/ProductoForm.js';
-    document.addEventListener('DOMContentLoaded', function() {
-        new ProductoForm({
-            elementId: 'formProductoEditContainer',
-            categorias: @json($categorias ?? []),
-            marcas: @json($marcas ?? []),
-            presentaciones: @json($presentaciones ?? []),
-            producto: @json($producto),
-            old: @json(old()),
-            errors: @json($errors->all()),
-            action: '{{ route('productos.update', ['producto'=>$producto]) }}',
-            method: 'PATCH'
-        });
-        new FormValidator({
-            formSelector: '#formProductoEditContainer form',
-            validateOnInput: false
-        });
-    });
-</script>
-@endsection
+<div class="container-fluid px-4">
+    <div class="card text-bg-light">
+        <form id="productoEditForm" action="{{ route('productos.update', ['producto'=>$producto]) }}" method="POST" enctype="multipart/form-data" novalidate>
+            @method('PATCH')
+            @csrf
+            <div class="card-body">
+                <div class="row g-4">
+                    <!-- Código -->
+                    <div class="col-md-6">
+                        <label for="codigo" class="form-label">Código:</label>
+                        <input type="text" name="codigo" id="codigo" class="form-control" value="{{old('codigo',$producto->codigo)}}">
+                        <div class="invalid-feedback"></div>
+                        @error('codigo')
+                        <small class="text-danger">* {{$message}}</small>
+                        @enderror
+                    </div>
 
-                    <!---Nombre---->
+                    <!-- Nombre (Requerido) -->
                     <div class="col-md-6">
                         <label for="nombre" class="form-label">Nombre: <span class="text-danger">*</span></label>
                         <input type="text" name="nombre" id="nombre" class="form-control" value="{{old('nombre',$producto->nombre)}}" required>
                         <div class="invalid-feedback"></div>
                         @error('nombre')
-                        <small class="text-danger">{{'*'.$message}}</small>
+                        <small class="text-danger">* {{$message}}</small>
                         @enderror
                     </div>
 
-                    <!---Description---->
+                    <!-- Descripción -->
                     <div class="col-12">
                         <label for="descripcion" class="form-label">Descripción:</label>
                         <textarea name="descripcion" id="descripcion" rows="3" class="form-control">{{old('descripcion',$producto->descripcion)}}</textarea>
                         <div class="invalid-feedback"></div>
                         @error('descripcion')
-                        <small class="text-danger">{{'*'.$message}}</small>
+                        <small class="text-danger">* {{$message}}</small>
                         @enderror
                     </div>
 
-                    <!---Expiration date---->
+                    <!-- Fecha de Vencimiento -->
                     <div class="col-md-6">
                         <label for="fecha_vencimiento" class="form-label">Fecha de vencimiento:</label>
                         <input type="date" name="fecha_vencimiento" id="fecha_vencimiento" class="form-control" value="{{old('fecha_vencimiento',$producto->fecha_vencimiento)}}">
                         <div class="invalid-feedback"></div>
                         @error('fecha_vencimiento')
-                        <small class="text-danger">{{'*'.$message}}</small>
+                        <small class="text-danger">* {{$message}}</small>
                         @enderror
                     </div>
 
-                    <!---Image---->
+                    <!-- Imagen -->
                     <div class="col-md-6">
                         <label for="img_path" class="form-label">Imagen:</label>
                         <input type="file" name="img_path" id="img_path" class="form-control" accept="image/*">
                         <div class="invalid-feedback"></div>
                         @error('img_path')
-                        <small class="text-danger">{{'*'.$message}}</small>
+                        <small class="text-danger">* {{$message}}</small>
                         @enderror
                     </div>
 
-                    <!---Brand---->
+                    <!-- Marca (Requerido) -->
                     <div class="col-md-6">
                         <label for="marca_id" class="form-label">Marca: <span class="text-danger">*</span></label>
-                        <select data-size="4" title="Seleccione una marca" data-live-search="true" name="marca_id" id="marca_id" class="form-control selectpicker show-tick" required>
-                            @foreach ($marcas as $item)
-                            @if ($producto->marca_id == $item->id)
-                            <option selected value="{{$item->id}}" {{ old('marca_id') == $item->id ? 'selected' : '' }}>{{$item->nombre}}</option>
-                            @else
-                            <option value="{{$item->id}}" {{ old('marca_id') == $item->id ? 'selected' : '' }}>{{$item->nombre}}</option>
-                            @endif
-                            @endforeach
+                        <select name="marca_id" id="marca_id" class="form-select" required>
+                            <option value="">Seleccione una marca</option>
+                            @forelse ($marcas as $item)
+                            <option value="{{$item->id}}" {{ old('marca_id', $producto->marca_id) == $item->id ? 'selected' : '' }}>{{$item->nombre}}</option>
+                            @empty
+                            <option disabled>No hay marcas disponibles</option>
+                            @endforelse
                         </select>
                         <div class="invalid-feedback"></div>
                         @error('marca_id')
-                        <small class="text-danger">{{'*'.$message}}</small>
+                        <small class="text-danger">* {{$message}}</small>
                         @enderror
                     </div>
 
-                    <!---Presentation---->
+                    <!-- Presentación (Requerido) -->
                     <div class="col-md-6">
                         <label for="presentacione_id" class="form-label">Presentación: <span class="text-danger">*</span></label>
-                        <select data-size="4" title="Seleccione una presentación" data-live-search="true" name="presentacione_id" id="presentacione_id" class="form-control selectpicker show-tick" required>
-                            @foreach ($presentaciones as $item)
-                            @if ($producto->presentacione_id == $item->id)
-                            <option selected value="{{$item->id}}" {{ old('presentacione_id') == $item->id ? 'selected' : '' }}>{{$item->nombre}}</option>
-                            @else
-                            <option value="{{$item->id}}" {{ old('presentacione_id') == $item->id ? 'selected' : '' }}>{{$item->nombre}}</option>
-                            @endif
-                            @endforeach
+                        <select name="presentacione_id" id="presentacione_id" class="form-select" required>
+                            <option value="">Seleccione una presentación</option>
+                            @forelse ($presentaciones as $item)
+                            <option value="{{$item->id}}" {{ old('presentacione_id', $producto->presentacione_id) == $item->id ? 'selected' : '' }}>{{$item->nombre}}</option>
+                            @empty
+                            <option disabled>No hay presentaciones disponibles</option>
+                            @endforelse
                         </select>
                         <div class="invalid-feedback"></div>
                         @error('presentacione_id')
-                        <small class="text-danger">{{'*'.$message}}</small>
+                        <small class="text-danger">* {{$message}}</small>
                         @enderror
                     </div>
 
-                    <!---Categories---->
-                    <div class="col-md-6">
+                    <!-- Categorías (Múltiples) -->
+                    <div class="col-12">
                         <label for="categorias" class="form-label">Categorías:</label>
-                        <select data-size="4" title="Seleccione categorías" data-live-search="true" name="categorias[]" id="categorias" class="form-control selectpicker show-tick" multiple>
-                            @foreach ($categorias as $item)
-                            @if (in_array($item->id,$producto->categorias->pluck('id')->toArray()))
-                            <option selected value="{{$item->id}}" {{ (in_array($item->id , old('categorias',[]))) ? 'selected' : '' }}>{{$item->nombre}}</option>
-                            @else
-                            <option value="{{$item->id}}" {{ (in_array($item->id , old('categorias',[]))) ? 'selected' : '' }}>{{$item->nombre}}</option>
-                            @endif
-                            @endforeach
+                        <select name="categorias[]" id="categorias" class="form-select" multiple>
+                            @forelse ($categorias as $item)
+                            <option value="{{$item->id}}" {{ (in_array($item->id, old('categorias', $producto->categorias->pluck('id')->toArray()))) ? 'selected' : '' }}>{{$item->nombre}}</option>
+                            @empty
+                            <option disabled>No hay categorías disponibles</option>
+                            @endforelse
                         </select>
+                        <small class="form-text text-muted">Selecciona una o más categorías (Ctrl+Click para múltiples)</small>
                         <div class="invalid-feedback"></div>
                         @error('categorias')
-                        <small class="text-danger">{{'*'.$message}}</small>
+                        <small class="text-danger">* {{$message}}</small>
                         @enderror
                     </div>
 
-                    <!---Is wash service---->
+                    <!-- Es servicio de lavado -->
                     <div class="col-md-6">
                         <div class="form-check mt-4">
                             <input class="form-check-input" type="checkbox" name="es_servicio_lavado" id="es_servicio_lavado" {{ $producto->es_servicio_lavado || old('es_servicio_lavado') ? 'checked' : '' }}>
@@ -147,19 +183,18 @@
                         </div>
                     </div>
 
-                    <!---Sale price for wash service---->
-                    <div class="col-md-6" id="precio_servicio_div" style="display: none;">
+                    <!-- Precio de servicio (mostrar/ocultar con checkbox) -->
+                    <div class="col-md-6" id="precio_servicio_div" style="display: {{ $producto->es_servicio_lavado || old('es_servicio_lavado') ? 'block' : 'none' }};">
                         <label for="precio_venta" class="form-label">Precio del servicio:</label>
                         <input type="number" name="precio_venta" id="precio_venta" class="form-control" step="0.01" value="{{ old('precio_venta', $producto->precio_venta) }}">
                         <div class="invalid-feedback"></div>
                         @error('precio_venta')
-                        <small class="text-danger">{{'*'.$message}}</small>
+                        <small class="text-danger">* {{$message}}</small>
                         @enderror
                     </div>
-
                 </div>
-
             </div>
+
             <div class="card-footer text-center">
                 <button type="submit" class="btn btn-success">Actualizar producto</button>
                 <button type="reset" class="btn btn-secondary">Restablecer</button>
@@ -167,50 +202,54 @@
             </div>
         </form>
     </div>
-
-
-
 </div>
 
-<script type="module">
-window.addEventListener('load', () => {
-    const { FormValidator } = window.CarWash;
+<script>
+    // Show/hide precio_venta based on es_servicio_lavado checkbox
+    const esServicioCheckbox = document.getElementById('es_servicio_lavado');
+    const precioDivision = document.getElementById('precio_servicio_div');
 
-    const validator = new FormValidator('#productoEditForm', {
-        nombre: {
-            required: { message: 'El nombre es obligatorio' }
-        },
-        marca_id: {
-            required: { message: 'Debe seleccionar una marca' }
-        },
-        presentacione_id: {
-            required: { message: 'Debe seleccionar una presentación' }
+    function togglePrecioDiv() {
+        if (esServicioCheckbox.checked) {
+            precioDivision.style.display = 'block';
+        } else {
+            precioDivision.style.display = 'none';
         }
-        // Campos opcionales: codigo, descripcion, fecha_vencimiento, img_path, categorias, precio_venta
-    });
+    }
 
-    validator.init();
-});
+    esServicioCheckbox.addEventListener('change', togglePrecioDiv);
+    // Initial state
+    togglePrecioDiv();
+
+    // Form validation and submit
+    document.getElementById('productoEditForm').addEventListener('submit', function(e) {
+        e.preventDefault();
+
+        // Get form
+        const form = this;
+
+        // Simple validation - check required fields
+        const requiredFields = form.querySelectorAll('[required]');
+        let isValid = true;
+
+        requiredFields.forEach(field => {
+            if (!field.value || field.value.trim() === '') {
+                isValid = false;
+                field.classList.add('is-invalid');
+            } else {
+                field.classList.remove('is-invalid');
+            }
+        });
+
+        if (!isValid) {
+            return;
+        }
+
+        // Submit the form
+        form.submit();
+    });
 </script>
 @endsection
 
 @push('js')
-<script src="https://cdn.jsdelivr.net/npm/bootstrap-select@1.14.0-beta3/dist/js/bootstrap-select.min.js"></script>
-<script>
-$(document).ready(function() {
-    $('#es_servicio_lavado').change(function() {
-        if ($(this).is(':checked')) {
-            $('#precio_servicio_div').show();
-        } else {
-            $('#precio_servicio_div').hide();
-            $('#precio_venta').val('');
-        }
-    });
-    
-    // Mostrar el campo de precio si el checkbox está marcado al cargar la página
-    if ($('#es_servicio_lavado').is(':checked')) {
-        $('#precio_servicio_div').show();
-    }
-});
-</script>
 @endpush

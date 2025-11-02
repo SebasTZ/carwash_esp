@@ -83,8 +83,9 @@ class ProductoController extends Controller
 
             DB::commit();
             
-            // Limpiar caché de productos
+            // Limpiar caché de productos y características
             $this->productoRepo->limpiarCache();
+            $this->caracteristicaRepo->limpiarCache();
             
         } catch (Exception $e) {
             DB::rollBack();
@@ -154,8 +155,9 @@ class ProductoController extends Controller
 
             DB::commit();
             
-            // Limpiar caché de productos
+            // Limpiar caché de productos y características
             $this->productoRepo->limpiarCache();
+            $this->caracteristicaRepo->limpiarCache();
             
         }catch(Exception $e){
             DB::rollBack();
