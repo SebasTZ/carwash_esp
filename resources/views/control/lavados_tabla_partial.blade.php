@@ -40,11 +40,12 @@
 @endif
 
 <div id="dynamicTableLavados"></div>
-<script type="module">
-    import DynamicTable from '/js/components/DynamicTable.js';
+@push('js')
+@vite('resources/js/app.js')
+<script>
     document.addEventListener('DOMContentLoaded', function() {
-        new DynamicTable({
-            elementId: 'dynamicTableLavados',
+        const DynamicTable = window.CarWash.DynamicTable;
+        new DynamicTable('#dynamicTableLavados', {
             columns: [
                 { key: 'comprobante', label: 'Comprobante' },
                 { key: 'cliente', label: 'Cliente' },
@@ -66,3 +67,4 @@
         console.log('✅ DynamicTable inicializado correctamente para ControlLavado');
     });
 </script>
+@endpush

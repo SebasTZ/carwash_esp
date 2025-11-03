@@ -61,7 +61,9 @@
                                 @php
                                     $stock = $producto->stock ?? 0;
                                 @endphp
-                                @if($stock <= 0)
+                                @if($producto->es_servicio_lavado)
+                                    <span class="badge bg-primary">Servicio</span>
+                                @elseif($stock <= 0)
                                     <span class="badge bg-danger">{{ $stock }}</span>
                                 @elseif($stock <= 10)
                                     <span class="badge bg-warning">{{ $stock }}</span>
