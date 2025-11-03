@@ -11,7 +11,7 @@ return [
     | del estacionamiento.
     |
     */
-    'capacidad_maxima' => env('ESTACIONAMIENTO_CAPACIDAD_MAXIMA', 20),
+    'capacidad_maxima' => env('ESTACIONAMIENTO_CAPACIDAD_MAXIMA', 50), // Cambia el 20 al número que necesites
 
     /*
     |--------------------------------------------------------------------------

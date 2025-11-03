@@ -22,7 +22,9 @@ class Estacionamiento extends Model
         'hora_entrada',
         'hora_salida',
         'monto_total',
-        'estado'
+        'estado',
+        'pagado_adelantado',
+        'monto_pagado_adelantado'
     ];
 
     protected $casts = [

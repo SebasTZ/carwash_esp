@@ -9,6 +9,7 @@ use App\Models\Documento;
 use App\Exports\EstacionamientoExport;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
 use Carbon\Carbon;
 use Maatwebsite\Excel\Facades\Excel;
 
@@ -49,16 +50,16 @@ class EstacionamientoController extends Controller
 
     public function store(Request $request)
     {
+        // Debug: Log para ver qué datos llegan
+        Log::info('Estacionamiento Store - Request Data:', $request->all());
+        
         $request->validate([
-            'cliente_id' => 'required_without:nuevo_cliente|exists:clientes,id',
+            'cliente_id' => 'required|exists:clientes,id',
             'placa' => 'required|string|max:10',
             'marca' => 'required|string|max:50',
             'modelo' => 'required|string|max:50',
             'telefono' => 'required|string|max:20',
             'tarifa_hora' => 'required|numeric|min:0',
-            // Campos para nuevo cliente
-            'razon_social' => 'required_with:nuevo_cliente|string|max:80',
-            'documento_id' => 'required_with:nuevo_cliente|exists:documentos,id',
         ]);
 
         try {
@@ -89,34 +90,20 @@ class EstacionamientoController extends Controller
                 );
             }
 
-            $cliente_id = $request->cliente_id;
-
-            // Si es un cliente nuevo
-            if (!$cliente_id) {
-                $persona = Persona::create([
-                    'razon_social' => $request->razon_social,
-                    'direccion' => '',
-                    'tipo_persona' => 'cliente',
-                    'telefono' => $request->telefono,
-                    'documento_id' => $request->documento_id,
-                ]);
-
-                $cliente = Cliente::create(['persona_id' => $persona->id]);
-                $cliente_id = $cliente->id;
-            }
-
             // Normalizar placa a mayúsculas
             $placa = strtoupper($request->placa);
 
             Estacionamiento::create([
-                'cliente_id' => $cliente_id,
+                'cliente_id' => $request->cliente_id,
                 'placa' => $placa,
                 'marca' => $request->marca,
                 'modelo' => $request->modelo,
                 'telefono' => $request->telefono,
                 'tarifa_hora' => $request->tarifa_hora,
                 'hora_entrada' => now(),
-                'estado' => 'ocupado'
+                'estado' => 'ocupado',
+                'pagado_adelantado' => $request->has('pagado_adelantado'),
+                'monto_pagado_adelantado' => $request->pagado_adelantado ? $request->monto_pagado_adelantado : null
             ]);
 
             DB::commit();
@@ -148,10 +135,15 @@ class EstacionamientoController extends Controller
         // Calcular el tiempo total en minutos
         $tiempoTotal = $estacionamiento->hora_entrada->diffInMinutes($estacionamiento->hora_salida);
 
-        // Calcular el monto total basado en la tarifa por hora
-        $montoTotal = ($tiempoTotal < 60) 
-            ? $estacionamiento->tarifa_hora // Cobrar tarifa mínima si es menos de una hora
-            : ($estacionamiento->tarifa_hora * ceil($tiempoTotal / 60));
+        // Calcular el monto total basado en la tarifa por hora (proporcional a minutos)
+        // Tarifa por minuto = Tarifa por hora / 60
+        $tarifaPorMinuto = $estacionamiento->tarifa_hora / 60;
+        $montoTotal = $tarifaPorMinuto * $tiempoTotal;
+
+        // Si hay pago adelantado, descontar del monto total
+        if ($estacionamiento->pagado_adelantado && $estacionamiento->monto_pagado_adelantado) {
+            $montoTotal = max(0, $montoTotal - $estacionamiento->monto_pagado_adelantado);
+        }
 
         $estacionamiento->monto_total = $montoTotal;
         $estacionamiento->estado = 'finalizado';

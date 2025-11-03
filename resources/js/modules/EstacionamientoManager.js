@@ -72,15 +72,22 @@ export class EstacionamientoManager {
      * Configurar event listeners
      */
     setupEventListeners() {
-        // Confirmación para registrar salida
-        const formsRegistrarSalida = document.querySelectorAll('form[action*="registrar-salida"]');
-        formsRegistrarSalida.forEach(form => {
-            form.addEventListener('submit', async (e) => {
+        // Manejar modal de resumen de salida
+        const modalElement = document.getElementById('modalResumenSalida');
+        if (modalElement) {
+            modalElement.addEventListener('show.bs.modal', (event) => {
+                this.cargarResumenSalida(event);
+            });
+        }
+
+        // Botones para abrir modal
+        const botonesRegistrarSalida = document.querySelectorAll('button[data-bs-target="#modalResumenSalida"]');
+        botonesRegistrarSalida.forEach(button => {
+            button.addEventListener('click', (e) => {
                 e.preventDefault();
-                await this.confirmarRegistrarSalida(form);
             });
         });
-        
+
         // Confirmación para eliminar
         const formsEliminar = document.querySelectorAll('form[method="POST"] button[onclick*="eliminar"]');
         formsEliminar.forEach(button => {
@@ -94,6 +101,113 @@ export class EstacionamientoManager {
                 });
             }
         });
+
+        // Form para registrar salida
+        const formRegistrarSalida = document.getElementById('formRegistrarSalida');
+        if (formRegistrarSalida) {
+            formRegistrarSalida.addEventListener('submit', async (e) => {
+                e.preventDefault();
+                await this.registrarSalida(formRegistrarSalida);
+            });
+        }
+    }
+
+    /**
+     * Cargar datos del resumen de salida en el modal
+     */
+    cargarResumenSalida(event) {
+        const button = event.relatedTarget;
+        const estacionamientoId = button.getAttribute('data-id');
+        const placa = button.getAttribute('data-placa');
+        const cliente = button.getAttribute('data-cliente');
+        const entrada = button.getAttribute('data-entrada'); // Formato: "d/m/Y H:i"
+        const tarifa = parseFloat(button.getAttribute('data-tarifa')) || 0;
+        const pagado = parseFloat(button.getAttribute('data-pagado')) || 0;
+
+        // Procesar la fecha de entrada (dd/mm/yyyy HH:mm)
+        const [fechaParte, horaParte] = entrada.split(' ');
+        const [dia, mes, anio] = fechaParte.split('/');
+        const [hora, minutos] = horaParte.split(':');
+        
+        // Crear fecha correctamente
+        const horaEntrada = new Date(anio, mes - 1, dia, hora, minutos, 0);
+        const ahora = new Date();
+        
+        // Calcular diferencia en minutos
+        const diferencia = ahora - horaEntrada;
+        const minutosTotal = Math.floor(diferencia / 60000);
+        const horasCompletas = Math.floor(minutosTotal / 60);
+        const minutosRestantes = minutosTotal % 60;
+
+        // Calcular monto
+        const tarifaPorMinuto = tarifa / 60;
+        const montoCalculado = tarifaPorMinuto * minutosTotal;
+        const montoFinal = Math.max(0, montoCalculado - pagado);
+
+        // Llenar el modal con los datos
+        document.getElementById('resumen-placa').textContent = placa;
+        document.getElementById('resumen-cliente').textContent = cliente;
+        document.getElementById('resumen-entrada').textContent = entrada;
+        document.getElementById('resumen-salida').textContent = ahora.toLocaleString('es-PE', {
+            day: '2-digit',
+            month: '2-digit',
+            year: 'numeric',
+            hour: '2-digit',
+            minute: '2-digit'
+        });
+
+        document.getElementById('resumen-tiempo').textContent = `${horasCompletas}h ${minutosRestantes}m`;
+        document.getElementById('resumen-tarifa').textContent = `S/. ${tarifa.toFixed(2)}/hora`;
+        document.getElementById('resumen-subtotal').textContent = `S/. ${montoCalculado.toFixed(2)}`;
+        
+        // Mostrar pago adelantado si existe
+        const pagadoDiv = document.getElementById('resumen-pago-adelantado-div');
+        if (pagado > 0) {
+            pagadoDiv.style.display = 'block';
+            document.getElementById('resumen-pago-adelantado').textContent = `- S/. ${pagado.toFixed(2)}`;
+        } else {
+            pagadoDiv.style.display = 'none';
+        }
+
+        document.getElementById('resumen-total').textContent = `S/. ${montoFinal.toFixed(2)}`;
+
+        // Actualizar acción del formulario
+        const formRegistrarSalida = document.getElementById('formRegistrarSalida');
+        if (formRegistrarSalida) {
+            formRegistrarSalida.action = `/estacionamiento/${estacionamientoId}/registrar-salida`;
+        }
+    }
+
+    /**
+     * Registrar salida del vehículo
+     */
+    async registrarSalida(form) {
+        const action = form.getAttribute('action');
+        if (!action) {
+            showError('No se pudo procesar la solicitud');
+            return;
+        }
+
+        try {
+            const response = await axios.post(action, {
+                _token: document.querySelector('input[name="_token"]').value
+            });
+
+            if (response.status === 200 || response.status === 201) {
+                showSuccess('Salida registrada correctamente');
+                // Cerrar modal
+                const modal = bootstrap.Modal.getInstance(document.getElementById('modalResumenSalida'));
+                if (modal) modal.hide();
+                
+                // Recargar página después de 1 segundo
+                setTimeout(() => {
+                    window.location.reload();
+                }, 1000);
+            }
+        } catch (error) {
+            console.error('Error:', error);
+            showError(error.response?.data?.message || 'Error al registrar salida');
+        }
     }
     
     /**
@@ -365,7 +479,19 @@ export class EstacionamientoManager {
     }
 }
 
-// Auto-inicialización
+// Auto-inicialización (SOLO en index, NO en create/edit)
 document.addEventListener('DOMContentLoaded', () => {
-    window.estacionamientoManager = new EstacionamientoManager();
+    const path = window.location.pathname;
+    
+    // NO inicializar en páginas de create o edit
+    if (path.includes('/create') || path.includes('/edit')) {
+        console.log('🚗 EstacionamientoManager: NO auto-inicializado (página de create/edit)');
+        return;
+    }
+    
+    // Inicializar solo en index
+    if (path.includes('/estacionamiento')) {
+        window.estacionamientoManager = new EstacionamientoManager();
+        console.log('✅ EstacionamientoManager: Auto-inicializado correctamente');
+    }
 });
