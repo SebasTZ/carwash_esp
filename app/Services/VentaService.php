@@ -28,6 +28,14 @@ class VentaService
      */
     public function procesarVenta(array $data): Venta
     {
+        // LOG: Ver qué datos llegan
+        Log::channel('ventas')->debug('Datos recibidos en procesarVenta', [
+            'servicio_lavado' => $data['servicio_lavado'] ?? 'NO DEFINIDO',
+            'horario_lavado' => $data['horario_lavado'] ?? 'NO DEFINIDO',
+            'con_igv' => $data['con_igv'] ?? 'NO DEFINIDO',
+            'impuesto' => $data['impuesto'] ?? 'NO DEFINIDO',
+        ]);
+
         // OPTIMIZACIÓN: Validar stock COMPLETO antes de iniciar transacción
         // Esto mejora UX mostrando TODOS los productos con problemas de una vez
         $this->validarStockCompleto($data);
@@ -122,7 +130,9 @@ class VentaService
     {
         $horarioLavado = null;
         if (!empty($data['horario_lavado'])) {
-            $horarioLavado = now()->format('Y-m-d') . ' ' . $data['horario_lavado'] . ':00';
+            // El campo horario_lavado viene en formato datetime-local: Y-m-d\TH:i
+            // Necesitamos convertirlo a Y-m-d H:i:00
+            $horarioLavado = str_replace('T', ' ', $data['horario_lavado']) . ':00';
         }
 
         return Venta::create([
@@ -152,6 +162,20 @@ class VentaService
         $cantidades = $data['arraycantidad'] ?? [];
         $preciosVenta = $data['arrayprecioventa'] ?? [];
         $descuentos = $data['arraydescuento'] ?? [];
+
+        // LOG: Ver qué productos llegan
+        Log::channel('ventas')->debug('Procesando productos de venta', [
+            'venta_id' => $venta->id,
+            'productos_count' => count($productosIds),
+            'arrayidproducto' => $productosIds,
+            'arraycantidad' => $cantidades,
+            'arrayprecioventa' => $preciosVenta,
+        ]);
+
+        if (empty($productosIds)) {
+            Log::channel('ventas')->warning('Venta sin productos', ['venta_id' => $venta->id]);
+            return;
+        }
 
         // OPTIMIZACIÓN: Eager Loading - Cargar todos los productos de una vez
         // Esto reduce de N queries a 1 sola query (N+1 query problem resuelto)

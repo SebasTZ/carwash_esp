@@ -48,9 +48,25 @@ class ventaController extends Controller
     public function index()
     {
         $ventas = Venta::with(['comprobante','cliente.persona','user'])
-        ->where('estado',1)
-        ->latest()
-        ->paginate(15);
+            ->where('estado',1)
+            ->latest()
+            ->paginate(15)
+            ->map(function($venta) {
+                return [
+                    'id' => $venta->id,
+                    'comprobante' => [
+                        'tipo_comprobante' => $venta->comprobante?->tipo_comprobante,
+                        'numero_comprobante' => $venta->numero_comprobante
+                    ],
+                    'cliente' => $venta->cliente,
+                    'fecha_hora' => $venta->fecha_hora,
+                    'vendedor' => $venta->user,
+                    'total' => number_format($venta->total, 2),
+                    'medio_pago' => $venta->medio_pago,
+                    'servicio_lavado' => $venta->servicio_lavado ?? false,
+                ];
+            })
+            ->values();
 
         return view('venta.index',compact('ventas'));
     }
@@ -65,8 +81,10 @@ class ventaController extends Controller
 
         $clientes = Cliente::activos()->get();
         $comprobantes = Comprobante::all();
+        $tarjetas_regalo = \App\Models\TarjetaRegalo::activas()->get();
+        $fidelidades = Fidelizacion::activas()->get();
 
-        return view('venta.create', compact('productos', 'clientes', 'comprobantes'));
+        return view('venta.create', compact('productos', 'clientes', 'comprobantes', 'tarjetas_regalo', 'fidelidades'));
     }
 
     /**
@@ -118,6 +136,15 @@ class ventaController extends Controller
      */
     public function show(Venta $venta)
     {
+        // Eager load productos para evitar N+1 queries
+        $venta->load(['productos', 'cliente.persona', 'comprobante', 'user']);
+        
+        \Log::channel('ventas')->debug('Show Venta - Eager Loading', [
+            'venta_id' => $venta->id,
+            'productos_count' => $venta->productos->count(),
+            'productos_keys' => $venta->productos->pluck('id')->toArray(),
+        ]);
+        
         return view('venta.show',compact('venta'));
     }
 
@@ -137,31 +164,82 @@ class ventaController extends Controller
         //
     }
 
+    /**
+     * Transforma una colección de ventas para mostrar en tabla
+     */
+    private function transformarVentasParaTabla($ventasCollection)
+    {
+        return $ventasCollection->map(function($venta) {
+            // Mapear medio_pago a etiquetas más legibles
+            $medioPagoMap = [
+                'efectivo' => 'efectivo',
+                'tarjeta_credito' => 'tarjeta_credito',
+                'tarjeta_regalo' => 'tarjeta_regalo',
+                'lavado_gratis' => 'lavado_gratis'
+            ];
+            
+            $medioPago = $medioPagoMap[$venta->medio_pago] ?? $venta->medio_pago ?? '-';
+            
+            return [
+                'id' => $venta->id,
+                'comprobante' => [
+                    'tipo_comprobante' => $venta->comprobante->tipo_comprobante ?? '-',
+                    'numero_comprobante' => $venta->numero_comprobante ?? '-'
+                ],
+                'cliente' => [
+                    'persona' => [
+                        'razon_social' => $venta->cliente->persona->razon_social ?? '-',
+                        'tipo_persona' => $venta->cliente->persona->tipo_persona ?? '-'
+                    ]
+                ],
+                'fecha_hora' => $venta->fecha_hora,
+                'vendedor' => [
+                    'name' => $venta->user->name ?? '-'
+                ],
+                'total' => number_format($venta->total, 2),
+                'comentarios' => $venta->comentarios ?? '-',
+                'medio_pago' => $medioPago,
+                'efectivo' => number_format($venta->efectivo ?? 0, 2),
+                'tarjeta_credito' => number_format($venta->tarjeta_credito ?? 0, 2),
+                'tarjeta_regalo_id' => $venta->tarjeta_regalo_id ?? '-',
+                'lavado_gratis' => (bool) $venta->lavado_gratis,
+                'servicio_lavado' => (bool) $venta->servicio_lavado,
+                'horario_lavado' => $venta->horario_lavado ? $venta->horario_lavado->format('d/m/Y H:i') : '-',
+            ];
+        })->values();
+    }
+
     public function reporteDiario()
     {
-    $ventas = Venta::whereDate('fecha_hora', now()->toDateString())
-        ->with(['comprobante', 'cliente.persona', 'user'])
-        ->get();
+        $ventasRaw = Venta::whereDate('fecha_hora', now()->toDateString())
+            ->with(['comprobante', 'cliente.persona', 'user'])
+            ->get();
 
-    return view('venta.reporte', compact('ventas'))->with('reporte', 'diario');
+        $ventas = $this->transformarVentasParaTabla($ventasRaw);
+
+        return view('venta.reporte', compact('ventas'))->with('reporte', 'diario');
     }
 
     public function reporteSemanal()
     {
-    $ventas = Venta::whereBetween('fecha_hora', [now()->startOfWeek(), now()->endOfWeek()])
-        ->with(['comprobante', 'cliente.persona', 'user'])
-        ->get();
+        $ventasRaw = Venta::whereBetween('fecha_hora', [now()->startOfWeek(), now()->endOfWeek()])
+            ->with(['comprobante', 'cliente.persona', 'user'])
+            ->get();
 
-    return view('venta.reporte', compact('ventas'))->with('reporte', 'semanal');
+        $ventas = $this->transformarVentasParaTabla($ventasRaw);
+
+        return view('venta.reporte', compact('ventas'))->with('reporte', 'semanal');
     }
 
     public function reporteMensual()
     {
-    $ventas = Venta::whereMonth('fecha_hora', now()->month)
-        ->with(['comprobante', 'cliente.persona', 'user'])
-        ->get();
+        $ventasRaw = Venta::whereMonth('fecha_hora', now()->month)
+            ->with(['comprobante', 'cliente.persona', 'user'])
+            ->get();
 
-    return view('venta.reporte', compact('ventas'))->with('reporte', 'mensual');
+        $ventas = $this->transformarVentasParaTabla($ventasRaw);
+
+        return view('venta.reporte', compact('ventas'))->with('reporte', 'mensual');
     }
 
     public function exportDiario()
@@ -203,12 +281,14 @@ class ventaController extends Controller
         $fechaInicio = $request->fecha_inicio;
         $fechaFin = $request->fecha_fin;
 
-        $ventas = Venta::whereBetween('fecha_hora', [$fechaInicio . ' 00:00:00', $fechaFin . ' 23:59:59'])
+        $ventasRaw = Venta::whereBetween('fecha_hora', [$fechaInicio . ' 00:00:00', $fechaFin . ' 23:59:59'])
             ->with(['comprobante', 'cliente.persona', 'user'])
             ->get()
             ->filter(function($venta) {
                 return $venta->medio_pago !== 'tarjeta_regalo' && $venta->medio_pago !== 'lavado_gratis';
             });
+
+        $ventas = $this->transformarVentasParaTabla($ventasRaw);
 
         return view('venta.reporte', compact('ventas', 'fechaInicio', 'fechaFin'))->with('reporte', 'personalizado');
     }
@@ -315,4 +395,48 @@ class ventaController extends Controller
 
     return response()->json($productos);
 }
+
+    /**
+     * Valida si un cliente puede usar lavado gratis (tiene suficientes lavados acumulados)
+     * GET /validar-fidelizacion-lavado/{cliente_id}
+     */
+    public function validarFidelizacionLavado($cliente_id)
+    {
+        try {
+            $cliente = Cliente::findOrFail($cliente_id);
+            
+            // Necesita 10 lavados acumulados para 1 lavado gratis
+            $lavadosNecesarios = 10;
+            $lavadosActuales = $cliente->lavados_acumulados ?? 0;
+            
+            // Si tiene menos de 10 lavados acumulados, no puede usar lavado gratis
+            if ($lavadosActuales < $lavadosNecesarios) {
+                $lavadosFaltantes = $lavadosNecesarios - $lavadosActuales;
+                return response()->json([
+                    'valido' => false,
+                    'lavados_actuales' => $lavadosActuales,
+                    'lavados_necesarios' => $lavadosNecesarios,
+                    'lavados_faltantes' => $lavadosFaltantes,
+                    'mensaje' => "El cliente tiene {$lavadosActuales} lavado(s) acumulado(s). Le faltan {$lavadosFaltantes} para obtener 1 lavado gratis."
+                ], 200);
+            }
+
+            // ✅ Tiene suficientes lavados acumulados
+            $lavadosDisponibles = intdiv($lavadosActuales, $lavadosNecesarios);
+            
+            return response()->json([
+                'valido' => true,
+                'lavados_actuales' => $lavadosActuales,
+                'lavados_necesarios' => $lavadosNecesarios,
+                'lavados_disponibles' => $lavadosDisponibles,
+                'mensaje' => "¡Excelente! El cliente tiene {$lavadosActuales} lavado(s) acumulado(s). Puede obtener {$lavadosDisponibles} lavado(s) gratis."
+            ], 200);
+
+        } catch (\Exception $e) {
+            return response()->json([
+                'valido' => false,
+                'mensaje' => 'Error al validar: ' . $e->getMessage()
+            ], 500);
+        }
+    }
 }

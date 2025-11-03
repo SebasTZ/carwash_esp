@@ -17,4 +17,9 @@ class Fidelizacion extends Model
     }
 
     protected $table = 'fidelizacion';
+
+    public function scopeActivas($query)
+    {
+        return $query->where('puntos', '>', 0);
+    }
 }

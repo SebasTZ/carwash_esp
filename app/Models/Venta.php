@@ -29,6 +29,17 @@ class Venta extends Model
         'lavado_gratis' // Asegurarse de incluir si se usa en la lógica
     ];
 
+    protected $casts = [
+        'fecha_hora' => 'datetime',
+        'horario_lavado' => 'datetime',
+        'servicio_lavado' => 'boolean',
+        'lavado_gratis' => 'boolean',
+        'impuesto' => 'decimal:2',
+        'total' => 'decimal:2',
+        'efectivo' => 'decimal:2',
+        'tarjeta_credito' => 'decimal:2'
+    ];
+
     public function cliente(){
         return $this->belongsTo(Cliente::class);
     }
@@ -51,8 +62,9 @@ class Venta extends Model
     }
 
     public function productos(){
-        return $this->belongsToMany(Producto::class)->withTimestamps()
-        ->withPivot('cantidad','precio_venta','descuento');
+        return $this->belongsToMany(Producto::class, 'producto_venta', 'venta_id', 'producto_id')
+            ->withTimestamps()
+            ->withPivot('cantidad','precio_venta','descuento');
     }
 
     // ============================================

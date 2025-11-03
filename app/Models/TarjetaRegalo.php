@@ -37,4 +37,8 @@ class TarjetaRegalo extends Model
     {
         return $query->where('estado', 'vencida');
     }
+    public function scopeActivas($query)
+    {
+        return $query->where('estado', 'activa')->where('saldo_actual', '>', 0);
+    }
 }

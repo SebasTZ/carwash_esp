@@ -325,8 +325,9 @@ document.addEventListener('DOMContentLoaded', () => {
     // Inicializar componentes básicos automáticamente
     initAllBootstrapComponents();
     
-    // Inicializar Bootstrap Select si existe
-    if (document.querySelector('.selectpicker')) {
-        initBootstrapSelect();
-    }
+    // NO inicializar Bootstrap Select automáticamente porque cada vista lo inicializa manualmente
+    // para evitar doble inicialización
+    // if (document.querySelector('.selectpicker')) {
+    //     initBootstrapSelect();
+    // }
 });

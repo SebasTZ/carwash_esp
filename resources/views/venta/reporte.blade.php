@@ -85,10 +85,16 @@
 @vite(['resources/js/components/DynamicTable.js', 'resources/js/modules/VentaManager.js'])
 <script>
     document.addEventListener('DOMContentLoaded', function() {
+        console.log('🔍 Reporte Page Loaded');
+        
         if (window.DynamicTable) {
+            console.log('✅ DynamicTable encontrado');
+            const data = @json($ventas);
+            console.log('📊 Datos de ventas:', data.length, 'registros');
+            
             window.DynamicTable.init({
                 el: '#ventas-reporte-dynamic-table',
-                data: @json($ventas),
+                data: data,
                 columns: [
                     { label: 'Comprobante', field: 'comprobante' },
                     { label: 'Cliente', field: 'cliente' },
@@ -96,12 +102,12 @@
                     { label: 'Vendedor', field: 'vendedor' },
                     { label: 'Total', field: 'total' },
                     { label: 'Comentarios', field: 'comentarios' },
-                    { label: 'Método de Pago', field: 'medio_pago' },
+                    { label: 'Medio de Pago', field: 'medio_pago' },
                     { label: 'Efectivo', field: 'efectivo' },
-                    { label: 'Billetera Digital', field: 'billetera_digital' },
-                    { label: 'Tarjeta de Regalo', field: 'tarjeta_regalo' },
+                    { label: 'Tarjeta Crédito', field: 'tarjeta_credito' },
+                    { label: 'Tarjeta Regalo', field: 'tarjeta_regalo_id' },
                     { label: 'Lavado Gratis', field: 'lavado_gratis' },
-                    { label: 'Servicio de Lavado', field: 'servicio_lavado' },
+                    { label: 'Servicio Lavado', field: 'servicio_lavado' },
                     { label: 'Hora Fin de Lavado', field: 'horario_lavado' },
                 ],
                 pagination: true,
@@ -109,13 +115,18 @@
                     // Calcular el total solo para métodos de pago permitidos
                     let total = 0;
                     rows.forEach(function(row) {
-                        if (row.medio_pago !== 'tarjeta_regalo' && row.medio_pago !== 'lavado_gratis') {
-                            total += parseFloat(row.total);
+                        const medioPago = row.medio_pago ? row.medio_pago.toLowerCase() : '';
+                        // Excluir ventas de tarjeta regalo o lavado gratis
+                        if (medioPago !== 'tarjeta regalo' && medioPago !== 'lavado gratis (fidelidad)') {
+                            total += parseFloat(row.total) || 0;
                         }
                     });
-                    document.getElementById('ventas-reporte-total').innerText = 'Total: ' + total;
+                    document.getElementById('ventas-reporte-total').innerText = 'Total Ventas: S/. ' + total.toFixed(2);
                 }
             });
+            console.log('✅ DynamicTable inicializado para reporte');
+        } else {
+            console.error('❌ DynamicTable NO encontrado');
         }
     });
 </script>

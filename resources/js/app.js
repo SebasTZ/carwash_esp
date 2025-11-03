@@ -2,7 +2,8 @@ import './bootstrap';
 import $ from 'jquery';
 window.$ = $;
 window.jQuery = $;
-import 'bootstrap-select/dist/js/bootstrap-select.min.js';
+// Bootstrap Select se carga desde CDN en create.blade.php para evitar doble inicialización
+// import 'bootstrap-select/dist/js/bootstrap-select.min.js';
 
 /**
  * CarWash ESP - Frontend Application

@@ -258,12 +258,30 @@
 @vite(['resources/js/components/DetalleVentaTable.js'])
 <script>
     document.addEventListener('DOMContentLoaded', function() {
+        console.log('🔍 Show Page Loaded');
+        console.log('window.DetalleVentaTable:', window.DetalleVentaTable);
+        
+        const productosData = @json($venta->productos);
+        console.log('📦 Productos data:', productosData);
+        console.log('📦 Productos count:', productosData.length);
+        
+        if (productosData.length > 0) {
+            console.log('📦 Primer producto:', productosData[0]);
+        }
+        
         if (window.DetalleVentaTable) {
+            console.log('✅ DetalleVentaTable encontrado');
             window.DetalleVentaTable.init({
                 el: '#venta-detalle-table',
-                productos: @json($venta->productos),
-                impuesto: {{ $venta->impuesto }}
+                productos: productosData,
+                impuesto: {{ $venta->impuesto }},
+                servicio_lavado: {{ $venta->servicio_lavado ? 'true' : 'false' }},
+                horario_lavado: @json($venta->horario_lavado),
+                total: {{ $venta->total }}
             });
+            console.log('✅ DetalleVentaTable inicializado');
+        } else {
+            console.error('❌ DetalleVentaTable NO encontrado');
         }
     });
 </script>

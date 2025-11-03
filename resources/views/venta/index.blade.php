@@ -62,22 +62,25 @@
 @vite(['resources/js/components/DynamicTable.js', 'resources/js/modules/VentaManager.js'])
 <script>
     document.addEventListener('DOMContentLoaded', function() {
+        console.log('🔍 Index Page Loaded');
+        console.log('window.DynamicTable:', window.DynamicTable);
+        
         if (window.DynamicTable) {
+            console.log('✅ DynamicTable encontrado');
+            const data = @json($ventas);
+            console.log('📊 Datos de ventas:', data.length, 'registros');
+            
             window.DynamicTable.init({
                 el: '#ventas-dynamic-table',
-                data: @json($ventas),
+                data: data,
                 columns: [
                     { label: 'Comprobante', field: 'comprobante' },
                     { label: 'Cliente', field: 'cliente' },
                     { label: 'Fecha y Hora', field: 'fecha_hora' },
                     { label: 'Vendedor', field: 'vendedor' },
                     { label: 'Total', field: 'total' },
-                    { label: 'Comentarios', field: 'comentarios' },
                     { label: 'Método de Pago', field: 'medio_pago' },
-                    { label: 'Efectivo', field: 'efectivo' },
-                    { label: 'Yape', field: 'yape' },
                     { label: 'Servicio de Lavado', field: 'servicio_lavado' },
-                    { label: 'Hora Fin de Lavado', field: 'horario_lavado' },
                     { label: 'Acciones', field: 'acciones' },
                 ],
                 actions: {
@@ -94,6 +97,9 @@
                 },
                 pagination: true
             });
+            console.log('✅ DynamicTable inicializado');
+        } else {
+            console.error('❌ DynamicTable NO encontrado');
         }
     });
 </script>

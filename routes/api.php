@@ -2,6 +2,7 @@
 
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\ventaController;
 
 /*
 |--------------------------------------------------------------------------
@@ -17,3 +18,6 @@ use Illuminate\Support\Facades\Route;
 Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
     return $request->user();
 });
+
+// Validación de fidelización para lavado gratis
+Route::middleware('auth')->get('/validar-fidelizacion-lavado/{cliente_id}', [ventaController::class, 'validarFidelizacionLavado']);

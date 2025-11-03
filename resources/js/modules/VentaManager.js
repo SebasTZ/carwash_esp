@@ -71,9 +71,9 @@ class VentaState {
     recalcularIGV() {
         const tipoComprobanteText = $('#comprobante_id option:selected').text();
         const incluirIGV = $('#con_igv').is(':checked');
-        const porcentajeIGV = parseFloat($('#impuesto').val()) || 18;
+        const porcentajeIGV = parseFloat($('#impuesto').val()) || 0;
         
-        if (tipoComprobanteText === 'Factura' && incluirIGV) {
+        if (tipoComprobanteText === 'Factura' && incluirIGV && porcentajeIGV > 0) {
             this.igv = this.round(this.sumas / 100 * porcentajeIGV);
         } else {
             this.igv = 0;
@@ -118,11 +118,12 @@ class VentaState {
      * Limpia el estado de la venta
      */
     limpiar() {
-        this.productos = [];
-        this.contador = 0;
-        this.sumas = 0;
-        this.igv = 0;
-        this.total = 0;
+    this.productos = [];
+    this.contador = 0;
+    this.sumas = 0;
+    this.igv = 0;
+    this.total = 0;
+    console.log('[VentaManager] Estado de venta limpiado');
     }
 
     /**
@@ -209,15 +210,43 @@ export class VentaManager {
         // Botón cancelar venta
         $('#btnCancelarVenta').on('click', () => this.cancelarVenta());
 
-        // Validación antes de guardar
-        $('#guardar').on('click', (event) => this.validarAntesDeGuardar(event));
+        // Validación antes de guardar - Interceptar el submit del formulario
+        $('#venta-form').on('submit', (event) => {
+            console.log('[VentaManager] Submit del formulario detectado');
+            const resultado = this.validarAntesDeGuardar(event);
+            console.log('[VentaManager] Resultado validación:', resultado);
+            if (!resultado) {
+                event.preventDefault();
+                console.log('[VentaManager] Submit cancelado por validación');
+                return false;
+            }
+            console.log('[VentaManager] Permitiendo submit del formulario');
+        });
 
         // Cambio de medio de pago
         $('#medio_pago').on('change', () => this.manejarCambioMedioPago());
 
+        // Cambio de cliente - validar fidelización si ya está seleccionado "Lavado Gratis"
+        $('#cliente_id').on('change', () => this.validarClienteConLavadoGratis());
+
         // Checkbox servicio de lavado
         $('#servicio_lavado').on('change', () => this.toggleHorarioLavado());
     }
+
+    /**
+     * Valida si el cliente cambió y ya tienen "Lavado Gratis" seleccionado
+     */
+    validarClienteConLavadoGratis() {
+        if ($('#medio_pago').val() === 'lavado_gratis') {
+            // Si ya tenían lavado gratis seleccionado y cambiaron de cliente,
+            // validar si el nuevo cliente también tiene puntos
+            const clienteId = $('#cliente_id').val();
+            if (clienteId) {
+                this.validarFidelizacionLavado(clienteId);
+            }
+        }
+    }
+
 
     /**
      * Muestra los valores del producto seleccionado
@@ -265,13 +294,14 @@ export class VentaManager {
             $('#cantidad').focus();
             return;
         }
-
-        // Validar stock (solo para productos, no servicios)
-        const stockValidation = validateStock(cantidad, stock, esServicioLavado);
-        if (!stockValidation.valid) {
-            showError(stockValidation.message);
-            $('#cantidad').focus();
-            return;
+        // Solo validar stock si NO es servicio de lavado
+        if (!esServicioLavado) {
+            const stockValidation = validateStock(cantidad, stock, esServicioLavado);
+            if (!stockValidation.valid) {
+                showError(stockValidation.message);
+                $('#cantidad').focus();
+                return;
+            }
         }
 
         // Validar precio
@@ -296,8 +326,7 @@ export class VentaManager {
             nombreProducto,
             cantidad,
             precioVenta,
-            descuento,
-            esServicioLavado
+            descuento
         );
 
         // Agregar fila a la tabla
@@ -325,22 +354,10 @@ export class VentaManager {
         const fila = `
             <tr id="fila${producto.indice}" data-indice="${producto.indice}">
                 <th>${producto.indice + 1}</th>
-                <td>
-                    <input type="hidden" name="arrayidproducto[]" value="${producto.id}">
-                    ${producto.nombre}
-                </td>
-                <td>
-                    <input type="hidden" name="arraycantidad[]" value="${producto.cantidad}">
-                    ${producto.cantidad}
-                </td>
-                <td>
-                    <input type="hidden" name="arrayprecioventa[]" value="${producto.precioVenta}">
-                    ${formatCurrency(producto.precioVenta)}
-                </td>
-                <td>
-                    <input type="hidden" name="arraydescuento[]" value="${producto.descuento}">
-                    ${formatCurrency(producto.descuento)}
-                </td>
+                <td>${producto.nombre}</td>
+                <td>${producto.cantidad}</td>
+                <td>${formatCurrency(producto.precioVenta)}</td>
+                <td>${formatCurrency(producto.descuento)}</td>
                 <td>${formatCurrency(producto.subtotal)}</td>
                 <td>
                     <button class="btn btn-danger btn-sm" type="button" data-eliminar="${producto.indice}">
@@ -351,6 +368,17 @@ export class VentaManager {
         `;
 
         $('#tabla_detalle tbody').append(fila);
+
+        // Agregar campos ocultos en contenedor especial (FUERA de la tabla)
+        const camposOcultos = `
+            <div data-producto-indice="${producto.indice}">
+                <input type="hidden" name="arrayidproducto[]" value="${producto.id}">
+                <input type="hidden" name="arraycantidad[]" value="${producto.cantidad}">
+                <input type="hidden" name="arrayprecioventa[]" value="${producto.precioVenta}">
+                <input type="hidden" name="arraydescuento[]" value="${producto.descuento}">
+            </div>
+        `;
+        $('#campos-productos-ocultos').append(camposOcultos);
 
         // Event listener para eliminar
         $(`[data-eliminar="${producto.indice}"]`).on('click', () => {
@@ -377,6 +405,9 @@ export class VentaManager {
         // Eliminar fila de la tabla
         $(`#fila${indice}`).remove();
 
+        // Eliminar campos ocultos correspondientes
+        $(`[data-producto-indice="${indice}"]`).remove();
+
         // Actualizar totales
         this.actualizarTotales();
 
@@ -395,6 +426,15 @@ export class VentaManager {
     actualizarTotales() {
         const totales = this.state.calcularTotales();
 
+        // LOG para depuración
+        console.log('--- [VentaManager] Actualizando totales ---');
+        console.log('Productos:', this.state.productos.filter(p => p !== null));
+        console.log('Sumas:', totales.sumas);
+        console.log('IGV:', totales.igv);
+        console.log('Total:', totales.total);
+        console.log('Tipo comprobante:', $('#comprobante_id option:selected').text());
+        console.log('Incluir IGV:', $('#con_igv').is(':checked'));
+
         $('#sumas').html(formatCurrency(totales.sumas));
         $('#igv').html(formatCurrency(totales.igv));
         $('#total').html(formatCurrency(totales.total));
@@ -407,7 +447,11 @@ export class VentaManager {
     limpiarCampos() {
         $('#cantidad').val('');
         $('#descuento').val('');
-        $('#producto_id').val('').selectpicker('refresh');
+        $('#producto_id').val('');
+        // Solo hacer refresh si selectpicker está disponible
+        if (typeof $.fn.selectpicker !== 'undefined') {
+            $('#producto_id').selectpicker('refresh');
+        }
         $('#stock').val('');
         $('#precio_venta').val('');
     }
@@ -452,6 +496,9 @@ export class VentaManager {
         `;
         $('#tabla_detalle tbody').append(filaVacia);
 
+        // Limpiar campos ocultos
+        $('#campos-productos-ocultos').empty();
+
         // Limpiar estado
         this.state.limpiar();
         this.state.limpiarLocalStorage();
@@ -468,8 +515,15 @@ export class VentaManager {
      * Valida antes de guardar la venta
      */
     validarAntesDeGuardar(event) {
+        console.log('[VentaManager] Iniciando validación antes de guardar');
+        
+        // DEBUG: Ver qué datos se van a enviar
+        const formData = new FormData($('#venta-form')[0]);
+        console.log('[VentaManager] FormData completo:', Object.fromEntries(formData));
+        
         // Validar que haya productos
         const validacionTabla = validateTableNotEmpty('tabla_detalle');
+        console.log('[VentaManager] Validación tabla:', validacionTabla);
         if (!validacionTabla.valid) {
             event.preventDefault();
             showError('Debe agregar al menos un producto');
@@ -479,6 +533,7 @@ export class VentaManager {
         // Validar servicio de lavado y horario
         const servicioLavado = $('#servicio_lavado').is(':checked');
         const horarioLavado = $('#horario_lavado').val();
+        console.log('[VentaManager] Servicio lavado:', servicioLavado, 'Horario:', horarioLavado);
 
         if (servicioLavado && !horarioLavado) {
             event.preventDefault();
@@ -487,12 +542,7 @@ export class VentaManager {
             return false;
         }
 
-        // Si hay servicio de lavado, copiar al campo hidden
-        if (servicioLavado) {
-            $('#horario_lavado_hidden').val(horarioLavado);
-        } else {
-            $('#horario_lavado_hidden').val('');
-        }
+        console.log('[VentaManager] Validación exitosa, enviando formulario...');
 
         // Mostrar loading en el botón
         const btnGuardar = document.getElementById('guardar');
@@ -515,27 +565,112 @@ export class VentaManager {
         // Tarjeta regalo
         if (medioPago === 'tarjeta_regalo') {
             $('#tarjeta_regalo_div').show();
-            $('#tarjeta_regalo_codigo').attr('required', true);
+            $('#tarjeta_regalo_id').attr('required', true);
         } else {
             $('#tarjeta_regalo_div').hide();
-            $('#tarjeta_regalo_codigo').removeAttr('required').val('');
-        }
-
-        // Tarjeta crédito
-        if (medioPago === 'tarjeta_credito') {
-            $('#tarjeta_credito_div').show();
-        } else {
-            $('#tarjeta_credito_div').hide();
-            $('#tarjeta_credito').val('');
+            $('#tarjeta_regalo_id').removeAttr('required').val('');
         }
 
         // Lavado gratis
         if (medioPago === 'lavado_gratis') {
-            $('#lavado_gratis_div').show();
+            // Validar si el cliente tiene suficientes puntos ANTES de permitir la selección
+            const clienteId = $('#cliente_id').val();
+            
+            if (!clienteId) {
+                showError('⚠️ Error', 'Debes seleccionar un cliente primero');
+                $('#medio_pago').val('efectivo').selectpicker('refresh');
+                return;
+            }
+
+            // Hacer la validación al servidor
+            this.validarFidelizacionLavado(clienteId);
         } else {
             $('#lavado_gratis_div').hide();
+            // Remover el hidden input cuando se selecciona otro método de pago
+            const container = document.getElementById('campos-lavado-gratis-ocultos');
+            container.innerHTML = '';
+            // Recalcular totales al cambiar de lavado_gratis a otro método
+            this.actualizarTotales();
         }
     }
+
+    /**
+     * Valida si el cliente tiene puntos de fidelización para lavado gratis
+     */
+    async validarFidelizacionLavado(clienteId) {
+        try {
+            const response = await fetch(`/validar-fidelizacion-lavado/${clienteId}`);
+            
+            // Verificar si la respuesta es OK
+            if (!response.ok) {
+                throw new Error(`HTTP error! status: ${response.status}`);
+            }
+            
+            // Verificar si es JSON válido
+            const contentType = response.headers.get('content-type');
+            if (!contentType || !contentType.includes('application/json')) {
+                throw new Error('Respuesta no es JSON válido');
+            }
+            
+            const data = await response.json();
+
+            if (!data.valido) {
+                // No tiene suficientes lavados, mostrar advertencia detallada
+                const titulo = '⚠️ Lavados Insuficientes';
+                const mensaje = `${data.mensaje}\n\n📊 Progreso: ${data.lavados_actuales}/${data.lavados_necesarios} lavados`;
+                
+                showWarning(titulo, mensaje, 'Entendido');
+                
+                // Revertir el select al valor anterior
+                $('#medio_pago').val('efectivo').selectpicker('refresh');
+                return;
+            }
+
+            // ✅ Tiene lavados suficientes, proceder
+            $('#lavado_gratis_div').show();
+            
+            // Actualizar detalles en el div de lavado gratis
+            const clienteNombre = $('#cliente_id option:selected').text();
+            const detallesHtml = `
+                👤 <strong>${clienteNombre}</strong><br>
+                📊 Lavados acumulados: <strong>${data.lavados_actuales}</strong><br>
+                ✨ Lavados gratis disponibles: <strong>${data.lavados_disponibles}</strong>
+            `;
+            $('#detalles_lavado_gratis').html(detallesHtml);
+            
+            // Mostrar mensaje de éxito con detalles
+            const titulo = '✅ Lavado Gratis Disponible';
+            const mensaje = `${data.mensaje}\n\n✨ El cliente podrá disfrutar de este lavado sin costo.`;
+            
+            showSuccess(titulo, mensaje);
+            
+            // Agregar el hidden input solo cuando se selecciona lavado_gratis
+            const container = document.getElementById('campos-lavado-gratis-ocultos');
+            if (!document.querySelector('input[name="lavado_gratis"]')) {
+                const hiddenInput = document.createElement('input');
+                hiddenInput.type = 'hidden';
+                hiddenInput.name = 'lavado_gratis';
+                hiddenInput.value = '1';
+                container.appendChild(hiddenInput);
+            }
+            
+            // Si es lavado gratis, el total debe ser 0 (es gratis)
+            const totalZero = 0.00;
+            $('#inputTotal').val(totalZero);
+            $('#total').html(formatCurrency(totalZero));
+            $('#igv').html(formatCurrency(0));
+            
+            console.log(`✅ Lavado Gratis seleccionado: ${data.mensaje}`);
+            
+            // Asegurar que el botón de guardar esté habilitado
+            this.actualizarEstadoBotones();
+        } catch (error) {
+            console.error('Error validando fidelización:', error);
+            showError('❌ Error', 'No se pudo validar los puntos de fidelización: ' + error.message);
+            $('#medio_pago').val('efectivo').selectpicker('refresh');
+        }
+    }
+
 
     /**
      * Toggle del campo horario de lavado
@@ -555,7 +690,7 @@ export class VentaManager {
      */
     async intentarRecuperarBorrador() {
         const hayBorrador = this.state.cargarDesdeLocalStorage();
-        
+        console.log('[VentaManager] ¿Hay borrador en localStorage?', hayBorrador);
         if (!hayBorrador) return;
 
         const recuperar = await showConfirm(
@@ -564,15 +699,22 @@ export class VentaManager {
             'Sí, recuperar',
             'No, empezar nueva venta'
         );
-
+        console.log('[VentaManager] Selección recuperación:', recuperar);
         if (recuperar) {
             this.recuperarBorrador();
         } else {
+            // Limpiar localStorage
             this.state.limpiarLocalStorage();
+            // Limpiar estado
+            this.state.limpiar();
+            // Limpiar UI
+            $('#tabla_detalle tbody').empty();
+            this.actualizarTotales();
+            this.limpiarCampos();
+            this.actualizarEstadoBotones();
+            console.log('[VentaManager] Borrador limpiado y venta reiniciada');
         }
-    }
-
-    /**
+    }    /**
      * Recupera el borrador y lo muestra en la UI
      */
     recuperarBorrador() {

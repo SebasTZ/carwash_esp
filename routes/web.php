@@ -102,6 +102,10 @@ Route::middleware(['auth'])->group(function () {
         'mantenimientos' => MantenimientoController::class
     ]);
 
+    // Validación de fidelización para lavado gratis
+    Route::get('/validar-fidelizacion-lavado/{cliente_id}', [ventaController::class, 'validarFidelizacionLavado'])->name('validar.fidelizacion');
+
+
     // Lavadores routes
     Route::get('/lavadores', [LavadorController::class, 'index'])->name('lavadores.index');
     Route::get('/lavadores/create', [LavadorController::class, 'create'])->name('lavadores.create');
