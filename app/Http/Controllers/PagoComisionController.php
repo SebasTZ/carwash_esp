@@ -7,6 +7,7 @@ use App\Models\PagoComision;
 use App\Models\Lavador;
 use App\Models\ControlLavado;
 use App\Models\TipoVehiculo;
+use App\Services\ComisionService;
 use App\Exports\ComisionesLavadorExport;
 use Maatwebsite\Excel\Facades\Excel;
 use Illuminate\Support\Carbon;
@@ -15,8 +16,11 @@ use Illuminate\Support\Facades\Log;
 
 class PagoComisionController extends Controller
 {
-    public function __construct()
+    protected ComisionService $comisionService;
+
+    public function __construct(ComisionService $comisionService)
     {
+        $this->comisionService = $comisionService;
         $this->middleware('can:ver-pago-comision')->only(['index', 'show']);
         $this->middleware('can:crear-pago-comision')->only(['create', 'store']);
         $this->middleware('can:ver-historial-pago-comision')->only(['show']);
@@ -93,32 +97,9 @@ class PagoComisionController extends Controller
         $fechaInicio = $request->input('fecha_inicio', now()->startOfMonth()->toDateString());
         $fechaFin = $request->input('fecha_fin', now()->endOfMonth()->toDateString());
 
-        $lavadores = \App\Models\Lavador::where('estado', 'activo')->get();
-        $data = [];
-        foreach ($lavadores as $lavador) {
-            // Lavados realizados en el rango
-            $lavados = ControlLavado::where('lavador_id', $lavador->id)
-                ->whereBetween('hora_llegada', [$fechaInicio . ' 00:00:00', $fechaFin . ' 23:59:59'])
-                ->with('tipoVehiculo')
-                ->get();
-            $cantidad = $lavados->count();
-            $comisionTotal = $lavados->sum(function($lavado) {
-                return $lavado->tipoVehiculo ? $lavado->tipoVehiculo->comision : 0;
-            });
-            // Total pagado en el rango (pagos que se solapan con el rango)
-            $pagado = $lavador->pagosComisiones()
-                ->where('desde', '<=', $fechaFin)
-                ->where('hasta', '>=', $fechaInicio)
-                ->sum('monto_pagado');
-            $saldo = $comisionTotal - $pagado;
-            $data[] = [
-                'lavador' => $lavador,
-                'cantidad' => $cantidad,
-                'comision_total' => $comisionTotal,
-                'pagado' => $pagado,
-                'saldo' => $saldo,
-            ];
-        }
+        // Usar el servicio para generar el reporte (lógica centralizada)
+        $data = $this->comisionService->generarReporteComisiones($fechaInicio, $fechaFin);
+
         return view('pagos_comisiones.reporte', compact('data', 'fechaInicio', 'fechaFin'));
     }
 
@@ -128,48 +109,14 @@ class PagoComisionController extends Controller
         $fechaInicio = $request->input('fecha_inicio', now()->startOfMonth()->toDateString());
         $fechaFin = $request->input('fecha_fin', now()->endOfMonth()->toDateString());
         
-        $lavadores = Lavador::where('estado', 'activo')->get();
-        Log::info('Lavadores activos exportados:', $lavadores->pluck('nombre')->toArray());
-        $data = [];
-        
-        foreach ($lavadores as $lavador) {
-            $lavados = ControlLavado::where('lavador_id', $lavador->id)
-                ->whereBetween('hora_llegada', [$fechaInicio . ' 00:00:00', $fechaFin . ' 23:59:59'])
-                ->with('tipoVehiculo')
-                ->get();
-            $cantidad = $lavados->count();
-            $comisionTotal = $lavados->sum(function($lavado) {
-                return $lavado->tipoVehiculo ? $lavado->tipoVehiculo->comision : 0;
-            });
-            // Total pagado en el rango (pagos que se solapan con el rango)
-            $pagado = $lavador->pagosComisiones()
-                ->where('desde', '<=', $fechaFin)
-                ->where('hasta', '>=', $fechaInicio)
-                ->sum('monto_pagado');
-            $saldo = $comisionTotal - $pagado;
-            $data[] = [
-                'lavador' => $lavador,
-                'cantidad' => $cantidad,
-                'comision_total' => $comisionTotal,
-                'pagado' => $pagado,
-                'saldo' => $saldo,
-            ];
-        }
-        
-        // Ordenar por nombre del lavador para consistencia
-        usort($data, function($a, $b) {
-            return strcmp($a['lavador']->nombre, $b['lavador']->nombre);
-        });
-        
-        Log::info('Data enviada a Excel:', collect($data)->map(function($row) {
-            return [
-                'nombre' => $row['lavador']->nombre,
-                'cantidad' => $row['cantidad'],
-                'comision_total' => $row['comision_total'],
-                'pagado' => $row['pagado'],
-                'saldo' => $row['saldo'],
-            ];
-        })->toArray());
+        // Usar el servicio para generar el reporte (lógica centralizada)
+        $data = $this->comisionService->generarReporteComisiones($fechaInicio, $fechaFin);
+
+        Log::info('Comisiones exportadas:', [
+            'fecha_inicio' => $fechaInicio,
+            'fecha_fin' => $fechaFin,
+            'cantidad_lavadores' => count($data),
+        ]);
         
         return Excel::download(new ComisionesLavadorExport($data, $fechaInicio, $fechaFin), 'comisiones_lavadores.xlsx');
     }

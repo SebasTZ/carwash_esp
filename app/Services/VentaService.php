@@ -56,10 +56,8 @@ class VentaService
             // 5. Procesar fidelización si aplica
             $this->procesarFidelizacion($venta, $data);
 
-            // 6. Crear control de lavado si es servicio
-            if ($data['servicio_lavado'] ?? false) {
-                $this->crearControlLavado($venta, $data);
-            }
+            // 6. El control de lavado se crea automáticamente en el Observer (VentaObserver)
+            // No es necesario crearlo aquí para evitar duplicados
 
             Log::channel('ventas')->info('Venta procesada exitosamente', [
                 'venta_id' => $venta->id,
@@ -287,31 +285,6 @@ class VentaService
         ) {
             $this->fidelizacionService->acumularLavado($cliente);
         }
-    }
-
-    /**
-     * Crea el control de lavado asociado
-     */
-    private function crearControlLavado(Venta $venta, array $data): void
-    {
-        if (empty($data['horario_lavado'])) {
-            throw new VentaException('Debe proporcionar un horario de culminación del lavado');
-        }
-
-        \App\Models\ControlLavado::create([
-            'venta_id' => $venta->id,
-            'cliente_id' => $venta->cliente_id,
-            'lavador_id' => null,
-            'hora_llegada' => now(),
-            'horario_estimado' => $venta->horario_lavado,
-            'inicio_lavado' => null,
-            'fin_lavado' => null,
-            'inicio_interior' => null,
-            'fin_interior' => null,
-            'hora_final' => null,
-            'tiempo_total' => null,
-            'estado' => 'En espera',
-        ]);
     }
 
     /**

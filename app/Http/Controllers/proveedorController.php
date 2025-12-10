@@ -10,7 +10,7 @@ use App\Models\Proveedore;
 use Exception;
 use Illuminate\Support\Facades\DB;
 
-class ProveedorController extends Controller
+class proveedorController extends Controller
 {
     function __construct()
     {

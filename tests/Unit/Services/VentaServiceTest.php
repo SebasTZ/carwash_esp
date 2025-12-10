@@ -28,7 +28,6 @@ class VentaServiceTest extends TestCase
     protected function setUp(): void
     {
         parent::setUp();
-        
         $this->ventaService = app(VentaService::class);
     }
 
@@ -232,24 +231,22 @@ class VentaServiceTest extends TestCase
     /** @test */
     public function rollback_en_caso_de_error()
     {
-        // Arrange
+        // Arrange: Crear producto con stock insuficiente
         $cliente = Cliente::factory()->create();
-        $producto = Producto::factory()->create(['stock' => 10]);
+        $producto = Producto::factory()->create(['stock' => 5]); // Stock insuficiente
         $comprobante = Comprobante::factory()->create();
         $user = User::factory()->create();
         $this->actingAs($user);
 
-        // Simular error forzando un servicio de lavado sin horario
+        // Intentar venta con más cantidad que stock disponible
         $data = [
             'cliente_id' => $cliente->id,
             'comprobante_id' => $comprobante->id,
-            'total' => 50.00,
-            'impuesto' => 9.00,
+            'total' => 250.00,
+            'impuesto' => 45.00,
             'medio_pago' => 'efectivo',
-            'servicio_lavado' => true,
-            'horario_lavado' => null, // Esto causará error
             'arrayidproducto' => [$producto->id],
-            'arraycantidad' => [2],
+            'arraycantidad' => [10], // Solicitar más que el stock (5)
             'arrayprecioventa' => [25.00],
             'arraydescuento' => [0],
         ];
@@ -257,14 +254,14 @@ class VentaServiceTest extends TestCase
         // Act & Assert
         try {
             $this->ventaService->procesarVenta($data);
-            $this->fail('Debería haber lanzado una excepción');
-        } catch (VentaException $e) {
+            $this->fail('Debería haber lanzado una excepción por stock insuficiente');
+        } catch (StockInsuficienteException $e) {
             // Verificar que NO se creó la venta (rollback)
             $this->assertEquals(0, Venta::count());
             
             // Verificar que el stock NO se modificó
             $producto->refresh();
-            $this->assertEquals(10, $producto->stock);
+            $this->assertEquals(5, $producto->stock);
             
             // Verificar que NO se acumularon puntos
             $this->assertEquals(0, DB::table('fidelizacion')->where('cliente_id', $cliente->id)->count());

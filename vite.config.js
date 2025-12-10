@@ -8,15 +8,30 @@ export default defineConfig({
             input: [
                 'resources/css/app.css',
                 'resources/js/app.js',
+                // Componentes principales
+                'resources/js/components/DynamicTable.js',
+                'resources/js/components/DetalleVentaTable.js',
+                'resources/js/components/PanelDashboard.js',
+                // Componentes de tablas
+                'resources/js/components/tables/DynamicTable.js',
+                'resources/js/components/tables/LavadorTableManager.js',
+                'resources/js/components/tables/UserTableManager.js',
+                'resources/js/components/tables/UserFormManager.js',
+                'resources/js/components/tables/RoleTableManager.js',
+                'resources/js/components/tables/RoleFormManager.js',
+                'resources/js/components/tables/ProveedorTableManager.js',
+                'resources/js/components/tables/ProveedorFormManager.js',
+                'resources/js/components/tables/PagoComisionHistorialTableManager.js',
+                'resources/js/components/tables/PagoComisionReporteTableManager.js',
+                // Componentes de formularios
+                'resources/js/components/forms/LavadorFormManager.js',
+                'resources/js/components/forms/LavadorEditFormManager.js',
+                'resources/js/components/forms/FormValidator.js',
                 // Módulos de páginas específicas
                 'resources/js/modules/VentaManager.js',
                 'resources/js/modules/CompraManager.js',
                 'resources/js/modules/LavadosManager.js',
                 'resources/js/modules/EstacionamientoManager.js',
-                // Componentes JS de Lavadores
-                'resources/js/components/tables/LavadorTableManager.js',
-                'resources/js/components/forms/LavadorFormManager.js',
-                'resources/js/components/forms/LavadorEditFormManager.js',
             ],
             refresh: true,
         }),

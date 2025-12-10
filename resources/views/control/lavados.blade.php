@@ -250,52 +250,28 @@
                             <td>{{ $lavado->cliente->persona->razon_social ?? '-' }}</td>
                             <td>
                                 @if(!$lavado->lavador_id || !$lavado->tipo_vehiculo_id)
-                                    <div id="form-validator-{{ $lavado->id }}"></div>
-                                    <script>
-                                    document.addEventListener('DOMContentLoaded', function() {
-                                        if (window.FormValidator) {
-                                            window.FormValidator.render({
-                                                target: document.getElementById('form-validator-{{ $lavado->id }}'),
-                                                action: "{{ route('control.lavados.asignarLavador', $lavado->id) }}",
-                                                method: "POST",
-                                                fields: [
-                                                    {
-                                                        name: "lavador_id",
-                                                        label: "Lavador",
-                                                        type: "select",
-                                                        required: true,
-                                                        options: [
-                                                            { value: "", label: "Seleccione lavador" },
-                                                            @foreach($lavadores as $lavador)
-                                                                { value: "{{ $lavador->id }}", label: "{{ $lavador->nombre }}" },
-                                                            @endforeach
-                                                        ],
-                                                        value: "{{ $lavado->lavador_id }}"
-                                                    },
-                                                    {
-                                                        name: "tipo_vehiculo_id",
-                                                        label: "Tipo de Vehículo",
-                                                        type: "select",
-                                                        required: true,
-                                                        options: [
-                                                            { value: "", label: "Seleccione tipo" },
-                                                            @foreach($tiposVehiculo as $tipo)
-                                                                { value: "{{ $tipo->id }}", label: "{{ $tipo->nombre }}" },
-                                                            @endforeach
-                                                        ],
-                                                        value: "{{ $lavado->tipo_vehiculo_id }}"
-                                                    }
-                                                ],
-                                                submit: {
-                                                    label: "Asignar",
-                                                    icon: "fas fa-user-check",
-                                                    class: "btn btn-primary btn-sm btn-action"
-                                                },
-                                                csrf: "{{ csrf_token() }}"
-                                            });
-                                        }
-                                    });
-                                    </script>
+                                    <form method="POST" action="{{ route('control.lavados.asignarLavador', $lavado->id) }}" class="d-flex gap-2">
+                                        @csrf
+                                        <div class="flex-grow-1">
+                                            <select name="lavador_id" class="form-select form-select-sm" required>
+                                                <option value="">Lavador</option>
+                                                @foreach($lavadores as $lavador)
+                                                    <option value="{{ $lavador->id }}" {{ $lavado->lavador_id == $lavador->id ? 'selected' : '' }}>{{ $lavador->nombre }}</option>
+                                                @endforeach
+                                            </select>
+                                        </div>
+                                        <div class="flex-grow-1">
+                                            <select name="tipo_vehiculo_id" class="form-select form-select-sm" required>
+                                                <option value="">Vehículo</option>
+                                                @foreach($tiposVehiculo as $tipo)
+                                                    <option value="{{ $tipo->id }}" {{ $lavado->tipo_vehiculo_id == $tipo->id ? 'selected' : '' }}>{{ $tipo->nombre }}</option>
+                                                @endforeach
+                                            </select>
+                                        </div>
+                                        <button type="submit" class="btn btn-primary btn-sm btn-action">
+                                            <i class="fas fa-user-check"></i> Asignar
+                                        </button>
+                                    </form>
                                 @else
                                     <span class="badge bg-success">
                                         <i class="fas fa-user me-1"></i>

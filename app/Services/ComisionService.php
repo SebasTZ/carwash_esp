@@ -90,4 +90,63 @@ class ComisionService
             ->whereBetween('fecha_pago', [$fechaInicio, $fechaFin])
             ->sum('monto_pagado');
     }
+
+    /**
+     * Genera reporte de comisiones para todos los lavadores en un período
+     * 
+     * Este método centraliza la lógica de cálculo que antes estaba duplicada
+     * en reporteComisiones() y exportarComisiones() del controller
+     * 
+     * @param string $fechaInicio Fecha inicio en formato Y-m-d
+     * @param string $fechaFin Fecha fin en formato Y-m-d
+     * @return array Array con datos de comisiones por lavador
+     */
+    public function generarReporteComisiones(string $fechaInicio, string $fechaFin): array
+    {
+        $lavadores = \App\Models\Lavador::where('estado', 'activo')->get();
+        $data = [];
+
+        foreach ($lavadores as $lavador) {
+            // Lavados realizados en el rango
+            $lavados = ControlLavado::where('lavador_id', $lavador->id)
+                ->whereBetween('hora_llegada', [$fechaInicio . ' 00:00:00', $fechaFin . ' 23:59:59'])
+                ->with('tipoVehiculo')
+                ->get();
+
+            $cantidad = $lavados->count();
+            $comisionTotal = $lavados->sum(function($lavado) {
+                return $lavado->tipoVehiculo ? $lavado->tipoVehiculo->comision : 0;
+            });
+
+            // Total pagado en el rango (pagos que se solapan con el rango)
+            $pagado = $lavador->pagosComisiones()
+                ->where('desde', '<=', $fechaFin)
+                ->where('hasta', '>=', $fechaInicio)
+                ->sum('monto_pagado');
+
+            $saldo = $comisionTotal - $pagado;
+
+            $data[] = [
+                'lavador' => $lavador,
+                'cantidad' => $cantidad,
+                'comision_total' => $comisionTotal,
+                'pagado' => $pagado,
+                'saldo' => $saldo,
+            ];
+        }
+
+        // Ordenar por nombre del lavador para consistencia
+        usort($data, function($a, $b) {
+            return strcmp($a['lavador']->nombre, $b['lavador']->nombre);
+        });
+
+        Log::channel('comisiones')->info('Reporte de comisiones generado', [
+            'fecha_inicio' => $fechaInicio,
+            'fecha_fin' => $fechaFin,
+            'cantidad_lavadores' => count($data),
+            'comision_total' => array_sum(array_column($data, 'comision_total')),
+        ]);
+
+        return $data;
+    }
 }

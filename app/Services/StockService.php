@@ -74,7 +74,13 @@ class StockService
 
             // Limpiar caché de productos
             Cache::forget("producto_{$producto->id}_stock");
-            Cache::tags(['productos'])->flush();
+            
+            // Flush cache tags only if the driver supports tagging
+            try {
+                Cache::tags(['productos'])->flush();
+            } catch (\BadMethodCallException $e) {
+                // Array cache driver doesn't support tagging, skip
+            }
 
             // Verificar alerta de stock bajo
             $this->verificarStockBajo($producto);

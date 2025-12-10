@@ -24,20 +24,20 @@ class roleController extends Controller
     public function index()
     {
         // Paginar roles y cargar permisos
-        $rolesPaginated = Role::with('permissions')->paginate(15);
-        // Transformar cada rol para incluir permisos como array
-        $roles = $rolesPaginated->getCollection()->map(function($role) {
+        $roles = Role::with('permissions')->paginate(15);
+        
+        // Transformar la colección manteniendo la paginación
+        /** @var \Illuminate\Pagination\LengthAwarePaginator $roles */
+        $roles->getCollection()->transform(function($role) {
             return [
                 'id' => $role->id,
                 'name' => $role->name,
-                'permission' => $role->permissions->pluck('name')->toArray()
+                'permissions' => $role->permissions->pluck('name')->toArray(),
+                'permissions_count' => $role->permissions->count()
             ];
-        })->toArray();
-        // Enviar los datos paginados y los roles transformados
-        return view('role.index', [
-            'roles' => $roles,
-            'rolesPaginated' => $rolesPaginated
-        ]);
+        });
+
+        return view('role.index', compact('roles'));
     }
 
     /**

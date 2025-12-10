@@ -3,13 +3,15 @@
 namespace App\Http\Controllers;
 
 use App\Models\Cliente;
+use App\Services\FidelizacionService;
 use Illuminate\Http\Request;
 use App\Exports\FidelidadExport;
 
 class FidelidadController extends Controller
 {
-    public function __construct()
-    {
+    public function __construct(
+        private FidelizacionService $fidelizacionService
+    ) {
         $this->middleware('permission:ver-fidelidad', ['only' => ['reporteFidelidad', 'reporteView']]);
         $this->middleware('permission:gestionar-fidelidad', ['only' => ['mostrarLavados', 'incrementarLavado', 'aplicarLavadoGratis']]);
         $this->middleware('permission:reporte-fidelidad', ['only' => ['reporteFidelidad', 'reporteView']]);
@@ -22,24 +24,43 @@ class FidelidadController extends Controller
         return response()->json(['lavados_acumulados' => $cliente->lavados_acumulados]);
     }
 
+    /**
+     * Incrementa un lavado al cliente usando el servicio de fidelización
+     * 
+     * @param int $clienteId ID del cliente
+     * @return \Illuminate\Http\JsonResponse
+     */
     public function incrementarLavado($clienteId)
     {
         $cliente = Cliente::findOrFail($clienteId);
-        $cliente->lavados_acumulados += 1;
-        $cliente->save();
+        $this->fidelizacionService->acumularLavado($cliente);
+        
+        // Recargar cliente para obtener datos actualizados
+        $cliente->refresh();
+        
         return response()->json(['lavados_acumulados' => $cliente->lavados_acumulados]);
     }
 
+    /**
+     * Aplica un lavado gratis al cliente si tiene suficientes acumulados
+     * 
+     * @param int $clienteId ID del cliente
+     * @return \Illuminate\Http\JsonResponse
+     */
     public function aplicarLavadoGratis($clienteId)
     {
         $cliente = Cliente::findOrFail($clienteId);
-        if ($cliente->lavados_acumulados >= 10) {
-            $cliente->lavados_acumulados = 0;
-            $cliente->save();
-            // Aquí se debe registrar el lavado gratuito en el sistema de lavados
-            return response()->json(['lavado_gratis' => true]);
+        
+        if ($this->fidelizacionService->puedeUsarLavadoGratis($cliente)) {
+            $this->fidelizacionService->canjearLavadoGratis($cliente);
+            return response()->json(['lavado_gratis' => true, 'lavados_acumulados' => 0]);
         }
-        return response()->json(['lavado_gratis' => false]);
+        
+        return response()->json([
+            'lavado_gratis' => false,
+            'lavados_acumulados' => $cliente->lavados_acumulados,
+            'mensaje' => "Le faltan " . (10 - $cliente->lavados_acumulados) . " lavados para obtener uno gratis"
+        ]);
     }
 
     public function reporteFidelidad(Request $request)

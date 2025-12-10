@@ -6,6 +6,7 @@ use App\Models\Estacionamiento;
 use App\Models\Cliente;
 use App\Models\Persona;
 use App\Models\Documento;
+use App\Services\EstacionamientoService;
 use App\Exports\EstacionamientoExport;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -15,8 +16,11 @@ use Maatwebsite\Excel\Facades\Excel;
 
 class EstacionamientoController extends Controller
 {
-    function __construct()
+    protected EstacionamientoService $estacionamientoService;
+
+    function __construct(EstacionamientoService $estacionamientoService)
     {
+        $this->estacionamientoService = $estacionamientoService;
         $this->middleware('permission:ver-estacionamiento|crear-estacionamiento|editar-estacionamiento|eliminar-estacionamiento', ['only' => ['index']]);
         $this->middleware('permission:crear-estacionamiento', ['only' => ['create', 'store']]);
         $this->middleware('permission:editar-estacionamiento', ['only' => ['edit', 'update']]);
@@ -130,27 +134,27 @@ class EstacionamientoController extends Controller
 
     public function registrarSalida(Estacionamiento $estacionamiento)
     {
-        $estacionamiento->hora_salida = now();
+        try {
+            $estacionamiento->hora_salida = now();
 
-        // Calcular el tiempo total en minutos
-        $tiempoTotal = $estacionamiento->hora_entrada->diffInMinutes($estacionamiento->hora_salida);
+            // Usar el servicio para calcular el monto (lógica centralizada)
+            $montoTotal = $this->estacionamientoService->registrarSalida($estacionamiento);
 
-        // Calcular el monto total basado en la tarifa por hora (proporcional a minutos)
-        // Tarifa por minuto = Tarifa por hora / 60
-        $tarifaPorMinuto = $estacionamiento->tarifa_hora / 60;
-        $montoTotal = $tarifaPorMinuto * $tiempoTotal;
+            $estacionamiento->estado = 'finalizado';
+            $estacionamiento->save();
 
-        // Si hay pago adelantado, descontar del monto total
-        if ($estacionamiento->pagado_adelantado && $estacionamiento->monto_pagado_adelantado) {
-            $montoTotal = max(0, $montoTotal - $estacionamiento->monto_pagado_adelantado);
+            return redirect()->route('estacionamiento.index')
+                ->with('success', 'Salida registrada correctamente. Monto total: S/.' . number_format($montoTotal, 2));
+
+        } catch (\Exception $e) {
+            Log::error('Error al registrar salida de estacionamiento', [
+                'estacionamiento_id' => $estacionamiento->id,
+                'error' => $e->getMessage(),
+            ]);
+
+            return redirect()->route('estacionamiento.index')
+                ->with('error', 'Error al registrar la salida: ' . $e->getMessage());
         }
-
-        $estacionamiento->monto_total = $montoTotal;
-        $estacionamiento->estado = 'finalizado';
-        $estacionamiento->save();
-
-        return redirect()->route('estacionamiento.index')
-            ->with('success', 'Salida registrada correctamente. Monto total: S/.' . number_format($montoTotal, 2));
     }
 
     public function historial()

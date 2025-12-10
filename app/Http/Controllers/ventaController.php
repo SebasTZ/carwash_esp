@@ -20,6 +20,7 @@ use App\Exports\VentasExport;
 use Maatwebsite\Excel\Facades\Excel;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
 use Mike42\Escpos\Printer;
 use Mike42\Escpos\PrintConnectors\FilePrintConnector;
 use Barryvdh\DomPDF\Facade\Pdf;
@@ -50,23 +51,25 @@ class ventaController extends Controller
         $ventas = Venta::with(['comprobante','cliente.persona','user'])
             ->where('estado',1)
             ->latest()
-            ->paginate(15)
-            ->map(function($venta) {
-                return [
-                    'id' => $venta->id,
-                    'comprobante' => [
-                        'tipo_comprobante' => $venta->comprobante?->tipo_comprobante,
-                        'numero_comprobante' => $venta->numero_comprobante
-                    ],
-                    'cliente' => $venta->cliente,
-                    'fecha_hora' => $venta->fecha_hora,
-                    'vendedor' => $venta->user,
-                    'total' => number_format($venta->total, 2),
-                    'medio_pago' => $venta->medio_pago,
-                    'servicio_lavado' => $venta->servicio_lavado ?? false,
-                ];
-            })
-            ->values();
+            ->paginate(15);
+
+        // Transformar solo los elementos, manteniendo la paginación
+        /** @var \Illuminate\Pagination\LengthAwarePaginator $ventas */
+        $ventas->getCollection()->transform(function($venta) {
+            return [
+                'id' => $venta->id,
+                'comprobante' => [
+                    'tipo_comprobante' => $venta->comprobante?->tipo_comprobante,
+                    'numero_comprobante' => $venta->numero_comprobante
+                ],
+                'cliente' => $venta->cliente,
+                'fecha_hora' => $venta->fecha_hora,
+                'vendedor' => $venta->user,
+                'total' => number_format($venta->total, 2),
+                'medio_pago' => $venta->medio_pago,
+                'servicio_lavado' => $venta->servicio_lavado ?? false,
+            ];
+        });
 
         return view('venta.index',compact('ventas'));
     }
@@ -119,7 +122,7 @@ class ventaController extends Controller
                 ->withInput();
 
         } catch (Exception $e) {
-            \Log::error('Error al procesar venta', [
+            Log::error('Error al procesar venta', [
                 'error' => $e->getMessage(),
                 'trace' => $e->getTraceAsString(),
             ]);
@@ -139,7 +142,7 @@ class ventaController extends Controller
         // Eager load productos para evitar N+1 queries
         $venta->load(['productos', 'cliente.persona', 'comprobante', 'user']);
         
-        \Log::channel('ventas')->debug('Show Venta - Eager Loading', [
+        Log::channel('ventas')->debug('Show Venta - Eager Loading', [
             'venta_id' => $venta->id,
             'productos_count' => $venta->productos->count(),
             'productos_keys' => $venta->productos->pluck('id')->toArray(),

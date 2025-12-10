@@ -4,6 +4,8 @@ namespace App\Http\Controllers;
 
 use App\Models\TarjetaRegalo;
 use App\Models\Cliente;
+use App\Services\TarjetaRegaloService;
+use App\Exceptions\TarjetaRegaloException;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
 use App\Exports\TarjetasRegaloExport;
@@ -11,8 +13,9 @@ use Maatwebsite\Excel\Facades\Excel;
 
 class TarjetaRegaloController extends Controller
 {
-    public function __construct()
-    {
+    public function __construct(
+        private TarjetaRegaloService $tarjetaRegaloService
+    ) {
         $this->middleware('permission:ver-tarjeta-regalo', ['only' => ['index', 'show', 'reporte', 'reporteView']]);
         $this->middleware('permission:crear-tarjeta-regalo', ['only' => ['create', 'store']]);
         $this->middleware('permission:editar-tarjeta-regalo', ['only' => ['edit', 'update']]);
@@ -100,23 +103,42 @@ class TarjetaRegaloController extends Controller
         return redirect()->route('tarjetas_regalo.reporte.view')->with('success', 'Tarjeta de regalo eliminada correctamente.');
     }
 
+    /**
+     * Usa una tarjeta de regalo para descontar del total
+     * Utiliza el servicio para validación y descuento
+     */
     public function usarTarjeta(Request $request)
     {
         $request->validate([
             'codigo' => 'required|exists:tarjetas_regalo,codigo',
             'monto' => 'required|numeric|min:0.01',
         ]);
-        $tarjeta = TarjetaRegalo::where('codigo', $request->codigo)->firstOrFail();
-        if ($tarjeta->estado !== 'activa' || $tarjeta->saldo_actual < $request->monto) {
-            return response()->json(['error' => 'Tarjeta no válida o saldo insuficiente'], 422);
+
+        try {
+            $tarjeta = $this->tarjetaRegaloService->validarYDescontar(
+                codigo: $request->codigo,
+                monto: $request->monto
+            );
+
+            return response()->json([
+                'success' => true,
+                'tarjeta' => $tarjeta,
+                'saldo_restante' => $tarjeta->saldo_actual,
+                'mensaje' => 'Tarjeta aplicada correctamente'
+            ]);
+
+        } catch (TarjetaRegaloException $e) {
+            return response()->json([
+                'success' => false,
+                'error' => $e->getMessage()
+            ], 422);
+
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'error' => 'Error al procesar la tarjeta de regalo'
+            ], 500);
         }
-        $tarjeta->saldo_actual -= $request->monto;
-        if ($tarjeta->saldo_actual <= 0) {
-            $tarjeta->saldo_actual = 0;
-            $tarjeta->estado = 'usada';
-        }
-        $tarjeta->save();
-        return response()->json(['tarjeta' => $tarjeta]);
     }
 
     public function reporte(Request $request)

@@ -15,14 +15,10 @@ return new class extends Migration
             if (!Schema::hasIndex('ventas', 'idx_ventas_fecha_hora')) {
                 $table->index('fecha_hora', 'idx_ventas_fecha_hora');
             }
-            if (!Schema::hasIndex('ventas', 'idx_ventas_cliente_id')) {
-                $table->index('cliente_id', 'idx_ventas_cliente_id');
-            }
+            // Skip indexes on FK columns - they already have implicit indexes from foreignId()
+            // cliente_id, user_id, comprobante_id are all FKs
             if (!Schema::hasIndex('ventas', 'idx_ventas_estado')) {
                 $table->index('estado', 'idx_ventas_estado');
-            }
-            if (!Schema::hasIndex('ventas', 'idx_ventas_user_id')) {
-                $table->index('user_id', 'idx_ventas_user_id');
             }
             if (!Schema::hasIndex('ventas', 'idx_ventas_fecha_estado')) {
                 $table->index(['fecha_hora', 'estado'], 'idx_ventas_fecha_estado');
@@ -34,10 +30,16 @@ return new class extends Migration
 
         Schema::table('compras', function (Blueprint $table) {
             // Índices similares para compras
-            $table->index('fecha_hora', 'idx_compras_fecha_hora');
-            $table->index('proveedore_id', 'idx_compras_proveedore_id');
-            $table->index('estado', 'idx_compras_estado');
-            $table->index(['fecha_hora', 'estado'], 'idx_compras_fecha_estado');
+            if (!Schema::hasIndex('compras', 'idx_compras_fecha_hora')) {
+                $table->index('fecha_hora', 'idx_compras_fecha_hora');
+            }
+            // Skip índices en FKs (comprobante_id, proveedore_id) - ya existen implícitamente
+            if (!Schema::hasIndex('compras', 'idx_compras_estado')) {
+                $table->index('estado', 'idx_compras_estado');
+            }
+            if (!Schema::hasIndex('compras', 'idx_compras_fecha_estado')) {
+                $table->index(['fecha_hora', 'estado'], 'idx_compras_fecha_estado');
+            }
         });
 
         Schema::table('productos', function (Blueprint $table) {
@@ -60,17 +62,18 @@ return new class extends Migration
         });
 
         Schema::table('stock_movimientos', function (Blueprint $table) {
-            // Índice para auditoría por producto
-            $table->index('producto_id', 'idx_stock_movimientos_producto');
-            
-            // Índice para auditoría por usuario
-            $table->index('usuario_id', 'idx_stock_movimientos_usuario');
+            // Skip producto_id - it's a FK
+            // Skip usuario_id - it's a FK
             
             // Índice para filtrar por tipo de movimiento
-            $table->index('tipo', 'idx_stock_movimientos_tipo');
+            if (!Schema::hasIndex('stock_movimientos', 'idx_stock_movimientos_tipo')) {
+                $table->index('tipo', 'idx_stock_movimientos_tipo');
+            }
             
             // Índice por fecha de creación (auditorías por rango)
-            $table->index('created_at', 'idx_stock_movimientos_created');
+            if (!Schema::hasIndex('stock_movimientos', 'idx_stock_movimientos_created')) {
+                $table->index('created_at', 'idx_stock_movimientos_created');
+            }
         });
     }
 
@@ -80,37 +83,63 @@ return new class extends Migration
     public function down(): void
     {
         Schema::table('ventas', function (Blueprint $table) {
-            $table->dropIndex('idx_ventas_fecha_hora');
-            $table->dropIndex('idx_ventas_cliente_id');
-            $table->dropIndex('idx_ventas_estado');
-            $table->dropIndex('idx_ventas_user_id');
-            $table->dropIndex('idx_ventas_fecha_estado');
-            $table->dropIndex('idx_ventas_numero_comprobante');
+            if (Schema::hasIndex('ventas', 'idx_ventas_fecha_hora')) {
+                $table->dropIndex('idx_ventas_fecha_hora');
+            }
+            // NOT dropping FK indexes
+            if (Schema::hasIndex('ventas', 'idx_ventas_estado')) {
+                $table->dropIndex('idx_ventas_estado');
+            }
+            if (Schema::hasIndex('ventas', 'idx_ventas_fecha_estado')) {
+                $table->dropIndex('idx_ventas_fecha_estado');
+            }
+            if (Schema::hasIndex('ventas', 'idx_ventas_numero_comprobante')) {
+                $table->dropIndex('idx_ventas_numero_comprobante');
+            }
         });
 
         Schema::table('compras', function (Blueprint $table) {
-            $table->dropIndex('idx_compras_fecha_hora');
-            $table->dropIndex('idx_compras_proveedore_id');
-            $table->dropIndex('idx_compras_estado');
-            $table->dropIndex('idx_compras_fecha_estado');
+            if (Schema::hasIndex('compras', 'idx_compras_fecha_hora')) {
+                $table->dropIndex('idx_compras_fecha_hora');
+            }
+            // NOT dropping FK indexes
+            if (Schema::hasIndex('compras', 'idx_compras_estado')) {
+                $table->dropIndex('idx_compras_estado');
+            }
+            if (Schema::hasIndex('compras', 'idx_compras_fecha_estado')) {
+                $table->dropIndex('idx_compras_fecha_estado');
+            }
         });
 
         Schema::table('productos', function (Blueprint $table) {
-            $table->dropIndex('idx_productos_nombre');
-            $table->dropIndex('idx_productos_estado');
-            $table->dropIndex('idx_productos_stock');
-            $table->dropIndex('idx_productos_estado_stock');
+            if (Schema::hasIndex('productos', 'idx_productos_nombre')) {
+                $table->dropIndex('idx_productos_nombre');
+            }
+            if (Schema::hasIndex('productos', 'idx_productos_estado')) {
+                $table->dropIndex('idx_productos_estado');
+            }
+            if (Schema::hasIndex('productos', 'idx_productos_stock')) {
+                $table->dropIndex('idx_productos_stock');
+            }
+            if (Schema::hasIndex('productos', 'idx_productos_estado_stock')) {
+                $table->dropIndex('idx_productos_estado_stock');
+            }
         });
 
         Schema::table('clientes', function (Blueprint $table) {
-            $table->dropIndex('idx_clientes_lavados');
+            if (Schema::hasIndex('clientes', 'idx_clientes_lavados')) {
+                $table->dropIndex('idx_clientes_lavados');
+            }
         });
 
         Schema::table('stock_movimientos', function (Blueprint $table) {
-            $table->dropIndex('idx_stock_movimientos_producto');
-            $table->dropIndex('idx_stock_movimientos_usuario');
-            $table->dropIndex('idx_stock_movimientos_tipo');
-            $table->dropIndex('idx_stock_movimientos_created');
+            // NOT dropping FK indexes (producto_id, usuario_id)
+            if (Schema::hasIndex('stock_movimientos', 'idx_stock_movimientos_tipo')) {
+                $table->dropIndex('idx_stock_movimientos_tipo');
+            }
+            if (Schema::hasIndex('stock_movimientos', 'idx_stock_movimientos_created')) {
+                $table->dropIndex('idx_stock_movimientos_created');
+            }
         });
     }
 };

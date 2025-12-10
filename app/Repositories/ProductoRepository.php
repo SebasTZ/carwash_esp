@@ -13,8 +13,16 @@ class ProductoRepository
     /**
      * Obtiene productos para formulario de venta con caché
      * 
-     * OPTIMIZACIÓN: Cache de 1 hora (3600 segundos) para reducir queries
+     * OPTIMIZACIÓN: Cache de 1 hora (3600 segundos) para reducir queries complejas
      * Se invalida automáticamente mediante ProductoObserver
+     * 
+     * BENEFICIOS EN PRODUCCIÓN:
+     * - Con MySQL/PostgreSQL: Evita JOIN complejos en cada venta
+     * - Con Redis/Memcached: Acceso ultra-rápido a datos serializados
+     * - Con muchos productos: Reduce significativamente el tiempo de respuesta
+     * 
+     * NOTA: En testing con SQLite + driver 'array', el overhead puede 
+     * superar el beneficio debido al pequeño volumen de datos.
      *
      * @return Collection
      */
