@@ -10,19 +10,18 @@
 @include('layouts.partials.alert')
 
 <div class="container-fluid px-4">
-    <h1 class="mt-4 text-center">Productos</h1>
+    <div class="cw-page-header mt-4">
+        <h1 class="cw-page-title">Productos</h1>
+        @can('crear-producto')
+        <div class="cw-page-actions">
+            <a href="{{ route('productos.create') }}" class="btn btn-primary">Agregar nuevo producto</a>
+        </div>
+        @endcan
+    </div>
     <ol class="breadcrumb mb-4">
         <li class="breadcrumb-item"><a href="{{ route('panel') }}">Inicio</a></li>
         <li class="breadcrumb-item active">Productos</li>
     </ol>
-
-    @can('crear-producto')
-    <div class="mb-4">
-        <a href="{{route('productos.create')}}">
-            <button type="button" class="btn btn-primary">Agregar nuevo producto</button>
-        </a>
-    </div>
-    @endcan
 
     <div class="card">
         <div class="card-header">
@@ -90,7 +89,7 @@
                                     <form method="POST" action="{{ route('productos.destroy', $producto->id) }}" style="display:inline;">
                                         @csrf
                                         @method('DELETE')
-                                        <button type="submit" class="btn btn-outline-danger btn-sm" title="Eliminar" onclick="return confirm('¿Está seguro?')">
+                                        <button type="submit" class="btn btn-outline-danger btn-sm" title="Eliminar" data-confirm="¿Está seguro de eliminar este producto?" data-confirm-confirm-text="Eliminar">
                                             <i class="fas fa-trash"></i>
                                         </button>
                                     </form>

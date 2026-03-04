@@ -387,7 +387,7 @@
                                         @csrf
                                         @method('DELETE')
                                         <button type="submit" class="btn btn-sm btn-danger btn-action"
-                                                onclick="return confirm('¿Eliminar este registro?')">
+                                            data-confirm="¿Está seguro de eliminar este registro?" data-confirm-confirm-text="Eliminar">
                                             <i class="fas fa-trash"></i>
                                         </button>
                                     </form>

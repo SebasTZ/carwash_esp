@@ -4,18 +4,19 @@
 
 @section('content')
 <div class="container-fluid px-4">
-    <h1 class="mt-4">Estacionamiento</h1>
-    <div class="card mb-4">
-        <div class="card-header">
-            <i class="fas fa-car me-1"></i>
-            Vehículos Estacionados
+    <div class="cw-page-header mt-4">
+        <h1 class="cw-page-title">Estacionamiento</h1>
+        <div class="cw-page-actions">
             @can('crear-estacionamiento')
-            <a class="btn btn-success btn-sm float-end" href="{{ route('estacionamiento.create') }}">
-                <i class="fas fa-plus"></i> Registrar Entrada
+            <a class="btn btn-success" href="{{ route('estacionamiento.create') }}">
+                <i class="fas fa-plus"></i> Registrar entrada
             </a>
             @endcan
-            <div class="btn-group float-end me-2" role="group">
-                <button id="btnReportes" type="button" class="btn btn-warning btn-sm dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false">
+            <a href="{{ route('estacionamiento.historial') }}" class="btn btn-info">
+                <i class="fas fa-history"></i> Ver historial
+            </a>
+            <div class="btn-group" role="group">
+                <button id="btnReportes" type="button" class="btn btn-warning dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false">
                     <i class="fas fa-chart-bar me-1"></i> Reportes
                 </button>
                 <ul class="dropdown-menu" aria-labelledby="btnReportes">
@@ -26,9 +27,16 @@
                     <li><a class="dropdown-item" data-bs-toggle="modal" data-bs-target="#modalReportePersonalizado" href="#"><i class="fas fa-filter"></i> Reporte Personalizado</a></li>
                 </ul>
             </div>
-            <a href="{{ route('estacionamiento.historial') }}" class="btn btn-info btn-sm float-end me-2">
-                <i class="fas fa-history"></i> Ver Historial
-            </a>
+        </div>
+    </div>
+    <ol class="breadcrumb mb-4">
+        <li class="breadcrumb-item"><a href="{{ route('panel') }}">Inicio</a></li>
+        <li class="breadcrumb-item active">Estacionamiento</li>
+    </ol>
+    <div class="card mb-4">
+        <div class="card-header">
+            <i class="fas fa-car me-1"></i>
+            Vehículos Estacionados
         </div>
         <div class="card-body">
             @if(session('success'))
@@ -94,7 +102,7 @@
                             <form action="{{ route('estacionamiento.destroy', $estacionamiento) }}" method="POST" class="d-inline">
                                 @csrf
                                 @method('DELETE')
-                                <button type="submit" class="btn btn-danger btn-sm" onclick="return confirm('¿Está seguro de eliminar este registro?')">
+                                <button type="submit" class="btn btn-danger btn-sm" data-confirm="¿Está seguro de eliminar este registro?" data-confirm-confirm-text="Eliminar">
                                     <i class="fas fa-trash"></i>
                                 </button>
                             </form>

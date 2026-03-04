@@ -7,19 +7,18 @@
 @include('layouts.partials.alert')
 
 <div class="container-fluid px-4">
-    <h1 class="mt-4 text-center">Marcas</h1>
+    <div class="cw-page-header mt-4">
+        <h1 class="cw-page-title">Marcas</h1>
+        @can('crear-marca')
+        <div class="cw-page-actions">
+            <a href="{{ route('marcas.create') }}" class="btn btn-primary">Agregar Nuevo Registro</a>
+        </div>
+        @endcan
+    </div>
     <ol class="breadcrumb mb-4">
         <li class="breadcrumb-item"><a href="{{ route('panel') }}">Inicio</a></li>
         <li class="breadcrumb-item active">Marcas</li>
     </ol>
-
-    @can('crear-marca')
-    <div class="mb-4">
-        <a href="{{ route('marcas.create') }}">
-            <button type="button" class="btn btn-primary">Agregar Nuevo Registro</button>
-        </a>
-    </div>
-    @endcan
 
     <div class="card">
         <div class="card-header">
@@ -33,28 +32,19 @@
     </div>
 </div>
 
-<!-- Modal dinámico para eliminar/restaurar -->
-<div class="modal fade" id="deleteModal" tabindex="-1" aria-labelledby="deleteModalLabel" aria-hidden="true">
-    <div class="modal-dialog">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title" id="deleteModalLabel">Mensaje de Confirmación</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-            </div>
-            <div class="modal-body" id="deleteModalBody">
-                <!-- Texto dinámico -->
-            </div>
-            <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
-                <form id="deleteForm" method="POST">
-                    @csrf
-                    @method('DELETE')
-                    <button type="submit" class="btn btn-danger" id="confirmButton">Confirmar</button>
-                </form>
-            </div>
-        </div>
-    </div>
-</div>
+<x-confirm-action-modal
+    modal-id="deleteModal"
+    title="Mensaje de Confirmación"
+    action="#"
+    method="DELETE"
+    body-id="deleteModalBody"
+    form-id="deleteForm"
+    confirm-button-id="confirmButton"
+    confirm-class="btn btn-danger"
+    cancel-text="Cerrar"
+>
+    ¿Está seguro de que desea realizar esta acción?
+</x-confirm-action-modal>
 
 @endsection
 
@@ -95,7 +85,18 @@ window.addEventListener('load', () => {
             icon: 'fa-trash-can',
             show: (row) => row.caracteristica.estado == 1,
             callback: (row) => {
-                confirmAction(row.id, true);
+                window.CarWash.openActionModal({
+                    modalId: 'deleteModal',
+                    title: 'Mensaje de Confirmación',
+                    message: '¿Estás seguro de que deseas eliminar esta marca?',
+                    action: `/marcas/${row.id}`,
+                    method: 'DELETE',
+                    confirmText: 'Eliminar',
+                    confirmClass: 'btn btn-danger',
+                    bodyId: 'deleteModalBody',
+                    formId: 'deleteForm',
+                    confirmButtonId: 'confirmButton',
+                });
             }
         });
         actions.push({
@@ -104,7 +105,18 @@ window.addEventListener('load', () => {
             icon: 'fa-rotate',
             show: (row) => row.caracteristica.estado != 1,
             callback: (row) => {
-                confirmAction(row.id, false);
+                window.CarWash.openActionModal({
+                    modalId: 'deleteModal',
+                    title: 'Mensaje de Confirmación',
+                    message: '¿Estás seguro de que deseas restaurar esta marca?',
+                    action: `/marcas/${row.id}`,
+                    method: 'DELETE',
+                    confirmText: 'Restaurar',
+                    confirmClass: 'btn btn-success',
+                    bodyId: 'deleteModalBody',
+                    formId: 'deleteForm',
+                    confirmButtonId: 'confirmButton',
+                });
             }
         });
     }
@@ -150,30 +162,5 @@ window.addEventListener('load', () => {
 
     new window.CarWash.DynamicTable(tableElement, config);
 });
-
-// Función global para confirmar acción
-function confirmAction(marcaId, isActive) {
-    const modal = new bootstrap.Modal(document.getElementById('deleteModal'));
-    const modalBody = document.getElementById('deleteModalBody');
-    const deleteForm = document.getElementById('deleteForm');
-    const confirmButton = document.getElementById('confirmButton');
-    
-    // Configurar texto del modal
-    if (isActive) {
-        modalBody.textContent = '¿Estás seguro de que deseas eliminar esta marca?';
-        confirmButton.textContent = 'Eliminar';
-        confirmButton.className = 'btn btn-danger';
-    } else {
-        modalBody.textContent = '¿Estás seguro de que deseas restaurar esta marca?';
-        confirmButton.textContent = 'Restaurar';
-        confirmButton.className = 'btn btn-success';
-    }
-    
-    // Configurar form action
-    deleteForm.action = `/marcas/${marcaId}`;
-    
-    // Mostrar modal
-    modal.show();
-}
 </script>
 @endpush

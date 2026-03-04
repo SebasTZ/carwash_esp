@@ -1,6 +1,6 @@
 @extends('layouts.app')
 
-@section('title','Edit Client')
+@section('title','Editar Cliente')
 
 @push('css')
 
@@ -8,30 +8,30 @@
 
 @section('content')
 <div class="container-fluid px-4">
-    <h1 class="mt-4 text-center">Edit Client</h1>
+    <h1 class="mt-4 text-center">Editar Cliente</h1>
     <ol class="breadcrumb mb-4">
-        <li class="breadcrumb-item"><a href="{{ route('panel') }}">Home</a></li>
-        <li class="breadcrumb-item"><a href="{{ route('clientes.index')}}">Clients</a></li>
-        <li class="breadcrumb-item active">Edit Client</li>
+        <li class="breadcrumb-item"><a href="{{ route('panel') }}">Inicio</a></li>
+        <li class="breadcrumb-item"><a href="{{ route('clientes.index')}}">Clientes</a></li>
+        <li class="breadcrumb-item active">Editar Cliente</li>
     </ol>
 
     <div class="card text-bg-light">
-        <form action="{{ route('clientes.update',['cliente'=>$cliente]) }}" method="post">
+        <form id="cliente-edit-form" class="cw-form" action="{{ route('clientes.update',['cliente'=>$cliente]) }}" method="post">
             @method('PATCH')
             @csrf
             <div class="card-header">
-                <p>Client type: <span class="fw-bold">{{ strtoupper($cliente->persona->tipo_persona)}}</span></p>
+                <p>Tipo de cliente: <span class="fw-bold">{{ strtoupper($cliente->persona->tipo_persona)}}</span></p>
             </div>
             <div class="card-body">
 
                 <div class="row g-3">
 
-                    <!-- Social reason / Name -->
+                    <!-- Razón social / Nombre -->
                     <div class="col-12">
                         @if ($cliente->persona->tipo_persona == 'natural')
-                        <label id="label-natural" for="razon_social" class="form-label">Full name:</label>
+                        <label id="label-natural" for="razon_social" class="form-label">Nombres y apellidos:</label>
                         @else
-                        <label id="label-juridica" for="razon_social" class="form-label">Company name:</label>
+                        <label id="label-juridica" for="razon_social" class="form-label">Razón social:</label>
                         @endif
 
                         <input required type="text" name="razon_social" id="razon_social" class="form-control" value="{{old('razon_social',$cliente->persona->razon_social)}}">
@@ -43,7 +43,7 @@
 
                     <!------Dirección---->
                     <div class="col-12">
-                        <label for="direccion" class="form-label">Address:</label>
+                        <label for="direccion" class="form-label">Dirección:</label>
                         <input required type="text" name="direccion" id="direccion" class="form-control" value="{{old('direccion',$cliente->persona->direccion)}}">
                         @error('direccion')
                         <small class="text-danger">{{'*'.$message}}</small>
@@ -52,7 +52,7 @@
 
                     <!------Teléfono---->
                     <div class="col-12">
-                        <label for="telefono" class="form-label">Phone:</label>
+                        <label for="telefono" class="form-label">Teléfono:</label>
                         <input required type="text" name="telefono" id="telefono" class="form-control" value="{{old('telefono',$cliente->persona->telefono)}}">
                         @error('telefono')
                         <small class="text-danger">{{'*'.$message}}</small>
@@ -61,7 +61,7 @@
 
                     <!--------------Documento------->
                     <div class="col-md-6">
-                        <label for="documento_id" class="form-label">Document type:</label>
+                        <label for="documento_id" class="form-label">Tipo de documento:</label>
                         <select class="form-select" name="documento_id" id="documento_id">
                             @foreach ($documentos as $item)
                             @if ($cliente->persona->documento_id == $item->id)
@@ -77,7 +77,7 @@
                     </div>
 
                     <div class="col-md-6">
-                        <label for="numero_documento" class="form-label">Document number:</label>
+                        <label for="numero_documento" class="form-label">Número de documento:</label>
                         <input required type="text" name="numero_documento" id="numero_documento" class="form-control" value="{{old('numero_documento',$cliente->persona->numero_documento)}}">
                         @error('numero_documento')
                         <small class="text-danger">{{'*'.$message}}</small>
@@ -87,8 +87,10 @@
                 </div>
 
             </div>
-            <div class="card-footer text-center">
-                <button type="submit" class="btn btn-primary">Actualizar cliente</button>
+            <div class="card-footer">
+                <div class="cw-form-actions">
+                    <button type="submit" class="btn btn-primary">Actualizar cliente</button>
+                </div>
             </div>
         </form>
     </div>

@@ -16,7 +16,7 @@
     </ol>
 
     <div class="card text-bg-light">
-        <form action="{{ route('users.store') }}" method="post">
+        <form id="user-create-form" class="cw-form" action="{{ route('users.store') }}" method="post">
             @csrf
             <div class="card-header">
                 <p class="">Nota: Los usuarios son quienes pueden acceder al sistema</p>
@@ -25,8 +25,10 @@
 
                 <div id="user-create-form-fields"></div>
             </div>
-            <div class="card-footer text-center">
-                <button type="submit" class="btn btn-primary">Registrar usuario</button>
+            <div class="card-footer">
+                <div class="cw-form-actions">
+                    <button type="submit" class="btn btn-primary">Registrar usuario</button>
+                </div>
             </div>
         </form>
     </div>

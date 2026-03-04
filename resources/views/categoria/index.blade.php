@@ -2,28 +2,23 @@
 
 @section('title','Categorías')
 
-@push('css')
-<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-@endpush
-
 @section('content')
 
 @include('layouts.partials.alert')
  
 <div class="container-fluid px-4">
-    <h1 class="mt-4 text-center">Categorías</h1>
+    <div class="cw-page-header mt-4">
+        <h1 class="cw-page-title">Categorías</h1>
+        @can('crear-categoria')
+        <div class="cw-page-actions">
+            <a href="{{route('categorias.create')}}" class="btn btn-primary">Agregar nueva categoría</a>
+        </div>
+        @endcan
+    </div>
     <ol class="breadcrumb mb-4">
         <li class="breadcrumb-item"><a href="{{ route('panel') }}">Inicio</a></li>
         <li class="breadcrumb-item active">Categorías</li>
     </ol>
-
-    @can('crear-categoria')
-    <div class="mb-4">
-        <a href="{{route('categorias.create')}}">
-            <button type="button" class="btn btn-primary">Agregar nueva categoría</button>
-        </a>
-    </div>
-    @endcan
 
     <div class="card">
         <div class="card-header">
@@ -43,32 +38,25 @@
 
 </div>
 
-{{-- Modal único de confirmación --}}
-<div class="modal fade" id="confirmModal" tabindex="-1" aria-labelledby="confirmModalLabel" aria-hidden="true">
-    <div class="modal-dialog">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h1 class="modal-title fs-5" id="confirmModalLabel">Mensaje de Confirmación</h1>
-                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-            </div>
-            <div class="modal-body" id="confirmModalBody">
-                ¿Está seguro de que desea realizar esta acción?
-            </div>
-            <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
-                <form id="confirmForm" method="post">
-                    <input type="hidden" name="_method" id="confirmMethod" value="DELETE">
-                    @csrf
-                    <button type="submit" class="btn" id="confirmButton">Confirmar</button>
-                </form>
-            </div>
-        </div>
-    </div>
-</div>
+<x-confirm-action-modal
+    modal-id="confirmModal"
+    title="Mensaje de Confirmación"
+    action="#"
+    method="DELETE"
+    body-id="confirmModalBody"
+    form-id="confirmForm"
+    method-input-id="confirmMethod"
+    confirm-button-id="confirmButton"
+    confirm-class="btn btn-danger"
+    cancel-text="Cerrar"
+>
+    ¿Está seguro de que desea realizar esta acción?
+</x-confirm-action-modal>
 
 @endsection
 
 @push('js')
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 @vite('resources/js/app.js')
 <script>
     // Esperar a que TODO esté listo (DOM + scripts)
@@ -138,40 +126,28 @@
                         class: 'btn-secondary',
                         icon: 'fas fa-ellipsis-v',
                         callback: (row) => {
-                            showDeleteModal(row);
+                            const isActive = row.caracteristica.estado === 1;
+                            window.CarWash.openActionModal({
+                                modalId: 'confirmModal',
+                                title: 'Mensaje de Confirmación',
+                                message: isActive
+                                    ? '¿Está seguro de que desea eliminar esta categoría?'
+                                    : '¿Está seguro de que desea restaurar esta categoría?',
+                                action: isActive
+                                    ? `/categorias/${row.id}`
+                                    : `/categorias/${row.id}/restore`,
+                                method: isActive ? 'DELETE' : 'PATCH',
+                                confirmText: isActive ? 'Eliminar' : 'Restaurar',
+                                confirmClass: isActive ? 'btn btn-danger' : 'btn btn-warning',
+                                bodyId: 'confirmModalBody',
+                                formId: 'confirmForm',
+                                methodInputId: 'confirmMethod',
+                                confirmButtonId: 'confirmButton',
+                            });
                         }
                     }] : [])
                 ]
             });
-
-            // Función para mostrar modal de confirmación
-            function showDeleteModal(categoria) {
-                const modal = new bootstrap.Modal(document.getElementById('confirmModal'));
-                const modalBody = document.getElementById('confirmModalBody');
-                const confirmForm = document.getElementById('confirmForm');
-                const confirmMethod = document.getElementById('confirmMethod');
-                const confirmButton = document.getElementById('confirmButton');
-                
-                // Configurar según estado (activo o eliminado)
-                if (categoria.caracteristica.estado === 1) {
-                    // Categoría activa -> Eliminar
-                    modalBody.textContent = '¿Está seguro de que desea eliminar esta categoría?';
-                    confirmForm.action = `/categorias/${categoria.id}`;
-                    confirmMethod.value = 'DELETE';
-                    confirmButton.className = 'btn btn-danger';
-                    confirmButton.innerHTML = '<i class="fas fa-trash"></i> Eliminar';
-                } else {
-                    // Categoría eliminada -> Restaurar
-                    modalBody.textContent = '¿Está seguro de que desea restaurar esta categoría?';
-                    confirmForm.action = `/categorias/${categoria.id}/restore`;
-                    confirmMethod.value = 'PATCH';
-                    confirmButton.className = 'btn btn-warning';
-                    confirmButton.innerHTML = '<i class="fas fa-undo"></i> Restaurar';
-                }
-                
-                // Mostrar modal
-                modal.show();
-            }
 
         } catch (error) {
             console.error('❌ Error al inicializar DynamicTable:', error);

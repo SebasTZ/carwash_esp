@@ -1,16 +1,33 @@
 @extends('layouts.app')
 
-@section('content')
-<div class="container">
-    <h1>Pagos de Comisiones</h1>
-    @can('crear-pago-comision')
-        <a href="{{ route('pagos_comisiones.create') }}" class="btn btn-primary mb-3">Registrar Pago</a>
-    @endcan
-    
-    <table id="pagosTable" class="table table-bordered"></table>
+@section('title','Pagos de Comisiones')
 
-    <!-- Paginación usando componente -->
-    <x-pagination-info :paginator="$pagos" entity="pagos" />
+@section('content')
+<div class="container-fluid px-4">
+    <div class="cw-page-header mt-4">
+        <h1 class="cw-page-title">Pagos de Comisiones</h1>
+        @can('crear-pago-comision')
+        <div class="cw-page-actions">
+            <a href="{{ route('pagos_comisiones.create') }}" class="btn btn-primary">Registrar pago</a>
+        </div>
+        @endcan
+    </div>
+
+    <ol class="breadcrumb mb-4">
+        <li class="breadcrumb-item"><a href="{{ route('panel') }}">Inicio</a></li>
+        <li class="breadcrumb-item active">Pagos de Comisiones</li>
+    </ol>
+
+    <div class="card">
+        <div class="card-header">
+            <i class="fas fa-table me-1"></i>
+            Tabla de Pagos de Comisiones
+        </div>
+        <div class="card-body">
+            <table id="pagosTable" class="table table-bordered"></table>
+            <x-pagination-info :paginator="$pagos" entity="pagos" />
+        </div>
+    </div>
 </div>
 
 <script type="module">

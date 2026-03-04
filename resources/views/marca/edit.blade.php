@@ -2,14 +2,6 @@
 
 @section('title','Editar Marca')
 
-@push('css')
-<style>
-    #descripcion {
-        resize: none;
-    }
-</style>
-@endpush
-
 @section('content')
 <div class="container-fluid px-4">
     <h1 class="mt-4 text-center">Editar Marca</h1>
@@ -20,7 +12,7 @@
     </ol>
 
     <div class="card">
-        <form action="{{ route('marcas.update',['marca'=>$marca]) }}" method="post" id="marcaForm">
+        <form class="cw-form" action="{{ route('marcas.update',['marca'=>$marca]) }}" method="post" id="marcaForm">
             @method('PATCH')
             @csrf
             <div class="card-body text-bg-light">
@@ -47,9 +39,11 @@
                 </div>
 
             </div>
-            <div class="card-footer text-center">
-                <button type="submit" class="btn btn-primary">Actualizar</button>
-                <button type="reset" class="btn btn-secondary">Restablecer</button>
+            <div class="card-footer">
+                <div class="cw-form-actions">
+                    <button type="submit" class="btn btn-primary">Actualizar</button>
+                    <button type="reset" class="btn btn-secondary">Restablecer</button>
+                </div>
             </div>
         </form>
     </div>
@@ -74,23 +68,25 @@ window.addEventListener('load', () => {
 
     // Configurar FormValidator (misma config que create)
     const validator = new window.CarWash.FormValidator('#marcaForm', {
-        validators: {
+        rules: {
             nombre: {
-                required: { 
-                    message: 'El nombre es obligatorio' 
-                },
-                maxLength: { 
-                    value: 60, 
-                    message: 'El nombre no puede exceder 60 caracteres' 
-                }
+                required: true,
+                maxLength: 60,
             },
             descripcion: {
-                maxLength: { 
-                    value: 255, 
-                    message: 'La descripción no puede exceder 255 caracteres' 
-                }
-            }
-        }
+                maxLength: 255,
+            },
+        },
+        messages: {
+            nombre: {
+                required: 'El nombre es obligatorio',
+                maxLength: 'El nombre no puede exceder 60 caracteres',
+            },
+            descripcion: {
+                maxLength: 'La descripción no puede exceder 255 caracteres',
+            },
+        },
+        validateOnSubmit: false,
     });
 
     formElement.addEventListener('submit', function(e) {

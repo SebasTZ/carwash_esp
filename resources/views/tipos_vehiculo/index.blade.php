@@ -1,38 +1,35 @@
 @extends('layouts.app')
 
-@section('content')
-<div class="container">
-    <h1>Tipos de Vehículo</h1>
-    @can('crear-tipo-vehiculo')
-        <a href="{{ route('tipos_vehiculo.create') }}" class="btn btn-primary mb-3">Agregar tipo de vehículo</a>
-    @endcan
-    
-    <table class="table table-striped table-bordered" id="tiposVehiculoTable">
-        <thead>
-            <tr>
-                <th>Nombre</th>
-                <th>Comisión</th>
-                <th>Estado</th>
-                <th>Acciones</th>
-            </tr>
-        </thead>
-        <tbody>
-            @foreach($tipos as $tipo)
-                <tr>
-                    <td>{{ $tipo->nombre }}</td>
-                    <td>{{ number_format($tipo->comision, 2) }}</td>
-                    <td>{{ ucfirst($tipo->estado) }}</td>
-                    <td>
-                        @can('editar-tipo-vehiculo')
-                            <a href="{{ route('tipos_vehiculo.edit', ['tipos_vehiculo' => $tipo->id]) }}" class="btn btn-sm btn-info">Editar</a>
-                        @endcan
-                    </td>
-                </tr>
-            @endforeach
-        </tbody>
-    </table>
+@section('title','Tipos de Vehículo')
 
-    <x-pagination-info :paginator="$tipos" entity="tipos de vehículo" />
+@section('content')
+<div class="container-fluid px-4">
+    <div class="cw-page-header mt-4">
+        <h1 class="cw-page-title">Tipos de Vehículo</h1>
+        @can('crear-tipo-vehiculo')
+        <div class="cw-page-actions">
+            <a href="{{ route('tipos_vehiculo.create') }}" class="btn btn-primary">Agregar tipo de vehículo</a>
+        </div>
+        @endcan
+    </div>
+
+    <ol class="breadcrumb mb-4">
+        <li class="breadcrumb-item"><a href="{{ route('panel') }}">Inicio</a></li>
+        <li class="breadcrumb-item active">Tipos de Vehículo</li>
+    </ol>
+
+    <div class="card">
+        <div class="card-header">
+            <i class="fas fa-table me-1"></i>
+            Tabla de Tipos de Vehículo
+        </div>
+        <div class="card-body">
+            <table class="table table-striped table-bordered" id="tiposVehiculoTable"></table>
+            <div class="mt-3">
+                <x-pagination-info :paginator="$tipos" entity="tipos de vehículo" />
+            </div>
+        </div>
+    </div>
 </div>
 
 <script type="module">

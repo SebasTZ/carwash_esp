@@ -16,19 +16,18 @@
 @include('layouts.partials.alert')
 
 <div class="container-fluid px-4">
-    <h1 class="mt-4 text-center">Compras</h1>
+    <div class="cw-page-header mt-4">
+        <h1 class="cw-page-title">Compras</h1>
+        @can('crear-compra')
+        <div class="cw-page-actions">
+            <a href="{{ route('compras.create') }}" class="btn btn-primary">Agregar nueva compra</a>
+        </div>
+        @endcan
+    </div>
     <ol class="breadcrumb mb-4">
         <li class="breadcrumb-item"><a href="{{ route('panel') }}">Inicio</a></li>
         <li class="breadcrumb-item active">Compras</li>
     </ol>
-
-    @can('crear-compra')
-    <div class="mb-4">
-        <a href="{{route('compras.create')}}">
-            <button type="button" class="btn btn-primary">Agregar nueva compra</button>
-        </a>
-    </div>
-    @endcan
 
     <div class="card mb-4">
         <div class="card-header">

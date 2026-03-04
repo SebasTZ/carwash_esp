@@ -1,65 +1,71 @@
-@extends('adminlte::page')
+@extends('layouts.app')
 
 @section('title', 'Detalle de Vehículo en Cochera')
 
-@section('content_header')
-<div class="container-fluid">
-    <div class="row mb-2">
-        <div class="col-sm-6">
-            <h1>Detalle de Vehículo en Cochera</h1>
-        </div>
-        <div class="col-sm-6">
-            <ol class="breadcrumb float-sm-right">
-                <li class="breadcrumb-item"><a href="{{ route('panel') }}"><i class="fas fa-home"></i> Inicio</a></li>
-                <li class="breadcrumb-item"><a href="{{ route('cocheras.index') }}">Cochera</a></li>
-                <li class="breadcrumb-item active">Detalles</li>
-            </ol>
-        </div>
-    </div>
-</div>
-@stop
-
 @section('content')
-<div class="container-fluid">
-    @if(session('success'))
-    <div class="alert alert-success alert-dismissible fade show" role="alert">
-        {{ session('success') }}
-        <button type="button" class="close" data-dismiss="alert" aria-label="Close">
-            <span aria-hidden="true">&times;</span>
-        </button>
-    </div>
-    @endif
+@include('layouts.partials.alert')
 
-    @if(session('error'))
-    <div class="alert alert-danger alert-dismissible fade show" role="alert">
-        {{ session('error') }}
-        <button type="button" class="close" data-dismiss="alert" aria-label="Close">
-            <span aria-hidden="true">&times;</span>
-        </button>
+<div class="container-fluid px-4">
+    <div class="cw-page-header mt-4">
+        <h1 class="cw-page-title">Detalle de Vehículo en Cochera</h1>
+        <div class="cw-page-actions">
+            @if($cochera->estado === 'activo')
+                <a href="{{ route('cocheras.edit', $cochera->id) }}" class="btn btn-secondary">
+                    <i class="fas fa-edit"></i> Editar
+                </a>
+            @endif
+            <a href="{{ route('cocheras.index') }}" class="btn btn-outline-secondary">
+                <i class="fas fa-arrow-left"></i> Volver
+            </a>
+        </div>
     </div>
-    @endif
+
+    <ol class="breadcrumb mb-4">
+        <li class="breadcrumb-item"><a href="{{ route('panel') }}">Inicio</a></li>
+        <li class="breadcrumb-item"><a href="{{ route('cocheras.index') }}">Cochera</a></li>
+        <li class="breadcrumb-item active">Detalle</li>
+    </ol>
+
+    @php
+        $estadoBadge = match($cochera->estado) {
+            'activo' => 'bg-success',
+            'finalizado' => 'bg-secondary',
+            'cancelado' => 'bg-danger',
+            default => 'bg-light text-dark'
+        };
+
+        if ($cochera->estado === 'activo') {
+            $fechaInicio = $cochera->fecha_ingreso;
+            $fechaFin = now();
+        } elseif ($cochera->fecha_salida) {
+            $fechaInicio = $cochera->fecha_ingreso;
+            $fechaFin = $cochera->fecha_salida;
+        } else {
+            $fechaInicio = null;
+            $fechaFin = null;
+        }
+
+        if ($fechaInicio && $fechaFin) {
+            $diff = $fechaInicio->diff($fechaFin);
+            $tiempoEstadia = ($diff->days > 0 ? $diff->days . ' día(s) ' : '') . $diff->h . ' hora(s) ' . $diff->i . ' minuto(s)';
+        } else {
+            $tiempoEstadia = 'No disponible';
+        }
+    @endphp
 
     <div class="row">
-        <div class="col-md-6">
-            <div class="card">
-                <div class="card-header">
-                    <h3 class="card-title">
-                        Información del Vehículo
-                        @if($cochera->estado == 'activo')
-                        <span class="badge badge-success ml-2">Activo</span>
-                        @elseif($cochera->estado == 'finalizado')
-                        <span class="badge badge-secondary ml-2">Finalizado</span>
-                        @elseif($cochera->estado == 'cancelado')
-                        <span class="badge badge-danger ml-2">Cancelado</span>
-                        @endif
-                    </h3>
+        <div class="col-lg-6">
+            <div class="card mb-4">
+                <div class="card-header d-flex justify-content-between align-items-center">
+                    <span>Información del vehículo</span>
+                    <span class="badge {{ $estadoBadge }}">{{ ucfirst($cochera->estado) }}</span>
                 </div>
                 <div class="card-body">
                     <div class="row">
                         <div class="col-md-6">
-                            <dl>
+                            <dl class="mb-0">
                                 <dt>Placa</dt>
-                                <dd><span class="badge badge-dark">{{ $cochera->placa }}</span></dd>
+                                <dd><span class="badge bg-dark">{{ $cochera->placa }}</span></dd>
 
                                 <dt>Modelo</dt>
                                 <dd>{{ $cochera->modelo }}</dd>
@@ -69,8 +75,8 @@
                             </dl>
                         </div>
                         <div class="col-md-6">
-                            <dl>
-                                <dt>Tipo de Vehículo</dt>
+                            <dl class="mb-0">
+                                <dt>Tipo de vehículo</dt>
                                 <dd>{{ $cochera->tipo_vehiculo }}</dd>
 
                                 <dt>Ubicación</dt>
@@ -79,20 +85,18 @@
                         </div>
                     </div>
 
-                    <div class="alert alert-light border">
-                        <dt>Observaciones</dt>
-                        <dd>{{ $cochera->observaciones ?: 'Sin observaciones' }}</dd>
+                    <div class="alert alert-light border mt-3 mb-0">
+                        <strong>Observaciones:</strong>
+                        <div>{{ $cochera->observaciones ?: 'Sin observaciones' }}</div>
                     </div>
                 </div>
             </div>
 
-            <div class="card">
-                <div class="card-header">
-                    <h3 class="card-title">Cliente</h3>
-                </div>
+            <div class="card mb-4">
+                <div class="card-header">Cliente</div>
                 <div class="card-body">
-                    <dl>
-                        <dt>Nombre / Razón Social</dt>
+                    <dl class="mb-0">
+                        <dt>Nombre / razón social</dt>
                         <dd>{{ $cochera->cliente->persona->razon_social }}</dd>
 
                         <dt>{{ $cochera->cliente->persona->documento->tipo_documento }}</dt>
@@ -108,154 +112,81 @@
             </div>
         </div>
 
-        <div class="col-md-6">
-            <div class="card">
-                <div class="card-header">
-                    <h3 class="card-title">Detalles de Estacionamiento</h3>
-                </div>
+        <div class="col-lg-6">
+            <div class="card mb-4">
+                <div class="card-header">Detalles de estacionamiento</div>
                 <div class="card-body">
                     <div class="row">
                         <div class="col-md-6">
                             <dl>
-                                <dt>Fecha y Hora de Ingreso</dt>
-                                <dd>{{ $cochera->fecha_ingreso->format('d/m/Y H:i') }}</dd>
+                                <dt>Fecha y hora de ingreso</dt>
+                                <dd>{{ $cochera->fecha_ingreso?->format('d/m/Y H:i') ?: '—' }}</dd>
 
-                                <dt>Fecha y Hora de Salida</dt>
-                                <dd>
-                                    @if($cochera->fecha_salida)
-                                    {{ \Carbon\Carbon::parse($cochera->fecha_salida)->format('d/m/Y H:i') }}
-                                    @else
-                                    <em>No registrada aún</em>
-                                    @endif
-                                </dd>
+                                <dt>Fecha y hora de salida</dt>
+                                <dd>{{ $cochera->fecha_salida?->format('d/m/Y H:i') ?: 'No registrada aún' }}</dd>
                             </dl>
                         </div>
                         <div class="col-md-6">
                             <dl>
-                                <dt>Tarifa por Hora</dt>
+                                <dt>Tarifa por hora</dt>
                                 <dd>S/ {{ number_format($cochera->tarifa_hora, 2) }}</dd>
 
-                                <dt>Tarifa por Día</dt>
-                                <dd>
-                                    @if($cochera->tarifa_dia)
-                                    S/ {{ number_format($cochera->tarifa_dia, 2) }}
-                                    @else
-                                    <em>No aplica</em>
-                                    @endif
-                                </dd>
+                                <dt>Tarifa por día</dt>
+                                <dd>{{ $cochera->tarifa_dia ? 'S/ ' . number_format($cochera->tarifa_dia, 2) : 'No aplica' }}</dd>
                             </dl>
                         </div>
                     </div>
 
-                    @php
-                        if ($cochera->estado == 'activo') {
-                            $fechaInicio = \Carbon\Carbon::parse($cochera->fecha_ingreso);
-                            $fechaFin = now();
-                            $diff = $fechaInicio->diff($fechaFin);
-                            
-                            $dias = $diff->days;
-                            $horas = $diff->h;
-                            $minutos = $diff->i;
-                            
-                            $tiempoEstadia = '';
-                            if ($dias > 0) {
-                            $tiempoEstadia .= $dias . ' día(s) ';
-                            }
-                            $tiempoEstadia .= $horas . ' hora(s) ' . $minutos . ' minuto(s)';
-                        } else if ($cochera->fecha_salida) {
-                            $fechaInicio = \Carbon\Carbon::parse($cochera->fecha_ingreso);
-                            $fechaFin = \Carbon\Carbon::parse($cochera->fecha_salida);
-                            $diff = $fechaInicio->diff($fechaFin);
-                            
-                            $dias = $diff->days;
-                            $horas = $diff->h;
-                            $minutos = $diff->i;
-                            
-                            $tiempoEstadia = '';
-                            if ($dias > 0) {
-                            $tiempoEstadia .= $dias . ' día(s) ';
-                            }
-                            $tiempoEstadia .= $horas . ' hora(s) ' . $minutos . ' minuto(s)';
-                        } else {
-                            $tiempoEstadia = 'No disponible';
-                        }
-                    @endphp
-
-                    <div class="alert {{ $cochera->estado == 'activo' ? 'alert-primary' : 'alert-secondary' }}">
+                    <div class="alert {{ $cochera->estado === 'activo' ? 'alert-primary' : 'alert-secondary' }} mb-0">
                         <div class="row">
                             <div class="col-md-6">
-                                <h5>Tiempo de Estacionamiento</h5>
-                                <p class="h4">{{ $tiempoEstadia }}</p>
+                                <h6 class="mb-1">Tiempo de estacionamiento</h6>
+                                <p class="h5 mb-0">{{ $tiempoEstadia }}</p>
                             </div>
                             <div class="col-md-6">
-                                <h5>Monto a Pagar</h5>
-                                <p class="h3">S/ {{ number_format($montoActualizado, 2) }}</p>
+                                <h6 class="mb-1">Monto a pagar</h6>
+                                <p class="h4 mb-0">S/ {{ number_format($montoActualizado, 2) }}</p>
                             </div>
                         </div>
                     </div>
 
-                    @if($cochera->estado == 'activo')
-                    <button type="button" class="btn btn-lg btn-success btn-block mt-3" data-toggle="modal" data-target="#finalizarModal">
-                        <i class="fas fa-check mr-2"></i> Finalizar Estacionamiento
-                    </button>
+                    @if($cochera->estado === 'activo')
+                        <button type="button" class="btn btn-success w-100 mt-3" data-bs-toggle="modal" data-bs-target="#finalizarModal">
+                            <i class="fas fa-check"></i> Finalizar estacionamiento
+                        </button>
                     @endif
                 </div>
-                <div class="card-footer">
-                    <div class="d-flex justify-content-between">
-                        <a href="{{ route('cocheras.index') }}" class="btn btn-secondary">
-                            <i class="fas fa-arrow-left mr-1"></i> Volver
-                        </a>
-                        <div>
-                            @if($cochera->estado == 'activo')
-                            <a href="{{ route('cocheras.edit', $cochera->id) }}" class="btn btn-primary">
-                                <i class="fas fa-edit mr-1"></i> Editar
-                            </a>
-                            <form action="{{ route('cocheras.destroy', $cochera->id) }}" method="POST" style="display:inline">
-                                @csrf
-                                @method('DELETE')
-                                <button type="submit" class="btn btn-danger" onclick="return confirm('¿Está seguro que desea eliminar este registro?')">
-                                    <i class="fas fa-trash mr-1"></i> Eliminar
-                                </button>
-                            </form>
-                            @endif
-                        </div>
+
+                @if($cochera->estado === 'activo')
+                    <div class="card-footer text-end">
+                        <form action="{{ route('cocheras.destroy', $cochera->id) }}" method="POST" class="d-inline">
+                            @csrf
+                            @method('DELETE')
+                            <button type="submit" class="btn btn-danger" data-confirm="¿Está seguro de eliminar este registro?" data-confirm-confirm-text="Eliminar">
+                                <i class="fas fa-trash"></i> Eliminar
+                            </button>
+                        </form>
                     </div>
-                </div>
+                @endif
             </div>
         </div>
     </div>
 </div>
 
-<!-- Modal para finalizar estacionamiento -->
-@if($cochera->estado == 'activo')
-<div class="modal fade" id="finalizarModal" tabindex="-1" role="dialog" aria-labelledby="finalizarModalLabel" aria-hidden="true">
-    <div class="modal-dialog" role="document">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title" id="finalizarModalLabel">Finalizar Estacionamiento</h5>
-                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                    <span aria-hidden="true">&times;</span>
-                </button>
-            </div>
-            <form action="{{ route('cocheras.finalizar', $cochera->id) }}" method="POST">
-                @csrf
-                <div class="modal-body">
-                    <p>¿Desea finalizar el estacionamiento para el vehículo <strong>{{ $cochera->placa }}</strong>?</p>
-                    
-                    <div class="alert alert-info">
-                        <p class="mb-1">Tiempo: <strong>{{ $tiempoEstadia }}</strong></p>
-                        <p class="mb-1">Monto a pagar: <strong>S/ {{ number_format($montoActualizado, 2) }}</strong></p>
-                    </div>
-
-                    <p class="text-muted">Al confirmar, se registrará la fecha y hora actual como momento de salida y se calculará el monto final.</p>
-                </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancelar</button>
-                    <button type="submit" class="btn btn-success">Finalizar y Cobrar</button>
-                </div>
-            </form>
+@if($cochera->estado === 'activo')
+    <x-confirm-action-modal
+        modal-id="finalizarModal"
+        title="Finalizar estacionamiento"
+        :action="route('cocheras.finalizar', $cochera->id)"
+        confirm-text="Finalizar y cobrar"
+        confirm-class="btn btn-success"
+    >
+        <p>¿Desea finalizar el estacionamiento del vehículo <strong>{{ $cochera->placa }}</strong>?</p>
+        <div class="alert alert-info mb-2">
+            <p class="mb-1">Tiempo: <strong>{{ $tiempoEstadia }}</strong></p>
+            <p class="mb-0">Monto a pagar: <strong>S/ {{ number_format($montoActualizado, 2) }}</strong></p>
         </div>
-    </div>
-</div>
+        <p class="text-muted mb-0">Al confirmar se registrará la fecha y hora actual como salida y se calculará el monto final.</p>
+    </x-confirm-action-modal>
 @endif
-@stop
+@endsection

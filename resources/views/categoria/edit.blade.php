@@ -2,14 +2,6 @@
 
 @section('title','Editar Categoría')
 
-@push('css')
-<style>
-    #descripcion {
-        resize: none;
-    }
-</style>
-@endpush
-
 @section('content')
 <div class="container-fluid px-4">
     <h1 class="mt-4 text-center">Editar Categoría</h1>
@@ -20,7 +12,7 @@
     </ol>
 
     <div class="card text-bg-light">
-        <form action="{{ route('categorias.update',['categoria'=>$categoria]) }}" method="post" id="form-categoria-edit">
+        <form class="cw-form" action="{{ route('categorias.update',['categoria'=>$categoria]) }}" method="post" id="form-categoria-edit">
             @method('PATCH')
             @csrf
             <div class="card-body">
@@ -73,30 +65,35 @@
                 </div>
 
             </div>
-            <div class="card-footer text-center">
-                <button type="submit" class="btn btn-primary" id="btn-submit">
-                    <i class="fas fa-save"></i> Actualizar categoría
-                </button>
-                
-                @if($categoria->caracteristica->estado == 0)
-                <form action="{{ route('categorias.restore', $categoria->id) }}" method="POST" style="display: inline;">
-                    @csrf
-                    @method('PATCH')
-                    <button type="submit" class="btn btn-warning">
+            <div class="card-footer">
+                <div class="cw-form-actions">
+                    <button type="submit" class="btn btn-primary" id="btn-submit">
+                        <i class="fas fa-save"></i> Actualizar categoría
+                    </button>
+
+                    @if($categoria->caracteristica->estado == 0)
+                    <button type="submit" class="btn btn-warning" form="restore-categoria-form">
                         <i class="fas fa-undo"></i> Restablecer categoría
                     </button>
-                </form>
-                @else
-                <button type="reset" class="btn btn-secondary">
-                    <i class="fas fa-eraser"></i> Limpiar cambios
-                </button>
-                @endif
-                
-                <a href="{{ route('categorias.index') }}" class="btn btn-secondary">
-                    <i class="fas fa-times"></i> Cancelar
-                </a>
+                    @else
+                    <button type="reset" class="btn btn-secondary">
+                        <i class="fas fa-eraser"></i> Limpiar cambios
+                    </button>
+                    @endif
+
+                    <a href="{{ route('categorias.index') }}" class="btn btn-secondary">
+                        <i class="fas fa-times"></i> Cancelar
+                    </a>
+                </div>
             </div>
         </form>
+
+        @if($categoria->caracteristica->estado == 0)
+        <form id="restore-categoria-form" action="{{ route('categorias.restore', $categoria->id) }}" method="POST" class="d-none">
+            @csrf
+            @method('PATCH')
+        </form>
+        @endif
     </div>
     
 </div>
