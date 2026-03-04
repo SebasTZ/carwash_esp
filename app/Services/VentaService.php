@@ -293,6 +293,9 @@ class VentaService
     public function anularVenta(Venta $venta, string $motivo): void
     {
         DB::transaction(function () use ($venta, $motivo) {
+            // Cargar productos con datos de pivot antes del loop
+            $venta->load('productos');
+
             // Revertir stock
             foreach ($venta->productos as $producto) {
                 if (!$producto->es_servicio_lavado) {

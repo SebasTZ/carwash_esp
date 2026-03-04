@@ -1,0 +1,8 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(find /c/Users/Sebas/Documents/GitHub/carwash_esp/resources/views -name \"*-old*\" -delete)",
+      "Bash(find /c/Users/Sebas/Documents/GitHub/carwash_esp/resources/views -name \"*.old*\" -delete)"
+    ]
+  }
+}

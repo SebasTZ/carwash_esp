@@ -25,7 +25,7 @@
             <p>¿Está seguro de iniciar el lavado? El lavador asignado recibirá la comisión.</p>
             <hr>
             <p class="mb-3">
-                <strong>Lavador:</strong> {{ $lavados->where('id', session('confirmar_inicio'))->first()->lavador->nombre ?? '-' }}
+                <strong>Lavador:</strong> {{ $lavados->getCollection()->where('id', session('confirmar_inicio'))->first()?->lavador?->nombre ?? '-' }}
             </p>
             <div class="d-flex gap-2">
                 <button type="submit" class="btn btn-warning">
@@ -45,6 +45,22 @@
 <script>
     document.addEventListener('DOMContentLoaded', function() {
         const DynamicTable = window.CarWash.DynamicTable;
+        const lavadosData = @json($lavados->map(function($lavado) {
+            return [
+                'comprobante' => $lavado->venta?->numero_comprobante ?? '-',
+                'cliente' => $lavado->venta?->cliente?->persona?->nombre_completo ?? '-',
+                'lavador_tipo' => ($lavado->lavador?->nombre ?? '-') . ' / ' . ($lavado->tipoVehiculo?->nombre ?? '-'),
+                'hora_llegada' => $lavado->hora_llegada?->format('H:i') ?? '-',
+                'inicio_lavado' => $lavado->inicio_lavado?->format('H:i') ?? '-',
+                'fin_lavado' => $lavado->fin_lavado?->format('H:i') ?? '-',
+                'inicio_interior' => $lavado->inicio_interior?->format('H:i') ?? '-',
+                'fin_interior' => $lavado->fin_interior?->format('H:i') ?? '-',
+                'hora_final' => $lavado->hora_final?->format('H:i') ?? '-',
+                'tiempo_total' => $lavado->tiempo_total ?? '-',
+                'estado' => $lavado->estado,
+                'acciones' => $lavado->id,
+            ];
+        }));
         new DynamicTable('#dynamicTableLavados', {
             columns: [
                 { key: 'comprobante', label: 'Comprobante' },
@@ -60,11 +76,8 @@
                 { key: 'estado', label: 'Estado' },
                 { key: 'acciones', label: 'Acciones' }
             ],
-            dataUrl: '/api/lavados',
-            pagination: true,
-            preserveQuery: true
+            data: lavadosData,
         });
-        console.log('✅ DynamicTable inicializado correctamente para ControlLavado');
     });
 </script>
 @endpush

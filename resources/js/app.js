@@ -2,6 +2,11 @@ import './bootstrap';
 import $ from 'jquery';
 window.$ = $;
 window.jQuery = $;
+
+// Inicializar window.Laravel para compatibilidad con componentes legacy
+window.Laravel = {
+    csrfToken: document.querySelector('meta[name="csrf-token"]')?.getAttribute('content') ?? '',
+};
 // Bootstrap Select se carga desde CDN en create.blade.php para evitar doble inicialización
 // import 'bootstrap-select/dist/js/bootstrap-select.min.js';
 
@@ -126,8 +131,6 @@ window.CarWash = {
 // Inicialización global de la aplicación
 // ========================================
 document.addEventListener('DOMContentLoaded', () => {
-    console.log('🚀 CarWash ESP - Frontend inicializado');
-    
     // Los componentes Bootstrap se inicializan automáticamente
     // desde bootstrap-init.js
     
@@ -232,7 +235,6 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     });
     
-    console.log('✅ Utilidades globales cargadas y disponibles en window.CarWash');
 });
 
 // ========================================

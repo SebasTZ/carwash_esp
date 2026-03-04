@@ -7,6 +7,7 @@ use App\Models\Compra;
 use App\Models\Comprobante;
 use App\Models\Producto;
 use App\Models\Proveedore;
+use App\Services\StockService;
 use Exception;
 use App\Exports\ComprasExport;
 use Maatwebsite\Excel\Facades\Excel;
@@ -15,7 +16,7 @@ use Illuminate\Support\Facades\DB;
 
 class compraController extends Controller
 {
-    function __construct()
+    public function __construct(private StockService $stockService)
     {
         $this->middleware('permission:ver-compra|crear-compra|mostrar-compra|eliminar-compra', ['only' => ['index']]);
         $this->middleware('permission:crear-compra', ['only' => ['create', 'store']]);
@@ -87,16 +88,13 @@ class compraController extends Controller
                     ]
                 ]);
 
-                // Actualizar el stock
-                $producto = Producto::find($arrayProducto_id[$cont]);
-                $stockActual = $producto->stock;
-                $stockNuevo = intval($arrayCantidad[$cont]);
-
-                DB::table('productos')
-                    ->where('id', $producto->id)
-                    ->update([
-                        'stock' => $stockActual + $stockNuevo
-                    ]);
+                // Actualizar el stock usando StockService (con lock pesimista y auditoría)
+                $producto = Producto::findOrFail($arrayProducto_id[$cont]);
+                $this->stockService->incrementarStock(
+                    $producto,
+                    intval($arrayCantidad[$cont]),
+                    "Compra #{$compra->id}"
+                );
 
                 $cont++;
             }

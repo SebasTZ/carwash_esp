@@ -22,12 +22,18 @@ COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
 # Establecer directorio de trabajo
 WORKDIR /var/www
 
-# Copiar el proyecto
+# Copiar dependencias primero para aprovechar el caché de capas de Docker
+COPY composer.json composer.lock /var/www/
+RUN composer install --no-interaction --no-dev --optimize-autoloader --no-scripts
+
+COPY package.json package-lock.json /var/www/
+RUN npm install
+
+# Copiar el resto del proyecto
 COPY . /var/www
 
-# Instalar dependencias de PHP y JS
-RUN composer install --no-interaction --no-dev --optimize-autoloader
-RUN npm install && npm run build
+# Compilar assets y ejecutar scripts de Composer
+RUN npm run build && composer run-script post-autoload-dump
 
 # Permisos necesarios
 RUN chown -R www-data:www-data /var/www/storage /var/www/bootstrap/cache \
@@ -36,4 +42,5 @@ RUN chown -R www-data:www-data /var/www/storage /var/www/bootstrap/cache \
 # Exponer puerto para Artisan serve (opcional si usas Nginx en otro contenedor)
 EXPOSE ${PORT:-8000}
 
-CMD php artisan migrate --force && php artisan db:seed --force && php artisan serve --host=0.0.0.0 --port=${PORT:-8000}
+# Migrar solo en el primer arranque (sin seed en producción)
+CMD php artisan migrate --force && php-fpm

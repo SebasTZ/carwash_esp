@@ -110,11 +110,6 @@ export default class AutoSave extends Component {
         // Attach event listeners
         this.attachListeners();
 
-        console.log('AutoSave initialized:', {
-            form: this.element.id || this.element.name,
-            delay: this.autoSaveOptions.delay,
-            localStorage: this.autoSaveOptions.enableLocalStorage
-        });
     }
 
     /**
@@ -279,7 +274,6 @@ export default class AutoSave extends Component {
      */
     async performAutoSave() {
         if (this.isSaving) {
-            console.log('AutoSave: Ya hay un guardado en progreso');
             return;
         }
 
@@ -289,15 +283,13 @@ export default class AutoSave extends Component {
         if (this.autoSaveOptions.validateBeforeSave) {
             const isValid = await this.autoSaveOptions.validateBeforeSave(formData);
             if (!isValid) {
-                console.log('AutoSave: Validación falló, no se guardará');
                 return;
             }
         }
 
         // No guardar si los datos no han cambiado
-        if (this.lastSavedData && 
+        if (this.lastSavedData &&
             JSON.stringify(formData) === JSON.stringify(this.lastSavedData)) {
-            console.log('AutoSave: Sin cambios desde último guardado');
             return;
         }
 
@@ -447,7 +439,6 @@ export default class AutoSave extends Component {
                 }
             });
 
-            console.log('AutoSave: Datos restaurados desde localStorage');
             
             // Callback onRestore
             if (this.autoSaveOptions.onRestore) {
@@ -470,7 +461,6 @@ export default class AutoSave extends Component {
     clearStorage() {
         if (this.autoSaveOptions.enableLocalStorage) {
             localStorage.removeItem(this.autoSaveOptions.storageKey);
-            console.log('AutoSave: localStorage limpiado');
         }
     }
 
@@ -493,14 +483,12 @@ export default class AutoSave extends Component {
             clearTimeout(this.saveTimer);
             this.saveTimer = null;
         }
-        console.log('AutoSave: Pausado');
     }
 
     /**
      * Reanudar auto-guardado
      */
     resume() {
-        console.log('AutoSave: Reanudado');
         // El próximo cambio en el form lo activará automáticamente
     }
 

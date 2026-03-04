@@ -314,14 +314,15 @@ class ventaController extends Controller
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy(string $id)
+    public function destroy(Venta $venta)
     {
-        Venta::where('id',$id)
-        ->update([
-            'estado' => 0
-        ]);
-
-        return redirect()->route('ventas.index')->with('success','Venta eliminada');
+        try {
+            $this->ventaService->anularVenta($venta, 'Anulada por usuario ' . auth()->user()->name);
+            return redirect()->route('ventas.index')->with('success', 'Venta anulada correctamente. Stock y fidelización revertidos.');
+        } catch (Exception $e) {
+            Log::error('Error al anular venta', ['venta_id' => $venta->id, 'error' => $e->getMessage()]);
+            return redirect()->back()->with('error', 'Error al anular la venta: ' . $e->getMessage());
+        }
     }
 
     public function ticket(Venta $venta)

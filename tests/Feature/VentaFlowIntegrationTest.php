@@ -7,176 +7,157 @@ use App\Models\User;
 use App\Models\Cliente;
 use App\Models\Producto;
 use App\Models\Comprobante;
-use App\Models\Documento;
-use App\Models\Persona;
-use App\Models\Caracteristica;
-use App\Models\Marca;
-use App\Models\Presentacione;
+use App\Models\Venta;
+use App\Services\VentaService;
+use App\Exceptions\StockInsuficienteException;
 use Illuminate\Foundation\Testing\DatabaseMigrations;
 
 class VentaFlowIntegrationTest extends TestCase
 {
     use DatabaseMigrations;
 
+    protected VentaService $ventaService;
+
+    protected function setUp(): void
+    {
+        parent::setUp();
+        $this->ventaService = app(VentaService::class);
+        $this->actingAs(User::factory()->create());
+    }
+
     /** @test */
     public function flujo_completo_de_venta_con_producto_fisico()
     {
-        // 1. Autenticar usuario
-        $user = User::factory()->create();
-        $this->actingAs($user);
-
-        // 2. Crear cliente
-        $documento = Documento::factory()->create();
-        $persona = Persona::factory()->create([
-            'documento_id' => $documento->id,
-            'numero_documento' => '12345678',
-        ]);
-        $cliente = Cliente::factory()->create([
-            'persona_id' => $persona->id,
-            'lavados_acumulados' => 0,
-        ]);
-
-        // 3. Crear producto
-        $caracteristica = Caracteristica::factory()->create();
-        $marca = Marca::factory()->create(['caracteristica_id' => $caracteristica->id]);
-        $presentacion = Presentacione::factory()->create(['caracteristica_id' => $caracteristica->id]);
-        
+        $cliente = Cliente::factory()->create(['lavados_acumulados' => 0]);
         $producto = Producto::factory()->create([
-            'nombre' => 'Shampoo Automotriz',
-            'precio_venta' => 50.00,
             'stock' => 20,
+            'precio_venta' => 50.00,
             'es_servicio_lavado' => false,
-            'marca_id' => $marca->id,
-            'presentacione_id' => $presentacion->id,
         ]);
-
-        // 4. Crear comprobante
         $comprobante = Comprobante::factory()->create();
 
-        // 5. Preparar datos de venta
-        $datosVenta = [
+        $venta = $this->ventaService->procesarVenta([
             'cliente_id' => $cliente->id,
             'comprobante_id' => $comprobante->id,
-            'metodo_pago' => 'efectivo',
-            'detalles' => [
-                [
-                    'producto_id' => $producto->id,
-                    'cantidad' => 2,
-                    'precio_venta' => 50.00,
-                ]
-            ]
-        ];
-
-        // 6. Verificar stock inicial
-        $this->assertEquals(20, $producto->fresh()->stock);
-
-        // 7. Simular procesamiento (sin llamar a API real)
-        // En una prueba real, llamarías al endpoint o al servicio
-        $this->assertTrue(true);
-
-        // Verificar que el producto existe
-        $this->assertDatabaseHas('productos', [
-            'id' => $producto->id,
-            'nombre' => 'Shampoo Automotriz',
+            'total' => 100.00,
+            'impuesto' => 0,
+            'medio_pago' => 'efectivo',
+            'servicio_lavado' => false,
+            'arrayidproducto' => [$producto->id],
+            'arraycantidad' => [2],
+            'arrayprecioventa' => [50.00],
+            'arraydescuento' => [0],
         ]);
 
-        // Verificar que el cliente existe
-        $this->assertDatabaseHas('clientes', [
-            'id' => $cliente->id,
-        ]);
-    }
-
-    /** @test */
-    public function flujo_completo_de_venta_con_servicio_lavado()
-    {
-        // 1. Autenticar usuario
-        $user = User::factory()->create();
-        $this->actingAs($user);
-
-        // 2. Crear cliente con puntos para lavado gratis
-        $documento = Documento::factory()->create();
-        $persona = Persona::factory()->create([
-            'documento_id' => $documento->id,
-        ]);
-        $cliente = Cliente::factory()->create([
-            'persona_id' => $persona->id,
-            'lavados_acumulados' => 10, // Listo para lavado gratis
+        // La venta fue creada correctamente
+        $this->assertDatabaseHas('ventas', [
+            'id' => $venta->id,
+            'total' => 100.00,
+            'medio_pago' => 'efectivo',
+            'estado' => 1,
         ]);
 
-        // 3. Crear servicio de lavado
-        $caracteristica = Caracteristica::factory()->create();
-        $marca = Marca::factory()->create(['caracteristica_id' => $caracteristica->id]);
-        $presentacion = Presentacione::factory()->create(['caracteristica_id' => $caracteristica->id]);
-        
-        $servicio = Producto::factory()->servicioLavado()->create([
-            'marca_id' => $marca->id,
-            'presentacione_id' => $presentacion->id,
-        ]);
+        // El stock fue descontado correctamente (20 - 2 = 18)
+        $this->assertEquals(18, $producto->fresh()->stock);
 
-        // 4. Verificar que el cliente puede canjear lavado gratis
-        $this->assertEquals(10, $cliente->lavados_acumulados);
-
-        // 5. Verificar que el servicio existe
-        $this->assertDatabaseHas('productos', [
-            'id' => $servicio->id,
-            'es_servicio_lavado' => true,
+        // El producto está asociado a la venta
+        $this->assertDatabaseHas('producto_venta', [
+            'venta_id' => $venta->id,
+            'producto_id' => $producto->id,
+            'cantidad' => 2,
         ]);
     }
 
     /** @test */
-    public function flujo_completo_con_validacion_de_stock_insuficiente()
+    public function flujo_completo_de_venta_con_servicio_lavado_acumula_lavado()
     {
-        $user = User::factory()->create();
-        $this->actingAs($user);
+        $cliente = Cliente::factory()->create(['lavados_acumulados' => 3]);
+        $servicio = Producto::factory()->servicioLavado()->create(['precio_venta' => 30.00]);
+        $comprobante = Comprobante::factory()->create();
 
-        $caracteristica = Caracteristica::factory()->create();
-        $marca = Marca::factory()->create(['caracteristica_id' => $caracteristica->id]);
-        $presentacion = Presentacione::factory()->create(['caracteristica_id' => $caracteristica->id]);
-        
-        // Producto con stock limitado
+        $this->ventaService->procesarVenta([
+            'cliente_id' => $cliente->id,
+            'comprobante_id' => $comprobante->id,
+            'total' => 30.00,
+            'impuesto' => 0,
+            'medio_pago' => 'efectivo',
+            'servicio_lavado' => true,
+            'arrayidproducto' => [$servicio->id],
+            'arraycantidad' => [1],
+            'arrayprecioventa' => [30.00],
+            'arraydescuento' => [0],
+        ]);
+
+        // El lavado acumulado debe incrementar en 1 (3 + 1 = 4)
+        $this->assertEquals(4, $cliente->fresh()->lavados_acumulados);
+    }
+
+    /** @test */
+    public function flujo_con_stock_insuficiente_lanza_excepcion_y_no_crea_venta()
+    {
+        $cliente = Cliente::factory()->create();
         $producto = Producto::factory()->create([
             'stock' => 2,
-            'marca_id' => $marca->id,
-            'presentacione_id' => $presentacion->id,
+            'es_servicio_lavado' => false,
         ]);
+        $comprobante = Comprobante::factory()->create();
+        $ventasAntes = Venta::count();
 
-        // Intentar vender más de lo disponible causaría error
-        $this->assertEquals(2, $producto->stock);
-        
-        // Verificar que el producto tiene stock limitado
-        $this->assertTrue($producto->stock < 10);
+        try {
+            $this->ventaService->procesarVenta([
+                'cliente_id' => $cliente->id,
+                'comprobante_id' => $comprobante->id,
+                'total' => 150.00,
+                'impuesto' => 0,
+                'medio_pago' => 'efectivo',
+                'servicio_lavado' => false,
+                'arrayidproducto' => [$producto->id],
+                'arraycantidad' => [10],  // pedir 10 cuando hay solo 2
+                'arrayprecioventa' => [15.00],
+                'arraydescuento' => [0],
+            ]);
+            $this->fail('Se esperaba StockInsuficienteException pero no fue lanzada');
+        } catch (StockInsuficienteException $e) {
+            // Excepción esperada
+        }
+
+        // No se debe haber creado ninguna venta
+        $this->assertEquals($ventasAntes, Venta::count());
+
+        // El stock no debe haber cambiado
+        $this->assertEquals(2, $producto->fresh()->stock);
     }
 
     /** @test */
-    public function flujo_verifica_acumulacion_de_puntos_fidelizacion()
+    public function anular_venta_revierte_stock_y_fidelizacion()
     {
-        $user = User::factory()->create();
-        $this->actingAs($user);
+        $cliente = Cliente::factory()->create(['lavados_acumulados' => 5]);
+        $servicio = Producto::factory()->servicioLavado()->create();
+        $comprobante = Comprobante::factory()->create();
 
-        $documento = Documento::factory()->create();
-        $persona = Persona::factory()->create([
-            'documento_id' => $documento->id,
-        ]);
-        $cliente = Cliente::factory()->create([
-            'persona_id' => $persona->id,
-            'lavados_acumulados' => 0,
-        ]);
-
-        $caracteristica = Caracteristica::factory()->create();
-        $marca = Marca::factory()->create(['caracteristica_id' => $caracteristica->id]);
-        $presentacion = Presentacione::factory()->create(['caracteristica_id' => $caracteristica->id]);
-        
-        $servicio = Producto::factory()->servicioLavado()->create([
-            'precio_venta' => 30.00,
-            'marca_id' => $marca->id,
-            'presentacione_id' => $presentacion->id,
+        $venta = $this->ventaService->procesarVenta([
+            'cliente_id' => $cliente->id,
+            'comprobante_id' => $comprobante->id,
+            'total' => 30.00,
+            'impuesto' => 0,
+            'medio_pago' => 'efectivo',
+            'servicio_lavado' => true,
+            'arrayidproducto' => [$servicio->id],
+            'arraycantidad' => [1],
+            'arrayprecioventa' => [30.00],
+            'arraydescuento' => [0],
         ]);
 
-        // Verificar estado inicial
-        $this->assertEquals(0, $cliente->lavados_acumulados);
+        // Fidelización fue acumulada (5 + 1 = 6)
+        $this->assertEquals(6, $cliente->fresh()->lavados_acumulados);
 
-        // En un flujo real, aquí procesarías la venta y verificarías
-        // que los lavados se acumularon correctamente
-        $this->assertTrue(true);
+        // Anular la venta
+        $this->ventaService->anularVenta($venta, 'Test de anulación');
+
+        // La venta debe estar marcada como anulada
+        $this->assertEquals(0, $venta->fresh()->estado);
+
+        // La fidelización debe haberse revertido (6 - 1 = 5)
+        $this->assertEquals(5, $cliente->fresh()->lavados_acumulados);
     }
 }
