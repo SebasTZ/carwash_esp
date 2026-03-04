@@ -71,32 +71,31 @@ class compraController extends Controller
             ));
 
             // Llenar tabla compra_producto
-            $arrayProducto_id = $request['arrayidproducto'] ?? [];
-            $arrayCantidad = $request['arraycantidad'] ?? [];
-            $arrayPrecioCompra = $request['arraypreciocompra'] ?? [];
-            $arrayPrecioVenta = $request['arrayprecioventa'] ?? [];
+            $arrayProducto_id = $request->input('arrayidproducto', []);
+            $arrayCantidad = $request->input('arraycantidad', []);
+            $arrayPrecioCompra = $request->input('arraypreciocompra', []);
+            $arrayPrecioVenta = $request->input('arrayprecioventa', []);
 
-            $siseArray = count($arrayProducto_id);
-            $cont = 0;
+            // Cargar todos los productos de una vez (evita N+1 queries)
+            $productosMap = Producto::whereIn('id', $arrayProducto_id)->get()->keyBy('id');
 
-            while ($cont < $siseArray) {
+            foreach ($arrayProducto_id as $index => $productoId) {
                 $compra->productos()->syncWithoutDetaching([
-                    $arrayProducto_id[$cont] => [
-                        'cantidad' => $arrayCantidad[$cont],
-                        'precio_compra' => $arrayPrecioCompra[$cont],
-                        'precio_venta' => $arrayPrecioVenta[$cont]
+                    $productoId => [
+                        'cantidad' => $arrayCantidad[$index],
+                        'precio_compra' => $arrayPrecioCompra[$index],
+                        'precio_venta' => $arrayPrecioVenta[$index]
                     ]
                 ]);
 
                 // Actualizar el stock usando StockService (con lock pesimista y auditoría)
-                $producto = Producto::findOrFail($arrayProducto_id[$cont]);
+                $producto = $productosMap->get($productoId)
+                    ?? throw new Exception("Producto con ID {$productoId} no encontrado");
                 $this->stockService->incrementarStock(
                     $producto,
-                    intval($arrayCantidad[$cont]),
+                    intval($arrayCantidad[$index]),
                     "Compra #{$compra->id}"
                 );
-
-                $cont++;
             }
 
             DB::commit();
@@ -142,6 +141,11 @@ class compraController extends Controller
 
     public function reportePersonalizado(Request $request)
     {
+        $request->validate([
+            'fecha_inicio' => 'required|date|before_or_equal:fecha_fin',
+            'fecha_fin'    => 'required|date',
+        ]);
+
         $fechaInicio = $request->fecha_inicio;
         $fechaFin = $request->fecha_fin;
 
@@ -181,6 +185,11 @@ class compraController extends Controller
 
     public function exportPersonalizado(Request $request)
     {
+        $request->validate([
+            'fecha_inicio' => 'required|date|before_or_equal:fecha_fin',
+            'fecha_fin'    => 'required|date',
+        ]);
+
         $fechaInicio = $request->fecha_inicio;
         $fechaFin = $request->fecha_fin;
 
@@ -191,14 +200,11 @@ class compraController extends Controller
         return Excel::download(new ComprasExport($compras), "compras_{$fechaInicio}_a_{$fechaFin}.xlsx");
     }
 
-    public function destroy(string $id)
+    public function destroy(Compra $compra)
     {
-        Compra::where('id',$id)
-        ->update([
-            'estado' => 0
-        ]);
+        $compra->update(['estado' => 0]);
 
-        return redirect()->route('compras.index')->with('success','Compra eliminada');
+        return redirect()->route('compras.index')->with('success', 'Compra eliminada');
     }
 
     public function buscarProductos(Request $request)

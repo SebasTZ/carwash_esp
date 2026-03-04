@@ -270,7 +270,8 @@ class VentaService
      */
     private function procesarFidelizacion(Venta $venta, array $data): void
     {
-        $cliente = Cliente::findOrFail($venta->cliente_id);
+        // Usar la relación ya cargada por procesarVenta; fallback solo si no está
+        $cliente = $venta->cliente ?? Cliente::findOrFail($venta->cliente_id);
 
         // 1. Acumular puntos de fidelización (10% del total)
         if ($data['medio_pago'] !== 'lavado_gratis') {

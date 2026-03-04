@@ -40,9 +40,6 @@ Schema::create('control_lavados', function (Blueprint $table) {
      */
     public function down(): void
     {
-        // En SQLite la tabla se elimina desde tipos_vehiculo migration
-        if (config('database.default') !== 'sqlite') {
-            Schema::dropIfExists('control_lavados');
-        }
+        Schema::dropIfExists('control_lavados');
     }
 };

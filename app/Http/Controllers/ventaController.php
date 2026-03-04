@@ -11,7 +11,9 @@ use App\Models\Fidelizacion;
 use App\Models\ControlLavado;
 use App\Models\ConfiguracionNegocio;
 use App\Repositories\ProductoRepository;
+use App\Repositories\VentaRepository;
 use App\Services\VentaService;
+use Carbon\Carbon;
 use App\Exceptions\VentaException;
 use App\Exceptions\StockInsuficienteException;
 use App\Exceptions\TarjetaRegaloException;
@@ -28,10 +30,19 @@ use Illuminate\Support\Facades\Storage;
 
 class ventaController extends Controller
 {
+    private ProductoRepository $productoRepo;
+    private VentaRepository $ventaRepo;
+    private VentaService $ventaService;
+
     public function __construct(
-        private ProductoRepository $productoRepo,
-        private VentaService $ventaService
+        ProductoRepository $productoRepo,
+        VentaRepository $ventaRepo,
+        VentaService $ventaService
     ) {
+        $this->productoRepo = $productoRepo;
+        $this->ventaService = $ventaService;
+        $this->ventaRepo = $ventaRepo;
+
         $this->middleware('permission:ver-venta|crear-venta|mostrar-venta|eliminar-venta', ['only' => ['index']]);
         $this->middleware('permission:crear-venta', ['only' => ['create', 'store']]);
         $this->middleware('permission:mostrar-venta', ['only' => ['show']]);
@@ -139,16 +150,8 @@ class ventaController extends Controller
      */
     public function show(Venta $venta)
     {
-        // Eager load productos para evitar N+1 queries
         $venta->load(['productos', 'cliente.persona', 'comprobante', 'user']);
-        
-        Log::channel('ventas')->debug('Show Venta - Eager Loading', [
-            'venta_id' => $venta->id,
-            'productos_count' => $venta->productos->count(),
-            'productos_keys' => $venta->productos->pluck('id')->toArray(),
-        ]);
-        
-        return view('venta.show',compact('venta'));
+        return view('venta.show', compact('venta'));
     }
 
     /**
@@ -173,15 +176,7 @@ class ventaController extends Controller
     private function transformarVentasParaTabla($ventasCollection)
     {
         return $ventasCollection->map(function($venta) {
-            // Mapear medio_pago a etiquetas más legibles
-            $medioPagoMap = [
-                'efectivo' => 'efectivo',
-                'tarjeta_credito' => 'tarjeta_credito',
-                'tarjeta_regalo' => 'tarjeta_regalo',
-                'lavado_gratis' => 'lavado_gratis'
-            ];
-            
-            $medioPago = $medioPagoMap[$venta->medio_pago] ?? $venta->medio_pago ?? '-';
+            $medioPago = $venta->medio_pago ?? '-';
             
             return [
                 'id' => $venta->id,
@@ -214,82 +209,60 @@ class ventaController extends Controller
 
     public function reporteDiario()
     {
-        $ventasRaw = Venta::whereDate('fecha_hora', now()->toDateString())
-            ->with(['comprobante', 'cliente.persona', 'user'])
-            ->get();
-
-        $ventas = $this->transformarVentasParaTabla($ventasRaw);
-
+        $ventas = $this->transformarVentasParaTabla($this->ventaRepo->obtenerDelDia());
         return view('venta.reporte', compact('ventas'))->with('reporte', 'diario');
     }
 
     public function reporteSemanal()
     {
-        $ventasRaw = Venta::whereBetween('fecha_hora', [now()->startOfWeek(), now()->endOfWeek()])
-            ->with(['comprobante', 'cliente.persona', 'user'])
-            ->get();
-
-        $ventas = $this->transformarVentasParaTabla($ventasRaw);
-
+        $ventas = $this->transformarVentasParaTabla($this->ventaRepo->obtenerDeLaSemana());
         return view('venta.reporte', compact('ventas'))->with('reporte', 'semanal');
     }
 
     public function reporteMensual()
     {
-        $ventasRaw = Venta::whereMonth('fecha_hora', now()->month)
-            ->with(['comprobante', 'cliente.persona', 'user'])
-            ->get();
-
-        $ventas = $this->transformarVentasParaTabla($ventasRaw);
-
+        $ventas = $this->transformarVentasParaTabla($this->ventaRepo->obtenerDelMes());
         return view('venta.reporte', compact('ventas'))->with('reporte', 'mensual');
     }
 
     public function exportDiario()
-    {   
-    $ventas = Venta::whereDate('fecha_hora', now()->toDateString())
-        ->with(['comprobante', 'cliente.persona', 'user'])
-        ->get();
-
-    return Excel::download(new VentasExport($ventas), 'ventas_diarias.xlsx');
+    {
+        $ventas = $this->ventaRepo->obtenerDelDia();
+        return Excel::download(new VentasExport($ventas), 'ventas_diarias.xlsx');
     }
 
     public function exportSemanal()
     {
-    $ventas = Venta::whereBetween('fecha_hora', [now()->startOfWeek(), now()->endOfWeek()])
-        ->with(['comprobante', 'cliente.persona', 'user'])
-        ->get()
-        ->filter(function($venta) {
-            // Excluir ventas con medio_pago 'tarjeta_regalo' o 'lavado_gratis'
-            return $venta->medio_pago !== 'tarjeta_regalo' && $venta->medio_pago !== 'lavado_gratis';
-        });
+        $ventas = Venta::whereBetween('fecha_hora', [now()->startOfWeek(), now()->endOfWeek()])
+            ->whereNotIn('medio_pago', ['tarjeta_regalo', 'lavado_gratis'])
+            ->with(['comprobante', 'cliente.persona', 'user'])
+            ->get();
 
-    return Excel::download(new VentasExport($ventas), 'ventas_semanales.xlsx');
+        return Excel::download(new VentasExport($ventas), 'ventas_semanales.xlsx');
     }
 
     public function exportMensual()
     {
-    $ventas = Venta::whereMonth('fecha_hora', now()->month)
-        ->with(['comprobante', 'cliente.persona', 'user'])
-        ->get()
-        ->filter(function($venta) {
-            return $venta->medio_pago !== 'tarjeta_regalo' && $venta->medio_pago !== 'lavado_gratis';
-        });
+        $ventas = Venta::whereMonth('fecha_hora', now()->month)
+            ->whereNotIn('medio_pago', ['tarjeta_regalo', 'lavado_gratis'])
+            ->with(['comprobante', 'cliente.persona', 'user'])
+            ->get();
 
-    return Excel::download(new VentasExport($ventas), 'ventas_mensuales.xlsx');
+        return Excel::download(new VentasExport($ventas), 'ventas_mensuales.xlsx');
     }
 
     public function reportePersonalizado(Request $request)
     {
+        $request->validate([
+            'fecha_inicio' => 'required|date|before_or_equal:fecha_fin',
+            'fecha_fin'    => 'required|date',
+        ]);
+
         $fechaInicio = $request->fecha_inicio;
         $fechaFin = $request->fecha_fin;
 
-        $ventasRaw = Venta::whereBetween('fecha_hora', [$fechaInicio . ' 00:00:00', $fechaFin . ' 23:59:59'])
-            ->with(['comprobante', 'cliente.persona', 'user'])
-            ->get()
-            ->filter(function($venta) {
-                return $venta->medio_pago !== 'tarjeta_regalo' && $venta->medio_pago !== 'lavado_gratis';
-            });
+        $ventasRaw = $this->ventaRepo->obtenerPorRango(Carbon::parse($fechaInicio), Carbon::parse($fechaFin))
+            ->reject(fn($v) => in_array($v->medio_pago, ['tarjeta_regalo', 'lavado_gratis']));
 
         $ventas = $this->transformarVentasParaTabla($ventasRaw);
 
@@ -298,15 +271,16 @@ class ventaController extends Controller
 
     public function exportPersonalizado(Request $request)
     {
+        $request->validate([
+            'fecha_inicio' => 'required|date|before_or_equal:fecha_fin',
+            'fecha_fin'    => 'required|date',
+        ]);
+
         $fechaInicio = $request->fecha_inicio;
         $fechaFin = $request->fecha_fin;
 
-        $ventas = Venta::whereBetween('fecha_hora', [$fechaInicio . ' 00:00:00', $fechaFin . ' 23:59:59'])
-            ->with(['comprobante', 'cliente.persona', 'user'])
-            ->get()
-            ->filter(function($venta) {
-                return $venta->medio_pago !== 'tarjeta_regalo' && $venta->medio_pago !== 'lavado_gratis';
-            });
+        $ventas = $this->ventaRepo->obtenerPorRango(Carbon::parse($fechaInicio), Carbon::parse($fechaFin))
+            ->reject(fn($v) => in_array($v->medio_pago, ['tarjeta_regalo', 'lavado_gratis']));
 
         return Excel::download(new VentasExport($ventas), "ventas_{$fechaInicio}_a_{$fechaFin}.xlsx");
     }

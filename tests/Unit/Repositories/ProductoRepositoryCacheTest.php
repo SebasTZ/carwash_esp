@@ -295,7 +295,7 @@ class ProductoRepositoryCacheTest extends TestCase
         echo "Con Cache: " . round($tiempoConCache, 2) . " ms\n";
         echo "Diferencia: " . round($mejora, 1) . "%\n";
         echo "\n";
-        echo "NOTA: En testing con SQLite en memoria y\n";
+        echo "NOTA: En testing con base de datos local y\n";
         echo "driver cache 'array', el overhead puede\n";
         echo "superar el beneficio con pocos datos.\n";
         echo "\n";

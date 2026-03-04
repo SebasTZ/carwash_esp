@@ -7,6 +7,7 @@ use App\Models\ControlLavado;
 use App\Models\Lavador;
 use App\Models\TipoVehiculo;
 use App\Services\ControlLavadoService;
+use Carbon\Carbon;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 
 /**
@@ -237,14 +238,22 @@ class ControlLavadoStateMachineTest extends TestCase
             'hora_llegada' => now()->subHours(1),
         ]);
 
-        // Act: Completar flujo
+        // Act: Completar flujo con tiempo simulado para evitar sleep()
+        $base = now();
+
+        Carbon::setTestNow($base->copy()->addMinutes(1));
         $this->service->iniciarLavado($lavado->id, 1);
-        sleep(1);
+
+        Carbon::setTestNow($base->copy()->addMinutes(2));
         $this->service->finalizarLavado($lavado->id);
-        sleep(1);
+
+        Carbon::setTestNow($base->copy()->addMinutes(3));
         $this->service->iniciarInterior($lavado->id);
-        sleep(1);
+
+        Carbon::setTestNow($base->copy()->addMinutes(4));
         $this->service->finalizarInterior($lavado->id);
+
+        Carbon::setTestNow(null); // restaurar tiempo real
 
         // Assert: Verificar orden temporal
         $lavado->refresh();

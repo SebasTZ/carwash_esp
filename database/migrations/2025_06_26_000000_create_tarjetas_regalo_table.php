@@ -30,12 +30,9 @@ return new class extends Migration
 
     public function down(): void
     {
-        // Eliminar foreign key de ventas primero (solo si no es SQLite)
-        if (config('database.default') !== 'sqlite') {
-            Schema::table('ventas', function (Blueprint $table) {
-                $table->dropForeign(['tarjeta_regalo_id']);
-            });
-        }
+        Schema::table('ventas', function (Blueprint $table) {
+            $table->dropForeign(['tarjeta_regalo_id']);
+        });
         
         Schema::dropIfExists('tarjetas_regalo');
     }

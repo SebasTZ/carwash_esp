@@ -35,12 +35,20 @@ COPY . /var/www
 # Compilar assets y ejecutar scripts de Composer
 RUN npm run build && composer run-script post-autoload-dump
 
+# Optimizar para producción (rutas, config, vistas en caché)
+RUN php artisan config:cache \
+    && php artisan route:cache \
+    && php artisan view:cache
+
 # Permisos necesarios
 RUN chown -R www-data:www-data /var/www/storage /var/www/bootstrap/cache \
     && chmod -R 775 /var/www/storage /var/www/bootstrap/cache
 
-# Exponer puerto para Artisan serve (opcional si usas Nginx en otro contenedor)
 EXPOSE ${PORT:-8000}
 
-# Migrar solo en el primer arranque (sin seed en producción)
-CMD php artisan migrate --force && php-fpm
+# IMPORTANTE: Las migraciones NO van aquí.
+# En Laravel Cloud configurar como "Deploy Command":
+#   php artisan migrate --force
+#
+# El CMD solo arranca el servidor — se ejecuta en cada reinicio del contenedor.
+CMD ["php-fpm"]

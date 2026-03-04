@@ -4,14 +4,12 @@ namespace App\Http\Controllers;
 
 use App\Http\Requests\StoreProductoRequest;
 use App\Http\Requests\UpdateProductoRequest;
-use App\Models\Categoria;
-use App\Models\Marca;
-use App\Models\Presentacione;
 use App\Models\Producto;
 use App\Repositories\CaracteristicaRepository;
 use App\Repositories\ProductoRepository;
 use Exception;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Storage;
 
 class ProductoController extends Controller
@@ -50,45 +48,52 @@ class ProductoController extends Controller
     /**
      * Store a newly created resource in storage.
      */
-    public function store(\Illuminate\Http\Request $request)
+    public function store(StoreProductoRequest $request)
     {
+        $validated = $request->validated();
+
         try {
-            DB::beginTransaction();
-            //Tabla producto
-            $producto = new Producto();
-            if ($request->hasFile('img_path')) {
-                $name = $producto->handleUploadImage($request->file('img_path'));
-            } else {
-                $name = null;
-            }
+            DB::transaction(function () use ($request, $validated) {
+                $producto = new Producto();
 
-            $producto->fill([
-                'codigo' => $request['codigo'],
-                'nombre' => $request['nombre'],
-                'descripcion' => $request['descripcion'],
-                'fecha_vencimiento' => $request['fecha_vencimiento'],
-                'img_path' => $name,
-                'marca_id' => $request['marca_id'],
-                'presentacione_id' => $request['presentacione_id'],
-                'es_servicio_lavado' => isset($request['es_servicio_lavado']) ? true : false,
-                'precio_venta' => isset($request['es_servicio_lavado']) ? $request['precio_venta'] : null
-            ]);
+                if ($request->hasFile('img_path')) {
+                    $name = $producto->handleUploadImage($request->file('img_path'));
+                } else {
+                    $name = null;
+                }
 
-            $producto->save();
+                $esServicioLavado = $request->boolean('es_servicio_lavado');
 
-            //Tabla categoría producto
-            $categorias = $request['categorias'];
-            $producto->categorias()->attach($categorias);
+                $producto->fill([
+                    'codigo' => $validated['codigo'],
+                    'nombre' => $validated['nombre'],
+                    'descripcion' => $validated['descripcion'] ?? null,
+                    'fecha_vencimiento' => $validated['fecha_vencimiento'] ?? null,
+                    'img_path' => $name,
+                    'marca_id' => $validated['marca_id'],
+                    'presentacione_id' => $validated['presentacione_id'],
+                    'es_servicio_lavado' => $esServicioLavado,
+                    'precio_venta' => $esServicioLavado ? ($validated['precio_venta'] ?? null) : null,
+                ]);
 
-
-            DB::commit();
+                $producto->save();
+                $producto->categorias()->attach($validated['categorias']);
+            });
             
             // Limpiar caché de productos y características
             $this->productoRepo->limpiarCache();
             $this->caracteristicaRepo->limpiarCache();
             
         } catch (Exception $e) {
-            DB::rollBack();
+            Log::error('Error al registrar producto', [
+                'error' => $e->getMessage(),
+                'trace' => $e->getTraceAsString(),
+            ]);
+
+            return redirect()
+                ->back()
+                ->withInput()
+                ->with('error', 'No se pudo registrar el producto. Intente nuevamente.');
         }
 
         return redirect()->route('productos.index')->with('success', 'Producto registrado');
@@ -118,49 +123,57 @@ class ProductoController extends Controller
     /**
      * Update the specified resource in storage.
      */
-    public function update(\Illuminate\Http\Request $request, Producto $producto)
+    public function update(UpdateProductoRequest $request, Producto $producto)
     {
+        $validated = $request->validated();
+
         try{
-            DB::beginTransaction();
+            DB::transaction(function () use ($request, $validated, $producto) {
+                if ($request->hasFile('img_path')) {
+                    $name = $producto->handleUploadImage($request->file('img_path'));
 
-            if ($request->hasFile('img_path')) {
-                $name = $producto->handleUploadImage($request->file('img_path'));
+                    //Eliminar si existiese una imagen
+                    if(Storage::disk('public')->exists('productos/'.$producto->img_path)){
+                        Storage::disk('public')->delete('productos/'.$producto->img_path);
+                    }
 
-                //Eliminar si existiese una imagen
-                if(Storage::disk('public')->exists('productos/'.$producto->img_path)){
-                    Storage::disk('public')->delete('productos/'.$producto->img_path);
+                } else {
+                    $name = $producto->img_path;
                 }
 
-            } else {
-                $name = $producto->img_path;
-            }
+                $esServicioLavado = $request->boolean('es_servicio_lavado');
 
-            $producto->fill([
-                'codigo' => $request['codigo'],
-                'nombre' => $request['nombre'],
-                'descripcion' => $request['descripcion'],
-                'fecha_vencimiento' => $request['fecha_vencimiento'],
-                'img_path' => $name,
-                'marca_id' => $request['marca_id'],
-                'presentacione_id' => $request['presentacione_id'],
-                'es_servicio_lavado' => isset($request['es_servicio_lavado']) ? true : false,
-                'precio_venta' => isset($request['es_servicio_lavado']) ? $request['precio_venta'] : null
-            ]);
+                $producto->fill([
+                    'codigo' => $validated['codigo'],
+                    'nombre' => $validated['nombre'],
+                    'descripcion' => $validated['descripcion'] ?? null,
+                    'fecha_vencimiento' => $validated['fecha_vencimiento'] ?? null,
+                    'img_path' => $name,
+                    'marca_id' => $validated['marca_id'],
+                    'presentacione_id' => $validated['presentacione_id'],
+                    'es_servicio_lavado' => $esServicioLavado,
+                    'precio_venta' => $esServicioLavado ? ($validated['precio_venta'] ?? null) : null,
+                ]);
 
-            $producto->save();
-
-            //Tabla categoría producto
-            $categorias = $request['categorias'];
-            $producto->categorias()->sync($categorias);
-
-            DB::commit();
+                $producto->save();
+                $producto->categorias()->sync($validated['categorias']);
+            });
             
             // Limpiar caché de productos y características
             $this->productoRepo->limpiarCache();
             $this->caracteristicaRepo->limpiarCache();
             
         }catch(Exception $e){
-            DB::rollBack();
+            Log::error('Error al actualizar producto', [
+                'producto_id' => $producto->id,
+                'error' => $e->getMessage(),
+                'trace' => $e->getTraceAsString(),
+            ]);
+
+            return redirect()
+                ->back()
+                ->withInput()
+                ->with('error', 'No se pudo actualizar el producto. Intente nuevamente.');
         }
 
         return redirect()->route('productos.index')->with('success','Producto editado');

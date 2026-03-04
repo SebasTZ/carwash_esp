@@ -9,8 +9,6 @@ class Venta extends Model
 {
     use HasFactory;
 
-    protected $guarded = ['id'];
-
     protected $fillable = [
         'fecha_hora',
         'impuesto',
@@ -26,7 +24,8 @@ class Venta extends Model
         'servicio_lavado', // Nuevo campo
         'horario_lavado', // Nuevo campo
         'tarjeta_regalo_id', // Asegurarse de incluir si se usa en la lógica
-        'lavado_gratis' // Asegurarse de incluir si se usa en la lógica
+        'lavado_gratis', // Asegurarse de incluir si se usa en la lógica
+        'estado'
     ];
 
     protected $casts = [
