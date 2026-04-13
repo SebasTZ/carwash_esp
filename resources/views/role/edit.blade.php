@@ -20,11 +20,11 @@
             <p>Nota: Los roles son un conjunto de permisos</p>
         </div>
         <div class="card-body">
-            <form id="role-edit-form" action="{{ route('roles.update',['role'=>$role]) }}" method="post" data-validate>
+            <form id="role-edit-form" class="cw-form" action="{{ route('roles.update',['role'=>$role]) }}" method="post" data-validate>
                 @method('PATCH')
                 @csrf
                 <div id="role-edit-form-fields"></div>
-                <div class="col-12 text-center">
+                <div class="cw-form-actions">
                     <button type="submit" class="btn btn-primary">Actualizar</button>
                     <button type="reset" class="btn btn-secondary">Restablecer</button>
                 </div>

@@ -20,13 +20,15 @@
     </ol>
 
     <div class="card text-bg-light">
-        <form id="proveedor-form" action="{{ route('proveedores.store') }}" method="post" data-validate>
+        <form id="proveedor-form" class="cw-form" action="{{ route('proveedores.store') }}" method="post" data-validate>
             @csrf
             <div class="card-body">
                 <div id="proveedor-form-fields"></div>
             </div>
-            <div class="card-footer text-center">
-                <button type="submit" class="btn btn-primary">Registrar proveedor</button>
+            <div class="card-footer">
+                <div class="cw-form-actions">
+                    <button type="submit" class="btn btn-primary">Registrar proveedor</button>
+                </div>
             </div>
         </form>
     </div>

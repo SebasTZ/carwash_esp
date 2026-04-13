@@ -16,7 +16,7 @@
     </ol>
 
     <div class="card text-bg-light">
-        <form id="proveedor-edit-form" action="{{ route('proveedores.update',['proveedore'=>$proveedore]) }}" method="post" data-validate>
+        <form id="proveedor-edit-form" class="cw-form" action="{{ route('proveedores.update',['proveedore'=>$proveedore]) }}" method="post" data-validate>
             @method('PATCH')
             @csrf
             <div class="card-header">
@@ -25,8 +25,10 @@
             <div class="card-body">
                 <div id="proveedor-edit-form-fields"></div>
             </div>
-            <div class="card-footer text-center">
-                <button type="submit" class="btn btn-primary">Actualizar proveedor</button>
+            <div class="card-footer">
+                <div class="cw-form-actions">
+                    <button type="submit" class="btn btn-primary">Actualizar proveedor</button>
+                </div>
             </div>
         </form>
     </div>

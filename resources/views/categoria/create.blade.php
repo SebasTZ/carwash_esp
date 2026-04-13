@@ -2,14 +2,6 @@
 
 @section('title','Crear Categoría')
 
-@push('css')
-<style>
-    #descripcion {
-        resize: none;
-    }
-</style>
-@endpush
-
 @section('content')
 <div class="container-fluid px-4">
     <h1 class="mt-4 text-center">Crear Categoría</h1>
@@ -20,7 +12,7 @@
     </ol>
 
     <div class="card text-bg-light">
-        <form action="{{ route('categorias.store') }}" method="post" id="form-categoria">
+        <form class="cw-form" action="{{ route('categorias.store') }}" method="post" id="form-categoria">
             @csrf
             <div class="card-body">
                 <div class="row g-4">
@@ -64,13 +56,15 @@
                 </div>
 
             </div>
-            <div class="card-footer text-center">
-                <button type="submit" class="btn btn-primary" id="btn-submit">
-                    <i class="fas fa-save"></i> Registrar categoría
-                </button>
-                <a href="{{ route('categorias.index') }}" class="btn btn-secondary">
-                    <i class="fas fa-times"></i> Cancelar
-                </a>
+            <div class="card-footer">
+                <div class="cw-form-actions">
+                    <button type="submit" class="btn btn-primary" id="btn-submit">
+                        <i class="fas fa-save"></i> Registrar categoría
+                    </button>
+                    <a href="{{ route('categorias.index') }}" class="btn btn-secondary">
+                        <i class="fas fa-times"></i> Cancelar
+                    </a>
+                </div>
             </div>
         </form>
     </div>

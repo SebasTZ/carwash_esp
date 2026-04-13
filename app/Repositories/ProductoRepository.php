@@ -21,7 +21,7 @@ class ProductoRepository
      * - Con Redis/Memcached: Acceso ultra-rápido a datos serializados
      * - Con muchos productos: Reduce significativamente el tiempo de respuesta
      * 
-     * NOTA: En testing con SQLite + driver 'array', el overhead puede 
+    * NOTA: En testing con driver de cache 'array', el overhead puede 
      * superar el beneficio debido al pequeño volumen de datos.
      *
      * @return Collection

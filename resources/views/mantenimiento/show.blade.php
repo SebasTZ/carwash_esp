@@ -1,323 +1,208 @@
 @extends('layouts.app')
 
-@section('title', 'Detalles de Mantenimiento')
-
+@section('title', 'Detalle de Mantenimiento')
 
 @section('content')
-<div class="container-fluid">
-    <div class="row mb-2">
-        <div class="col-sm-6">
-            <h1>Detalles de Mantenimiento #{{ $mantenimiento->id }}</h1>
-        </div>
-        <div class="col-sm-6">
-            <ol class="breadcrumb float-sm-right">
-                <li class="breadcrumb-item"><a href="{{ route('panel') }}"><i class="fas fa-home"></i> Inicio</a></li>
-                <li class="breadcrumb-item"><a href="{{ route('mantenimientos.index') }}">Mantenimiento</a></li>
-                <li class="breadcrumb-item active">Detalles</li>
-            </ol>
+@include('layouts.partials.alert')
+
+<div class="container-fluid px-4">
+    <div class="cw-page-header mt-4">
+        <h1 class="cw-page-title">Detalle de Mantenimiento #{{ $mantenimiento->id }}</h1>
+        <div class="cw-page-actions">
+            <a href="{{ route('mantenimientos.edit', $mantenimiento->id) }}" class="btn btn-secondary">
+                <i class="fas fa-edit"></i> Editar
+            </a>
+            <a href="{{ route('mantenimientos.index') }}" class="btn btn-outline-secondary">
+                <i class="fas fa-arrow-left"></i> Volver
+            </a>
         </div>
     </div>
-    @if(session('success'))
-        <div class="alert alert-success alert-dismissible fade show" role="alert">
-            {{ session('success') }}
-            <button type="button" class="close" data-dismiss="alert" aria-label="Cerrar">
-                <span aria-hidden="true">&times;</span>
-            </button>
-        </div>
-    @endif
-    @if(session('error'))
-        <div class="alert alert-danger alert-dismissible fade show" role="alert">
-            {{ session('error') }}
-            <button type="button" class="close" data-dismiss="alert" aria-label="Cerrar">
-                <span aria-hidden="true">&times;</span>
-            </button>
-        </div>
-    @endif
-    <!-- Estado del mantenimiento y acciones -->
-    ...existing code...
-</div>
-@endsection
 
-@section('content')
-<div class="container-fluid">
-    @if(session('success'))
-        <div class="alert alert-success alert-dismissible fade show" role="alert">
-            {{ session('success') }}
-            <button type="button" class="close" data-dismiss="alert" aria-label="Cerrar">
-                <span aria-hidden="true">&times;</span>
-            </button>
-        </div>
-    @endif
+    <ol class="breadcrumb mb-4">
+        <li class="breadcrumb-item"><a href="{{ route('panel') }}">Inicio</a></li>
+        <li class="breadcrumb-item"><a href="{{ route('mantenimientos.index') }}">Mantenimiento</a></li>
+        <li class="breadcrumb-item active">Detalle</li>
+    </ol>
 
-    @if(session('error'))
-        <div class="alert alert-danger alert-dismissible fade show" role="alert">
-            {{ session('error') }}
-            <button type="button" class="close" data-dismiss="alert" aria-label="Cerrar">
-                <span aria-hidden="true">&times;</span>
-            </button>
-        </div>
-    @endif
+    @php
+        $estadoBadge = match($mantenimiento->estado) {
+            'recibido' => 'bg-secondary',
+            'en_proceso' => 'bg-primary',
+            'terminado' => 'bg-warning text-dark',
+            'entregado' => 'bg-success',
+            default => 'bg-light text-dark'
+        };
 
-    <!-- Estado del mantenimiento -->
-    <div class="row">
-        <div class="col-12">
-            <div class="card">
-                <div class="card-header">
-                    <div class="d-flex justify-content-between align-items-center">
-                        <h3 class="card-title">
-                            Estado actual:
-                            @if($mantenimiento->estado == 'recibido')
-                                <span class="badge badge-secondary">Recibido</span>
-                            @elseif($mantenimiento->estado == 'en_proceso')
-                                <span class="badge badge-primary">En Proceso</span>
-                            @elseif($mantenimiento->estado == 'terminado')
-                                <span class="badge badge-warning">Terminado</span>
-                            @elseif($mantenimiento->estado == 'entregado')
-                                <span class="badge badge-success">Entregado</span>
-                            @endif
-                        </h3>
-                        <div>
-                            @if($mantenimiento->estado != 'entregado')
-                                <div class="btn-group">
-                                    <button type="button" class="btn btn-primary dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                                        Cambiar Estado <span class="caret"></span>
-                                    </button>
-                                    <div class="dropdown-menu">
-                                        @if($mantenimiento->estado != 'recibido')
-                                            <form action="{{ route('mantenimientos.cambiarEstado', $mantenimiento->id) }}" method="POST" style="display:inline">
-                                                @csrf
-                                                <input type="hidden" name="estado" value="recibido">
-                                                <button type="submit" class="dropdown-item">Recibido</button>
-                                            </form>
-                                        @endif
-                                        
-                                        @if($mantenimiento->estado != 'en_proceso')
-                                            <form action="{{ route('mantenimientos.cambiarEstado', $mantenimiento->id) }}" method="POST" style="display:inline">
-                                                @csrf
-                                                <input type="hidden" name="estado" value="en_proceso">
-                                                <button type="submit" class="dropdown-item">En Proceso</button>
-                                            </form>
-                                        @endif
-                                        
-                                        @if($mantenimiento->estado != 'terminado')
-                                            <form action="{{ route('mantenimientos.cambiarEstado', $mantenimiento->id) }}" method="POST" style="display:inline">
-                                                @csrf
-                                                <input type="hidden" name="estado" value="terminado">
-                                                <button type="submit" class="dropdown-item">Terminado</button>
-                                            </form>
-                                        @endif
-                                        
-                                        @if($mantenimiento->estado != 'entregado')
-                                            <form action="{{ route('mantenimientos.cambiarEstado', $mantenimiento->id) }}" method="POST" style="display:inline">
-                                                @csrf
-                                                <input type="hidden" name="estado" value="entregado">
-                                                <button type="submit" class="dropdown-item">Entregado</button>
-                                            </form>
-                                        @endif
-                                    </div>
-                                </div>
-                            @endif
+        $diasRestantes = $mantenimiento->fecha_entrega_estimada
+            ? now()->diffInDays($mantenimiento->fecha_entrega_estimada, false)
+            : null;
+    @endphp
 
-                            @if(!$mantenimiento->pagado)
-                                <button type="button" class="btn btn-success ml-2" data-toggle="modal" data-target="#vincularVentaModal">
-                                    <i class="fas fa-money-bill mr-1"></i> Registrar Pago
-                                </button>
-                            @endif
-                            
-                            <a href="{{ route('mantenimientos.edit', $mantenimiento->id) }}" class="btn btn-info ml-2">
-                                <i class="fas fa-edit mr-1"></i> Editar
-                            </a>
-                            
-                            <a href="{{ route('mantenimientos.index') }}" class="btn btn-secondary ml-2">
-                                <i class="fas fa-arrow-left mr-1"></i> Volver
-                            </a>
+    <div class="card mb-4">
+        <div class="card-header d-flex flex-wrap justify-content-between align-items-center gap-2">
+            <div>
+                Estado actual:
+                <span class="badge {{ $estadoBadge }}">{{ ucfirst(str_replace('_', ' ', $mantenimiento->estado)) }}</span>
+            </div>
+
+            <div class="d-flex flex-wrap gap-2">
+                @if($mantenimiento->estado !== 'entregado')
+                    <div class="dropdown">
+                        <button class="btn btn-primary dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+                            Cambiar estado
+                        </button>
+                        <div class="dropdown-menu">
+                            @foreach(['recibido' => 'Recibido', 'en_proceso' => 'En proceso', 'terminado' => 'Terminado', 'entregado' => 'Entregado'] as $estado => $label)
+                                @if($mantenimiento->estado !== $estado)
+                                    <form action="{{ route('mantenimientos.cambiarEstado', $mantenimiento->id) }}" method="POST">
+                                        @csrf
+                                        <input type="hidden" name="estado" value="{{ $estado }}">
+                                        <button type="submit" class="dropdown-item">{{ $label }}</button>
+                                    </form>
+                                @endif
+                            @endforeach
                         </div>
                     </div>
-                </div>
+                @endif
+
+                @if(!$mantenimiento->pagado)
+                    <button type="button" class="btn btn-success" data-bs-toggle="modal" data-bs-target="#vincularVentaModal">
+                        <i class="fas fa-money-bill"></i> Registrar pago
+                    </button>
+                @endif
             </div>
         </div>
     </div>
 
     <div class="row">
-        <!-- Información del cliente y vehículo -->
-        <div class="col-md-6">
-            <div class="card">
-                <div class="card-header">
-                    <h3 class="card-title">Cliente y Vehículo</h3>
-                </div>
+        <div class="col-lg-6">
+            <div class="card mb-4">
+                <div class="card-header">Cliente y vehículo</div>
                 <div class="card-body">
-                    <div class="row">
-                        <div class="col-md-12">
-                            <h5>Datos del Cliente</h5>
-                            <dl class="row">
-                                <dt class="col-sm-4">Cliente:</dt>
-                                <dd class="col-sm-8">{{ $mantenimiento->cliente->persona->razon_social }}</dd>
-                                
-                                <dt class="col-sm-4">{{ $mantenimiento->cliente->persona->documento->tipo_documento }}:</dt>
-                                <dd class="col-sm-8">{{ $mantenimiento->cliente->persona->numero_documento }}</dd>
-                                
-                                <dt class="col-sm-4">Teléfono:</dt>
-                                <dd class="col-sm-8">{{ $mantenimiento->cliente->persona->telefono ?: 'No disponible' }}</dd>
-                            </dl>
-                            
-                            <hr>
-                            
-                            <h5>Datos del Vehículo</h5>
-                            <dl class="row">
-                                <dt class="col-sm-4">Placa:</dt>
-                                <dd class="col-sm-8"><span class="badge badge-dark">{{ $mantenimiento->placa }}</span></dd>
-                                
-                                <dt class="col-sm-4">Modelo:</dt>
-                                <dd class="col-sm-8">{{ $mantenimiento->modelo }}</dd>
-                                
-                                <dt class="col-sm-4">Tipo:</dt>
-                                <dd class="col-sm-8">{{ $mantenimiento->tipo_vehiculo }}</dd>
-                            </dl>
-                        </div>
-                    </div>
+                    <h6 class="text-muted mb-3">Datos del cliente</h6>
+                    <dl class="row mb-4">
+                        <dt class="col-sm-4">Cliente</dt>
+                        <dd class="col-sm-8">{{ $mantenimiento->cliente->persona->razon_social }}</dd>
+
+                        <dt class="col-sm-4">{{ $mantenimiento->cliente->persona->documento->tipo_documento }}</dt>
+                        <dd class="col-sm-8">{{ $mantenimiento->cliente->persona->numero_documento }}</dd>
+
+                        <dt class="col-sm-4">Teléfono</dt>
+                        <dd class="col-sm-8">{{ $mantenimiento->cliente->persona->telefono ?: 'No disponible' }}</dd>
+                    </dl>
+
+                    <h6 class="text-muted mb-3">Datos del vehículo</h6>
+                    <dl class="row mb-0">
+                        <dt class="col-sm-4">Placa</dt>
+                        <dd class="col-sm-8"><span class="badge bg-dark">{{ $mantenimiento->placa }}</span></dd>
+
+                        <dt class="col-sm-4">Modelo</dt>
+                        <dd class="col-sm-8">{{ $mantenimiento->modelo }}</dd>
+
+                        <dt class="col-sm-4">Tipo</dt>
+                        <dd class="col-sm-8">{{ $mantenimiento->tipo_vehiculo }}</dd>
+                    </dl>
                 </div>
             </div>
         </div>
-        
-        <!-- Detalles del servicio -->
-        <div class="col-md-6">
-            <div class="card">
-                <div class="card-header">
-                    <h3 class="card-title">Detalles del Servicio</h3>
-                </div>
+
+        <div class="col-lg-6">
+            <div class="card mb-4">
+                <div class="card-header">Detalles del servicio</div>
                 <div class="card-body">
-                    <dl class="row">
-                        <dt class="col-sm-6">Tipo de Servicio:</dt>
+                    <dl class="row mb-0">
+                        <dt class="col-sm-6">Tipo de servicio</dt>
                         <dd class="col-sm-6">{{ $mantenimiento->tipo_servicio }}</dd>
-                        
-                        <dt class="col-sm-6">Fecha de Ingreso:</dt>
-                        <dd class="col-sm-6">{{ $mantenimiento->fecha_ingreso->format('d/m/Y') }}</dd>
-                        
-                        <dt class="col-sm-6">Fecha de Entrega Estimada:</dt>
+
+                        <dt class="col-sm-6">Fecha de ingreso</dt>
+                        <dd class="col-sm-6">{{ $mantenimiento->fecha_ingreso?->format('d/m/Y') ?: '—' }}</dd>
+
+                        <dt class="col-sm-6">Entrega estimada</dt>
                         <dd class="col-sm-6">
                             @if($mantenimiento->fecha_entrega_estimada)
-                                {{ \Carbon\Carbon::parse($mantenimiento->fecha_entrega_estimada)->format('d/m/Y') }}
-                                
-                                @php
-                                    $diasRestantes = now()->diffInDays(\Carbon\Carbon::parse($mantenimiento->fecha_entrega_estimada), false);
-                                @endphp
-                                
-                                @if($diasRestantes < 0 && $mantenimiento->estado != 'entregado')
-                                    <span class="badge badge-danger">Atrasado {{ abs($diasRestantes) }} días</span>
-                                @elseif($diasRestantes == 0 && $mantenimiento->estado != 'entregado')
-                                    <span class="badge badge-warning">Hoy</span>
-                                @elseif($diasRestantes > 0 && $mantenimiento->estado != 'entregado')
-                                    <span class="badge badge-info">Faltan {{ $diasRestantes }} días</span>
+                                {{ $mantenimiento->fecha_entrega_estimada->format('d/m/Y') }}
+                                @if($mantenimiento->estado !== 'entregado')
+                                    @if($diasRestantes < 0)
+                                        <span class="badge bg-danger">Atrasado {{ abs($diasRestantes) }} día(s)</span>
+                                    @elseif($diasRestantes === 0)
+                                        <span class="badge bg-warning text-dark">Hoy</span>
+                                    @else
+                                        <span class="badge bg-info text-dark">Faltan {{ $diasRestantes }} día(s)</span>
+                                    @endif
                                 @endif
                             @else
                                 No especificado
                             @endif
                         </dd>
-                        
-                        <dt class="col-sm-6">Fecha de Entrega Real:</dt>
-                        <dd class="col-sm-6">
-                            @if($mantenimiento->fecha_entrega_real)
-                                {{ \Carbon\Carbon::parse($mantenimiento->fecha_entrega_real)->format('d/m/Y') }}
-                            @else
-                                Pendiente
-                            @endif
-                        </dd>
-                        
-                        <dt class="col-sm-6">Mecánico Responsable:</dt>
+
+                        <dt class="col-sm-6">Entrega real</dt>
+                        <dd class="col-sm-6">{{ $mantenimiento->fecha_entrega_real?->format('d/m/Y') ?: 'Pendiente' }}</dd>
+
+                        <dt class="col-sm-6">Mecánico responsable</dt>
                         <dd class="col-sm-6">{{ $mantenimiento->mecanico_responsable ?: 'No asignado' }}</dd>
-                        
-                        <dt class="col-sm-6">Estado de Pago:</dt>
+
+                        <dt class="col-sm-6">Estado de pago</dt>
                         <dd class="col-sm-6">
                             @if($mantenimiento->pagado)
-                                <span class="badge badge-success">Pagado</span>
+                                <span class="badge bg-success">Pagado</span>
                                 @if($mantenimiento->venta_id)
-                                    <a href="{{ route('ventas.show', $mantenimiento->venta_id) }}" class="badge badge-info" title="Ver venta">
-                                        Ver venta #{{ $mantenimiento->venta_id }}
-                                    </a>
+                                    <a href="{{ route('ventas.show', $mantenimiento->venta_id) }}" class="badge bg-info text-dark">Venta #{{ $mantenimiento->venta_id }}</a>
                                 @endif
                             @else
-                                <span class="badge badge-danger">Pago pendiente</span>
+                                <span class="badge bg-danger">Pendiente</span>
                             @endif
                         </dd>
-                        
-                        <dt class="col-sm-6">Costo Estimado:</dt>
-                        <dd class="col-sm-6">
-                            @if($mantenimiento->costo_estimado)
-                                S/ {{ number_format($mantenimiento->costo_estimado, 2) }}
-                            @else
-                                No especificado
-                            @endif
-                        </dd>
-                        
-                        <dt class="col-sm-6">Costo Final:</dt>
-                        <dd class="col-sm-6">
-                            @if($mantenimiento->costo_final)
-                                S/ {{ number_format($mantenimiento->costo_final, 2) }}
-                            @else
-                                Pendiente
-                            @endif
-                        </dd>
+
+                        <dt class="col-sm-6">Costo estimado</dt>
+                        <dd class="col-sm-6">{{ $mantenimiento->costo_estimado ? 'S/ ' . number_format($mantenimiento->costo_estimado, 2) : 'No especificado' }}</dd>
+
+                        <dt class="col-sm-6">Costo final</dt>
+                        <dd class="col-sm-6">{{ $mantenimiento->costo_final ? 'S/ ' . number_format($mantenimiento->costo_final, 2) : 'Pendiente' }}</dd>
                     </dl>
                 </div>
             </div>
         </div>
     </div>
 
-    <!-- Descripción del trabajo y observaciones -->
-    <div class="row">
-        <div class="col-12">
-            <div class="card">
-                <div class="card-header">
-                    <h3 class="card-title">Descripción del Trabajo</h3>
-                </div>
-                <div class="card-body">
-                    <div class="row">
-                        <div class="col-md-12">
-                            <h5>Diagnóstico / Trabajo a Realizar</h5>
-                            <div class="p-3 bg-light border rounded">
-                                {!! nl2br(e($mantenimiento->descripcion_trabajo)) !!}
-                            </div>
-                            
-                            @if($mantenimiento->observaciones)
-                                <h5 class="mt-4">Observaciones Adicionales</h5>
-                                <div class="p-3 bg-light border rounded">
-                                    {!! nl2br(e($mantenimiento->observaciones)) !!}
-                                </div>
-                            @endif
-                        </div>
-                    </div>
-                </div>
-            </div>
+    <div class="card mb-4">
+        <div class="card-header">Descripción del trabajo</div>
+        <div class="card-body">
+            <h6 class="text-muted mb-2">Diagnóstico / trabajo a realizar</h6>
+            <div class="p-3 bg-light border rounded">{!! nl2br(e($mantenimiento->descripcion_trabajo)) !!}</div>
+
+            @if($mantenimiento->observaciones)
+                <h6 class="text-muted mt-4 mb-2">Observaciones adicionales</h6>
+                <div class="p-3 bg-light border rounded">{!! nl2br(e($mantenimiento->observaciones)) !!}</div>
+            @endif
         </div>
     </div>
 </div>
 
-<!-- Modal para vincular venta -->
-<div class="modal fade" id="vincularVentaModal" tabindex="-1" role="dialog" aria-labelledby="vincularVentaModalLabel" aria-hidden="true">
-    <div class="modal-dialog" role="document">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title" id="vincularVentaModalLabel">Registrar Pago</h5>
-                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                    <span aria-hidden="true">&times;</span>
-                </button>
-            </div>
-            <div class="modal-body">
-                <p>Para registrar el pago, ingrese el ID de la venta asociada a este servicio de mantenimiento.</p>
-                <form action="{{ route('mantenimientos.vincularVenta', $mantenimiento->id) }}" method="POST" id="formVincularVenta">
-                    @csrf
-                    <div class="form-group">
-                        <label for="venta_id">ID de Venta</label>
-                        <input type="number" name="venta_id" id="venta_id" class="form-control" min="1" required>
-                        <small class="form-text text-muted">Ingrese el número de venta que contiene el pago de este servicio.</small>
-                    </div>
-                </form>
-            </div>
-            <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancelar</button>
-                <button type="submit" form="formVincularVenta" class="btn btn-primary">Vincular Venta</button>
+@if(!$mantenimiento->pagado)
+    <div class="modal fade" id="vincularVentaModal" tabindex="-1" aria-labelledby="vincularVentaModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="vincularVentaModalLabel">Registrar pago</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+                </div>
+                <div class="modal-body">
+                    <p>Ingrese el ID de la venta asociada a este servicio.</p>
+                    <form action="{{ route('mantenimientos.vincularVenta', $mantenimiento->id) }}" method="POST" id="formVincularVenta">
+                        @csrf
+                        <div class="mb-3">
+                            <label for="venta_id" class="form-label">ID de venta</label>
+                            <input type="number" name="venta_id" id="venta_id" class="form-control" min="1" required>
+                            <div class="form-text">Ingrese el número de venta que contiene el pago del mantenimiento.</div>
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                    <button type="submit" form="formVincularVenta" class="btn btn-primary">Vincular venta</button>
+                </div>
             </div>
         </div>
     </div>
-</div>
-@stop
+@endif
+@endsection

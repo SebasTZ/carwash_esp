@@ -5,6 +5,7 @@ namespace App\Services;
 use App\Models\TarjetaRegalo;
 use App\Exceptions\TarjetaRegaloException;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Str;
 
 class TarjetaRegaloService
 {
@@ -75,17 +76,11 @@ class TarjetaRegaloService
     }
 
     /**
-     * Genera un código único para una nueva tarjeta
-     *
-     * @return string
+     * Genera un código único para una nueva tarjeta usando UUID (sin race condition)
      */
     public function generarCodigoUnico(): string
     {
-        do {
-            $codigo = 'TG-' . strtoupper(substr(md5(uniqid()), 0, 10));
-        } while (TarjetaRegalo::where('codigo', $codigo)->exists());
-
-        return $codigo;
+        return 'TG-' . strtoupper(substr(Str::uuid()->getHex()->toString(), 0, 12));
     }
 
     /**

@@ -5,18 +5,20 @@
     <meta charset="utf-8" />
     <meta http-equiv="X-UA-Compatible" content="IE=edge" />
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no" />
-    <meta name="description" content="Sistema de ventas de abarrotes" />
+    <meta name="description" content="@yield('meta_description', 'Sistema de gestión para car wash, ventas y operaciones')" />
     <meta name="author" content="SakCode" />
     <meta name="csrf-token" content="{{ csrf_token() }}" />
-    <title>Sistema ventas - @yield('title')</title>
+    <title>{{ config('app.name', 'CarWash ESP') }} - @yield('title')</title>
     @stack('css-datatable')
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.1/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-4bw+/aepP/YC94hEpVNVgiZdgIC5+VKNBQNGCHeKRQN+PtmoHDEXuppvnDJzQIu9" crossorigin="anonymous">
     <link href="{{ asset('css/styles.css') }}" rel="stylesheet" />
+    @vite(['resources/css/app.css'])
     <script src="https://use.fontawesome.com/releases/v6.3.0/js/all.js" crossorigin="anonymous"></script>
     @stack('css')
 </head>
 
 <body class="sb-nav-fixed">
+    <a class="app-skip-link" href="#main-content">Saltar al contenido principal</a>
 
     <x-navigation-header />
 
@@ -26,7 +28,7 @@
 
         <div id="layoutSidenav_content">
 
-            <main>
+            <main id="main-content" class="app-main" tabindex="-1">
                 @yield('content')
             </main>
 
@@ -34,6 +36,25 @@
 
         </div>
     </div>
+
+    <div class="modal fade" id="globalConfirmModal" tabindex="-1" aria-labelledby="globalConfirmModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="globalConfirmModalLabel">Confirmar acción</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+                </div>
+                <div class="modal-body" id="globalConfirmModalMessage">
+                    ¿Desea continuar con esta acción?
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                    <button type="button" class="btn btn-danger" id="globalConfirmModalAccept">Confirmar</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.1/dist/js/bootstrap.bundle.min.js" integrity="sha384-HwwvtgBNo3bZJJLYd8oVXjrBZt8cqVSpeBNS5n7C8IVInixGAoxmnlMuBnhbgrkm" crossorigin="anonymous"></script>  
     <script src="{{ asset('js/scripts.js') }}"></script>
     @vite(['resources/js/app.js'])

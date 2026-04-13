@@ -1,218 +1,165 @@
-@extends('adminlte::page')
+@extends('layouts.app')
 
 @section('title', 'Editar Registro de Cochera')
 
-@section('content_header')
-<div class="container-fluid">
-    <div class="row mb-2">
-        <div class="col-sm-6">
-            <h1>Editar Registro de Cochera</h1>
-        </div>
-        <div class="col-sm-6">
-            <ol class="breadcrumb float-sm-right">
-                <li class="breadcrumb-item"><a href="{{ route('panel') }}"><i class="fas fa-home"></i> Inicio</a></li>
-                <li class="breadcrumb-item"><a href="{{ route('cocheras.index') }}">Cochera</a></li>
-                <li class="breadcrumb-item active">Editar</li>
-            </ol>
+@section('content')
+@include('layouts.partials.alert')
+
+<div class="container-fluid px-4">
+    <div class="cw-page-header mt-4">
+        <h1 class="cw-page-title">Editar Registro de Cochera</h1>
+        <div class="cw-page-actions">
+            <a href="{{ route('cocheras.show', $cochera->id) }}" class="btn btn-info">
+                <i class="fas fa-eye"></i> Ver detalle
+            </a>
+            <a href="{{ route('cocheras.index') }}" class="btn btn-outline-secondary">
+                <i class="fas fa-arrow-left"></i> Volver
+            </a>
         </div>
     </div>
-</div>
-@stop
 
-@section('content')
-<div class="container-fluid">
-    <div class="row">
-        <div class="col-12">
-            <div class="card">
-                <div class="card-header">
-                    <h3 class="card-title">Editar Información del Vehículo</h3>
-                </div>
-                <div class="card-body">
-                    @if ($errors->any())
-                    <div class="alert alert-danger">
-                        <ul class="mb-0">
-                            @foreach ($errors->all() as $error)
-                            <li>{{ $error }}</li>
+    <ol class="breadcrumb mb-4">
+        <li class="breadcrumb-item"><a href="{{ route('panel') }}">Inicio</a></li>
+        <li class="breadcrumb-item"><a href="{{ route('cocheras.index') }}">Cochera</a></li>
+        <li class="breadcrumb-item active">Editar</li>
+    </ol>
+
+    <div class="card mb-4">
+        <form class="cw-form" action="{{ route('cocheras.update', $cochera->id) }}" method="POST">
+            @csrf
+            @method('PUT')
+
+            <div class="card-body text-bg-light">
+                <div class="row g-3">
+                    <div class="col-md-6">
+                        <label for="cliente_id" class="form-label">Cliente *</label>
+                        <select name="cliente_id" id="cliente_id" class="form-select" required>
+                            <option value="">Seleccione un cliente</option>
+                            @foreach($clientes as $cliente)
+                                <option value="{{ $cliente->id }}" {{ old('cliente_id', $cochera->cliente_id) == $cliente->id ? 'selected' : '' }}>
+                                    {{ $cliente->persona->razon_social }} - {{ $cliente->persona->documento->tipo_documento }} {{ $cliente->persona->numero_documento }}
+                                </option>
                             @endforeach
-                        </ul>
+                        </select>
+                        @error('cliente_id')<small class="text-danger">{{ '*' . $message }}</small>@enderror
                     </div>
-                    @endif
 
-                    <form id="cocheraEditForm" action="{{ route('cocheras.update', $cochera->id) }}" method="POST">
-                        @csrf
-                        @method('PUT')
-                        <div class="row">
-                            <div class="col-md-6">
-                                <label for="cliente_id">Cliente <span class="text-danger">*</span></label>
-                                <select name="cliente_id" id="cliente_id" class="form-control select2" data-rule-required="true">
-                                    <option value="">Seleccione un cliente</option>
-                                    @foreach($clientes as $cliente)
-                                    <option value="{{ $cliente->id }}" {{ old('cliente_id', $cochera->cliente_id) == $cliente->id ? 'selected' : '' }}>
-                                        {{ $cliente->persona->razon_social }} - {{ $cliente->persona->documento->tipo_documento }} {{ $cliente->persona->numero_documento }}
-                                    </option>
-                                    @endforeach
-                                </select>
-                                <div class="invalid-feedback"></div>
-                            </div>
-                            <div class="col-md-6">
-                                <label for="placa">Placa <span class="text-danger">*</span></label>
-                                <input type="text" name="placa" id="placa" class="form-control" value="{{ old('placa', $cochera->placa) }}" data-rule-required="true" maxlength="20" placeholder="Ej: ABC-123">
-                                <div class="invalid-feedback"></div>
-                            </div>
-                        </div>
-                        <div class="row">
-                            <div class="col-md-4">
-                                <label for="modelo">Modelo <span class="text-danger">*</span></label>
-                                <input type="text" name="modelo" id="modelo" class="form-control" value="{{ old('modelo', $cochera->modelo) }}" data-rule-required="true" maxlength="100" placeholder="Ej: Toyota Corolla">
-                                <div class="invalid-feedback"></div>
-                            </div>
-                            <div class="col-md-4">
-                                <label for="color">Color <span class="text-danger">*</span></label>
-                                <input type="text" name="color" id="color" class="form-control" value="{{ old('color', $cochera->color) }}" data-rule-required="true" maxlength="50" placeholder="Ej: Blanco">
-                                <div class="invalid-feedback"></div>
-                            </div>
-                            <div class="col-md-4">
-                                <label for="tipo_vehiculo">Tipo de Vehículo <span class="text-danger">*</span></label>
-                                <select name="tipo_vehiculo" id="tipo_vehiculo" class="form-control" data-rule-required="true">
-                                    <option value="">Seleccione</option>
-                                    <option value="Automóvil" {{ old('tipo_vehiculo', $cochera->tipo_vehiculo) == 'Automóvil' ? 'selected' : '' }}>Automóvil</option>
-                                    <option value="Camioneta" {{ old('tipo_vehiculo', $cochera->tipo_vehiculo) == 'Camioneta' ? 'selected' : '' }}>Camioneta</option>
-                                    <option value="SUV" {{ old('tipo_vehiculo', $cochera->tipo_vehiculo) == 'SUV' ? 'selected' : '' }}>SUV</option>
-                                    <option value="Motocicleta" {{ old('tipo_vehiculo', $cochera->tipo_vehiculo) == 'Motocicleta' ? 'selected' : '' }}>Motocicleta</option>
-                                    <option value="Camión" {{ old('tipo_vehiculo', $cochera->tipo_vehiculo) == 'Camión' ? 'selected' : '' }}>Camión</option>
-                                    <option value="Van" {{ old('tipo_vehiculo', $cochera->tipo_vehiculo) == 'Van' ? 'selected' : '' }}>Van</option>
-                                    <option value="Otro" {{ old('tipo_vehiculo', $cochera->tipo_vehiculo) == 'Otro' ? 'selected' : '' }}>Otro</option>
-                                </select>
-                                <div class="invalid-feedback"></div>
-                            </div>
-                        </div>
-                        <div class="row">
-                            <div class="col-md-3">
-                                <label for="fecha_ingreso">Fecha y Hora de Ingreso <span class="text-danger">*</span></label>
-                                <input type="datetime-local" name="fecha_ingreso" id="fecha_ingreso" class="form-control" value="{{ old('fecha_ingreso', $cochera->fecha_ingreso->format('Y-m-d\TH:i')) }}" data-rule-required="true">
-                                <div class="invalid-feedback"></div>
-                            </div>
-                            <div class="col-md-3">
-                                <label for="fecha_salida">Fecha y Hora de Salida</label>
-                                <input type="datetime-local" name="fecha_salida" id="fecha_salida" class="form-control" value="{{ old('fecha_salida', $cochera->fecha_salida ? \Carbon\Carbon::parse($cochera->fecha_salida)->format('Y-m-d\\TH:i') : '') }}">
-                                <small class="form-text text-muted">Dejar en blanco si aún no ha salido</small>
-                                <div class="invalid-feedback"></div>
-                            </div>
-                            <div class="col-md-3">
-                                <label for="ubicacion">Ubicación</label>
-                                <input type="text" name="ubicacion" id="ubicacion" class="form-control" value="{{ old('ubicacion', $cochera->ubicacion) }}" maxlength="50" placeholder="Ej: Zona A-15">
-                                <div class="invalid-feedback"></div>
-                            </div>
-                            <div class="col-md-3">
-                                <label for="estado">Estado <span class="text-danger">*</span></label>
-                                <select name="estado" id="estado" class="form-control" data-rule-required="true">
-                                    <option value="activo" {{ old('estado', $cochera->estado) == 'activo' ? 'selected' : '' }}>Activo</option>
-                                    <option value="finalizado" {{ old('estado', $cochera->estado) == 'finalizado' ? 'selected' : '' }}>Finalizado</option>
-                                    <option value="cancelado" {{ old('estado', $cochera->estado) == 'cancelado' ? 'selected' : '' }}>Cancelado</option>
-                                </select>
-                                <div class="invalid-feedback"></div>
-                            </div>
-                        </div>
-                        <div class="row">
-                            <div class="col-md-4">
-                                <label for="tarifa_hora">Tarifa por Hora (S/) <span class="text-danger">*</span></label>
-                                <input type="number" name="tarifa_hora" id="tarifa_hora" class="form-control" step="0.01" min="0" value="{{ old('tarifa_hora', $cochera->tarifa_hora) }}" data-rule-required="true">
-                                <div class="invalid-feedback"></div>
-                            </div>
-                            <div class="col-md-4">
-                                <label for="tarifa_dia">Tarifa por Día (S/)</label>
-                                <input type="number" name="tarifa_dia" id="tarifa_dia" class="form-control" step="0.01" min="0" value="{{ old('tarifa_dia', $cochera->tarifa_dia) }}" placeholder="(Opcional)">
-                                <div class="invalid-feedback"></div>
-                            </div>
-                            <div class="col-md-4">
-                                <label for="monto_total">Monto Total (S/)</label>
-                                <input type="number" name="monto_total" id="monto_total" class="form-control" step="0.01" min="0" value="{{ old('monto_total', $cochera->monto_total) }}" {{ $cochera->estado == 'activo' ? 'readonly' : '' }}>
-                                @if($cochera->estado == 'activo')
-                                <small class="form-text text-muted">El monto se calcula automáticamente al finalizar</small>
-                                @endif
-                                <div class="invalid-feedback"></div>
-                            </div>
-                        </div>
-                        <div class="form-group">
-                            <label for="observaciones">Observaciones</label>
-                            <textarea name="observaciones" id="observaciones" class="form-control" rows="3" placeholder="Observaciones adicionales sobre el vehículo o la estadía en la cochera">{{ old('observaciones', $cochera->observaciones) }}</textarea>
-                            <div class="invalid-feedback"></div>
-                        </div>
-                        <div class="form-group text-right">
-                            <a href="{{ route('cocheras.index') }}" class="btn btn-secondary">Cancelar</a>
-                            <button type="submit" class="btn btn-primary">Actualizar vehículo</button>
-                        </div>
-                    </form>
-                    <script type="module">
-                        import FormValidator from '/js/components/FormValidator.js';
-                        document.addEventListener('DOMContentLoaded', function() {
-                            new window.CarWash.FormValidator({
-                                formId: 'cocheraEditForm',
-                                validateOnBlur: true,
-                                validateOnInput: false
-                            });
-                            // Select2 y placa mayúsculas
-                            $('.select2').select2({
-                                theme: 'bootstrap',
-                                placeholder: 'Seleccione un cliente',
-                                allowClear: true
-                            });
-                            $('#placa').on('input', function() {
-                                $(this).val($(this).val().toUpperCase());
-                            });
-                            // Estado y fecha salida
-                            $('#estado').on('change', function() {
-                                if ($(this).val() == 'finalizado' && !$('#fecha_salida').val()) {
-                                    $('#fecha_salida').val('{{ now()->format('Y-m-d\TH:i') }}');
-                                }
-                            });
-                            $('#fecha_salida').on('change', function() {
-                                if ($(this).val() && $('#estado').val() == 'activo') {
-                                    alert('Aviso: Ha establecido una fecha de salida pero el estado sigue siendo Activo');
-                                }
-                            });
-                        });
-                    </script>
+                    <div class="col-md-3">
+                        <label for="placa" class="form-label">Placa *</label>
+                        <input type="text" name="placa" id="placa" class="form-control" value="{{ old('placa', $cochera->placa) }}" maxlength="20" required>
+                        @error('placa')<small class="text-danger">{{ '*' . $message }}</small>@enderror
+                    </div>
+
+                    <div class="col-md-3">
+                        <label for="tipo_vehiculo" class="form-label">Tipo de vehículo *</label>
+                        <select name="tipo_vehiculo" id="tipo_vehiculo" class="form-select" required>
+                            <option value="">Seleccione</option>
+                            @foreach(['Automóvil','Camioneta','SUV','Motocicleta','Camión','Van','Otro'] as $tipo)
+                                <option value="{{ $tipo }}" {{ old('tipo_vehiculo', $cochera->tipo_vehiculo) == $tipo ? 'selected' : '' }}>{{ $tipo }}</option>
+                            @endforeach
+                        </select>
+                        @error('tipo_vehiculo')<small class="text-danger">{{ '*' . $message }}</small>@enderror
+                    </div>
+
+                    <div class="col-md-4">
+                        <label for="modelo" class="form-label">Modelo *</label>
+                        <input type="text" name="modelo" id="modelo" class="form-control" value="{{ old('modelo', $cochera->modelo) }}" maxlength="100" required>
+                        @error('modelo')<small class="text-danger">{{ '*' . $message }}</small>@enderror
+                    </div>
+
+                    <div class="col-md-4">
+                        <label for="color" class="form-label">Color *</label>
+                        <input type="text" name="color" id="color" class="form-control" value="{{ old('color', $cochera->color) }}" maxlength="50" required>
+                        @error('color')<small class="text-danger">{{ '*' . $message }}</small>@enderror
+                    </div>
+
+                    <div class="col-md-4">
+                        <label for="ubicacion" class="form-label">Ubicación</label>
+                        <input type="text" name="ubicacion" id="ubicacion" class="form-control" value="{{ old('ubicacion', $cochera->ubicacion) }}" maxlength="50">
+                        @error('ubicacion')<small class="text-danger">{{ '*' . $message }}</small>@enderror
+                    </div>
+
+                    <div class="col-md-3">
+                        <label for="fecha_ingreso" class="form-label">Fecha y hora de ingreso *</label>
+                        <input type="datetime-local" name="fecha_ingreso" id="fecha_ingreso" class="form-control" value="{{ old('fecha_ingreso', $cochera->fecha_ingreso?->format('Y-m-d\\TH:i')) }}" required>
+                        @error('fecha_ingreso')<small class="text-danger">{{ '*' . $message }}</small>@enderror
+                    </div>
+
+                    <div class="col-md-3">
+                        <label for="fecha_salida" class="form-label">Fecha y hora de salida</label>
+                        <input type="datetime-local" name="fecha_salida" id="fecha_salida" class="form-control" value="{{ old('fecha_salida', $cochera->fecha_salida?->format('Y-m-d\\TH:i')) }}">
+                        @error('fecha_salida')<small class="text-danger">{{ '*' . $message }}</small>@enderror
+                    </div>
+
+                    <div class="col-md-3">
+                        <label for="estado" class="form-label">Estado *</label>
+                        <select name="estado" id="estado" class="form-select" required>
+                            @foreach(['activo' => 'Activo', 'finalizado' => 'Finalizado', 'cancelado' => 'Cancelado'] as $value => $label)
+                                <option value="{{ $value }}" {{ old('estado', $cochera->estado) == $value ? 'selected' : '' }}>{{ $label }}</option>
+                            @endforeach
+                        </select>
+                        @error('estado')<small class="text-danger">{{ '*' . $message }}</small>@enderror
+                    </div>
+
+                    <div class="col-md-3">
+                        <label for="monto_total" class="form-label">Monto total (S/)</label>
+                        <input type="number" name="monto_total" id="monto_total" class="form-control" step="0.01" min="0" value="{{ old('monto_total', $cochera->monto_total) }}" {{ old('estado', $cochera->estado) === 'activo' ? 'readonly' : '' }}>
+                        @error('monto_total')<small class="text-danger">{{ '*' . $message }}</small>@enderror
+                    </div>
+
+                    <div class="col-md-4">
+                        <label for="tarifa_hora" class="form-label">Tarifa por hora (S/) *</label>
+                        <input type="number" name="tarifa_hora" id="tarifa_hora" class="form-control" step="0.01" min="0" value="{{ old('tarifa_hora', $cochera->tarifa_hora) }}" required>
+                        @error('tarifa_hora')<small class="text-danger">{{ '*' . $message }}</small>@enderror
+                    </div>
+
+                    <div class="col-md-4">
+                        <label for="tarifa_dia" class="form-label">Tarifa por día (S/)</label>
+                        <input type="number" name="tarifa_dia" id="tarifa_dia" class="form-control" step="0.01" min="0" value="{{ old('tarifa_dia', $cochera->tarifa_dia) }}">
+                        @error('tarifa_dia')<small class="text-danger">{{ '*' . $message }}</small>@enderror
+                    </div>
+
+                    <div class="col-12">
+                        <label for="observaciones" class="form-label">Observaciones</label>
+                        <textarea name="observaciones" id="observaciones" class="form-control" rows="3">{{ old('observaciones', $cochera->observaciones) }}</textarea>
+                        @error('observaciones')<small class="text-danger">{{ '*' . $message }}</small>@enderror
+                    </div>
                 </div>
             </div>
-        </div>
+
+            <div class="card-footer">
+                <div class="cw-form-actions">
+                    <a href="{{ route('cocheras.index') }}" class="btn btn-secondary">Cancelar</a>
+                    <button type="submit" class="btn btn-primary">Actualizar vehículo</button>
+                </div>
+            </div>
+        </form>
     </div>
 </div>
-@stop
+@endsection
 
-@section('css')
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.13/css/select2.min.css">
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/select2-bootstrap-theme/0.1.0-beta.10/select2-bootstrap.min.css">
-@stop
-
-@section('js')
-<script src="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.13/js/select2.min.js"></script>
+@push('js')
 <script>
-    $(document).ready(function() {
-        $('.select2').select2({
-            theme: 'bootstrap',
-            placeholder: 'Seleccione un cliente',
-            allowClear: true
+    document.addEventListener('DOMContentLoaded', function() {
+        const placa = document.getElementById('placa');
+        const estado = document.getElementById('estado');
+        const fechaSalida = document.getElementById('fecha_salida');
+        const montoTotal = document.getElementById('monto_total');
+
+        placa?.addEventListener('input', function() {
+            this.value = this.value.toUpperCase();
         });
-        
-        // Convertir placa a mayúsculas automáticamente
-        $('#placa').on('input', function() {
-            $(this).val($(this).val().toUpperCase());
-        });
-        
-        // Verificar estado y fecha de salida
-        $('#estado').on('change', function() {
-            if ($(this).val() == 'finalizado' && !$('#fecha_salida').val()) {
-                $('#fecha_salida').val('{{ now()->format('Y-m-d\TH:i') }}');
+
+        estado?.addEventListener('change', function() {
+            if (this.value === 'finalizado' && !fechaSalida.value) {
+                const now = new Date();
+                fechaSalida.value = now.toISOString().slice(0, 16);
             }
-        });
-        
-        // Si se cambia fecha de salida y hay estado activo, advertir
-        $('#fecha_salida').on('change', function() {
-            if ($(this).val() && $('#estado').val() == 'activo') {
-                alert('Aviso: Ha establecido una fecha de salida pero el estado sigue siendo Activo');
+
+            if (montoTotal) {
+                montoTotal.readOnly = this.value === 'activo';
             }
         });
     });
 </script>
-@stop
+@endpush

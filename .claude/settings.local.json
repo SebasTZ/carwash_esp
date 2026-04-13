@@ -1,8 +1,5 @@
 {
-  "permissions": {
-    "allow": [
-      "Bash(php -v)",
-      "WebSearch"
-    ]
-  }
+    "permissions": {
+        "allow": ["Bash(php -v)", "WebSearch"]
+    }
 }

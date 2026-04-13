@@ -4,28 +4,24 @@
 @push('css-datatable')
 <link href="https://cdn.jsdelivr.net/npm/simple-datatables@latest/dist/style.css" rel="stylesheet" type="text/css">
 @endpush
-@push('css')
-<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-@endpush
 
 @section('content')
 
 @include('layouts.partials.alert')
 
 <div class="container-fluid px-4">
-    <h1 class="mt-4 text-center">Roles</h1>
+    <div class="cw-page-header mt-4">
+        <h1 class="cw-page-title">Roles</h1>
+        @can('crear-role')
+        <div class="cw-page-actions">
+            <a href="{{ route('roles.create') }}" class="btn btn-primary">Agregar nuevo rol</a>
+        </div>
+        @endcan
+    </div>
     <ol class="breadcrumb mb-4">
         <li class="breadcrumb-item"><a href="{{ route('panel') }}">Inicio</a></li>
         <li class="breadcrumb-item active">Roles</li>
     </ol>
-
-    @can('crear-role')
-    <div class="mb-4">
-        <a href="{{route('roles.create')}}">
-            <button type="button" class="btn btn-primary">Agregar nuevo rol</button>
-        </a>
-    </div>
-    @endcan
 
     <div class="card">
         <div class="card-header">
@@ -43,6 +39,7 @@
 @endsection
 
 @push('js')
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 <script>
     window.Laravel = window.Laravel || {};
     window.Laravel.csrfToken = '{{ csrf_token() }}';

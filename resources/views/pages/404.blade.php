@@ -6,7 +6,7 @@
         <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no" />
         <meta name="description" content="" />
         <meta name="author" content="" />
-        <title>404 Error - SB Admin</title>
+        <title>Error 404 - {{ config('app.name', 'CarWash ESP') }}</title>
         <link href="{{ asset('css/styles.css') }}" rel="stylesheet" />
         <script src="https://use.fontawesome.com/releases/v6.1.0/js/all.js" crossorigin="anonymous"></script>
     </head>
@@ -19,10 +19,10 @@
                             <div class="col-lg-6">
                                 <div class="text-center mt-4">
                                     <img class="mb-4 img-error" src="{{ asset('assets/img/error-404-monochrome.svg') }}" />
-                                    <p class="lead">This requested URL was not found on this server.</p>
-                                    <a href="index.html">
+                                    <p class="lead">La URL solicitada no fue encontrada en este servidor.</p>
+                                    <a href="{{ route('panel') }}">
                                         <i class="fas fa-arrow-left me-1"></i>
-                                        Return to Dashboard
+                                        Volver al panel
                                     </a>
                                 </div>
                             </div>
@@ -34,11 +34,11 @@
                 <footer class="py-4 bg-light mt-auto">
                     <div class="container-fluid px-4">
                         <div class="d-flex align-items-center justify-content-between small">
-                            <div class="text-muted">Copyright &copy; Your Website 2025</div>
+                            <div class="text-muted">&copy; {{ now()->year }} {{ config('app.name', 'CarWash ESP') }}. Todos los derechos reservados.</div>
                             <div>
-                                <a href="#">Privacy Policy</a>
+                                <a href="#">Política de Privacidad</a>
                                 &middot;
-                                <a href="#">Terms &amp; Conditions</a>
+                                <a href="#">Términos y Condiciones</a>
                             </div>
                         </div>
                     </div>

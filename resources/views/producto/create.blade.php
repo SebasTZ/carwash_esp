@@ -2,56 +2,6 @@
 
 @section('title','Crear Producto')
 
-@push('css')
-<style>
-    .form-select {
-        display: block;
-        width: 100%;
-        padding: 0.375rem 0.75rem;
-        font-size: 1rem;
-        font-weight: 400;
-        line-height: 1.5;
-        color: #212529;
-        background-color: #fff;
-        background-clip: padding-box;
-        border: 1px solid #dee2e6;
-        appearance: none;
-        border-radius: 0.375rem;
-        transition: border-color 0.15s ease-in-out, box-shadow 0.15s ease-in-out;
-    }
-
-    .form-select:focus {
-        border-color: #80bdff;
-        outline: 0;
-        box-shadow: 0 0 0 0.2rem rgba(0, 123, 255, 0.25);
-    }
-
-    .form-select:hover {
-        border-color: #adb5bd;
-    }
-
-    /* Para selectores múltiples */
-    .form-select[multiple] {
-        height: auto;
-        padding: 0.375rem 0.75rem;
-        min-height: 100px;
-        background-image: none;
-    }
-
-    .form-select[multiple] option {
-        padding: 0.5rem;
-        margin: 0;
-        line-height: 1.5;
-    }
-
-    .form-select[multiple] option:checked {
-        background: linear-gradient(#0d6efd, #0d6efd);
-        background-color: #0d6efd !important;
-        color: white;
-    }
-</style>
-@endpush
-
 @section('content')
 <div class="container-fluid px-4">
     <h1 class="mt-4 text-center">Crear Producto</h1>
@@ -64,7 +14,7 @@
 
 <div class="container-fluid px-4">
     <div class="card text-bg-light">
-        <form id="productoForm" action="{{ route('productos.store') }}" method="POST" enctype="multipart/form-data" novalidate>
+        <form id="productoForm" class="cw-form" action="{{ route('productos.store') }}" method="POST" enctype="multipart/form-data" novalidate>
             @csrf
             <div class="card-body">
                 <div class="row g-4">
@@ -194,9 +144,11 @@
                 </div>
             </div>
 
-            <div class="card-footer text-center">
-                <button type="submit" class="btn btn-success">Registrar producto</button>
-                <a href="{{ route('productos.index') }}" class="btn btn-secondary">Cancelar</a>
+            <div class="card-footer">
+                <div class="cw-form-actions">
+                    <button type="submit" class="btn btn-success">Registrar producto</button>
+                    <a href="{{ route('productos.index') }}" class="btn btn-secondary">Cancelar</a>
+                </div>
             </div>
         </form>
     </div>

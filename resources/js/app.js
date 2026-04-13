@@ -2,6 +2,11 @@ import './bootstrap';
 import $ from 'jquery';
 window.$ = $;
 window.jQuery = $;
+
+// Inicializar window.Laravel para compatibilidad con componentes legacy
+window.Laravel = {
+    csrfToken: document.querySelector('meta[name="csrf-token"]')?.getAttribute('content') ?? '',
+};
 // Bootstrap Select se carga desde CDN en create.blade.php para evitar doble inicialización
 // import 'bootstrap-select/dist/js/bootstrap-select.min.js';
 
@@ -120,14 +125,125 @@ window.CarWash = {
     LavadorTableManager: LavadorTableManager,
     LavadorFormManager: LavadorFormManager,
     LavadorEditFormManager: LavadorEditFormManager,
+
+    openActionModal: ({
+        modalId,
+        title = null,
+        titleId = null,
+        bodyId = null,
+        formId = null,
+        methodInputId = null,
+        confirmButtonId = null,
+        message = '¿Desea continuar con esta acción?',
+        action = '#',
+        method = 'POST',
+        confirmText = 'Confirmar',
+        confirmClass = 'btn btn-danger',
+    }) => {
+        if (!modalId || !window.bootstrap?.Modal) {
+            return;
+        }
+
+        const modalElement = document.getElementById(modalId);
+        if (!modalElement) {
+            return;
+        }
+
+        const modalTitle = document.getElementById(titleId || `${modalId}Label`);
+        const modalBody = document.getElementById(bodyId || `${modalId}Body`);
+        const formElement = document.getElementById(formId || `${modalId}Form`);
+        const methodInput = document.getElementById(methodInputId || `${modalId}Method`) || formElement?.querySelector('input[name="_method"]');
+        const confirmButton = document.getElementById(confirmButtonId || `${modalId}ConfirmButton`);
+
+        if (title && modalTitle) {
+            modalTitle.textContent = title;
+        }
+
+        if (modalBody) {
+            modalBody.textContent = message;
+        }
+
+        if (formElement) {
+            formElement.action = action;
+        }
+
+        if (methodInput) {
+            methodInput.value = String(method || 'POST').toUpperCase();
+        }
+
+        if (confirmButton) {
+            confirmButton.textContent = confirmText;
+            confirmButton.className = confirmClass;
+        }
+
+        const modal = new window.bootstrap.Modal(modalElement);
+        modal.show();
+    },
 };
 
 // ========================================
 // Inicialización global de la aplicación
 // ========================================
 document.addEventListener('DOMContentLoaded', () => {
-    console.log('🚀 CarWash ESP - Frontend inicializado');
-    
+    const confirmModalElement = document.getElementById('globalConfirmModal');
+    const confirmModalMessage = document.getElementById('globalConfirmModalMessage');
+    const confirmModalTitle = document.getElementById('globalConfirmModalLabel');
+    const confirmModalAccept = document.getElementById('globalConfirmModalAccept');
+    let pendingConfirmAction = null;
+
+    if (confirmModalElement && confirmModalAccept && window.bootstrap?.Modal) {
+        const confirmModal = new window.bootstrap.Modal(confirmModalElement);
+
+        document.addEventListener('click', (event) => {
+            const trigger = event.target.closest('[data-confirm]');
+            if (!trigger) {
+                return;
+            }
+
+            const form = trigger.closest('form');
+            const href = trigger.getAttribute('href');
+            if (!form && !href) {
+                return;
+            }
+
+            event.preventDefault();
+
+            const message = trigger.getAttribute('data-confirm') || '¿Desea continuar con esta acción?';
+            const title = trigger.getAttribute('data-confirm-title') || 'Confirmar acción';
+            const confirmText = trigger.getAttribute('data-confirm-confirm-text') || 'Confirmar';
+            const confirmClass = trigger.getAttribute('data-confirm-confirm-class') || 'btn btn-danger';
+
+            confirmModalTitle.textContent = title;
+            confirmModalMessage.textContent = message;
+            confirmModalAccept.textContent = confirmText;
+            confirmModalAccept.className = confirmClass;
+
+            pendingConfirmAction = () => {
+                if (form) {
+                    form.submit();
+                    return;
+                }
+
+                if (href) {
+                    window.location.href = href;
+                }
+            };
+
+            confirmModal.show();
+        });
+
+        confirmModalAccept.addEventListener('click', () => {
+            if (typeof pendingConfirmAction === 'function') {
+                pendingConfirmAction();
+                pendingConfirmAction = null;
+            }
+        });
+
+        confirmModalElement.addEventListener('hidden.bs.modal', () => {
+            pendingConfirmAction = null;
+        });
+    }
+
     // Los componentes Bootstrap se inicializan automáticamente
     // desde bootstrap-init.js
     
@@ -232,7 +348,6 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     });
     
-    console.log('✅ Utilidades globales cargadas y disponibles en window.CarWash');
 });
 
 // ========================================

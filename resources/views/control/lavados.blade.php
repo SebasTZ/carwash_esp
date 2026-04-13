@@ -387,7 +387,7 @@
                                         @csrf
                                         @method('DELETE')
                                         <button type="submit" class="btn btn-sm btn-danger btn-action"
-                                                onclick="return confirm('¿Eliminar este registro?')">
+                                            data-confirm="¿Está seguro de eliminar este registro?" data-confirm-confirm-text="Eliminar">
                                             <i class="fas fa-trash"></i>
                                         </button>
                                     </form>
@@ -415,6 +415,6 @@
 <script src="https://cdn.jsdelivr.net/npm/bootstrap-select@1.14.0-beta3/dist/js/bootstrap-select.min.js"></script>
 @vite([
     'resources/js/modules/LavadosManager.js',
-    'resources/js/components/FormValidator.js'
+    'resources/js/components/forms/FormValidator.js'
 ])
 @endpush

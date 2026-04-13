@@ -20,10 +20,10 @@
             <p>Nota: Los roles son un conjunto de permisos</p>
         </div>
         <div class="card-body">
-            <form id="role-create-form" action="{{ route('roles.store') }}" method="post" data-validate>
+            <form id="role-create-form" class="cw-form" action="{{ route('roles.store') }}" method="post" data-validate>
                 @csrf
                 <div id="role-create-form-fields"></div>
-                <div class="col-12 text-center">
+                <div class="cw-form-actions">
                     <button type="submit" class="btn btn-primary">Guardar</button>
                 </div>
             </form>

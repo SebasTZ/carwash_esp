@@ -166,8 +166,6 @@ class Producto extends Model
         if ($this->es_servicio_lavado) {
             return null; // o 'ilimitado'
         }
-        // Lógica de stock real aquí (placeholder):
-        // return $this->stock;
-        return 0;
+        return $this->stock;
     }
 }

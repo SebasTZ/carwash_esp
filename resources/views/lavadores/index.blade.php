@@ -1,27 +1,34 @@
 @extends('layouts.app')
 
-@vite('resources/js/app.js')
-@section('content')
-<div class="container">
-    <h1>Lavadores</h1>
-    @can('crear-lavador')
-        <a href="{{ route('lavadores.create') }}" class="btn btn-primary mb-3">Agregar Lavador</a>
-    @endcan
-    
-    <table class="table table-striped table-bordered" id="lavadoresTable">
-        <thead>
-            <tr>
-                <th>Nombre</th>
-                <th>DNI</th>
-                <th>Teléfono</th>
-                <th>Estado</th>
-                <th>Acciones</th>
-            </tr>
-        </thead>
-        <tbody></tbody>
-    </table>
+@section('title','Lavadores')
 
-    <x-pagination-info :paginator="$lavadores" entity="lavadores" />
+@section('content')
+<div class="container-fluid px-4">
+    <div class="cw-page-header mt-4">
+        <h1 class="cw-page-title">Lavadores</h1>
+        @can('crear-lavador')
+        <div class="cw-page-actions">
+            <a href="{{ route('lavadores.create') }}" class="btn btn-primary">Agregar lavador</a>
+        </div>
+        @endcan
+    </div>
+
+    <ol class="breadcrumb mb-4">
+        <li class="breadcrumb-item"><a href="{{ route('panel') }}">Inicio</a></li>
+        <li class="breadcrumb-item active">Lavadores</li>
+    </ol>
+
+    <div class="card">
+        <div class="card-header">
+            <i class="fas fa-table me-1"></i>
+            Tabla de Lavadores
+        </div>
+        <div class="card-body">
+            <table class="table table-striped table-bordered" id="lavadoresTable"></table>
+            <x-pagination-info :paginator="$lavadores" entity="lavadores" />
+        </div>
+    </div>
+
     <script>
     window.lavadoresData = @json($lavadores->items());
     window.lavadoresCanEdit = String(@json((bool)auth()->user()->can('editar-lavador'))) === 'true';

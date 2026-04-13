@@ -120,6 +120,7 @@ class PaginationTest extends TestCase
         // Test del controlador directamente sin vista para evitar problemas de Vite
         $controller = new \App\Http\Controllers\ventaController(
             app(\App\Repositories\ProductoRepository::class),
+            app(\App\Repositories\VentaRepository::class),
             app(\App\Services\VentaService::class)
         );
         

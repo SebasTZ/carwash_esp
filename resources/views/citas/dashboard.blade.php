@@ -253,7 +253,7 @@
                                     <form action="{{ route('citas.cancelar', $cita) }}" method="POST" class="d-inline">
                                         @csrf
                                         <button type="submit" class="btn btn-outline-danger btn-sm btn-action" 
-                                                onclick="return confirm('Confirm cancellation?')">
+                                            data-confirm="¿Está seguro de cancelar esta cita?" data-confirm-confirm-text="Cancelar cita">
                                             <i class="fas fa-times"></i>
                                         </button>
                                     </form>
@@ -323,7 +323,7 @@
                                     <form action="{{ route('citas.cancelar', $cita) }}" method="POST" class="d-inline">
                                         @csrf
                                         <button type="submit" class="btn btn-outline-danger btn-sm btn-action"
-                                                onclick="return confirm('Confirm cancellation?')">
+                                            data-confirm="¿Está seguro de cancelar esta cita?" data-confirm-confirm-text="Cancelar cita">
                                             <i class="fas fa-times"></i>
                                         </button>
                                     </form>

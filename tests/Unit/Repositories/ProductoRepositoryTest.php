@@ -174,7 +174,7 @@ class ProductoRepositoryTest extends TestCase
         // Segunda llamada - debe usar caché
         $this->repository->obtenerParaVenta();
 
-        $this->assertTrue(true); // El caché es difícil de testear directamente en SQLite
+        $this->assertTrue(true); // El caché es difícil de testear directamente en entorno de pruebas
     }
 
     /** @test */

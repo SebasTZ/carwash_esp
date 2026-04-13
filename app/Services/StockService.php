@@ -164,8 +164,12 @@ class StockService
      */
     public function verificarStockSuficiente(array $productos): bool
     {
+        $productosMap = Producto::whereIn('id', array_keys($productos))
+            ->get()
+            ->keyBy('id');
+
         foreach ($productos as $productoId => $cantidad) {
-            $producto = Producto::find($productoId);
+            $producto = $productosMap->get($productoId);
 
             if (!$producto || $producto->es_servicio_lavado) {
                 continue;

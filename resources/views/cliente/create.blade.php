@@ -1,9 +1,8 @@
 @extends('layouts.app')
 
-@section('title','Create Client')
+@section('title','Crear Cliente')
 
 @push('css')
-<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.4/jquery.min.js"></script>
 <style>
     #box-razon-social {
         display: none;
@@ -13,27 +12,27 @@
 
 @section('content')
 <div class="container-fluid px-4">
-    <h1 class="mt-4 text-center">Create Client</h1>
+    <h1 class="mt-4 text-center">Crear Cliente</h1>
     <ol class="breadcrumb mb-4">
-        <li class="breadcrumb-item"><a href="{{ route('panel') }}">Home</a></li>
-        <li class="breadcrumb-item"><a href="{{ route('clientes.index')}}">Clients</a></li>
-        <li class="breadcrumb-item active">Create Client</li>
+        <li class="breadcrumb-item"><a href="{{ route('panel') }}">Inicio</a></li>
+        <li class="breadcrumb-item"><a href="{{ route('clientes.index')}}">Clientes</a></li>
+        <li class="breadcrumb-item active">Crear Cliente</li>
     </ol>
 
     <div class="card">
-        <form action="{{ route('clientes.store') }}" method="post">
+        <form id="cliente-create-form" class="cw-form" action="{{ route('clientes.store') }}" method="post">
             @csrf
             <div class="card-body text-bg-light">
 
                 <div class="row g-3">
 
-                    <!-- Client type -->
+                    <!-- Tipo de cliente -->
                     <div class="col-md-6">
-                        <label for="tipo_persona" class="form-label">Client type:</label>
+                        <label for="tipo_persona" class="form-label">Tipo de cliente:</label>
                         <select class="form-select" name="tipo_persona" id="tipo_persona">
-                            <option value="" selected disabled>Select an option</option>
-                            <option value="natural" {{ old('tipo_persona') == 'natural' ? 'selected' : '' }}>Natural person</option>
-                            <option value="juridica" {{ old('tipo_persona') == 'juridica' ? 'selected' : '' }}>Legal entity</option>
+                            <option value="" selected disabled>Seleccione una opción</option>
+                            <option value="natural" {{ old('tipo_persona') == 'natural' ? 'selected' : '' }}>Persona natural</option>
+                            <option value="juridica" {{ old('tipo_persona') == 'juridica' ? 'selected' : '' }}>Persona jurídica</option>
                         </select>
                         @error('tipo_persona')
                         <small class="text-danger">{{'*'.$message}}</small>
@@ -42,8 +41,8 @@
 
                     <!-------Razón social------->
                     <div class="col-12" id="box-razon-social">
-                        <label id="label-natural" for="razon_social" class="form-label">Names and surnames:</label>
-                        <label id="label-juridica" for="razon_social" class="form-label">Company name:</label>
+                        <label id="label-natural" for="razon_social" class="form-label">Nombres y apellidos:</label>
+                        <label id="label-juridica" for="razon_social" class="form-label">Razón social:</label>
 
                         <input required type="text" name="razon_social" id="razon_social" class="form-control" value="{{old('razon_social')}}">
 
@@ -54,7 +53,7 @@
 
                     <!------Dirección---->
                     <div class="col-12">
-                        <label for="direccion" class="form-label">Address:</label>
+                        <label for="direccion" class="form-label">Dirección:</label>
                         <input required type="text" name="direccion" id="direccion" class="form-control" value="{{old('direccion')}}">
                         @error('direccion')
                         <small class="text-danger">{{'*'.$message}}</small>
@@ -63,7 +62,7 @@
 
                     <!------Teléfono---->
                     <div class="col-12">
-                        <label for="telefono" class="form-label">Phone:</label>
+                        <label for="telefono" class="form-label">Teléfono:</label>
                         <input required type="text" name="telefono" id="telefono" class="form-control" value="{{old('telefono')}}">
                         @error('telefono')
                         <small class="text-danger">{{'*'.$message}}</small>
@@ -72,9 +71,9 @@
 
                     <!--------------Documento------->
                     <div class="col-md-6">
-                        <label for="documento_id" class="form-label">Document type:</label>
+                        <label for="documento_id" class="form-label">Tipo de documento:</label>
                         <select class="form-select" name="documento_id" id="documento_id">
-                            <option value="" selected disabled>Select an option</option>
+                            <option value="" selected disabled>Seleccione una opción</option>
                             @foreach ($documentos as $item)
                             <option value="{{$item->id}}" {{ old('documento_id') == $item->id ? 'selected' : '' }}>{{$item->tipo_documento}}</option>
                             @endforeach
@@ -85,7 +84,7 @@
                     </div>
 
                     <div class="col-md-6">
-                        <label for="numero_documento" class="form-label">Document number:</label>
+                        <label for="numero_documento" class="form-label">Número de documento:</label>
                         <input required type="text" name="numero_documento" id="numero_documento" class="form-control" value="{{old('numero_documento')}}">
                         @error('numero_documento')
                         <small class="text-danger">{{'*'.$message}}</small>
@@ -94,8 +93,10 @@
                 </div>
 
             </div>
-            <div class="card-footer text-center">
-                <button type="submit" class="btn btn-primary">Registrar cliente</button>
+            <div class="card-footer">
+                <div class="cw-form-actions">
+                    <button type="submit" class="btn btn-primary">Registrar cliente</button>
+                </div>
             </div>
         </form>
     </div>
@@ -105,6 +106,7 @@
 @endsection
 
 @push('js')
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.4/jquery.min.js"></script>
 <script>
     $(document).ready(function() {
         $('#tipo_persona').on('change', function() {

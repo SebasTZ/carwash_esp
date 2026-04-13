@@ -53,7 +53,7 @@
             <form action="{{ route('tarjetas_regalo.destroy', $tarjeta->id) }}" method="POST" class="mt-3">
                 @csrf
                 @method('DELETE')
-                <button type="submit" class="btn btn-danger" onclick="return confirm('¿Está seguro de que desea eliminar esta tarjeta de regalo?')">Eliminar</button>
+                <button type="submit" class="btn btn-danger" data-confirm="¿Está seguro de eliminar esta tarjeta de regalo?" data-confirm-confirm-text="Eliminar">Eliminar</button>
             </form>
         </div>
     </div>

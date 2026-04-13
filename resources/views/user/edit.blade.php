@@ -16,7 +16,7 @@
     </ol>
 
     <div class="card text-bg-light">
-        <form action="{{ route('users.update',['user' => $user]) }}" method="post">
+        <form id="user-edit-form" class="cw-form" action="{{ route('users.update',['user' => $user]) }}" method="post">
             @method('PATCH')
             @csrf
             <div class="card-header">
@@ -25,9 +25,11 @@
             <div class="card-body">
                 <div id="user-edit-form-fields"></div>
             </div>
-            <div class="card-footer text-center">
-                <button type="submit" class="btn btn-primary">Actualizar usuario</button>
-                <button type="reset" class="btn btn-secondary">Restablecer</button>
+            <div class="card-footer">
+                <div class="cw-form-actions">
+                    <button type="submit" class="btn btn-primary">Actualizar usuario</button>
+                    <button type="reset" class="btn btn-secondary">Restablecer</button>
+                </div>
             </div>
         </form>
     </div>

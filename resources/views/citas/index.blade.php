@@ -58,10 +58,10 @@
 @endpush
 
 @section('content')
-<div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pb-2 mb-3 border-bottom">
-    <h1 class="h2">Gestión de Citas</h1>
-    <div class="btn-toolbar mb-2 mb-md-0">
-        <div class="btn-group mr-2">
+<div class="container-fluid px-4">
+    <div class="cw-page-header mt-4">
+        <h1 class="cw-page-title">Gestión de Citas</h1>
+        <div class="cw-page-actions">
             <a href="{{ route('citas.create') }}" class="btn btn-sm btn-outline-primary">
                 <i class="fas fa-plus-circle"></i> Nueva Cita
             </a>
@@ -70,7 +70,10 @@
             </a>
         </div>
     </div>
-</div>
+    <ol class="breadcrumb mb-4">
+        <li class="breadcrumb-item"><a href="{{ route('panel') }}">Inicio</a></li>
+        <li class="breadcrumb-item active">Gestión de Citas</li>
+    </ol>
 
 <div class="export-card">
     <div class="card-header d-flex justify-content-between align-items-center">
@@ -243,7 +246,7 @@ window.addEventListener('load', () => {
                     buttons += `<form action="/citas/${row.id}/cancelar" method="POST" style="display:inline">
                         @csrf
                         <button type="submit" class="btn btn-danger btn-sm" title="Cancelar Cita"
-                            onclick="return confirm('¿Está seguro de que desea cancelar esta cita?')">
+                            data-confirm="¿Está seguro de cancelar esta cita?" data-confirm-confirm-text="Cancelar cita">
                             <i class="fas fa-times"></i>
                         </button>
                     </form>`;
@@ -254,7 +257,7 @@ window.addEventListener('load', () => {
                     @csrf
                     <input type="hidden" name="_method" value="DELETE">
                     <button type="submit" class="btn btn-danger btn-sm" title="Eliminar"
-                        onclick="return confirm('¿Está seguro de que desea eliminar esta cita?')">
+                        data-confirm="¿Está seguro de eliminar esta cita?" data-confirm-confirm-text="Eliminar">
                         <i class="fas fa-trash"></i>
                     </button>
                 </form>`;
@@ -275,4 +278,5 @@ window.addEventListener('load', () => {
     });
 });
 </script>
+</div>
 @endsection

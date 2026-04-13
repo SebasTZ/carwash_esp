@@ -131,12 +131,6 @@ export default class FormValidator extends Component {
             this.submitBtn = this.element.querySelector('[type="submit"]');
         }
 
-        console.log('FormValidator initialized:', {
-            form: this.element.id || this.element.name,
-            fields: Object.keys(this.fields).length,
-            validateOnBlur: this.validatorOptions.validateOnBlur,
-            validateOnInput: this.validatorOptions.validateOnInput
-        });
     }
 
     /**

@@ -6,7 +6,6 @@
 <link href="https://cdn.jsdelivr.net/npm/simple-datatables@latest/dist/style.css" rel="stylesheet" type="text/css">
 @endpush
 @push('css')
-<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 <style>
     .row-not-space {
         width: 110px;
@@ -19,31 +18,21 @@
 @include('layouts.partials.alert')
 
 <div class="container-fluid px-4">
-    <h1 class="mt-4 text-center">Ventas</h1>
+    <div class="cw-page-header mt-4">
+        <h1 class="cw-page-title">Ventas</h1>
+        <div class="cw-page-actions">
+            @can('crear-venta')
+            <a href="{{ route('ventas.create') }}" class="btn btn-primary">Agregar nuevo registro</a>
+            @endcan
+            <a href="{{ route('ventas.reporte.diario') }}" class="btn btn-secondary">Reporte diario</a>
+            <a href="{{ route('ventas.reporte.semanal') }}" class="btn btn-secondary">Reporte semanal</a>
+            <a href="{{ route('ventas.reporte.mensual') }}" class="btn btn-secondary">Reporte mensual</a>
+        </div>
+    </div>
     <ol class="breadcrumb mb-4">
         <li class="breadcrumb-item"><a href="{{ route('panel') }}">Inicio</a></li>
         <li class="breadcrumb-item active">Ventas</li>
     </ol>
-
-    @can('crear-venta')
-    <div class="mb-4">
-        <a href="{{route('ventas.create')}}">
-            <button type="button" class="btn btn-primary">Agregar nuevo registro</button>
-        </a>
-    </div>
-    @endcan
-
-    <div class="mb-4">
-    <a href="{{ route('ventas.reporte.diario') }}">
-        <button type="button" class="btn btn-secondary">Reporte diario</button>
-    </a>
-    <a href="{{ route('ventas.reporte.semanal') }}">
-        <button type="button" class="btn btn-secondary">Reporte semanal</button>
-    </a>
-    <a href="{{ route('ventas.reporte.mensual') }}">
-        <button type="button" class="btn btn-secondary">Reporte mensual</button>
-    </a>
-    </div>
 
     <div class="card mb-4">
         <div class="card-header">
@@ -59,6 +48,7 @@
 @endsection
 
 @push('js')
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 @vite(['resources/js/components/DynamicTable.js', 'resources/js/modules/VentaManager.js'])
 <script>
     document.addEventListener('DOMContentLoaded', function() {

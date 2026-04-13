@@ -98,6 +98,27 @@ return [
             'days' => 90,
         ],
 
+        'comisiones' => [
+            'driver' => 'daily',
+            'path' => storage_path('logs/comisiones.log'),
+            'level' => 'info',
+            'days' => 90,
+        ],
+
+        'fidelizacion' => [
+            'driver' => 'daily',
+            'path' => storage_path('logs/fidelizacion.log'),
+            'level' => 'info',
+            'days' => 30,
+        ],
+
+        'estacionamiento' => [
+            'driver' => 'daily',
+            'path' => storage_path('logs/estacionamiento.log'),
+            'level' => 'info',
+            'days' => 30,
+        ],
+
         'slack' => [
             'driver' => 'slack',
             'url' => env('LOG_SLACK_WEBHOOK_URL'),

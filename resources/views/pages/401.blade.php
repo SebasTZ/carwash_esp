@@ -6,7 +6,7 @@
         <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no" />
         <meta name="description" content="" />
         <meta name="author" content="" />
-        <title>404 Error - SB Admin</title>
+        <title>Error 401 - {{ config('app.name', 'CarWash ESP') }}</title>
         <link href="{{ asset('css/styles.css') }}" rel="stylesheet" />
         <script src="https://use.fontawesome.com/releases/v6.1.0/js/all.js" crossorigin="anonymous"></script>
     </head>
@@ -19,11 +19,11 @@
                             <div class="col-lg-6">
                                 <div class="text-center mt-4">
                                     <h1 class="display-1">401</h1>
-                                    <p class="lead">Unauthorized</p>
-                                    <p>You do not have permission to access this resource.</p>
+                                    <p class="lead">No autorizado</p>
+                                    <p>No tienes permisos para acceder a este recurso.</p>
                                     <a href="{{ route('login') }}">
                                         <i class="fas fa-arrow-left me-1"></i>
-                                        Log in
+                                        Iniciar sesión
                                     </a>
                                 </div>
                             </div>
@@ -35,11 +35,11 @@
                 <footer class="py-4 bg-light mt-auto">
                     <div class="container-fluid px-4">
                         <div class="d-flex align-items-center justify-content-between small">
-                            <div class="text-muted">Copyright &copy; Your Website 2025</div>
+                            <div class="text-muted">&copy; {{ now()->year }} {{ config('app.name', 'CarWash ESP') }}. Todos los derechos reservados.</div>
                             <div>
-                                <a href="#">Privacy Policy</a>
+                                <a href="#">Política de Privacidad</a>
                                 &middot;
-                                <a href="#">Terms &amp; Conditions</a>
+                                <a href="#">Términos y Condiciones</a>
                             </div>
                         </div>
                     </div>

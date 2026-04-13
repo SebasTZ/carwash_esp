@@ -25,11 +25,9 @@ use App\Http\Controllers\TipoVehiculoController;
 use App\Http\Controllers\PagoComisionController;
 use Illuminate\Support\Facades\Route;
 
-Route::get('/',[homeController::class,'index'])->name('panel');
-
 Route::get('/login',[loginController::class,'index'])->name('login');
 Route::post('/login',[loginController::class,'login']);
-Route::get('/logout',[logoutController::class,'logout'])->name('logout');
+Route::post('/logout',[logoutController::class,'logout'])->name('logout');
 
 Route::get('/401', function () { return view('pages.401'); });
 Route::get('/404', function () { return view('pages.404'); });
@@ -37,6 +35,8 @@ Route::get('/500', function () { return view('pages.500'); });
 
 // Rutas protegidas por autenticación
 Route::middleware(['auth'])->group(function () {
+    Route::get('/',[homeController::class,'index'])->name('panel');
+
     // Rutas de Estacionamiento
     Route::get('/estacionamiento', [EstacionamientoController::class, 'index'])->name('estacionamiento.index');
     Route::get('/estacionamiento/create', [EstacionamientoController::class, 'create'])->name('estacionamiento.create');
@@ -106,21 +106,6 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/validar-fidelizacion-lavado/{cliente_id}', [ventaController::class, 'validarFidelizacionLavado'])->name('validar.fidelizacion');
 
 
-    // Lavadores routes
-    Route::get('/lavadores', [LavadorController::class, 'index'])->name('lavadores.index');
-    Route::get('/lavadores/create', [LavadorController::class, 'create'])->name('lavadores.create');
-    Route::post('/lavadores', [LavadorController::class, 'store'])->name('lavadores.store');
-    Route::get('/lavadores/{lavadore}/edit', [LavadorController::class, 'edit'])->name('lavadores.edit');
-    Route::put('/lavadores/{lavadore}', [LavadorController::class, 'update'])->name('lavadores.update');
-    Route::delete('/lavadores/{lavadore}', [LavadorController::class, 'destroy'])->name('lavadores.destroy');
-
-    // Tipos de Vehículo routes
-    Route::get('/tipos_vehiculo', [TipoVehiculoController::class, 'index'])->name('tipos_vehiculo.index');
-    Route::get('/tipos_vehiculo/create', [TipoVehiculoController::class, 'create'])->name('tipos_vehiculo.create');
-    Route::post('/tipos_vehiculo', [TipoVehiculoController::class, 'store'])->name('tipos_vehiculo.store');
-    Route::get('/tipos_vehiculo/{tipos_vehiculo}/edit', [TipoVehiculoController::class, 'edit'])->name('tipos_vehiculo.edit');
-    Route::put('/tipos_vehiculo/{tipos_vehiculo}', [TipoVehiculoController::class, 'update'])->name('tipos_vehiculo.update');
-    Route::delete('/tipos_vehiculo/{tipos_vehiculo}', [TipoVehiculoController::class, 'destroy'])->name('tipos_vehiculo.destroy');
 
     // Pagos de Comisiones routes
     Route::resource('pagos_comisiones', PagoComisionController::class);

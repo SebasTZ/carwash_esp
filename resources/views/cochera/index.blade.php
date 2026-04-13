@@ -1,109 +1,142 @@
-@extends('adminlte::page')
+@extends('layouts.app')
 
 @section('title', 'Cochera | Estacionamiento')
 
-@section('content_header')
-                    <div id="dynamicTableCochera"></div>
-                    <script type="module">
-                        import DynamicTable from '/js/components/DynamicTable.js';
-                        document.addEventListener('DOMContentLoaded', function() {
-                            new DynamicTable({
-                                elementId: 'dynamicTableCochera',
-                                columns: [
-                                    { key: 'placa', label: 'Placa', render: row => `<span class='badge badge-dark'>${row.placa}</span>` },
-                                    { key: 'cliente', label: 'Cliente', render: row => row.cliente },
-                                    { key: 'modelo', label: 'Modelo', render: row => `${row.modelo} (${row.color})` },
-                                    { key: 'tipo_vehiculo', label: 'Tipo', render: row => row.tipo_vehiculo },
-                                    { key: 'fecha_ingreso', label: 'Ingreso', render: row => row.fecha_ingreso },
-                                    { key: 'tiempo', label: 'Tiempo', render: row => row.tiempo },
-                                    { key: 'ubicacion', label: 'Ubicación', render: row => row.ubicacion || 'No especificada' },
-                                    { key: 'estado', label: 'Estado', render: row => row.estado_badge },
-                                    { key: 'monto', label: 'Monto Actual', render: row => `S/ ${row.monto}` },
-                                    { key: 'acciones', label: 'Acciones', render: row => row.acciones, width: 160 }
-                                ],
-                                dataUrl: '/api/cocheras',
-                                rowClass: row => row.estadiaProlongada && row.estado === 'activo' ? 'table-warning' : '',
-                                pagination: true,
-                                preserveQuery: true
-                            });
-                            console.log('✅ DynamicTable inicializado correctamente para Cochera');
-                        });
-                    </script>
-                                                @method('DELETE')
-                                                <button type="submit" class="btn btn-sm btn-danger" onclick="return confirm('¿Está seguro que desea eliminar este registro?')">
-                                                    <i class="fas fa-trash"></i>
-                                                </button>
-                                            </form>
-                                        @else
-                                            <a href="{{ route('cocheras.edit', $cochera->id) }}" class="btn btn-sm btn-secondary">
-                                                <i class="fas fa-edit"></i>
-                                            </a>
-                                            
-                                            <form action="{{ route('cocheras.destroy', $cochera->id) }}" method="POST" style="display:inline">
-                                                @csrf
-                                                @method('DELETE')
-                                                <button type="submit" class="btn btn-sm btn-danger" onclick="return confirm('¿Está seguro de que desea eliminar este registro?')">
-                                                    <i class="fas fa-trash"></i>
-                                                </button>
-                                            </form>
-                                        @endif
-                                    </td>
-                                </tr>
-                                
-                                <!-- Modal para finalizar estacionamiento -->
-                                <div class="modal fade" id="finalizarModal{{ $cochera->id }}" tabindex="-1" role="dialog" aria-labelledby="finalizarModalLabel" aria-hidden="true">
-                                    <div class="modal-dialog" role="document">
-                                        <div class="modal-content">
-                                            <div class="modal-header">
-                                                <h5 class="modal-title" id="finalizarModalLabel">Finalizar Estacionamiento</h5>
-                                                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                                                    <span aria-hidden="true">&times;</span>
-                                                </button>
-                                            </div>
-                                            <form action="{{ route('cocheras.finalizar', $cochera->id) }}" method="POST">
-                                                @csrf
-                                                <div class="modal-body">
-                                                    <p>¿Desea finalizar el estacionamiento para el vehículo <strong>{{ $cochera->placa }}</strong>?</p>
-                                                    
-                                                    <div class="alert alert-info">
-                                                        <p class="mb-1">Tiempo: <strong>{{ $tiempoFormateado }}</strong></p>
-                                                        <p class="mb-1">Monto actual a pagar: <strong>S/ {{ number_format($montoActual, 2) }}</strong></p>
-                                                    </div>
-                                                </div>
-                                                <div class="modal-footer">
-                                                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancelar</button>
-                                                    <button type="submit" class="btn btn-success">Finalizar</button>
-                                                </div>
-                                            </form>
-                                        </div>
-                                    </div>
-                                </div>
-                                @empty
-                                <tr>
-                                    <td colspan="10" class="text-center">No hay registros disponibles</td>
-                                </tr>
-                                @endforelse
-                            </tbody>
-                        </table>
-                    </div>
+@section('content')
+@include('layouts.partials.alert')
 
-                    <!-- Paginación usando componente con preservación de filtros -->
-                    <x-pagination-info 
-                        :paginator="$cocheras" 
-                        entity="registros de cochera" 
-                        :preserve-query="true" 
-                    />
-                </div>
+<div class="container-fluid px-4">
+    <div class="cw-page-header mt-4">
+        <h1 class="cw-page-title">Cochera</h1>
+        <div class="cw-page-actions">
+            <a href="{{ route('cocheras.create') }}" class="btn btn-success">
+                <i class="fas fa-plus-circle"></i> Nuevo registro
+            </a>
+            <a href="{{ route('cocheras.reportes') }}" class="btn btn-info">
+                <i class="fas fa-chart-bar"></i> Reportes
+            </a>
+        </div>
+    </div>
+
+    <ol class="breadcrumb mb-4">
+        <li class="breadcrumb-item"><a href="{{ route('panel') }}">Inicio</a></li>
+        <li class="breadcrumb-item active">Cochera</li>
+    </ol>
+
+    <div class="card mb-4">
+        <div class="card-header d-flex flex-wrap justify-content-between align-items-center gap-2">
+            <span><i class="fas fa-car me-1"></i> Vehículos en cochera</span>
+            <form action="{{ route('cocheras.index') }}" method="GET" class="d-flex align-items-center gap-2">
+                <label for="estado" class="mb-0">Estado:</label>
+                <select id="estado" name="estado" class="form-select form-select-sm" onchange="this.form.submit()">
+                    <option value="activo" {{ request('estado') == 'activo' ? 'selected' : '' }}>Activo</option>
+                    <option value="finalizado" {{ request('estado') == 'finalizado' ? 'selected' : '' }}>Finalizado</option>
+                    <option value="cancelado" {{ request('estado') == 'cancelado' ? 'selected' : '' }}>Cancelado</option>
+                    <option value="todos" {{ request('estado') == 'todos' ? 'selected' : '' }}>Todos</option>
+                </select>
+            </form>
+        </div>
+
+        <div class="card-body">
+            <div class="table-responsive">
+                <table class="table table-striped table-hover align-middle">
+                    <thead>
+                        <tr>
+                            <th>Placa</th>
+                            <th>Cliente</th>
+                            <th>Modelo/Color</th>
+                            <th>Tipo</th>
+                            <th>Ingreso</th>
+                            <th>Tiempo</th>
+                            <th>Ubicación</th>
+                            <th>Estado</th>
+                            <th>Monto</th>
+                            <th class="text-end">Acciones</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @forelse ($cocheras as $cochera)
+                            @php
+                                $fechaInicio = $cochera->fecha_ingreso;
+                                $fechaFin = $cochera->fecha_salida ?? now();
+                                $diff = $fechaInicio?->diff($fechaFin);
+                                $tiempoFormateado = $diff
+                                    ? (($diff->days > 0 ? $diff->days . ' día(s) ' : '') . $diff->h . ' hora(s) ' . $diff->i . ' minuto(s)')
+                                    : '—';
+
+                                $montoActual = $cochera->estado === 'activo'
+                                    ? $cochera->calcularMonto()
+                                    : ($cochera->monto_total ?? $cochera->calcularMonto());
+
+                                $estadoBadge = match($cochera->estado) {
+                                    'activo' => 'bg-success',
+                                    'finalizado' => 'bg-secondary',
+                                    'cancelado' => 'bg-danger',
+                                    default => 'bg-light text-dark'
+                                };
+                            @endphp
+
+                            <tr class="{{ $diff && $diff->days >= 1 && $cochera->estado === 'activo' ? 'table-warning' : '' }}">
+                                <td><span class="badge bg-dark">{{ $cochera->placa }}</span></td>
+                                <td>{{ $cochera->cliente->persona->razon_social ?? '—' }}</td>
+                                <td>{{ $cochera->modelo }} ({{ $cochera->color }})</td>
+                                <td>{{ $cochera->tipo_vehiculo }}</td>
+                                <td>{{ $cochera->fecha_ingreso?->format('d/m/Y H:i') ?? '—' }}</td>
+                                <td>{{ $tiempoFormateado }}</td>
+                                <td>{{ $cochera->ubicacion ?: 'No especificada' }}</td>
+                                <td><span class="badge {{ $estadoBadge }}">{{ ucfirst($cochera->estado) }}</span></td>
+                                <td>S/ {{ number_format($montoActual, 2) }}</td>
+                                <td class="text-end">
+                                    <a href="{{ route('cocheras.show', $cochera->id) }}" class="btn btn-sm btn-info" title="Ver detalles">
+                                        <i class="fas fa-eye"></i>
+                                    </a>
+
+                                    @if($cochera->estado === 'activo')
+                                        <button type="button" class="btn btn-sm btn-success" data-bs-toggle="modal" data-bs-target="#finalizarModal{{ $cochera->id }}" title="Finalizar">
+                                            <i class="fas fa-check"></i>
+                                        </button>
+                                    @else
+                                        <a href="{{ route('cocheras.edit', $cochera->id) }}" class="btn btn-sm btn-secondary" title="Editar">
+                                            <i class="fas fa-edit"></i>
+                                        </a>
+                                    @endif
+
+                                    <form action="{{ route('cocheras.destroy', $cochera->id) }}" method="POST" class="d-inline">
+                                        @csrf
+                                        @method('DELETE')
+                                        <button type="submit" class="btn btn-sm btn-danger" title="Eliminar" data-confirm="¿Está seguro de eliminar este registro?" data-confirm-confirm-text="Eliminar">
+                                            <i class="fas fa-trash"></i>
+                                        </button>
+                                    </form>
+                                </td>
+                            </tr>
+
+                            @if($cochera->estado === 'activo')
+                                <x-confirm-action-modal
+                                    :modal-id="'finalizarModal' . $cochera->id"
+                                    title="Finalizar estacionamiento"
+                                    :action="route('cocheras.finalizar', $cochera->id)"
+                                    confirm-text="Finalizar"
+                                    confirm-class="btn btn-success"
+                                >
+                                    <p>¿Desea finalizar el estacionamiento del vehículo <strong>{{ $cochera->placa }}</strong>?</p>
+                                    <div class="alert alert-info mb-0">
+                                        <p class="mb-1">Tiempo: <strong>{{ $tiempoFormateado }}</strong></p>
+                                        <p class="mb-0">Monto actual: <strong>S/ {{ number_format($montoActual, 2) }}</strong></p>
+                                    </div>
+                                </x-confirm-action-modal>
+                            @endif
+                        @empty
+                            <tr>
+                                <td colspan="10" class="text-center">No hay registros de cochera.</td>
+                            </tr>
+                        @endforelse
+                    </tbody>
+                </table>
             </div>
+
+            <x-pagination-info :paginator="$cocheras" entity="registros de cochera" :preserve-query="true" />
         </div>
     </div>
 </div>
-@stop
-
-@section('css')
-<!-- DataTables removido para usar paginación de Laravel -->
-@stop
-
-@section('js')
-<!-- DataTables removido para usar paginación de Laravel -->
-@stop
+@endsection
