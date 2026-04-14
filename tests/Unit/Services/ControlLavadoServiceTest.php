@@ -33,7 +33,7 @@ class ControlLavadoServiceTest extends TestCase
         $this->repository = app(ControlLavadoRepository::class);
     }
 
-    /** @test */
+    #[\PHPUnit\Framework\Attributes\Test]
     public function puede_asignar_lavador_y_tipo_vehiculo()
     {
         // Arrange
@@ -68,7 +68,7 @@ class ControlLavadoServiceTest extends TestCase
         ]);
     }
 
-    /** @test */
+    #[\PHPUnit\Framework\Attributes\Test]
     public function crea_auditoria_al_cambiar_lavador()
     {
         // Arrange
@@ -106,7 +106,7 @@ class ControlLavadoServiceTest extends TestCase
         ]);
     }
 
-    /** @test */
+    #[\PHPUnit\Framework\Attributes\Test]
     public function no_permite_asignar_lavador_si_lavado_ya_inicio()
     {
         // Arrange
@@ -133,7 +133,7 @@ class ControlLavadoServiceTest extends TestCase
         );
     }
 
-    /** @test */
+    #[\PHPUnit\Framework\Attributes\Test]
     public function puede_iniciar_lavado()
     {
         // Arrange
@@ -156,7 +156,7 @@ class ControlLavadoServiceTest extends TestCase
         $this->assertInstanceOf(\Carbon\Carbon::class, $resultado->inicio_lavado);
     }
 
-    /** @test */
+    #[\PHPUnit\Framework\Attributes\Test]
     public function no_permite_iniciar_lavado_dos_veces()
     {
         // Arrange
@@ -178,7 +178,7 @@ class ControlLavadoServiceTest extends TestCase
         $this->controlLavadoService->iniciarLavado($controlLavado->id, $user->id);
     }
 
-    /** @test */
+    #[\PHPUnit\Framework\Attributes\Test]
     public function puede_finalizar_lavado()
     {
         // Arrange
@@ -201,7 +201,7 @@ class ControlLavadoServiceTest extends TestCase
         $this->assertInstanceOf(\Carbon\Carbon::class, $resultado->fin_lavado);
     }
 
-    /** @test */
+    #[\PHPUnit\Framework\Attributes\Test]
     public function puede_iniciar_interior()
     {
         // Arrange
@@ -225,7 +225,7 @@ class ControlLavadoServiceTest extends TestCase
         $this->assertInstanceOf(\Carbon\Carbon::class, $resultado->inicio_interior);
     }
 
-    /** @test */
+    #[\PHPUnit\Framework\Attributes\Test]
     public function puede_finalizar_interior()
     {
         // Arrange
@@ -250,7 +250,7 @@ class ControlLavadoServiceTest extends TestCase
         $this->assertInstanceOf(\Carbon\Carbon::class, $resultado->fin_interior);
     }
 
-    /** @test */
+    #[\PHPUnit\Framework\Attributes\Test]
     public function puede_eliminar_lavado()
     {
         // Arrange
@@ -274,7 +274,7 @@ class ControlLavadoServiceTest extends TestCase
         ]);
     }
 
-    /** @test */
+    #[\PHPUnit\Framework\Attributes\Test]
     public function obtiene_lavados_con_filtros()
     {
         // Arrange
@@ -297,7 +297,7 @@ class ControlLavadoServiceTest extends TestCase
         $this->assertCount(5, $resultado);
     }
 
-    /** @test */
+    #[\PHPUnit\Framework\Attributes\Test]
     public function obtiene_lavado_con_relaciones()
     {
         // Arrange
@@ -323,3 +323,4 @@ class ControlLavadoServiceTest extends TestCase
         $this->assertTrue($resultado->relationLoaded('tipoVehiculo'));
     }
 }
+

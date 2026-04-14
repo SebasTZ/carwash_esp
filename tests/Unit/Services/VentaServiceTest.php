@@ -31,7 +31,7 @@ class VentaServiceTest extends TestCase
         $this->ventaService = app(VentaService::class);
     }
 
-    /** @test */
+    #[\PHPUnit\Framework\Attributes\Test]
     public function puede_procesar_venta_con_efectivo()
     {
         // Arrange
@@ -78,7 +78,7 @@ class VentaServiceTest extends TestCase
         ]);
     }
 
-    /** @test */
+    #[\PHPUnit\Framework\Attributes\Test]
     public function lanza_excepcion_cuando_stock_insuficiente()
     {
         // Arrange
@@ -112,7 +112,7 @@ class VentaServiceTest extends TestCase
         $this->assertEquals(5, $producto->stock);
     }
 
-    /** @test */
+    #[\PHPUnit\Framework\Attributes\Test]
     public function puede_procesar_venta_con_servicio_lavado()
     {
         // Arrange
@@ -158,7 +158,7 @@ class VentaServiceTest extends TestCase
         $this->assertEquals(6, $cliente->lavados_acumulados);
     }
 
-    /** @test */
+    #[\PHPUnit\Framework\Attributes\Test]
     public function puede_procesar_lavado_gratis()
     {
         // Arrange
@@ -197,7 +197,7 @@ class VentaServiceTest extends TestCase
         $this->assertEquals(0, $cliente->lavados_acumulados);
     }
 
-    /** @test */
+    #[\PHPUnit\Framework\Attributes\Test]
     public function lanza_excepcion_cuando_lavado_gratis_sin_puntos()
     {
         // Arrange
@@ -228,7 +228,7 @@ class VentaServiceTest extends TestCase
         $this->ventaService->procesarVenta($data);
     }
 
-    /** @test */
+    #[\PHPUnit\Framework\Attributes\Test]
     public function rollback_en_caso_de_error()
     {
         // Arrange: Crear producto con stock insuficiente
@@ -268,7 +268,7 @@ class VentaServiceTest extends TestCase
         }
     }
 
-    /** @test */
+    #[\PHPUnit\Framework\Attributes\Test]
     public function no_descuenta_stock_de_servicios_de_lavado()
     {
         // Arrange
@@ -303,3 +303,4 @@ class VentaServiceTest extends TestCase
         $this->assertEquals(999, $servicio->stock);
     }
 }
+

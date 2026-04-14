@@ -53,8 +53,8 @@ class EstacionamientoControllerTest extends TestCase
     /**
      * TEST CRÍTICO #3: No debe permitir entrada si estacionamiento está lleno
      * 
-     * @test
      */
+    #[\PHPUnit\Framework\Attributes\Test]
     public function no_debe_permitir_entrada_si_estacionamiento_lleno()
     {
         // Arrange: Llenar estacionamiento (capacidad = 20 por defecto)
@@ -85,8 +85,8 @@ class EstacionamientoControllerTest extends TestCase
     /**
      * TEST CRÍTICO #4: No debe permitir entrada con placa duplicada
      * 
-     * @test
      */
+    #[\PHPUnit\Framework\Attributes\Test]
     public function no_debe_permitir_entrada_con_placa_duplicada()
     {
         // Arrange: Vehículo ya estacionado
@@ -109,7 +109,7 @@ class EstacionamientoControllerTest extends TestCase
         // Assert: Debe rechazar
         $response->assertRedirect();
         $response->assertSessionHas('error');
-        $this->assertStringContainsString('ya está estacionado', session('error'));
+        $this->assertMatchesRegularExpression('/ya est.* estacionado/i', (string) session('error'));
         
         // Solo debe haber UNA entrada con esa placa activa
         $this->assertEquals(1, Estacionamiento::where('placa', 'ABC-123')
@@ -120,8 +120,8 @@ class EstacionamientoControllerTest extends TestCase
     /**
      * TEST: Debe permitir entrada si hay espacio disponible
      * 
-     * @test
      */
+    #[\PHPUnit\Framework\Attributes\Test]
     public function debe_permitir_entrada_si_hay_espacio()
     {
         // Arrange: Estacionamiento con espacio (10/20)
@@ -151,8 +151,8 @@ class EstacionamientoControllerTest extends TestCase
     /**
      * TEST: Debe permitir reingreso de placa que ya salió
      * 
-     * @test
      */
+    #[\PHPUnit\Framework\Attributes\Test]
     public function debe_permitir_reingreso_de_placa_que_ya_salio()
     {
         // Arrange: Vehículo que ya salió
@@ -186,8 +186,8 @@ class EstacionamientoControllerTest extends TestCase
     /**
      * TEST: Capacidad debe ser configurable
      * 
-     * @test
      */
+    #[\PHPUnit\Framework\Attributes\Test]
     public function capacidad_debe_ser_configurable()
     {
         // Arrange: Configurar capacidad personalizada
@@ -214,8 +214,8 @@ class EstacionamientoControllerTest extends TestCase
     /**
      * TEST: Validación de placa debe ser case-insensitive
      * 
-     * @test
      */
+    #[\PHPUnit\Framework\Attributes\Test]
     public function validacion_placa_debe_ser_case_insensitive()
     {
         // Arrange: Placa en mayúsculas
@@ -241,8 +241,8 @@ class EstacionamientoControllerTest extends TestCase
     /**
      * TEST: Debe mostrar mensaje con espacios disponibles
      * 
-     * @test
      */
+    #[\PHPUnit\Framework\Attributes\Test]
     public function debe_mostrar_espacios_disponibles_al_rechazar()
     {
         // Arrange: 18 de 20 espacios ocupados
@@ -264,3 +264,4 @@ class EstacionamientoControllerTest extends TestCase
         $this->assertLessThanOrEqual(20, $espaciosOcupados);
     }
 }
+

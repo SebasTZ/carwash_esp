@@ -7,20 +7,12 @@ use App\Http\Requests\UpdateUserRequest;
 use App\Models\User;
 use Exception;
 use Illuminate\Http\Request;
-use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
 use Spatie\Permission\Models\Role;
 
 class userController extends Controller
 {
-    function __construct()
-    {
-        $this->middleware('permission:ver-user|crear-user|editar-user|eliminar-user', ['only' => ['index']]);
-        $this->middleware('permission:crear-user', ['only' => ['create', 'store']]);
-        $this->middleware('permission:editar-user', ['only' => ['edit', 'update']]);
-        $this->middleware('permission:eliminar-user', ['only' => ['destroy']]);
-    }
     /**
      * Display a listing of the resource.
      */
@@ -48,27 +40,21 @@ class userController extends Controller
         try {
             DB::beginTransaction();
 
-            //Encriptar contraseña
-            /** @var string $password */
-            $password = $request->input('password');
-            $fieldHash = Hash::make($password);
-            //Modificar el valor de password en nuestro request
-            $request->merge(['password' => $fieldHash]);
-
-            //Crear usuario
-            $user = User::create($request->all());
-
-            //Asignar su rol
-            /** @var string $role */
-            $role = $request->input('role');
-            $user->assignRole($role);
+            $user = User::create([
+                'name'   => $request->input('name'),
+                'email'  => $request->input('email'),
+                'estado' => $request->input('estado'),
+                'password' => Hash::make($request->input('password')),
+            ]);
+            $user->assignRole($request->input('role'));
 
             DB::commit();
         } catch (Exception $e) {
             DB::rollBack();
+            return redirect()->back()->withInput()->with('error', 'Error al registrar el usuario');
         }
 
-        return redirect()->route('users.index')->with('success', 'usuario registrado');
+        return redirect()->route('users.index')->with('success', 'Usuario registrado');
     }
 
     /**
@@ -96,43 +82,33 @@ class userController extends Controller
         try {
             DB::beginTransaction();
 
-            /*Comprobar el password y aplicar el Hash*/
-            /** @var string|null $password */
-            $password = $request->input('password');
-            if (empty($password)) {
-                $request = Arr::except($request, array('password'));
-            } else {
-                $fieldHash = Hash::make($password);
-                $request->merge(['password' => $fieldHash]);
+            $data = [
+                'name'   => $request->input('name'),
+                'email'  => $request->input('email'),
+                'estado' => $request->input('estado'),
+            ];
+            if (!empty($request->input('password'))) {
+                $data['password'] = Hash::make($request->input('password'));
             }
-
-            $user->update($request->all());
-
-            /**Actualizar rol */
-            /** @var string $role */
-            $role = $request->input('role');
-            $user->syncRoles([$role]);
+            $user->update($data);
+            $user->syncRoles([$request->input('role')]);
 
             DB::commit();
         } catch (Exception $e) {
             DB::rollBack();
+            return redirect()->back()->withInput()->with('error', 'Error al actualizar el usuario');
         }
 
-        return redirect()->route('users.index')->with('success','Usuario editado');
+        return redirect()->route('users.index')->with('success', 'Usuario editado');
     }
 
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy(string $id)
+    public function destroy(User $user)
     {
-        $user = User::find($id);
-
-        //Eliminar rol
         $rolUser = $user->getRoleNames()->first();
         $user->removeRole($rolUser);
-
-        //Eliminar usuario
         $user->delete();
 
         return redirect()->route('users.index')->with('success','Usuario eliminado');

@@ -16,18 +16,7 @@ use Illuminate\Support\Facades\DB;
 
 class compraController extends Controller
 {
-    public function __construct(private StockService $stockService)
-    {
-        $this->middleware('permission:ver-compra|crear-compra|mostrar-compra|eliminar-compra', ['only' => ['index']]);
-        $this->middleware('permission:crear-compra', ['only' => ['create', 'store']]);
-        $this->middleware('permission:mostrar-compra', ['only' => ['show']]);
-        $this->middleware('permission:eliminar-compra', ['only' => ['destroy']]);
-        $this->middleware('permission:reporte-diario-compra', ['only' => ['reporteDiario']]);
-        $this->middleware('permission:reporte-semanal-compra', ['only' => ['reporteSemanal']]);
-        $this->middleware('permission:reporte-mensual-compra', ['only' => ['reporteMensual']]);
-        $this->middleware('permission:reporte-personalizado-compra', ['only' => ['reportePersonalizado']]);
-        $this->middleware('permission:exportar-reporte-compra', ['only' => ['exportDiario', 'exportSemanal', 'exportMensual', 'exportPersonalizado']]);
-    }
+    public function __construct(private StockService $stockService) {}
 
     public function index()
     {

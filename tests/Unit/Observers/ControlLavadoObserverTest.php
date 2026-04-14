@@ -27,7 +27,7 @@ class ControlLavadoObserverTest extends TestCase
         ControlLavado::observe(ControlLavadoObserver::class);
     }
 
-    /** @test */
+    #[\PHPUnit\Framework\Attributes\Test]
     public function registra_comision_al_finalizar_interior()
     {
         // Arrange - NO fake events para que el Observer funcione
@@ -61,10 +61,13 @@ class ControlLavadoObserverTest extends TestCase
         $pagoComision = PagoComision::where('lavador_id', $lavador->id)->first();
         $this->assertNotNull($pagoComision);
         $this->assertEquals(20.00, $pagoComision->monto_pagado);
-        $this->assertStringContainsString('Comisión por lavado ID ' . $controlLavado->id, $pagoComision->observacion);
+        $this->assertMatchesRegularExpression(
+            '/Comisi.*n por lavado ID ' . $controlLavado->id . '/u',
+            (string) $pagoComision->observacion
+        );
     }
 
-    /** @test */
+    #[\PHPUnit\Framework\Attributes\Test]
     public function no_registra_comision_si_no_se_finaliza_interior()
     {
         // Arrange - NO fake events para que el Observer funcione
@@ -90,7 +93,7 @@ class ControlLavadoObserverTest extends TestCase
         ]);
     }
 
-    /** @test */
+    #[\PHPUnit\Framework\Attributes\Test]
     public function no_registra_comision_duplicada()
     {
         // Arrange - NO fake events
@@ -123,7 +126,7 @@ class ControlLavadoObserverTest extends TestCase
         $this->assertEquals($comisionesAntes, $comisionesDespues);
     }
 
-    /** @test */
+    #[\PHPUnit\Framework\Attributes\Test]
     public function calcula_comision_correcta_segun_tipo_vehiculo()
     {
         // Arrange - NO fake events
@@ -168,7 +171,7 @@ class ControlLavadoObserverTest extends TestCase
         }
     }
 
-    /** @test */
+    #[\PHPUnit\Framework\Attributes\Test]
     public function observer_maneja_errores_sin_romper_actualizacion()
     {
         // Arrange - NO fake events
@@ -205,3 +208,4 @@ class ControlLavadoObserverTest extends TestCase
         $this->assertEquals(10.00, $pagoComision->monto_pagado);
     }
 }
+

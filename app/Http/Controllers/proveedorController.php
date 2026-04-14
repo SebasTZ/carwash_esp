@@ -12,13 +12,6 @@ use Illuminate\Support\Facades\DB;
 
 class proveedorController extends Controller
 {
-    function __construct()
-    {
-        $this->middleware('permission:ver-proveedore|crear-proveedore|editar-proveedore|eliminar-proveedore', ['only' => ['index']]);
-        $this->middleware('permission:crear-proveedore', ['only' => ['create', 'store']]);
-        $this->middleware('permission:editar-proveedore', ['only' => ['edit', 'update']]);
-        $this->middleware('permission:eliminar-proveedore', ['only' => ['destroy']]);
-    }
 
     /**
      * Display a listing of the resource.
@@ -52,6 +45,7 @@ class proveedorController extends Controller
             DB::commit();
         } catch (Exception $e) {
             DB::rollBack();
+            return redirect()->back()->withInput()->with('error', 'Error al registrar el proveedor');
         }
 
         return redirect()->route('proveedores.index')->with('success', 'Proveedor registrado');
@@ -89,6 +83,7 @@ class proveedorController extends Controller
             DB::commit();
         } catch (Exception $e) {
             DB::rollBack();
+            return redirect()->back()->withInput()->with('error', 'Error al actualizar el proveedor');
         }
 
         return redirect()->route('proveedores.index')->with('success', 'Proveedor editado');
@@ -97,21 +92,14 @@ class proveedorController extends Controller
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy(string $id)
+    public function destroy(Proveedore $proveedore)
     {
-        $message = '';
-        $persona = Persona::find($id);
+        $persona = $proveedore->persona;
         if ($persona->estado == 1) {
-            Persona::where('id', $persona->id)
-                ->update([
-                    'estado' => 0
-                ]);
+            $persona->update(['estado' => 0]);
             $message = 'Proveedor eliminado';
         } else {
-            Persona::where('id', $persona->id)
-                ->update([
-                    'estado' => 1
-                ]);
+            $persona->update(['estado' => 1]);
             $message = 'Proveedor restaurado';
         }
 

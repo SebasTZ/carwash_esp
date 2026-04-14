@@ -3,20 +3,13 @@
 namespace App\Http\Controllers;
 
 use App\Models\User;
-use Exception;
 use Illuminate\Http\Request;
-use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 
 class profileController extends Controller
 {
 
-    function __construct()
-    {
-        $this->middleware('permission:ver-perfil', ['only' => ['index']]);
-        $this->middleware('permission:editar-perfil', ['only' => ['update']]);
-    }
 
     /**
      * Display a listing of the resource.
@@ -65,21 +58,20 @@ class profileController extends Controller
     public function update(Request $request, User $profile)
     {
         $request->validate([
-            'name' => 'required',
-            'email' => 'required|unique:users,email,' . $profile->id,
-            'password' => 'nullable'
+            'name'     => 'required|string|max:255',
+            'email'    => 'required|email|unique:users,email,' . $profile->id,
+            'password' => 'nullable|min:8',
         ]);
 
-        /*Comprobar el password y aplicar el Hash*/
-        if (empty($request->password)) {
-            $request = Arr::except($request, array('password'));
-        } else {
-            $fieldHash = Hash::make($request->password);
-            $request->merge(['password' => $fieldHash]);
+        $data = [
+            'name'  => $request->input('name'),
+            'email' => $request->input('email'),
+        ];
+        if (!empty($request->input('password'))) {
+            $data['password'] = Hash::make($request->input('password'));
         }
 
-        $profile->update($request->all());
-
+        $profile->update($data);
 
         return redirect()->route('profile.index')->with('success', 'Cambios guardados');
     }

@@ -12,8 +12,8 @@ export const RoleTableManager = {
             tableHtml += `<tr>
                 <td>${role.name}</td>
                 <td>`;
-            if (role.permission && role.permission.length) {
-                tableHtml += role.permission.map(p => `<span class="badge bg-info text-dark m-1">${p}</span>`).join('');
+            if (role.permissions && role.permissions.length) {
+                tableHtml += role.permissions.map(p => `<span class="badge bg-info text-dark m-1">${p}</span>`).join('');
             }
             tableHtml += `</td><td>`;
             if (canEdit) {

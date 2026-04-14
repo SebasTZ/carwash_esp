@@ -25,7 +25,7 @@ class ControlLavadoRepositoryTest extends TestCase
         $this->repository = app(ControlLavadoRepository::class);
     }
 
-    /** @test */
+    #[\PHPUnit\Framework\Attributes\Test]
     public function puede_encontrar_lavado_por_id()
     {
         // Arrange
@@ -46,7 +46,7 @@ class ControlLavadoRepositoryTest extends TestCase
         $this->assertEquals($controlLavado->id, $resultado->id);
     }
 
-    /** @test */
+    #[\PHPUnit\Framework\Attributes\Test]
     public function puede_encontrar_lavado_con_relaciones()
     {
         // Arrange
@@ -68,7 +68,7 @@ class ControlLavadoRepositoryTest extends TestCase
         $this->assertTrue($resultado->relationLoaded('lavador'));
     }
 
-    /** @test */
+    #[\PHPUnit\Framework\Attributes\Test]
     public function puede_actualizar_lavado()
     {
         // Arrange
@@ -95,7 +95,7 @@ class ControlLavadoRepositoryTest extends TestCase
         ]);
     }
 
-    /** @test */
+    #[\PHPUnit\Framework\Attributes\Test]
     public function puede_eliminar_lavado()
     {
         // Arrange
@@ -118,7 +118,7 @@ class ControlLavadoRepositoryTest extends TestCase
         ]);
     }
 
-    /** @test */
+    #[\PHPUnit\Framework\Attributes\Test]
     public function puede_obtener_lavados_con_filtros()
     {
         // Arrange
@@ -149,7 +149,7 @@ class ControlLavadoRepositoryTest extends TestCase
         }
     }
 
-    /** @test */
+    #[\PHPUnit\Framework\Attributes\Test]
     public function puede_obtener_lavados_del_dia()
     {
         // Arrange
@@ -177,7 +177,7 @@ class ControlLavadoRepositoryTest extends TestCase
         $this->assertGreaterThanOrEqual(3, $resultado->count());
     }
 
-    /** @test */
+    #[\PHPUnit\Framework\Attributes\Test]
     public function puede_obtener_lavados_de_la_semana()
     {
         // Arrange
@@ -205,7 +205,7 @@ class ControlLavadoRepositoryTest extends TestCase
         $this->assertGreaterThanOrEqual(5, $resultado->count());
     }
 
-    /** @test */
+    #[\PHPUnit\Framework\Attributes\Test]
     public function puede_obtener_lavados_del_mes()
     {
         // Arrange
@@ -233,7 +233,7 @@ class ControlLavadoRepositoryTest extends TestCase
         $this->assertGreaterThanOrEqual(7, $resultado->count());
     }
 
-    /** @test */
+    #[\PHPUnit\Framework\Attributes\Test]
     public function puede_obtener_lavados_por_rango_de_fechas()
     {
         // Arrange
@@ -267,7 +267,7 @@ class ControlLavadoRepositoryTest extends TestCase
         $this->assertGreaterThanOrEqual(4, $resultado->count());
     }
 
-    /** @test */
+    #[\PHPUnit\Framework\Attributes\Test]
     public function usa_cache_al_buscar_por_id()
     {
         // Arrange
@@ -291,7 +291,7 @@ class ControlLavadoRepositoryTest extends TestCase
         $this->assertTrue(Cache::has("control_lavado:{$controlLavado->id}"));
     }
 
-    /** @test */
+    #[\PHPUnit\Framework\Attributes\Test]
     public function invalida_cache_al_actualizar()
     {
         // Arrange
@@ -318,7 +318,7 @@ class ControlLavadoRepositoryTest extends TestCase
         $this->assertFalse(Cache::has("control_lavado:{$controlLavado->id}"));
     }
 
-    /** @test */
+    #[\PHPUnit\Framework\Attributes\Test]
     public function invalida_cache_al_eliminar()
     {
         // Arrange
@@ -342,3 +342,4 @@ class ControlLavadoRepositoryTest extends TestCase
         $this->assertFalse(Cache::has("control_lavado:{$controlLavado->id}"));
     }
 }
+

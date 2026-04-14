@@ -23,7 +23,7 @@ class FidelizacionServiceTest extends TestCase
         $this->fidelizacionService = new FidelizacionService();
     }
 
-    /** @test */
+    #[\PHPUnit\Framework\Attributes\Test]
     public function puede_acumular_lavado()
     {
         $documento = Documento::factory()->create();
@@ -43,7 +43,7 @@ class FidelizacionServiceTest extends TestCase
         $this->assertEquals(6, $cliente->lavados_acumulados);
     }
 
-    /** @test */
+    #[\PHPUnit\Framework\Attributes\Test]
     public function puede_acumular_puntos_de_fidelizacion()
     {
         $documento = Documento::factory()->create();
@@ -64,7 +64,7 @@ class FidelizacionServiceTest extends TestCase
         ]);
     }
 
-    /** @test */
+    #[\PHPUnit\Framework\Attributes\Test]
     public function puede_verificar_si_puede_usar_lavado_gratis()
     {
         $documento = Documento::factory()->create();
@@ -80,7 +80,7 @@ class FidelizacionServiceTest extends TestCase
         $this->assertTrue($this->fidelizacionService->puedeUsarLavadoGratis($cliente));
     }
 
-    /** @test */
+    #[\PHPUnit\Framework\Attributes\Test]
     public function no_puede_usar_lavado_gratis_sin_puntos_suficientes()
     {
         $documento = Documento::factory()->create();
@@ -96,7 +96,7 @@ class FidelizacionServiceTest extends TestCase
         $this->assertFalse($this->fidelizacionService->puedeUsarLavadoGratis($cliente));
     }
 
-    /** @test */
+    #[\PHPUnit\Framework\Attributes\Test]
     public function puede_canjear_lavado_gratis()
     {
         $documento = Documento::factory()->create();
@@ -115,7 +115,7 @@ class FidelizacionServiceTest extends TestCase
         $this->assertEquals(0, $cliente->lavados_acumulados);
     }
 
-    /** @test */
+    #[\PHPUnit\Framework\Attributes\Test]
     public function puede_revertir_lavado_acumulado()
     {
         $documento = Documento::factory()->create();
@@ -134,7 +134,7 @@ class FidelizacionServiceTest extends TestCase
         $this->assertEquals(4, $cliente->lavados_acumulados);
     }
 
-    /** @test */
+    #[\PHPUnit\Framework\Attributes\Test]
     public function puede_obtener_progreso_de_fidelizacion()
     {
         $documento = Documento::factory()->create();
@@ -155,7 +155,7 @@ class FidelizacionServiceTest extends TestCase
         $this->assertFalse($progreso['puede_canjear']);
     }
 
-    /** @test */
+    #[\PHPUnit\Framework\Attributes\Test]
     public function calcula_puntos_correctamente_con_10_porciento()
     {
         $documento = Documento::factory()->create();
@@ -182,3 +182,4 @@ class FidelizacionServiceTest extends TestCase
         $this->assertEquals(10.0, $cliente->fidelizacion->puntos); // 5 + 5 = 10
     }
 }
+

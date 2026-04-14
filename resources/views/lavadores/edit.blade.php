@@ -5,7 +5,7 @@
 <div class="container">
     <h1>Editar Lavador</h1>
     @can('editar-lavador')
-    <form action="{{ route('lavadores.update', ['lavadore' => $lavador->id]) }}" method="POST" id="lavadorEditForm">
+    <form action="{{ route('lavadores.update', ['lavador' => $lavador->id]) }}" method="POST" id="lavadorEditForm">
         @csrf
         @method('PUT')
         <div class="mb-3">

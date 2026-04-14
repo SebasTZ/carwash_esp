@@ -1,0 +1,160 @@
+<?php
+
+namespace Tests\Feature\Controllers;
+
+use App\Models\Cita;
+use App\Models\Cliente;
+use App\Models\Documento;
+use App\Models\Persona;
+use App\Models\User;
+use Illuminate\Foundation\Testing\RefreshDatabase;
+use Tests\TestCase;
+
+class CitaControllerTest extends TestCase
+{
+    use RefreshDatabase;
+
+    protected User $user;
+    protected Cliente $cliente;
+
+    protected function setUp(): void
+    {
+        parent::setUp();
+
+        $this->withoutMiddleware([
+            \Illuminate\Auth\Middleware\Authenticate::class,
+            \Illuminate\Auth\Middleware\Authorize::class,
+            \Spatie\Permission\Middleware\PermissionMiddleware::class,
+            \Spatie\Permission\Middleware\RoleMiddleware::class,
+            \Spatie\Permission\Middleware\RoleOrPermissionMiddleware::class,
+        ]);
+
+        $this->user = User::factory()->create();
+        $this->actingAs($this->user);
+
+        $documento = Documento::factory()->create(['tipo_documento' => 'DNI']);
+        $persona = Persona::factory()->create([
+            'documento_id' => $documento->id,
+            'estado' => 1,
+            'tipo_persona' => 'Cliente',
+        ]);
+
+        $this->cliente = Cliente::factory()->create([
+            'persona_id' => $persona->id,
+        ]);
+    }
+
+    #[\PHPUnit\Framework\Attributes\Test]
+    public function index_sin_fecha_filtra_por_hoy_por_defecto()
+    {
+        $citaHoy = Cita::factory()->create([
+            'cliente_id' => $this->cliente->id,
+            'fecha' => now()->toDateString(),
+            'estado' => 'pendiente',
+            'posicion_cola' => 1,
+        ]);
+
+        Cita::factory()->create([
+            'cliente_id' => $this->cliente->id,
+            'fecha' => now()->addDay()->toDateString(),
+            'estado' => 'pendiente',
+            'posicion_cola' => 2,
+        ]);
+
+        $response = $this->get(route('citas.index'));
+
+        $response->assertOk();
+        $response->assertViewIs('citas.index');
+        $response->assertViewHas('citas', function ($citas) use ($citaHoy) {
+            return $citas->count() === 1 && $citas->first()->id === $citaHoy->id;
+        });
+    }
+
+    #[\PHPUnit\Framework\Attributes\Test]
+    public function store_asigna_siguiente_posicion_en_cola()
+    {
+        $fecha = now()->addDay()->toDateString();
+
+        Cita::factory()->create([
+            'cliente_id' => $this->cliente->id,
+            'fecha' => $fecha,
+            'hora' => '09:00',
+            'posicion_cola' => 1,
+            'estado' => 'pendiente',
+        ]);
+
+        $response = $this->post(route('citas.store'), [
+            'cliente_id' => $this->cliente->id,
+            'fecha' => $fecha,
+            'hora' => '10:30',
+            'notas' => 'Cliente puntual',
+        ]);
+
+        $response->assertRedirect(route('citas.index'));
+        $response->assertSessionHas('success');
+
+        $this->assertDatabaseHas('citas', [
+            'cliente_id' => $this->cliente->id,
+            'fecha' => $fecha,
+            'hora' => '10:30:00',
+            'posicion_cola' => 2,
+            'estado' => 'pendiente',
+        ]);
+    }
+
+    #[\PHPUnit\Framework\Attributes\Test]
+    public function update_recalcula_posicion_cuando_cambia_fecha()
+    {
+        $fechaOriginal = now()->addDay()->toDateString();
+        $fechaNueva = now()->addDays(2)->toDateString();
+
+        $cita = Cita::factory()->create([
+            'cliente_id' => $this->cliente->id,
+            'fecha' => $fechaOriginal,
+            'hora' => '11:00',
+            'posicion_cola' => 1,
+            'estado' => 'pendiente',
+        ]);
+
+        Cita::factory()->create([
+            'cliente_id' => $this->cliente->id,
+            'fecha' => $fechaNueva,
+            'hora' => '09:00',
+            'posicion_cola' => 4,
+            'estado' => 'pendiente',
+        ]);
+
+        $response = $this->put(route('citas.update', $cita), [
+            'fecha' => $fechaNueva,
+            'hora' => '12:00',
+            'notas' => 'Cambio de fecha',
+        ]);
+
+        $response->assertRedirect(route('citas.index'));
+        $response->assertSessionHas('success');
+
+        $cita->refresh();
+        $this->assertSame($fechaNueva, $cita->fecha->format('Y-m-d'));
+        $this->assertSame(5, $cita->posicion_cola);
+    }
+
+    #[\PHPUnit\Framework\Attributes\Test]
+    public function iniciar_cita_actualiza_estado_a_en_proceso()
+    {
+        $cita = Cita::factory()->create([
+            'cliente_id' => $this->cliente->id,
+            'fecha' => now()->toDateString(),
+            'estado' => 'pendiente',
+        ]);
+
+        $response = $this->post(route('citas.iniciar', $cita));
+
+        $response->assertRedirect(route('citas.dashboard'));
+        $response->assertSessionHas('success');
+
+        $this->assertDatabaseHas('citas', [
+            'id' => $cita->id,
+            'estado' => 'en_proceso',
+        ]);
+    }
+}

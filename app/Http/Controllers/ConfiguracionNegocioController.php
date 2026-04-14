@@ -7,11 +7,6 @@ use Illuminate\Http\Request;
 
 class ConfiguracionNegocioController extends Controller
 {
-    function __construct()
-    {
-        $this->middleware('permission:ver-configuracion|editar-configuracion', ['only' => ['edit']]);
-        $this->middleware('permission:editar-configuracion', ['only' => ['update']]);
-    }
 
     public function edit()
     {
@@ -35,7 +30,7 @@ class ConfiguracionNegocioController extends Controller
         ]);
 
         $configuracion = ConfiguracionNegocio::first();
-        $configuracion->update($request->all());
+        $configuracion->update($request->only(['nombre_negocio', 'direccion', 'telefono']));
 
         return redirect()->route('configuracion.edit')
             ->with('success', 'Configuración actualizada correctamente');

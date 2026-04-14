@@ -15,7 +15,7 @@ class StockBajoEventTest extends TestCase
 {
     use DatabaseMigrations;
 
-    /** @test */
+    #[\PHPUnit\Framework\Attributes\Test]
     public function evento_se_dispara_cuando_stock_es_bajo()
     {
         Event::fake([StockBajoEvent::class]);
@@ -39,7 +39,7 @@ class StockBajoEventTest extends TestCase
         });
     }
 
-    /** @test */
+    #[\PHPUnit\Framework\Attributes\Test]
     public function evento_contiene_informacion_del_producto()
     {
         $caracteristica = Caracteristica::factory()->create();
@@ -60,7 +60,7 @@ class StockBajoEventTest extends TestCase
         $this->assertEquals(5, $event->producto->stock);
     }
 
-    /** @test */
+    #[\PHPUnit\Framework\Attributes\Test]
     public function evento_debe_ser_broadcasteable()
     {
         $caracteristica = Caracteristica::factory()->create();

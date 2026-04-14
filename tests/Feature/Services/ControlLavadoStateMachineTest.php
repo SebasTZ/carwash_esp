@@ -38,8 +38,8 @@ class ControlLavadoStateMachineTest extends TestCase
     /**
      * TEST CRÍTICO #5: No debe permitir completar sin iniciar
      * 
-     * @test
      */
+    #[\PHPUnit\Framework\Attributes\Test]
     public function no_debe_finalizar_interior_sin_haber_iniciado()
     {
         // Arrange: Lavado en estado pendiente (sin inicio_lavado)
@@ -65,8 +65,8 @@ class ControlLavadoStateMachineTest extends TestCase
     /**
      * TEST: No debe iniciar lavado dos veces
      * 
-     * @test
      */
+    #[\PHPUnit\Framework\Attributes\Test]
     public function no_debe_iniciar_lavado_dos_veces()
     {
         // Arrange: Lavado ya iniciado
@@ -89,8 +89,8 @@ class ControlLavadoStateMachineTest extends TestCase
     /**
      * TEST: No debe finalizar lavado sin haberlo iniciado
      * 
-     * @test
      */
+    #[\PHPUnit\Framework\Attributes\Test]
     public function no_debe_finalizar_lavado_sin_haberlo_iniciado()
     {
         // Arrange
@@ -113,8 +113,8 @@ class ControlLavadoStateMachineTest extends TestCase
     /**
      * TEST: No debe iniciar interior sin finalizar exterior
      * 
-     * @test
      */
+    #[\PHPUnit\Framework\Attributes\Test]
     public function no_debe_iniciar_interior_sin_finalizar_exterior()
     {
         // Arrange
@@ -138,8 +138,8 @@ class ControlLavadoStateMachineTest extends TestCase
     /**
      * TEST: No debe finalizar interior sin iniciarlo
      * 
-     * @test
      */
+    #[\PHPUnit\Framework\Attributes\Test]
     public function no_debe_finalizar_interior_sin_iniciarlo()
     {
         // Arrange
@@ -164,8 +164,8 @@ class ControlLavadoStateMachineTest extends TestCase
     /**
      * TEST: El flujo completo debe funcionar correctamente
      * 
-     * @test
      */
+    #[\PHPUnit\Framework\Attributes\Test]
     public function flujo_completo_debe_funcionar_en_orden_correcto()
     {
         // Arrange
@@ -200,8 +200,8 @@ class ControlLavadoStateMachineTest extends TestCase
     /**
      * TEST: Validar que no se puede asignar lavador después de iniciar
      * 
-     * @test
      */
+    #[\PHPUnit\Framework\Attributes\Test]
     public function no_debe_asignar_lavador_despues_de_iniciar()
     {
         // Arrange
@@ -224,8 +224,8 @@ class ControlLavadoStateMachineTest extends TestCase
     /**
      * TEST: Los timestamps deben estar en orden lógico
      * 
-     * @test
      */
+    #[\PHPUnit\Framework\Attributes\Test]
     public function timestamps_deben_estar_en_orden_logico()
     {
         // Arrange
@@ -267,8 +267,8 @@ class ControlLavadoStateMachineTest extends TestCase
     /**
      * TEST: No debe permitir transiciones inválidas
      * 
-     * @test
      */
+    #[\PHPUnit\Framework\Attributes\Test]
     public function debe_prevenir_todas_las_transiciones_invalidas()
     {
         $lavador = Lavador::factory()->create();
@@ -305,3 +305,4 @@ class ControlLavadoStateMachineTest extends TestCase
         }
     }
 }
+

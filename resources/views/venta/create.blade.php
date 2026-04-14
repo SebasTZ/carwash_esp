@@ -27,7 +27,7 @@
                 <div class="text-white bg-primary p-1 text-center">
                     Detalle de Venta
                 </div>
-                <div class="p-3 border border-3 border-primary">
+                <div class="p-3 border-3 border-primary">
                     <div class="row gy-4">
 
                         <!-----Product---->
@@ -128,7 +128,7 @@
                 <div class="text-white bg-success p-1 text-center">
                     Información General
                 </div>
-                <div class="p-3 border border-3 border-success">
+                <div class="p-3 border-3 border-success">
                     <div class="row gy-4">
                         <!--Customer-->
                         <div class="col-12">

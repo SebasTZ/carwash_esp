@@ -27,8 +27,8 @@ class VentaPerformanceTest extends TestCase
      * 
      * Este test establece el BASELINE de performance ANTES de optimizar.
      * 
-     * @test
      */
+    #[\PHPUnit\Framework\Attributes\Test]
     public function medir_queries_en_procesamiento_venta()
     {
         // Arrange: Crear 10 productos
@@ -111,3 +111,4 @@ class VentaPerformanceTest extends TestCase
         echo "\n";
     }
 }
+

@@ -22,7 +22,7 @@ class ControlLavadoFlowIntegrationTest extends TestCase
 {
     use DatabaseMigrations;
 
-    /** @test */
+    #[\PHPUnit\Framework\Attributes\Test]
     public function flujo_completo_de_lavado_con_asignacion_inicio_y_finalizacion()
     {
         // Arrange - NO fake events para que Observer funcione
@@ -94,7 +94,7 @@ class ControlLavadoFlowIntegrationTest extends TestCase
         $this->assertEquals(20.00, $pagoComision->monto_pagado);
     }
 
-    /** @test */
+    #[\PHPUnit\Framework\Attributes\Test]
     public function flujo_con_cambio_de_lavador_registra_auditoria()
     {
         // Arrange
@@ -148,7 +148,7 @@ class ControlLavadoFlowIntegrationTest extends TestCase
         $this->assertEquals($lavadorNuevo->id, $auditoria->lavador_id_nuevo);
     }
 
-    /** @test */
+    #[\PHPUnit\Framework\Attributes\Test]
     public function no_permite_asignar_lavador_despues_de_iniciar()
     {
         // Arrange
@@ -178,7 +178,7 @@ class ControlLavadoFlowIntegrationTest extends TestCase
         );
     }
 
-    /** @test */
+    #[\PHPUnit\Framework\Attributes\Test]
     public function calcula_comisiones_correctas_para_diferentes_vehiculos()
     {
         // Arrange - NO fake events
@@ -226,7 +226,7 @@ class ControlLavadoFlowIntegrationTest extends TestCase
         }
     }
 
-    /** @test */
+    #[\PHPUnit\Framework\Attributes\Test]
     public function cache_se_invalida_correctamente_en_actualizaciones()
     {
         // Arrange
@@ -252,7 +252,7 @@ class ControlLavadoFlowIntegrationTest extends TestCase
         $this->assertFalse(Cache::has("control_lavado:{$controlLavado->id}"));
     }
 
-    /** @test */
+    #[\PHPUnit\Framework\Attributes\Test]
     public function puede_obtener_lavados_filtrados_por_lavador_y_fecha()
     {
         // Arrange
@@ -295,7 +295,7 @@ class ControlLavadoFlowIntegrationTest extends TestCase
         }
     }
 
-    /** @test */
+    #[\PHPUnit\Framework\Attributes\Test]
     public function exportaciones_usan_repository()
     {
         // Arrange
@@ -320,7 +320,7 @@ class ControlLavadoFlowIntegrationTest extends TestCase
         $this->assertCount(5, $lavadosMes);
     }
 
-    /** @test */
+    #[\PHPUnit\Framework\Attributes\Test]
     public function flujo_completo_con_multiples_cambios_de_lavador()
     {
         // Arrange
@@ -380,3 +380,4 @@ class ControlLavadoFlowIntegrationTest extends TestCase
         $this->assertEquals($lavador3->id, $controlLavado->lavador_id);
     }
 }
+

@@ -12,13 +12,6 @@ use Illuminate\Support\Facades\DB;
 class categoriaController extends Controller
 {
 
-    function __construct()
-    {
-        $this->middleware('permission:ver-categoria|crear-categoria|editar-categoria|eliminar-categoria', ['only' => ['index']]);
-        $this->middleware('permission:crear-categoria', ['only' => ['create', 'store']]);
-        $this->middleware('permission:editar-categoria', ['only' => ['edit', 'update']]);
-        $this->middleware('permission:eliminar-categoria', ['only' => ['destroy']]);
-    }
 
     /**
      * Display a listing of the resource.
@@ -52,6 +45,7 @@ class categoriaController extends Controller
             DB::commit();
         } catch (Exception $e) {
             DB::rollBack();
+            return redirect()->back()->withInput()->with('error', 'Error al registrar la categoría');
         }
 
         return redirect()->route('categorias.index')->with('success', 'Categoría registrada');
@@ -87,10 +81,8 @@ class categoriaController extends Controller
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy(string $id)
+    public function destroy(Categoria $categoria)
     {
-        $categoria = Categoria::find($id);
-        
         if ($categoria->caracteristica->estado == 1) {
             Caracteristica::where('id', $categoria->caracteristica->id)
                 ->update(['estado' => 0]);
@@ -105,15 +97,8 @@ class categoriaController extends Controller
     /**
      * Restore the specified resource.
      */
-    public function restore(string $id)
+    public function restore(Categoria $categoria)
     {
-        $categoria = Categoria::find($id);
-        
-        if (!$categoria) {
-            return redirect()->route('categorias.index')
-                ->with('error', 'Categoría no encontrada');
-        }
-        
         if ($categoria->caracteristica->estado == 0) {
             Caracteristica::where('id', $categoria->caracteristica->id)
                 ->update(['estado' => 1]);

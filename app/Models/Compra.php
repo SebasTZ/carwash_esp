@@ -14,6 +14,7 @@ class Compra extends Model
         'impuesto',
         'numero_comprobante',
         'total',
+        'estado',
         'comprobante_id',
         'proveedore_id'
     ];

@@ -23,7 +23,7 @@ class StockServiceTest extends TestCase
         $this->stockService = new StockService();
     }
 
-    /** @test */
+    #[\PHPUnit\Framework\Attributes\Test]
     public function puede_descontar_stock_de_producto()
     {
         $caracteristica = Caracteristica::factory()->create();
@@ -42,7 +42,7 @@ class StockServiceTest extends TestCase
         $this->assertEquals(7, $producto->stock);
     }
 
-    /** @test */
+    #[\PHPUnit\Framework\Attributes\Test]
     public function lanza_excepcion_cuando_stock_insuficiente()
     {
         $caracteristica = Caracteristica::factory()->create();
@@ -61,7 +61,7 @@ class StockServiceTest extends TestCase
         $this->stockService->descontarStock($producto, 10, 'TEST-002');
     }
 
-    /** @test */
+    #[\PHPUnit\Framework\Attributes\Test]
     public function usa_lock_for_update_para_prevenir_condiciones_de_carrera()
     {
         $caracteristica = Caracteristica::factory()->create();
@@ -88,7 +88,7 @@ class StockServiceTest extends TestCase
         $this->assertEquals(5, $producto->stock);
     }
 
-    /** @test */
+    #[\PHPUnit\Framework\Attributes\Test]
     public function puede_restaurar_stock_de_producto()
     {
         $caracteristica = Caracteristica::factory()->create();
@@ -107,7 +107,7 @@ class StockServiceTest extends TestCase
         $this->assertEquals(12, $producto->stock);
     }
 
-    /** @test */
+    #[\PHPUnit\Framework\Attributes\Test]
     public function puede_verificar_disponibilidad_de_stock()
     {
         $caracteristica = Caracteristica::factory()->create();
@@ -127,7 +127,7 @@ class StockServiceTest extends TestCase
         $this->assertFalse($noDisponible);
     }
 
-    /** @test */
+    #[\PHPUnit\Framework\Attributes\Test]
     public function puede_obtener_productos_con_stock_bajo()
     {
         $caracteristica = Caracteristica::factory()->create();
@@ -156,7 +156,7 @@ class StockServiceTest extends TestCase
         $this->assertTrue($productosConStockBajo->contains('id', $productoBajo->id));
     }
 
-    /** @test */
+    #[\PHPUnit\Framework\Attributes\Test]
     public function descuenta_stock_de_todos_los_productos_incluyendo_servicios()
     {
         $caracteristica = Caracteristica::factory()->create();
@@ -178,3 +178,4 @@ class StockServiceTest extends TestCase
         $this->assertEquals(8, $servicio->stock);
     }
 }
+

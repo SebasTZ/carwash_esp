@@ -24,8 +24,8 @@ class ProductoRepositoryCacheTest extends TestCase
     /**
      * Test: Primera llamada ejecuta query, segunda usa cache
      * 
-     * @test
      */
+    #[\PHPUnit\Framework\Attributes\Test]
     public function obtener_productos_para_venta_usa_cache()
     {
         // Arrange: Crear servicios de lavado
@@ -76,8 +76,8 @@ class ProductoRepositoryCacheTest extends TestCase
     /**
      * Test: Cache se invalida cuando se crea un producto
      * 
-     * @test
      */
+    #[\PHPUnit\Framework\Attributes\Test]
     public function cache_se_invalida_al_crear_producto()
     {
         // Arrange: Crear productos servicios de lavado y cachearlos
@@ -102,8 +102,8 @@ class ProductoRepositoryCacheTest extends TestCase
     /**
      * Test: Cache se invalida cuando se actualiza un producto
      * 
-     * @test
      */
+    #[\PHPUnit\Framework\Attributes\Test]
     public function cache_se_invalida_al_actualizar_producto()
     {
         // Arrange
@@ -128,8 +128,8 @@ class ProductoRepositoryCacheTest extends TestCase
     /**
      * Test: Cache se invalida cuando se elimina un producto
      * 
-     * @test
      */
+    #[\PHPUnit\Framework\Attributes\Test]
     public function cache_se_invalida_al_eliminar_producto()
     {
         // Arrange
@@ -157,8 +157,8 @@ class ProductoRepositoryCacheTest extends TestCase
     /**
      * Test: Cache se invalida cuando se cambia estado de producto
      * 
-     * @test
      */
+    #[\PHPUnit\Framework\Attributes\Test]
     public function cache_se_invalida_al_cambiar_estado_producto()
     {
         // Arrange: Producto activo (servicio de lavado para que aparezca sin stock)
@@ -183,8 +183,8 @@ class ProductoRepositoryCacheTest extends TestCase
     /**
      * Test: Método limpiarCache funciona correctamente
      * 
-     * @test
      */
+    #[\PHPUnit\Framework\Attributes\Test]
     public function metodo_limpiar_cache_funciona()
     {
         // Arrange: Crear productos y cachearlos
@@ -207,8 +207,8 @@ class ProductoRepositoryCacheTest extends TestCase
     /**
      * Test: Cache tiene TTL de 1 hora
      * 
-     * @test
      */
+    #[\PHPUnit\Framework\Attributes\Test]
     public function cache_expira_despues_de_tiempo_configurado()
     {
         // Arrange
@@ -229,8 +229,8 @@ class ProductoRepositoryCacheTest extends TestCase
     /**
      * Test: Cache solo incluye productos activos
      * 
-     * @test
      */
+    #[\PHPUnit\Framework\Attributes\Test]
     public function cache_solo_incluye_productos_activos()
     {
         // Arrange: Mezcla de productos activos e inactivos (servicios de lavado)
@@ -262,8 +262,8 @@ class ProductoRepositoryCacheTest extends TestCase
     /**
      * Test: Performance - Cache reduce tiempo de carga significativamente
      * 
-     * @test
      */
+    #[\PHPUnit\Framework\Attributes\Test]
     public function cache_mejora_performance_significativamente()
     {
         // Arrange: Crear muchos servicios de lavado
@@ -310,3 +310,4 @@ class ProductoRepositoryCacheTest extends TestCase
         $this->assertTrue(true, 'Cache funcional verificado');
     }
 }
+

@@ -23,7 +23,7 @@ class ProductoRepositoryTest extends TestCase
         $this->repository = new ProductoRepository();
     }
 
-    /** @test */
+    #[\PHPUnit\Framework\Attributes\Test]
     public function puede_obtener_productos_para_venta()
     {
         $caracteristica = Caracteristica::factory()->create();
@@ -51,7 +51,7 @@ class ProductoRepositoryTest extends TestCase
         $this->assertGreaterThanOrEqual(4, $productosVenta->count());
     }
 
-    /** @test */
+    #[\PHPUnit\Framework\Attributes\Test]
     public function puede_buscar_productos_por_nombre()
     {
         $caracteristica = Caracteristica::factory()->create();
@@ -78,7 +78,7 @@ class ProductoRepositoryTest extends TestCase
         $this->assertEquals('Shampoo Premium', $resultados->first()->nombre);
     }
 
-    /** @test */
+    #[\PHPUnit\Framework\Attributes\Test]
     public function puede_buscar_productos_por_codigo()
     {
         $caracteristica = Caracteristica::factory()->create();
@@ -99,7 +99,7 @@ class ProductoRepositoryTest extends TestCase
         $this->assertEquals('PROD001', $resultados->first()->codigo);
     }
 
-    /** @test */
+    #[\PHPUnit\Framework\Attributes\Test]
     public function puede_obtener_productos_con_stock_bajo()
     {
         $caracteristica = Caracteristica::factory()->create();
@@ -131,7 +131,7 @@ class ProductoRepositoryTest extends TestCase
         $this->assertGreaterThanOrEqual(1, $productosStockBajo->count());
     }
 
-    /** @test */
+    #[\PHPUnit\Framework\Attributes\Test]
     public function puede_obtener_productos_con_filtros()
     {
         $caracteristica = Caracteristica::factory()->create();
@@ -152,7 +152,7 @@ class ProductoRepositoryTest extends TestCase
         $this->assertGreaterThanOrEqual(1, $productos->total());
     }
 
-    /** @test */
+    #[\PHPUnit\Framework\Attributes\Test]
     public function usa_cache_para_productos_para_venta()
     {
         Cache::flush();
@@ -177,7 +177,7 @@ class ProductoRepositoryTest extends TestCase
         $this->assertTrue(true); // El caché es difícil de testear directamente en entorno de pruebas
     }
 
-    /** @test */
+    #[\PHPUnit\Framework\Attributes\Test]
     public function puede_obtener_productos_mas_vendidos()
     {
         $caracteristica = Caracteristica::factory()->create();
@@ -197,7 +197,7 @@ class ProductoRepositoryTest extends TestCase
         $this->assertIsObject($masVendidos);
     }
 
-    /** @test */
+    #[\PHPUnit\Framework\Attributes\Test]
     public function puede_limpiar_cache()
     {
         $caracteristica = Caracteristica::factory()->create();
@@ -221,3 +221,4 @@ class ProductoRepositoryTest extends TestCase
         $this->assertTrue(true);
     }
 }
+

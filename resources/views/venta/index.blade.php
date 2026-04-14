@@ -57,7 +57,7 @@
         
         if (window.DynamicTable) {
             console.log('✅ DynamicTable encontrado');
-            const data = @json($ventas);
+            const data = @json($ventas->items());
             console.log('📊 Datos de ventas:', data.length, 'registros');
             
             window.DynamicTable.init({

@@ -15,15 +15,7 @@ class TarjetaRegaloController extends Controller
 {
     public function __construct(
         private TarjetaRegaloService $tarjetaRegaloService
-    ) {
-        $this->middleware('permission:ver-tarjeta-regalo', ['only' => ['index', 'show', 'reporte', 'reporteView']]);
-        $this->middleware('permission:crear-tarjeta-regalo', ['only' => ['create', 'store']]);
-        $this->middleware('permission:editar-tarjeta-regalo', ['only' => ['edit', 'update']]);
-        $this->middleware('permission:eliminar-tarjeta-regalo', ['only' => ['destroy']]);
-        $this->middleware('permission:reporte-tarjeta-regalo', ['only' => ['reporte', 'reporteView']]);
-        $this->middleware('permission:historial-tarjeta-regalo', ['only' => ['usos']]);
-        $this->middleware('permission:exportar-tarjeta-regalo', ['only' => ['exportExcel']]);
-    }
+    ) {}
 
     public function index()
     {

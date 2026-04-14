@@ -18,7 +18,7 @@ class GenerarReporteVentasJobTest extends TestCase
 {
     use DatabaseMigrations;
 
-    /** @test */
+    #[\PHPUnit\Framework\Attributes\Test]
     public function puede_encolar_job_de_reporte_ventas()
     {
         Queue::fake();
@@ -31,7 +31,7 @@ class GenerarReporteVentasJobTest extends TestCase
         Queue::assertPushed(GenerarReporteVentasJob::class);
     }
 
-    /** @test */
+    #[\PHPUnit\Framework\Attributes\Test]
     public function job_procesa_ventas_correctamente()
     {
         $user = User::factory()->create();
@@ -62,7 +62,7 @@ class GenerarReporteVentasJobTest extends TestCase
         $this->assertInstanceOf(GenerarReporteVentasJob::class, $job);
     }
 
-    /** @test */
+    #[\PHPUnit\Framework\Attributes\Test]
     public function job_maneja_excepciones_correctamente()
     {
         $fechaInicio = now()->subDays(7);

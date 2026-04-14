@@ -10,14 +10,6 @@ use Illuminate\Support\Facades\DB;
 
 class CocheraController extends Controller
 {
-    function __construct()
-    {
-        $this->middleware('permission:ver-cochera|crear-cochera|editar-cochera|eliminar-cochera', ['only' => ['index']]);
-        $this->middleware('permission:crear-cochera', ['only' => ['create', 'store']]);
-        $this->middleware('permission:editar-cochera', ['only' => ['edit', 'update']]);
-        $this->middleware('permission:eliminar-cochera', ['only' => ['destroy']]);
-        $this->middleware('permission:reporte-cochera', ['only' => ['reportes']]);
-    }
 
     /**
      * Display a listing of the resource.
@@ -150,7 +142,7 @@ class CocheraController extends Controller
         try {
             DB::beginTransaction();
             
-            $data = $request->all();
+            $data = $request->validated();
             $data['placa'] = strtoupper($data['placa']);
             
             // Si hay fecha de salida y está finalizando, calcular el monto total

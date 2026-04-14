@@ -25,7 +25,7 @@ class ComisionServiceTest extends TestCase
         $this->comisionService = app(ComisionService::class);
     }
 
-    /** @test */
+    #[\PHPUnit\Framework\Attributes\Test]
     public function calcula_comision_para_moto_correctamente()
     {
         // Arrange
@@ -51,7 +51,7 @@ class ComisionServiceTest extends TestCase
         $this->assertEquals(15.00, $pagoComision->monto_pagado);
     }
 
-    /** @test */
+    #[\PHPUnit\Framework\Attributes\Test]
     public function calcula_comision_para_sedan_correctamente()
     {
         // Arrange
@@ -77,7 +77,7 @@ class ComisionServiceTest extends TestCase
         $this->assertEquals(20.00, $pagoComision->monto_pagado);
     }
 
-    /** @test */
+    #[\PHPUnit\Framework\Attributes\Test]
     public function calcula_comision_para_suv_correctamente()
     {
         // Arrange
@@ -103,7 +103,7 @@ class ComisionServiceTest extends TestCase
         $this->assertEquals(25.00, $pagoComision->monto_pagado);
     }
 
-    /** @test */
+    #[\PHPUnit\Framework\Attributes\Test]
     public function calcula_comision_para_camioneta_correctamente()
     {
         // Arrange
@@ -129,7 +129,7 @@ class ComisionServiceTest extends TestCase
         $this->assertEquals(30.00, $pagoComision->monto_pagado);
     }
 
-    /** @test */
+    #[\PHPUnit\Framework\Attributes\Test]
     public function registra_comision_en_base_de_datos()
     {
         // Arrange
@@ -161,7 +161,7 @@ class ComisionServiceTest extends TestCase
         ]);
     }
 
-    /** @test */
+    #[\PHPUnit\Framework\Attributes\Test]
     public function no_registra_comision_si_lavado_no_tiene_lavador()
     {
         // Arrange
@@ -183,7 +183,7 @@ class ComisionServiceTest extends TestCase
         $this->comisionService->registrarComisionLavado($controlLavado);
     }
 
-    /** @test */
+    #[\PHPUnit\Framework\Attributes\Test]
     public function no_registra_comision_si_lavado_no_finalizado()
     {
         // Arrange
@@ -206,7 +206,7 @@ class ComisionServiceTest extends TestCase
         $this->comisionService->registrarComisionLavado($controlLavado);
     }
 
-    /** @test */
+    #[\PHPUnit\Framework\Attributes\Test]
     public function usa_factor_default_para_tipo_vehiculo_desconocido()
     {
         // Arrange

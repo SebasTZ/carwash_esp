@@ -11,14 +11,6 @@ use Illuminate\Support\Facades\DB;
 
 class MantenimientoController extends Controller
 {
-    function __construct()
-    {
-        $this->middleware('permission:ver-mantenimiento|crear-mantenimiento|editar-mantenimiento|eliminar-mantenimiento', ['only' => ['index']]);
-        $this->middleware('permission:crear-mantenimiento', ['only' => ['create', 'store']]);
-        $this->middleware('permission:editar-mantenimiento', ['only' => ['edit', 'update']]);
-        $this->middleware('permission:eliminar-mantenimiento', ['only' => ['destroy']]);
-        $this->middleware('permission:reporte-mantenimiento', ['only' => ['reportes']]);
-    }
 
     /**
      * Display a listing of the resource.
@@ -149,7 +141,7 @@ class MantenimientoController extends Controller
         try {
             DB::beginTransaction();
             
-            $data = $request->all();
+            $data = $request->validated();
             $data['placa'] = strtoupper($data['placa']);
             $data['pagado'] = $request->has('pagado');
             

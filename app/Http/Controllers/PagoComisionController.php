@@ -21,9 +21,6 @@ class PagoComisionController extends Controller
     public function __construct(ComisionService $comisionService)
     {
         $this->comisionService = $comisionService;
-        $this->middleware('can:ver-pago-comision')->only(['index', 'show']);
-        $this->middleware('can:crear-pago-comision')->only(['create', 'store']);
-        $this->middleware('can:ver-historial-pago-comision')->only(['show']);
     }
 
     public function index()
@@ -64,7 +61,7 @@ class PagoComisionController extends Controller
             return redirect()->back()->with('warning', 'No hay lavados pendientes de liquidar para este lavador en el rango seleccionado.');
         }
 
-        PagoComision::create($request->all());
+        PagoComision::create($request->only(['lavador_id', 'monto_pagado', 'desde', 'hasta', 'fecha_pago', 'observacion']));
         return redirect()->route('pagos_comisiones.index')->with('success', 'Pago registrado correctamente.');
     }
 

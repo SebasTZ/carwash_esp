@@ -7,13 +7,6 @@ use Illuminate\Http\Request;
 
 class LavadorController extends Controller
 {
-    public function __construct()
-    {
-        $this->middleware('can:ver-lavador')->only(['index', 'show']);
-        $this->middleware('can:crear-lavador')->only(['create', 'store']);
-        $this->middleware('can:editar-lavador')->only(['edit', 'update']);
-        $this->middleware('can:eliminar-lavador')->only(['destroy']);
-    }
 
     public function index()
     {
@@ -34,7 +27,7 @@ class LavadorController extends Controller
             'telefono' => 'nullable',
             'estado' => 'required',
         ]);
-        Lavador::create($request->all());
+        Lavador::create($request->only(['nombre', 'dni', 'telefono', 'estado']));
         return redirect()->route('lavadores.index');
     }
 
@@ -51,7 +44,7 @@ class LavadorController extends Controller
             'telefono' => 'nullable',
             'estado' => 'required',
         ]);
-        $lavador->update($request->all());
+        $lavador->update($request->only(['nombre', 'dni', 'telefono', 'estado']));
         return redirect()->route('lavadores.index');
     }
 

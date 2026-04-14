@@ -13,13 +13,6 @@ use Illuminate\Support\Facades\DB;
 
 class clienteController extends Controller
 {
-    function __construct()
-    {
-        $this->middleware('permission:ver-cliente|crear-cliente|editar-cliente|eliminar-cliente', ['only' => ['index']]);
-        $this->middleware('permission:crear-cliente', ['only' => ['create', 'store']]);
-        $this->middleware('permission:editar-cliente', ['only' => ['edit', 'update']]);
-        $this->middleware('permission:eliminar-cliente', ['only' => ['destroy']]);
-    }
     /**
      * Display a listing of the resource.
      */
@@ -90,6 +83,7 @@ class clienteController extends Controller
             DB::commit();
         } catch (Exception $e) {
             DB::rollBack();
+            return redirect()->back()->withInput()->with('error', 'Error al actualizar el cliente');
         }
 
         return redirect()->route('clientes.index')->with('success', 'Cliente editado');
@@ -98,21 +92,14 @@ class clienteController extends Controller
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy(string $id)
+    public function destroy(Cliente $cliente)
     {
-        $message = '';
-        $persona = Persona::find($id);
+        $persona = $cliente->persona;
         if ($persona->estado == 1) {
-            Persona::where('id', $persona->id)
-                ->update([
-                    'estado' => 0
-                ]);
+            $persona->update(['estado' => 0]);
             $message = 'Cliente eliminado';
         } else {
-            Persona::where('id', $persona->id)
-                ->update([
-                    'estado' => 1
-                ]);
+            $persona->update(['estado' => 1]);
             $message = 'Cliente restaurado';
         }
 

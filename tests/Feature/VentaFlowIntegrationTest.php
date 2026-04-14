@@ -25,7 +25,7 @@ class VentaFlowIntegrationTest extends TestCase
         $this->actingAs(User::factory()->create());
     }
 
-    /** @test */
+    #[\PHPUnit\Framework\Attributes\Test]
     public function flujo_completo_de_venta_con_producto_fisico()
     {
         $cliente = Cliente::factory()->create(['lavados_acumulados' => 0]);
@@ -68,7 +68,7 @@ class VentaFlowIntegrationTest extends TestCase
         ]);
     }
 
-    /** @test */
+    #[\PHPUnit\Framework\Attributes\Test]
     public function flujo_completo_de_venta_con_servicio_lavado_acumula_lavado()
     {
         $cliente = Cliente::factory()->create(['lavados_acumulados' => 3]);
@@ -92,7 +92,7 @@ class VentaFlowIntegrationTest extends TestCase
         $this->assertEquals(4, $cliente->fresh()->lavados_acumulados);
     }
 
-    /** @test */
+    #[\PHPUnit\Framework\Attributes\Test]
     public function flujo_con_stock_insuficiente_lanza_excepcion_y_no_crea_venta()
     {
         $cliente = Cliente::factory()->create();
@@ -128,7 +128,7 @@ class VentaFlowIntegrationTest extends TestCase
         $this->assertEquals(2, $producto->fresh()->stock);
     }
 
-    /** @test */
+    #[\PHPUnit\Framework\Attributes\Test]
     public function anular_venta_revierte_stock_y_fidelizacion()
     {
         $cliente = Cliente::factory()->create(['lavados_acumulados' => 5]);
@@ -161,3 +161,4 @@ class VentaFlowIntegrationTest extends TestCase
         $this->assertEquals(5, $cliente->fresh()->lavados_acumulados);
     }
 }
+

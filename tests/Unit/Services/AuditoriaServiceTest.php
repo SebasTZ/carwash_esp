@@ -27,7 +27,7 @@ class AuditoriaServiceTest extends TestCase
         $this->auditoriaService = app(AuditoriaService::class);
     }
 
-    /** @test */
+    #[\PHPUnit\Framework\Attributes\Test]
     public function puede_registrar_cambio_de_lavador()
     {
         // Arrange
@@ -68,7 +68,7 @@ class AuditoriaServiceTest extends TestCase
         ]);
     }
 
-    /** @test */
+    #[\PHPUnit\Framework\Attributes\Test]
     public function puede_obtener_auditoria_por_control_lavado()
     {
         // Arrange
@@ -98,7 +98,7 @@ class AuditoriaServiceTest extends TestCase
         $this->assertEquals($controlLavado->id, $auditorias->first()->control_lavado_id);
     }
 
-    /** @test */
+    #[\PHPUnit\Framework\Attributes\Test]
     public function puede_obtener_auditoria_por_usuario()
     {
         // Arrange
@@ -128,7 +128,7 @@ class AuditoriaServiceTest extends TestCase
         $this->assertEquals($user->id, $auditorias->first()->usuario_id);
     }
 
-    /** @test */
+    #[\PHPUnit\Framework\Attributes\Test]
     public function puede_obtener_auditoria_por_rango_de_fechas()
     {
         // Arrange
@@ -161,7 +161,7 @@ class AuditoriaServiceTest extends TestCase
         $this->assertCount(1, $auditorias);
     }
 
-    /** @test */
+    #[\PHPUnit\Framework\Attributes\Test]
     public function registra_motivo_default_si_no_se_proporciona()
     {
         // Arrange

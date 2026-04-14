@@ -24,16 +24,6 @@ class ControlLavadoController extends Controller
     ) {
         $this->controlLavadoService = $controlLavadoService;
         $this->controlLavadoRepository = $controlLavadoRepository;
-
-        $this->middleware('permission:ver-control-lavado|crear-control-lavado|editar-control-lavado|eliminar-control-lavado', ['only' => ['index']]);
-        $this->middleware('permission:crear-control-lavado', ['only' => ['create', 'store']]);
-        $this->middleware('permission:editar-control-lavado', ['only' => ['edit', 'update', 'asignarLavador', 'inicioLavado', 'finLavado', 'inicioInterior', 'finInterior']]);
-        $this->middleware('permission:eliminar-control-lavado', ['only' => ['destroy']]);
-        $this->middleware('permission:reporte-diario-lavado', ['only' => ['reporteDiario']]);
-        $this->middleware('permission:reporte-semanal-lavado', ['only' => ['reporteSemanal']]);
-        $this->middleware('permission:reporte-mensual-lavado', ['only' => ['reporteMensual']]);
-        $this->middleware('permission:reporte-personalizado-lavado', ['only' => ['reportePersonalizado']]);
-        $this->middleware('permission:exportar-reporte-lavado', ['only' => ['exportDiario', 'exportSemanal', 'exportMensual', 'exportPersonalizado']]);
     }
 
     public function index(Request $request)

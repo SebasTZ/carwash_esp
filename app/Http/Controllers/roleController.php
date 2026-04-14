@@ -11,13 +11,6 @@ use Spatie\Permission\Models\Role;
 
 class roleController extends Controller
 {
-    function __construct()
-    {
-        $this->middleware('permission:ver-role|crear-role|editar-role|eliminar-role', ['only' => ['index']]);
-        $this->middleware('permission:crear-role', ['only' => ['create', 'store']]);
-        $this->middleware('permission:editar-role', ['only' => ['edit', 'update']]);
-        $this->middleware('permission:eliminar-role', ['only' => ['destroy']]);
-    }
     /**
      * Display a listing of the resource.
      */
@@ -62,17 +55,13 @@ class roleController extends Controller
 
         try {
             DB::beginTransaction();
-            //Crear rol
             $rol = Role::create(['name' => $request->name]);
-
-            //Asignar permisos
             $rol->syncPermissions($request->permission);
-
             DB::commit();
         } catch (Exception $e) {
             DB::rollBack();
+            return redirect()->back()->withInput()->with('error', 'Error al registrar el rol');
         }
-
 
         return redirect()->route('roles.index')->with('success', 'Rol registrado');
     }
@@ -107,34 +96,24 @@ class roleController extends Controller
 
         try {
             DB::beginTransaction();
-
-            //Actualizar rol
-            Role::where('id', $role->id)
-                ->update([
-                    'name' => $request->name
-                ]);
-
-            //Actualizar permisos
+            $role->update(['name' => $request->name]);
             $role->syncPermissions($request->permission);
-
             DB::commit();
         } catch (Exception $e) {
-            dd($e);
             DB::rollBack();
+            return redirect()->back()->withInput()->with('error', 'Error al actualizar el rol');
         }
 
-        return redirect()->route('roles.index')->with('success', 'rol editado');
+        return redirect()->route('roles.index')->with('success', 'Rol editado');
     }
 
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy(string $id)
+    public function destroy(Role $role)
     {
-        Role::where('id', $id)->delete();
+        $role->delete();
 
-
-
-        return redirect()->route('roles.index')->with('success', 'rol eliminado');
+        return redirect()->route('roles.index')->with('success', 'Rol eliminado');
     }
 }

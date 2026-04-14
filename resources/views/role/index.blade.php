@@ -50,7 +50,7 @@
         if (window.RoleTableManager) {
             window.RoleTableManager.init({
                 el: '#roles-dynamic-table',
-                roles: @json($roles),
+                roles: @json($roles->items()),
                 canEdit: @json(auth()->user()->can('editar-role')),
                 canDelete: @json(auth()->user()->can('eliminar-role'))
             });

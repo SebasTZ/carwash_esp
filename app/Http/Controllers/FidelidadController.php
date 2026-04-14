@@ -11,12 +11,7 @@ class FidelidadController extends Controller
 {
     public function __construct(
         private FidelizacionService $fidelizacionService
-    ) {
-        $this->middleware('permission:ver-fidelidad', ['only' => ['reporteFidelidad', 'reporteView']]);
-        $this->middleware('permission:gestionar-fidelidad', ['only' => ['mostrarLavados', 'incrementarLavado', 'aplicarLavadoGratis']]);
-        $this->middleware('permission:reporte-fidelidad', ['only' => ['reporteFidelidad', 'reporteView']]);
-        $this->middleware('permission:exportar-fidelidad', ['only' => ['exportExcel']]);
-    }
+    ) {}
 
     public function mostrarLavados($clienteId)
     {

@@ -21,15 +21,6 @@ class EstacionamientoController extends Controller
     function __construct(EstacionamientoService $estacionamientoService)
     {
         $this->estacionamientoService = $estacionamientoService;
-        $this->middleware('permission:ver-estacionamiento|crear-estacionamiento|editar-estacionamiento|eliminar-estacionamiento', ['only' => ['index']]);
-        $this->middleware('permission:crear-estacionamiento', ['only' => ['create', 'store']]);
-        $this->middleware('permission:editar-estacionamiento', ['only' => ['edit', 'update']]);
-        $this->middleware('permission:eliminar-estacionamiento', ['only' => ['destroy']]);
-        $this->middleware('permission:historial-estacionamiento', ['only' => ['historial']]);
-        $this->middleware('permission:reporte-diario-estacionamiento', ['only' => ['reporteDiario', 'exportDiario']]);
-        $this->middleware('permission:reporte-semanal-estacionamiento', ['only' => ['reporteSemanal', 'exportSemanal']]);
-        $this->middleware('permission:reporte-mensual-estacionamiento', ['only' => ['reporteMensual', 'exportMensual']]);
-        $this->middleware('permission:reporte-personalizado-estacionamiento', ['only' => ['reportePersonalizado', 'exportPersonalizado']]);
     }
 
     public function index()
@@ -54,9 +45,6 @@ class EstacionamientoController extends Controller
 
     public function store(Request $request)
     {
-        // Debug: Log para ver qué datos llegan
-        Log::info('Estacionamiento Store - Request Data:', $request->all());
-        
         $request->validate([
             'cliente_id' => 'required|exists:clientes,id',
             'placa' => 'required|string|max:10',

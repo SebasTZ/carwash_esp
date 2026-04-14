@@ -43,8 +43,8 @@ class ControlLavadoComisionTest extends TestCase
      * Resultado esperado: ❌ FALLA (detecta el bug)
      * El test fallará mostrando que hay 2 comisiones en lugar de 1
      * 
-     * @test
      */
+    #[\PHPUnit\Framework\Attributes\Test]
     public function no_debe_registrar_comision_duplicada_al_completar_lavado()
     {
         // Arrange: Crear lavador y tipo de vehículo con comisión
@@ -107,8 +107,8 @@ class ControlLavadoComisionTest extends TestCase
      * Este test verifica que SÍ se registre una comisión cuando el lavado se completa
      * (Para asegurar que al corregir el bug #1, no eliminemos la funcionalidad)
      * 
-     * @test
      */
+    #[\PHPUnit\Framework\Attributes\Test]
     public function debe_registrar_una_comision_al_completar_lavado()
     {
         // Arrange
@@ -143,8 +143,8 @@ class ControlLavadoComisionTest extends TestCase
     /**
      * TEST #3: No debe registrar comisión si el lavado no está completo
      * 
-     * @test
      */
+    #[\PHPUnit\Framework\Attributes\Test]
     public function no_debe_registrar_comision_si_lavado_no_esta_completo()
     {
         // Arrange
@@ -168,8 +168,8 @@ class ControlLavadoComisionTest extends TestCase
     /**
      * TEST #4: Verificar que las comisiones tengan todos los datos necesarios
      * 
-     * @test
      */
+    #[\PHPUnit\Framework\Attributes\Test]
     public function comision_debe_tener_todos_los_datos_requeridos()
     {
         // Arrange
@@ -203,8 +203,8 @@ class ControlLavadoComisionTest extends TestCase
      * TEST #5: No debe registrar comisión si ya existe una para el mismo lavado
      * (Este test documenta la solución esperada)
      * 
-     * @test
      */
+    #[\PHPUnit\Framework\Attributes\Test]
     public function no_debe_permitir_comision_duplicada_para_mismo_lavado()
     {
         // Arrange
@@ -251,3 +251,4 @@ class ControlLavadoComisionTest extends TestCase
         }
     }
 }
+

@@ -69,7 +69,7 @@ class PaginationTest extends TestCase
         $this->adminUser->assignRole($adminRole);
     }
 
-    /** @test */
+    #[\PHPUnit\Framework\Attributes\Test]
     public function test_productos_pagination_works()
     {
         // Crear 20 productos (más de una página)
@@ -96,7 +96,7 @@ class PaginationTest extends TestCase
         $this->assertEquals(2, $productos->lastPage());
     }
 
-    /** @test */
+    #[\PHPUnit\Framework\Attributes\Test]
     public function test_clientes_pagination_works()
     {
         Cliente::factory()->count(30)->create();
@@ -112,7 +112,7 @@ class PaginationTest extends TestCase
         $this->assertEquals(30, $clientes->total());
     }
 
-    /** @test */
+    #[\PHPUnit\Framework\Attributes\Test]
     public function test_ventas_pagination_works()
     {
         Venta::factory()->count(25)->create();
@@ -154,7 +154,7 @@ class PaginationTest extends TestCase
         }
     }
 
-    /** @test */
+    #[\PHPUnit\Framework\Attributes\Test]
     public function test_compras_pagination_works()
     {
         Compra::factory()->count(18)->create();
@@ -170,7 +170,7 @@ class PaginationTest extends TestCase
         $this->assertEquals(18, $compras->total());
     }
 
-    /** @test */
+    #[\PHPUnit\Framework\Attributes\Test]
     public function test_usuarios_pagination_works()
     {
         User::factory()->count(22)->create();
@@ -183,7 +183,7 @@ class PaginationTest extends TestCase
         $this->assertGreaterThanOrEqual(22, $users->total()); // Incluye el usuario admin creado
     }
 
-    /** @test */
+    #[\PHPUnit\Framework\Attributes\Test]
     public function test_marcas_pagination_works()
     {
         Marca::factory()->count(16)->create();
@@ -198,7 +198,7 @@ class PaginationTest extends TestCase
         $this->assertEquals(15, $marcas->perPage());
     }
 
-    /** @test */
+    #[\PHPUnit\Framework\Attributes\Test]
     public function test_categorias_pagination_works()
     {
         Categoria::factory()->count(20)->create();
@@ -213,7 +213,7 @@ class PaginationTest extends TestCase
         $this->assertEquals(15, $categorias->perPage());
     }
 
-    /** @test */
+    #[\PHPUnit\Framework\Attributes\Test]
     public function test_presentaciones_pagination_works()
     {
         Presentacione::factory()->count(17)->create();
@@ -228,7 +228,7 @@ class PaginationTest extends TestCase
         $this->assertEquals(15, $presentaciones->perPage());
     }
 
-    /** @test */
+    #[\PHPUnit\Framework\Attributes\Test]
     public function test_proveedores_pagination_works()
     {
         Proveedore::factory()->count(19)->create();
@@ -241,7 +241,7 @@ class PaginationTest extends TestCase
         $this->assertEquals(19, $proveedores->total());
     }
 
-    /** @test */
+    #[\PHPUnit\Framework\Attributes\Test]
     public function test_roles_pagination_works()
     {
         // Crear roles adicionales (el admin ya existe del setup)
@@ -261,7 +261,7 @@ class PaginationTest extends TestCase
         $this->assertGreaterThanOrEqual(16, $roles->total());
     }
 
-    /** @test */
+    #[\PHPUnit\Framework\Attributes\Test]
     public function test_pagination_shows_empty_state()
     {
         // No crear ningún producto
@@ -276,7 +276,7 @@ class PaginationTest extends TestCase
         $this->assertCount(0, $productos);
     }
 
-    /** @test */
+    #[\PHPUnit\Framework\Attributes\Test]
     public function test_pagination_second_page_works()
     {
         Producto::factory()->count(30)->create();
@@ -295,7 +295,7 @@ class PaginationTest extends TestCase
         $this->assertCount(15, $productos);
     }
 
-    /** @test */
+    #[\PHPUnit\Framework\Attributes\Test]
     public function test_citas_pagination_preserves_filters()
     {
         Cita::factory()->count(20)->create();
@@ -316,7 +316,7 @@ class PaginationTest extends TestCase
         $this->assertInstanceOf(\Illuminate\Pagination\LengthAwarePaginator::class, $citas);
     }
 
-    /** @test */
+    #[\PHPUnit\Framework\Attributes\Test]
     public function test_pagination_component_renders_correctly()
     {
         Producto::factory()->count(20)->create();
@@ -332,7 +332,7 @@ class PaginationTest extends TestCase
         $response->assertSee('page-item'); // Clase CSS de paginación
     }
 
-    /** @test */
+    #[\PHPUnit\Framework\Attributes\Test]
     public function test_pagination_endpoints_accessibility()
     {
         // Test endpoints que funcionan correctamente (sin dependencias de vista problemáticas)
@@ -367,7 +367,7 @@ class PaginationTest extends TestCase
             "Expected at least 80% working endpoints, got {$successRate}% ({$workingCount}/" . count($workingEndpoints) . ")");
     }
 
-    /** @test */
+    #[\PHPUnit\Framework\Attributes\Test]
     public function test_pagination_info_component_shows_correct_range()
     {
         Producto::factory()->count(20)->create();
@@ -383,7 +383,7 @@ class PaginationTest extends TestCase
         $response->assertSee('pagination'); // Clase CSS
     }
 
-    /** @test */
+    #[\PHPUnit\Framework\Attributes\Test]
     public function test_pagination_shows_navigation_buttons()
     {
         Producto::factory()->count(30)->create();
@@ -406,3 +406,4 @@ class PaginationTest extends TestCase
         $response2->assertSee('pagination');
     }
 }
+

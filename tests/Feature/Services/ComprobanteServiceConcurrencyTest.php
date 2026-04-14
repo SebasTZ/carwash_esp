@@ -249,3 +249,4 @@ class ComprobanteServiceConcurrencyTest extends TestCase
         $this->assertMatchesRegularExpression('/^T999\d{4}$/', $numero10);
     }
 }
+

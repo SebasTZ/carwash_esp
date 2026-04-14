@@ -11,7 +11,7 @@ class PaginationComponentTest extends TestCase
 {
     use RefreshDatabase;
 
-    /** @test */
+    #[\PHPUnit\Framework\Attributes\Test]
     public function test_pagination_info_component_renders_with_data()
     {
         $items = Collection::times(30, fn($i) => ['id' => $i, 'name' => "Item {$i}"]);
@@ -35,7 +35,7 @@ class PaginationComponentTest extends TestCase
         $view->assertSee('items');
     }
 
-    /** @test */
+    #[\PHPUnit\Framework\Attributes\Test]
     public function test_pagination_info_component_shows_empty_state()
     {
         $paginator = new LengthAwarePaginator(
@@ -53,7 +53,7 @@ class PaginationComponentTest extends TestCase
         $view->assertSee('No hay items para mostrar');
     }
 
-    /** @test */
+    #[\PHPUnit\Framework\Attributes\Test]
     public function test_pagination_info_component_hides_info_when_show_info_false()
     {
         $items = Collection::times(20, fn($i) => ['id' => $i]);
@@ -72,7 +72,7 @@ class PaginationComponentTest extends TestCase
         $view->assertDontSee('Mostrando');
     }
 
-    /** @test */
+    #[\PHPUnit\Framework\Attributes\Test]
     public function test_pagination_info_component_hides_links_when_show_links_false()
     {
         $items = Collection::times(20, fn($i) => ['id' => $i]);
@@ -92,7 +92,7 @@ class PaginationComponentTest extends TestCase
         $view->assertDontSee('pagination');
     }
 
-    /** @test */
+    #[\PHPUnit\Framework\Attributes\Test]
     public function test_pagination_multi_component_renders_correctly()
     {
         $items = Collection::times(20, fn($i) => ['id' => $i]);
@@ -112,7 +112,7 @@ class PaginationComponentTest extends TestCase
         $view->assertSee('clientes');
     }
 
-    /** @test */
+    #[\PHPUnit\Framework\Attributes\Test]
     public function test_pagination_info_component_shows_correct_page_info()
     {
         $items = Collection::times(30, fn($i) => ['id' => $i]);
@@ -137,7 +137,7 @@ class PaginationComponentTest extends TestCase
         $view->assertSee('productos');
     }
 
-    /** @test */
+    #[\PHPUnit\Framework\Attributes\Test]
     public function test_pagination_preserves_query_parameters()
     {
         request()->merge(['search' => 'test', 'status' => 'active']);
@@ -160,7 +160,7 @@ class PaginationComponentTest extends TestCase
         $view->assertSee('status=active');
     }
 
-    /** @test */
+    #[\PHPUnit\Framework\Attributes\Test]
     public function test_pagination_component_applies_custom_class()
     {
         $items = Collection::times(20, fn($i) => ['id' => $i]);
@@ -179,7 +179,7 @@ class PaginationComponentTest extends TestCase
         $view->assertSee('my-custom-class');
     }
 
-    /** @test */
+    #[\PHPUnit\Framework\Attributes\Test]
     public function test_pagination_shows_singular_for_single_item()
     {
         $paginator = new LengthAwarePaginator(
@@ -200,7 +200,7 @@ class PaginationComponentTest extends TestCase
         $view->assertSee('producto');
     }
 
-    /** @test */
+    #[\PHPUnit\Framework\Attributes\Test]
     public function test_pagination_handles_exact_page_size()
     {
         $items = Collection::times(15, fn($i) => ['id' => $i]);
@@ -222,3 +222,4 @@ class PaginationComponentTest extends TestCase
         $view->assertSee('items');
     }
 }
+

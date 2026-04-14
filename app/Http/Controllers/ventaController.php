@@ -23,8 +23,6 @@ use Maatwebsite\Excel\Facades\Excel;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
-use Mike42\Escpos\Printer;
-use Mike42\Escpos\PrintConnectors\FilePrintConnector;
 use Barryvdh\DomPDF\Facade\Pdf;
 use Illuminate\Support\Facades\Storage;
 
@@ -42,16 +40,6 @@ class ventaController extends Controller
         $this->productoRepo = $productoRepo;
         $this->ventaService = $ventaService;
         $this->ventaRepo = $ventaRepo;
-
-        $this->middleware('permission:ver-venta|crear-venta|mostrar-venta|eliminar-venta', ['only' => ['index']]);
-        $this->middleware('permission:crear-venta', ['only' => ['create', 'store']]);
-        $this->middleware('permission:mostrar-venta', ['only' => ['show']]);
-        $this->middleware('permission:eliminar-venta', ['only' => ['destroy']]);
-        $this->middleware('permission:reporte-diario-venta', ['only' => ['reporteDiario']]);
-        $this->middleware('permission:reporte-semanal-venta', ['only' => ['reporteSemanal']]);
-        $this->middleware('permission:reporte-mensual-venta', ['only' => ['reporteMensual']]);
-        $this->middleware('permission:reporte-personalizado-venta', ['only' => ['reportePersonalizado']]);
-        $this->middleware('permission:exportar-reporte-venta', ['only' => ['exportDiario', 'exportSemanal', 'exportMensual', 'exportPersonalizado']]);
     }
 
     /**

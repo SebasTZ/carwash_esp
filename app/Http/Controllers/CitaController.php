@@ -13,20 +13,6 @@ use Maatwebsite\Excel\Facades\Excel;
 
 class CitaController extends Controller
 {
-    function __construct()
-    {
-        $this->middleware('permission:ver-cita|crear-cita|editar-cita|eliminar-cita|calendario-cita|confirmar-cita', ['only' => ['index']]);
-        $this->middleware('permission:crear-cita', ['only' => ['create', 'store']]);
-        $this->middleware('permission:editar-cita', ['only' => ['edit', 'update']]);
-        $this->middleware('permission:eliminar-cita', ['only' => ['destroy']]);
-        $this->middleware('permission:calendario-cita', ['only' => ['dashboard']]);
-        $this->middleware('permission:confirmar-cita', ['only' => ['iniciarCita', 'completarCita', 'cancelarCita']]);
-        $this->middleware('permission:reporte-diario-cita', ['only' => ['reporteDiario']]);
-        $this->middleware('permission:reporte-semanal-cita', ['only' => ['reporteSemanal']]);
-        $this->middleware('permission:reporte-mensual-cita', ['only' => ['reporteMensual']]);
-        $this->middleware('permission:reporte-personalizado-cita', ['only' => ['reportePersonalizado']]);
-        $this->middleware('permission:exportar-reporte-cita', ['only' => ['exportDiario', 'exportSemanal', 'exportMensual', 'exportPersonalizado']]);
-    }
 
     /**
      * Display a listing of the resource.

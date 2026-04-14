@@ -11,13 +11,6 @@ use Illuminate\Support\Facades\DB;
 
 class marcaController extends Controller
 {
-    function __construct()
-    {
-        $this->middleware('permission:ver-marca|crear-marca|editar-marca|eliminar-marca', ['only' => ['index']]);
-        $this->middleware('permission:crear-marca', ['only' => ['create', 'store']]);
-        $this->middleware('permission:editar-marca', ['only' => ['edit', 'update']]);
-        $this->middleware('permission:eliminar-marca', ['only' => ['destroy']]);
-    }
     /**
      * Display a listing of the resource.
      */
@@ -49,6 +42,7 @@ class marcaController extends Controller
             DB::commit();
         } catch (Exception $e) {
             DB::rollBack();
+            return redirect()->back()->withInput()->with('error', 'Error al registrar la marca');
         }
 
         return redirect()->route('marcas.index')->with('success', 'Marca registrada');
@@ -84,21 +78,15 @@ class marcaController extends Controller
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy(string $id)
+    public function destroy(Marca $marca)
     {
-        $message = '';
-        $marca = Marca::find($id);
         if ($marca->caracteristica->estado == 1) {
             Caracteristica::where('id', $marca->caracteristica->id)
-                ->update([
-                    'estado' => 0
-                ]);
+                ->update(['estado' => 0]);
             $message = 'Marca eliminada';
         } else {
             Caracteristica::where('id', $marca->caracteristica->id)
-                ->update([
-                    'estado' => 1
-                ]);
+                ->update(['estado' => 1]);
             $message = 'Marca restaurada';
         }
 

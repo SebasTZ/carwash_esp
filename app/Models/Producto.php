@@ -18,6 +18,7 @@ class Producto extends Model
         'marca_id',
         'presentacione_id',
         'img_path',
+        'estado',
         'es_servicio_lavado',
         'precio_venta',
         'stock'

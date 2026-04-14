@@ -28,8 +28,8 @@ class VentaServiceValidacionTest extends TestCase
      * Escenario: Intentar vender 3 productos donde 2 NO tienen stock suficiente
      * Resultado esperado: Debe lanzar excepción con detalle de TODOS los productos problemáticos
      * 
-     * @test
      */
+    #[\PHPUnit\Framework\Attributes\Test]
     public function debe_validar_stock_completo_antes_de_procesar()
     {
         // Arrange: Crear 3 productos con diferentes niveles de stock
@@ -108,8 +108,8 @@ class VentaServiceValidacionTest extends TestCase
     /**
      * Test: No validar stock en servicios de lavado
      * 
-     * @test
      */
+    #[\PHPUnit\Framework\Attributes\Test]
     public function no_debe_validar_stock_en_servicios_lavado()
     {
         // Arrange: Producto marcado como servicio de lavado SIN stock
@@ -152,8 +152,8 @@ class VentaServiceValidacionTest extends TestCase
     /**
      * Test: Validación debe ser atómica (todo o nada)
      * 
-     * @test
      */
+    #[\PHPUnit\Framework\Attributes\Test]
     public function validacion_debe_fallar_si_un_producto_no_tiene_stock()
     {
         // Arrange: 5 productos, solo 1 sin stock suficiente
@@ -192,3 +192,4 @@ class VentaServiceValidacionTest extends TestCase
         $this->assertEquals(1, $productoSinStock->fresh()->stock);
     }
 }
+

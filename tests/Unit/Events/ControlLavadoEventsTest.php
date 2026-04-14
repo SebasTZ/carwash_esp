@@ -17,7 +17,7 @@ class ControlLavadoEventsTest extends TestCase
 {
     use DatabaseMigrations;
 
-    /** @test */
+    #[\PHPUnit\Framework\Attributes\Test]
     public function lavador_cambiado_event_se_puede_crear()
     {
         // Arrange
@@ -50,7 +50,7 @@ class ControlLavadoEventsTest extends TestCase
         $this->assertEquals('Cambio por disponibilidad', $event->motivo);
     }
 
-    /** @test */
+    #[\PHPUnit\Framework\Attributes\Test]
     public function lavador_cambiado_event_se_transmite_en_canal_correcto()
     {
         // Arrange
@@ -82,7 +82,7 @@ class ControlLavadoEventsTest extends TestCase
         $this->assertEquals('private-control-lavados', $channels[0]->name);
     }
 
-    /** @test */
+    #[\PHPUnit\Framework\Attributes\Test]
     public function lavador_cambiado_event_implementa_should_broadcast()
     {
         // Arrange
@@ -110,7 +110,7 @@ class ControlLavadoEventsTest extends TestCase
         $this->assertInstanceOf(\Illuminate\Contracts\Broadcasting\ShouldBroadcast::class, $event);
     }
 
-    /** @test */
+    #[\PHPUnit\Framework\Attributes\Test]
     public function lavado_completado_event_se_puede_crear()
     {
         // Arrange
@@ -132,7 +132,7 @@ class ControlLavadoEventsTest extends TestCase
         $this->assertEquals($controlLavado->id, $event->lavado->id);
     }
 
-    /** @test */
+    #[\PHPUnit\Framework\Attributes\Test]
     public function lavado_completado_event_se_transmite_en_canal_correcto()
     {
         // Arrange
@@ -157,7 +157,7 @@ class ControlLavadoEventsTest extends TestCase
         $this->assertEquals('private-control-lavados', $channels[0]->name);
     }
 
-    /** @test */
+    #[\PHPUnit\Framework\Attributes\Test]
     public function lavado_completado_event_implementa_should_broadcast()
     {
         // Arrange
@@ -178,7 +178,7 @@ class ControlLavadoEventsTest extends TestCase
         $this->assertInstanceOf(\Illuminate\Contracts\Broadcasting\ShouldBroadcast::class, $event);
     }
 
-    /** @test */
+    #[\PHPUnit\Framework\Attributes\Test]
     public function eventos_se_pueden_disparar_correctamente()
     {
         // Arrange
@@ -211,7 +211,7 @@ class ControlLavadoEventsTest extends TestCase
         Event::assertDispatched(LavadoCompletadoEvent::class);
     }
 
-    /** @test */
+    #[\PHPUnit\Framework\Attributes\Test]
     public function lavador_cambiado_event_incluye_datos_para_broadcast()
     {
         // Arrange
@@ -249,7 +249,7 @@ class ControlLavadoEventsTest extends TestCase
         $this->assertEquals($controlLavado->id, $broadcastData['control_lavado_id']);
     }
 
-    /** @test */
+    #[\PHPUnit\Framework\Attributes\Test]
     public function lavado_completado_event_incluye_datos_para_broadcast()
     {
         // Arrange
@@ -274,3 +274,4 @@ class ControlLavadoEventsTest extends TestCase
         $this->assertEquals($controlLavado->id, $broadcastData['lavado_id']);
     }
 }
+

@@ -2,18 +2,21 @@
 
 namespace App\Providers;
 
+use Illuminate\Cache\RateLimiting\Limit;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Event;
+use Illuminate\Support\Facades\RateLimiter;
+use Illuminate\Support\Facades\Route;
 use Illuminate\Support\ServiceProvider;
 
 class AppServiceProvider extends ServiceProvider
 {
     /**
      * Register any application services.
-     *
-     * @return void
      */
-    public function register()
+    public function register(): void
     {
-        // Registrar servicios como singletons
+        // Servicios como singletons
         $this->app->singleton(\App\Services\VentaService::class);
         $this->app->singleton(\App\Services\StockService::class);
         $this->app->singleton(\App\Services\FidelizacionService::class);
@@ -23,7 +26,7 @@ class AppServiceProvider extends ServiceProvider
         $this->app->singleton(\App\Services\AuditoriaService::class);
         $this->app->singleton(\App\Services\ComisionService::class);
 
-        // Registrar repositorios como singletons
+        // Repositorios como singletons
         $this->app->singleton(\App\Repositories\VentaRepository::class);
         $this->app->singleton(\App\Repositories\ProductoRepository::class);
         $this->app->singleton(\App\Repositories\CaracteristicaRepository::class);
@@ -33,14 +36,31 @@ class AppServiceProvider extends ServiceProvider
 
     /**
      * Bootstrap any application services.
-     *
-     * @return void
      */
-    public function boot()
+    public function boot(): void
     {
-        // Registrar Observers
+        // Observers
         \App\Models\Producto::observe(\App\Observers\ProductoObserver::class);
         \App\Models\Venta::observe(\App\Observers\VentaObserver::class);
         \App\Models\ControlLavado::observe(\App\Observers\ControlLavadoObserver::class);
+
+        // Event listeners (migrado desde EventServiceProvider)
+        Event::listen(
+            \Illuminate\Auth\Events\Registered::class,
+            \Illuminate\Auth\Listeners\SendEmailVerificationNotification::class,
+        );
+        Event::listen(
+            \App\Events\StockBajoEvent::class,
+            \App\Listeners\NotificarStockBajo::class,
+        );
+
+        // Route model bindings (migrado desde RouteServiceProvider)
+        Route::model('lavador', \App\Models\Lavador::class);
+        Route::model('tipo_vehiculo', \App\Models\TipoVehiculo::class);
+
+        // Rate limiting (migrado desde RouteServiceProvider)
+        RateLimiter::for('api', function (Request $request) {
+            return Limit::perMinute(60)->by($request->user()?->id ?: $request->ip());
+        });
     }
 }

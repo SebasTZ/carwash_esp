@@ -11,13 +11,6 @@ use Illuminate\Support\Facades\DB;
 
 class presentacioneController extends Controller
 {
-    function __construct()
-    {
-        $this->middleware('permission:ver-presentacione|crear-presentacione|editar-presentacione|eliminar-presentacione', ['only' => ['index']]);
-        $this->middleware('permission:crear-presentacione', ['only' => ['create', 'store']]);
-        $this->middleware('permission:editar-presentacione', ['only' => ['edit', 'update']]);
-        $this->middleware('permission:eliminar-presentacione', ['only' => ['destroy']]);
-    }
     /**
      * Display a listing of the resource.
      */
@@ -49,6 +42,7 @@ class presentacioneController extends Controller
             DB::commit();
         } catch (Exception $e) {
             DB::rollBack();
+            return redirect()->back()->withInput()->with('error', 'Error al registrar la presentación');
         }
 
         return redirect()->route('presentaciones.index')->with('success', 'Presentación registrada');
@@ -84,21 +78,15 @@ class presentacioneController extends Controller
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy(string $id)
+    public function destroy(Presentacione $presentacione)
     {
-        $message = '';
-        $presentacione = Presentacione::find($id);
         if ($presentacione->caracteristica->estado == 1) {
             Caracteristica::where('id', $presentacione->caracteristica->id)
-                ->update([
-                    'estado' => 0
-                ]);
+                ->update(['estado' => 0]);
             $message = 'Presentación eliminada';
         } else {
             Caracteristica::where('id', $presentacione->caracteristica->id)
-                ->update([
-                    'estado' => 1
-                ]);
+                ->update(['estado' => 1]);
             $message = 'Presentación restaurada';
         }
 

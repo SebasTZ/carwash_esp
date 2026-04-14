@@ -24,7 +24,7 @@ class VentaObserverTest extends TestCase
         parent::setUp();
     }
 
-    /** @test */
+    #[\PHPUnit\Framework\Attributes\Test]
     public function puede_crear_venta_correctamente()
     {
         $user = User::factory()->create();
@@ -59,7 +59,7 @@ class VentaObserverTest extends TestCase
         ]);
     }
 
-    /** @test */
+    #[\PHPUnit\Framework\Attributes\Test]
     public function venta_tiene_relaciones_correctas()
     {
         $user = User::factory()->create();
@@ -111,7 +111,7 @@ class VentaObserverTest extends TestCase
         $this->assertCount(1, $venta->productos);
     }
 
-    /** @test */
+    #[\PHPUnit\Framework\Attributes\Test]
     public function puede_usar_factory_para_crear_ventas()
     {
         $user = User::factory()->create();
@@ -144,3 +144,4 @@ class VentaObserverTest extends TestCase
         $this->assertNotNull($venta->total);
     }
 }
+

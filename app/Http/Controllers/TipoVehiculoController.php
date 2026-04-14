@@ -7,13 +7,6 @@ use Illuminate\Http\Request;
 
 class TipoVehiculoController extends Controller
 {
-    public function __construct()
-    {
-        $this->middleware('can:ver-tipo-vehiculo')->only(['index', 'show']);
-        $this->middleware('can:crear-tipo-vehiculo')->only(['create', 'store']);
-        $this->middleware('can:editar-tipo-vehiculo')->only(['edit', 'update']);
-        $this->middleware('can:eliminar-tipo-vehiculo')->only(['destroy']);
-    }
 
     public function index()
     {
@@ -33,7 +26,7 @@ class TipoVehiculoController extends Controller
             'comision' => 'required|numeric',
             'estado' => 'required',
         ]);
-        TipoVehiculo::create($request->all());
+        TipoVehiculo::create($request->only(['nombre', 'comision', 'estado']));
         return redirect()->route('tipos_vehiculo.index');
     }
 
@@ -49,7 +42,7 @@ class TipoVehiculoController extends Controller
             'comision' => 'required|numeric',
             'estado' => 'required',
         ]);
-        $tipoVehiculo->update($request->all());
+        $tipoVehiculo->update($request->only(['nombre', 'comision', 'estado']));
         return redirect()->route('tipos_vehiculo.index');
     }
 }

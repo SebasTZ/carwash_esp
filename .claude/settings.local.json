@@ -1,5 +1,40 @@
 {
-    "permissions": {
-        "allow": ["Bash(php -v)", "WebSearch"]
-    }
+  "permissions": {
+    "allow": [
+      "Bash(php -v)",
+      "WebSearch",
+      "Bash(php artisan:*)",
+      "Bash(grep -r '$this->middleware\\(' app/Http/Controllers/)",
+      "Bash(grep -oP \"Controllers\\\\\\\\\\\\\\\\[^.]+\\\\.php\")",
+      "Bash(grep -rl '$this->middleware\\(' app/Http/Controllers/)",
+      "Bash(composer update:*)",
+      "Bash(php -r \"echo \\(new \\\\Spatie\\\\Permission\\\\PermissionServiceProvider\\(app\\(\\)\\)\\)->provides\\(\\)[0] ?? 'OK';\")",
+      "Bash(composer show:*)",
+      "Bash(php -r ':*)",
+      "Bash(ls .env*)",
+      "Bash(psql -U postgres -h localhost -p 5432 -c \"CREATE DATABASE carwash_test;\")",
+      "Bash(where psql:*)",
+      "Bash(where pg_isready)",
+      "Read(//c/Program Files/PostgreSQL/**)",
+      "Read(//c/Program Files/PostgreSQL//**)",
+      "Bash(\"/c/Program Files/PostgreSQL/17/bin/psql.exe\" -U postgres -h localhost -p 5432 -c \"CREATE DATABASE carwash_test;\")",
+      "Bash(cmd /c '\"C:\\\\Program Files\\\\PostgreSQL\\\\17\\\\bin\\\\psql.exe\" -U postgres -h localhost -p 5432 -c \"CREATE DATABASE carwash_test;\" 2>&1')",
+      "Bash(PGPASSWORD=Sebas3120 cmd /c \"\\\\\"C:\\\\\\\\Program Files\\\\\\\\PostgreSQL\\\\\\\\17\\\\\\\\bin\\\\\\\\psql.exe\\\\\" -U postgres -h localhost -p 5432 -c \\\\\"CREATE DATABASE carwash_test;\\\\\"\")",
+      "Bash(npm install:*)",
+      "Bash(npm run:*)",
+      "Bash(grep -rn \"@json\\(\\\\$\" resources/views/)",
+      "Bash(php -r 'require '\\\\''vendor/autoload.php'\\\\''; $app = require '\\\\''bootstrap/app.php'\\\\''; echo '\\\\''OK'\\\\'' . PHP_EOL;')",
+      "Bash(grep -rn \"Http\\\\\\\\\\\\\\\\Kernel\\\\|Console\\\\\\\\\\\\\\\\Kernel\\\\|Exceptions\\\\\\\\\\\\\\\\Handler\\\\|RouteServiceProvider\\\\|EventServiceProvider\\\\|AuthServiceProvider\\\\|BroadcastServiceProvider\" app/)",
+      "Bash(grep -rn \"Illuminate\\\\\\\\\\\\\\\\Http\\\\\\\\\\\\\\\\Middleware\\\\\\\\\\\\\\\\TrustProxies\" vendor/laravel/framework/src/)",
+      "Bash(grep -rn 'use Illuminate\\\\\\\\Http\\\\\\\\Request\\\\|string $id\\\\b' app/Http/Controllers/)",
+      "Bash(grep 'string $id')",
+      "Bash(grep 'string $id\\\\|int $id')",
+      "Bash(grep -rn \"use Illuminate\\\\\\\\\\\\\\\\Foundation\\\\\\\\\\\\\\\\Auth\\\\\\\\\\\\\\\\Access\\\\\\\\\\\\\\\\AuthorizesRequests\\\\|use Illuminate\\\\\\\\\\\\\\\\Foundation\\\\\\\\\\\\\\\\Bus\\\\\\\\\\\\\\\\DispatchesJobs\\\\|use Illuminate\\\\\\\\\\\\\\\\Foundation\\\\\\\\\\\\\\\\Validation\\\\\\\\\\\\\\\\ValidatesRequests\" app/)",
+      "Bash(grep -rn \"Illuminate\\\\\\\\\\\\\\\\Auth\\\\\\\\\\\\\\\\Events\\\\\\\\\\\\\\\\Registered\\\\|Illuminate\\\\\\\\\\\\\\\\Auth\\\\\\\\\\\\\\\\Listeners\\\\|SendEmailVerification\" app/)",
+      "Bash(grep -rn 'string $id\\\\|int $id' app/Http/Controllers/)",
+      "Bash(xargs -I {} basename {})",
+      "Bash(ls -1 app/Http/Controllers/*.php)",
+      "Bash(xargs -I {} basename {} .php)"
+    ]
+  }
 }
