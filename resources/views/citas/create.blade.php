@@ -103,25 +103,8 @@
         </form>
     </div>
 </div>
-
-<script type="module">
-window.addEventListener('load', () => {
-    const { FormValidator } = window.CarWash;
-
-    const validator = new FormValidator('#citaForm', {
-        cliente_id: {
-            required: { message: 'Debe seleccionar un cliente' }
-        },
-        fecha: {
-            required: { message: 'La fecha es obligatoria' }
-        },
-        hora: {
-            required: { message: 'La hora es obligatoria' }
-        }
-        // notas: Sin validaciones (campo opcional)
-    });
-
-    validator.init();
-});
-</script>
 @endsection
+
+@push('js')
+@vite(['resources/js/modules/CitasFormManager.js'])
+@endpush

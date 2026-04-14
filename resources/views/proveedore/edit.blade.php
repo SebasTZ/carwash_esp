@@ -37,25 +37,15 @@
 
 @push('js')
 @vite(['resources/js/components/forms/FormValidator.js', 'resources/js/components/tables/ProveedorFormManager.js'])
-<script>
-    document.addEventListener('DOMContentLoaded', function() {
-        if (window.FormValidator) {
-            new FormValidator('#proveedor-edit-form');
-        }
-        if (window.ProveedorFormManager) {
-            window.ProveedorFormManager.init({
-                el: '#proveedor-edit-form-fields',
-                documentos: @json($documentos),
-                persona: @json($proveedore->persona),
-                old: {
-                    razon_social: @json(old('razon_social')),
-                    direccion: @json(old('direccion')),
-                    telefono: @json(old('telefono')),
-                    documento_id: @json(old('documento_id')),
-                    numero_documento: @json(old('numero_documento'))
-                }
-            });
-        }
-    });
-</script>
+<script type="application/json" id="proveedor-edit-config">{!! json_encode([
+    'documentos' => $documentos,
+    'persona' => $proveedore->persona,
+    'old' => [
+        'razon_social' => old('razon_social'),
+        'direccion' => old('direccion'),
+        'telefono' => old('telefono'),
+        'documento_id' => old('documento_id'),
+        'numero_documento' => old('numero_documento'),
+    ],
+], JSON_HEX_TAG | JSON_HEX_APOS | JSON_HEX_AMP | JSON_HEX_QUOT) !!}</script>
 @endpush

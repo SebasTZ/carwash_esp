@@ -152,22 +152,4 @@
 @endsection
 
 @push('js')
-<script>
-    document.addEventListener('DOMContentLoaded', function() {
-        const placa = document.getElementById('placa');
-        const estado = document.getElementById('estado');
-        const fechaEntregaReal = document.getElementById('fecha_entrega_real');
-
-        placa?.addEventListener('input', function() {
-            this.value = this.value.toUpperCase();
-        });
-
-        estado?.addEventListener('change', function() {
-            if (this.value === 'entregado' && !fechaEntregaReal.value) {
-                const hoy = new Date();
-                fechaEntregaReal.value = hoy.toISOString().slice(0, 10);
-            }
-        });
-    });
-</script>
 @endpush

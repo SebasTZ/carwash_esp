@@ -1,7 +1,10 @@
 import './bootstrap';
 import $ from 'jquery';
+import Swal from 'sweetalert2';
+import 'bootstrap/dist/js/bootstrap.bundle.min.js';
 window.$ = $;
 window.jQuery = $;
+window.Swal = Swal;
 
 // Inicializar window.Laravel para compatibilidad con componentes legacy
 window.Laravel = {
@@ -23,6 +26,7 @@ import * as Validators from './utils/validators';
 import * as Formatters from './utils/formatters';
 import * as BootstrapInit from './utils/bootstrap-init';
 import * as LazyLoader from './utils/lazy-loader';
+import * as Dom from './utils/dom';
 
 // ========================================
 // Importar componentes modernos
@@ -34,6 +38,7 @@ import FormValidator from './components/forms/FormValidator.js';
 import LavadorTableManager from './components/tables/LavadorTableManager.js';
 import LavadorFormManager from './components/forms/LavadorFormManager.js';
 import LavadorEditFormManager from './components/forms/LavadorEditFormManager.js';
+import './modules/LegacyInlineMigration.js';
 
 // ========================================
 // Exportar utilidades al objeto window
@@ -68,6 +73,7 @@ window.CarWash = {
     validateTelefono: Validators.validateTelefono,
     validateTableNotEmpty: Validators.validateTableNotEmpty,
     validateForm: Validators.validateForm,
+    validateRequired: Validators.validateRequired,
     sanitizeString: Validators.sanitizeString,
     isPositive: Validators.isPositive,
     isNonNegative: Validators.isNonNegative,
@@ -115,6 +121,24 @@ window.CarWash = {
     preloadImages: LazyLoader.preloadImages,
     debounce: LazyLoader.debounce,
     throttle: LazyLoader.throttle,
+
+    // DOM helpers
+    query: Dom.query,
+    queryAll: Dom.queryAll,
+    on: Dom.on,
+    getValue: Dom.getValue,
+    setValue: Dom.setValue,
+    getSelectedText: Dom.getSelectedText,
+    setHtml: Dom.setHtml,
+    appendHTML: Dom.appendHTML,
+    clearHTML: Dom.clearHTML,
+    removeElement: Dom.removeElement,
+    showElement: Dom.showElement,
+    hideElement: Dom.hideElement,
+    setRequired: Dom.setRequired,
+    setDisabled: Dom.setDisabled,
+    focusElement: Dom.focusElement,
+    isChecked: Dom.isChecked,
     
     // Componentes modernos
     DynamicTable: DynamicTable,

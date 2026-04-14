@@ -113,12 +113,4 @@
 @endsection
 
 @push('js')
-<script>
-    document.addEventListener('DOMContentLoaded', function() {
-        const placa = document.getElementById('placa');
-        placa?.addEventListener('input', function() {
-            this.value = this.value.toUpperCase();
-        });
-    });
-</script>
 @endpush

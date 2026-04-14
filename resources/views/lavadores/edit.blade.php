@@ -38,15 +38,4 @@
     @endcan
 </div>
 
-<script type="module">
-    document.addEventListener('DOMContentLoaded', () => {
-        const formElement = document.getElementById('lavadorEditForm');
-        if (!formElement) {
-            console.error('Formulario no encontrado');
-            return;
-        }
-        new window.CarWash.LavadorEditFormManager(formElement);
-        console.log('✅ LavadorEditFormManager inicializado correctamente para editar Lavador');
-    });
-</script>
 @endsection

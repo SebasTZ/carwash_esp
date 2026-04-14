@@ -37,15 +37,4 @@
     @endcan
 </div>
 
-<script type="module">
-    document.addEventListener('DOMContentLoaded', () => {
-        const formElement = document.getElementById('lavadorForm');
-        if (!formElement) {
-            console.error('Formulario no encontrado');
-            return;
-        }
-        new window.CarWash.LavadorFormManager(formElement);
-        console.log('✅ LavadorFormManager inicializado correctamente para crear Lavador');
-    });
-</script>
 @endsection

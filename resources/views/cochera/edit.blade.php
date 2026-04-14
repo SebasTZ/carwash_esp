@@ -139,27 +139,4 @@
 @endsection
 
 @push('js')
-<script>
-    document.addEventListener('DOMContentLoaded', function() {
-        const placa = document.getElementById('placa');
-        const estado = document.getElementById('estado');
-        const fechaSalida = document.getElementById('fecha_salida');
-        const montoTotal = document.getElementById('monto_total');
-
-        placa?.addEventListener('input', function() {
-            this.value = this.value.toUpperCase();
-        });
-
-        estado?.addEventListener('change', function() {
-            if (this.value === 'finalizado' && !fechaSalida.value) {
-                const now = new Date();
-                fechaSalida.value = now.toISOString().slice(0, 16);
-            }
-
-            if (montoTotal) {
-                montoTotal.readOnly = this.value === 'activo';
-            }
-        });
-    });
-</script>
 @endpush

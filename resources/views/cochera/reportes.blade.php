@@ -101,7 +101,7 @@
                 <div class="card-header">
                     <h3 class="card-title">Resultados del Reporte</h3>
                     <div class="card-tools">
-                        <button type="button" class="btn btn-success" onclick="exportToExcel()">
+                        <button type="button" id="btnExportCochera" class="btn btn-success">
                             <i class="fas fa-file-excel mr-1"></i> Exportar a Excel
                         </button>
                     </div>
@@ -234,11 +234,30 @@
             </div>
         </div>
     </div>
+
+    <script type="application/json" id="cochera-ingresos-labels">@json($cocheras->where('estado', 'finalizado')->groupBy(function($date) {
+        return \Carbon\Carbon::parse($date->fecha_salida)->format('d/m/Y');
+    })->map(function($group) {
+        return $group->sum('monto_total');
+    })->keys())</script>
+
+    <script type="application/json" id="cochera-ingresos-data">@json($cocheras->where('estado', 'finalizado')->groupBy(function($date) {
+        return \Carbon\Carbon::parse($date->fecha_salida)->format('d/m/Y');
+    })->map(function($group) {
+        return $group->sum('monto_total');
+    })->values())</script>
+
+    <script type="application/json" id="cochera-tipos-labels">@json($cocheras->groupBy('tipo_vehiculo')->map(function($group) {
+        return $group->count();
+    })->keys())</script>
+
+    <script type="application/json" id="cochera-tipos-data">@json($cocheras->groupBy('tipo_vehiculo')->map(function($group) {
+        return $group->count();
+    })->values())</script>
 </div>
 @stop
 
 @section('css')
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/datatables/1.10.21/css/dataTables.bootstrap4.min.css">
 <style>
     .info-box-number {
         font-size: 1.5rem;
@@ -248,134 +267,5 @@
 @stop
 
 @section('js')
-<script src="https://cdnjs.cloudflare.com/ajax/libs/datatables/1.10.21/js/jquery.dataTables.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/datatables/1.10.21/js/dataTables.bootstrap4.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.7.0/chart.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.17.0/xlsx.full.min.js"></script>
-<script>
-    $(document).ready(function() {
-        $('#tabla-reportes').DataTable({
-            "language": {
-                "url": "//cdn.datatables.net/plug-ins/1.10.25/i18n/Spanish.json"
-            },
-            "pageLength": 10,
-            "order": [[0, "desc"]]
-        });
-
-        // Datos para el gráfico de ingresos por día
-        const ingresosPorDiaCtx = document.getElementById('ingresosPorDia').getContext('2d');
-        const ingresosPorDiaChart = new Chart(ingresosPorDiaCtx, {
-            type: 'bar',
-            data: {
-                labels: @json($cocheras->where('estado', 'finalizado')->groupBy(function($date) {
-                    return \Carbon\Carbon::parse($date->fecha_salida)->format('d/m/Y');
-                })->map(function($group) {
-                    return $group->sum('monto_total');
-                })->keys()),
-                datasets: [{
-                    label: 'Ingresos Diarios (S/)',
-                    data: @json($cocheras->where('estado', 'finalizado')->groupBy(function($date) {
-                        return \Carbon\Carbon::parse($date->fecha_salida)->format('d/m/Y');
-                    })->map(function($group) {
-                        return $group->sum('monto_total');
-                    })->values()),
-                    backgroundColor: 'rgba(60, 141, 188, 0.8)',
-                    borderWidth: 1
-                }]
-            },
-            options: {
-                responsive: true,
-                maintainAspectRatio: false,
-                scales: {
-                    y: {
-                        beginAtZero: true,
-                        ticks: {
-                            callback: function(value) {
-                                return 'S/ ' + value;
-                            }
-                        }
-                    }
-                }
-            }
-        });
-
-        // Datos para el gráfico de tipos de vehículos
-        const vehiculosPorTipoCtx = document.getElementById('vehiculosPorTipo').getContext('2d');
-        const tiposVehiculo = @json($cocheras->groupBy('tipo_vehiculo')->map(function($group) {
-            return $group->count();
-        })->keys());
-        const conteoVehiculos = @json($cocheras->groupBy('tipo_vehiculo')->map(function($group) {
-            return $group->count();
-        })->values());
-        
-        const colores = [
-            'rgba(60, 141, 188, 0.8)',
-            'rgba(255, 193, 7, 0.8)',
-            'rgba(40, 167, 69, 0.8)',
-            'rgba(220, 53, 69, 0.8)',
-            'rgba(108, 117, 125, 0.8)',
-            'rgba(23, 162, 184, 0.8)',
-            'rgba(111, 66, 193, 0.8)'
-        ];
-
-        const vehiculosPorTipoChart = new Chart(vehiculosPorTipoCtx, {
-            type: 'pie',
-            data: {
-                labels: tiposVehiculo,
-                datasets: [{
-                    data: conteoVehiculos,
-                    backgroundColor: colores.slice(0, tiposVehiculo.length),
-                    hoverOffset: 4
-                }]
-            },
-            options: {
-                responsive: true,
-                maintainAspectRatio: false,
-                plugins: {
-                    legend: {
-                        position: 'right'
-                    }
-                }
-            }
-        });
-    });
-
-    function exportToExcel() {
-        // Crear una tabla temporal para exportar
-        const tabla = document.getElementById('tabla-reportes').cloneNode(true);
-        
-        // Eliminar la última columna de acciones
-        Array.from(tabla.querySelectorAll('tr')).forEach(row => {
-            if (row.lastElementChild) {
-                row.removeChild(row.lastElementChild);
-            }
-        });
-        
-        // Extraer títulos y datos
-        const titles = Array.from(tabla.querySelectorAll('thead th')).map(th => th.innerText);
-        const data = Array.from(tabla.querySelectorAll('tbody tr')).map(row => 
-            Array.from(row.querySelectorAll('td')).map(td => td.innerText)
-        );
-        
-        // Crear el libro y la hoja
-        const wb = XLSX.utils.book_new();
-        wb.Props = {
-            Title: "Reporte de Cochera",
-            Author: "Sistema Carwash",
-            CreatedDate: new Date()
-        };
-        
-        // Agregar los datos a la hoja
-        wb.SheetNames.push("Report");
-        const ws = XLSX.utils.aoa_to_sheet([
-            titles,
-            ...data
-        ]);
-        wb.Sheets["Report"] = ws;
-        
-        // Generar y descargar el archivo Excel
-        const fechaActual = new Date().toISOString().slice(0, 10);
-        XLSX.writeFile(wb, `Reporte_Cochera_${fechaActual}.xlsx`);
-    }
-</script>
+@vite(['resources/js/modules/CocheraReportesManager.js'])
 @stop

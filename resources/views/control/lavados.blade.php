@@ -3,7 +3,6 @@
 @section('title', 'Control de Lavados')
 
 @push('css')
-<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-select@1.14.0-beta3/dist/css/bootstrap-select.min.css">
 <style>
     .control-card {
         border-radius: 15px;
@@ -412,7 +411,6 @@
 @endsection
 
 @push('js')
-<script src="https://cdn.jsdelivr.net/npm/bootstrap-select@1.14.0-beta3/dist/js/bootstrap-select.min.js"></script>
 @vite([
     'resources/js/modules/LavadosManager.js',
     'resources/js/components/forms/FormValidator.js'

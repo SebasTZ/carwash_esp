@@ -439,23 +439,5 @@
 @endsection
 
 @push('scripts')
-<script>
-// Auto-refresh dashboard timer
-let countdownTime = 60;
-const countdownEl = document.getElementById('countdown');
-
-function updateCountdown() {
-    countdownEl.textContent = countdownTime;
-    
-    if (countdownTime <= 0) {
-        window.location.reload();
-    } else {
-        countdownTime--;
-        setTimeout(updateCountdown, 1000);
-    }
-}
-
-// Start countdown
-updateCountdown();
-</script>
+@vite(['resources/js/modules/CitasDashboardAutoRefresh.js'])
 @endpush

@@ -2,10 +2,6 @@
 
 @section('title','Usuarios')
 
-@push('css-datatable')
-<link href="https://cdn.jsdelivr.net/npm/simple-datatables@latest/dist/style.css" rel="stylesheet" type="text/css">
-@endpush
-
 @section('content')
 
 @include('layouts.partials.alert')
@@ -45,34 +41,11 @@
 @endsection
 
 @push('js')
-<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 <!-- DataTables removido para usar paginación de Laravel -->
 @endpush
 @vite(['resources/js/components/tables/UserTableManager.js'])
-<script>
-    document.addEventListener('DOMContentLoaded', function() {
-        if (window.UserTableManager) {
-            // Preparar datos con roles
-            const rawUsers = @json($users->items());
-            const usersData = rawUsers.map(user => {
-                let roleName = '';
-                if (user.roles && user.roles.length > 0) {
-                    roleName = user.roles[0].name;
-                }
-                return {
-                    id: user.id,
-                    name: user.name,
-                    email: user.email,
-                    status: user.status_text,
-                    role: roleName
-                };
-            });
-            window.UserTableManager.init({
-                el: '#users-dynamic-table',
-                users: usersData,
-                canEdit: @json(auth()->user()->can('editar-user')),
-                canDelete: @json(auth()->user()->can('eliminar-user'))
-            });
-        }
-    });
-</script>
+<script type="application/json" id="users-index-config">{!! json_encode([
+    'users' => $users->items(),
+    'canEdit' => auth()->user()->can('editar-user'),
+    'canDelete' => auth()->user()->can('eliminar-user'),
+], JSON_HEX_TAG | JSON_HEX_APOS | JSON_HEX_AMP | JSON_HEX_QUOT) !!}</script>

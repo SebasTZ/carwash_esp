@@ -36,23 +36,13 @@
 @endsection
 
 @push('js')
-@vite(['resources/js/components/forms/FormValidator.js', 'resources/js/modules/RoleFormManager.js'])
-<script>
-    document.addEventListener('DOMContentLoaded', function() {
-        if (window.FormValidator) {
-            new FormValidator('#role-edit-form');
-        }
-        if (window.RoleFormManager) {
-            window.RoleFormManager.init({
-                el: '#role-edit-form-fields',
-                permisos: @json($permisos),
-                role: @json($role),
-                old: {
-                    name: @json(old('name')),
-                    permission: @json(old('permission'))
-                }
-            });
-        }
-    });
-</script>
+@vite(['resources/js/components/forms/FormValidator.js', 'resources/js/components/tables/RoleFormManager.js'])
+<script type="application/json" id="role-edit-config">{!! json_encode([
+    'permisos' => $permisos,
+    'role' => $role,
+    'old' => [
+        'name' => old('name'),
+        'permission' => old('permission'),
+    ],
+], JSON_HEX_TAG | JSON_HEX_APOS | JSON_HEX_AMP | JSON_HEX_QUOT) !!}</script>
 @endpush

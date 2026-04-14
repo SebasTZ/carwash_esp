@@ -14,6 +14,7 @@ import {
 
 import { 
     validatePrecio,
+    validateRequired,
     isPositive,
     isInteger,
     validateTableNotEmpty
@@ -23,6 +24,25 @@ import {
     formatCurrency,
     parseCurrency 
 } from '@utils/formatters';
+
+import {
+    refreshBootstrapSelect,
+    setBootstrapSelectValue,
+} from '@utils/bootstrap-init';
+
+import {
+    on,
+    getValue,
+    setValue,
+    getSelectedText,
+    setHtml,
+    appendHTML,
+    clearHTML,
+    removeElement,
+    setDisabled,
+    focusElement,
+    query,
+} from '@utils/dom';
 
 /**
  * Estado de la compra
@@ -52,9 +72,12 @@ class CompraState {
         this.sumas = this.productos.reduce((sum, producto) => {
             return sum + (producto ? producto.subtotal : 0);
         }, 0);
+
+        const tipoComprobanteText = getSelectedText('#comprobante_id');
+        const porcentajeIGV = parseFloat(getValue('#impuesto')) || 18;
         
         // Calcular IGV (siempre se aplica en compras)
-        this.recalcularIGV();
+        this.recalcularIGV(tipoComprobanteText, porcentajeIGV);
         
         return {
             sumas: this.round(this.sumas),
@@ -66,10 +89,7 @@ class CompraState {
     /**
      * Recalcula el IGV basado en el tipo de comprobante
      */
-    recalcularIGV() {
-        const tipoComprobanteText = $('#comprobante_id option:selected').text();
-        const porcentajeIGV = parseFloat($('#impuesto').val()) || 18;
-        
+    recalcularIGV(tipoComprobanteText, porcentajeIGV) {
         // En compras, el IGV se aplica si es Factura
         if (tipoComprobanteText === 'Factura') {
             this.igv = this.round(this.sumas / 100 * porcentajeIGV);
@@ -187,24 +207,34 @@ export class CompraManager {
         this.iniciarAutoGuardado();
     }
 
+    refreshSelectpicker(selector) {
+        refreshBootstrapSelect(selector);
+    }
+
+    setSelectpickerValue(selector, value) {
+        setValue(selector, value);
+        setBootstrapSelectValue(selector, value);
+        this.refreshSelectpicker(selector);
+    }
+
     /**
      * Configura los event listeners
      */
     setupEventListeners() {
         // Botón agregar producto
-        $('#btn_agregar').on('click', () => this.agregarProducto());
+        on('#btn_agregar', 'click', () => this.agregarProducto());
 
         // Cambio de comprobante
-        $('#comprobante_id').on('change', () => this.actualizarTotales());
+        on('#comprobante_id', 'change', () => this.actualizarTotales());
 
         // Cambio de impuesto personalizado
-        $('#impuesto').on('change', () => this.actualizarTotales());
+        on('#impuesto', 'change', () => this.actualizarTotales());
 
         // Botón cancelar compra
-        $('#btnCancelarCompra').on('click', () => this.cancelarCompra());
+        on('#btnCancelarCompra', 'click', () => this.cancelarCompra());
 
         // Validación antes de guardar
-        $('#guardar').on('click', (event) => this.validarAntesDeGuardar(event));
+        on('#guardar', 'click', (event) => this.validarAntesDeGuardar(event));
     }
 
     /**
@@ -212,22 +242,23 @@ export class CompraManager {
      */
     agregarProducto() {
         // Obtener valores
-        const idProducto = $('#producto_id').val();
-        
-        if (!idProducto) {
-            showError('Debe seleccionar un producto');
+        const idProducto = getValue('#producto_id');
+
+        const requiredProducto = validateRequired(idProducto, 'Producto', 'Debe seleccionar un producto');
+        if (!requiredProducto.valid) {
+            showError(requiredProducto.message);
             return;
         }
 
-        const nombreProducto = $('#producto_id option:selected').text();
-        const cantidad = parseInt($('#cantidad').val());
-        const precioCompra = parseFloat($('#precio_compra').val());
-        const precioVenta = parseFloat($('#precio_venta').val());
+        const nombreProducto = getSelectedText('#producto_id');
+        const cantidad = parseInt(getValue('#cantidad'));
+        const precioCompra = parseFloat(getValue('#precio_compra'));
+        const precioVenta = parseFloat(getValue('#precio_venta'));
 
         // Validar cantidad
         if (!isInteger(cantidad) || !isPositive(cantidad)) {
             showError('La cantidad debe ser un número entero positivo');
-            $('#cantidad').focus();
+            focusElement('#cantidad');
             return;
         }
 
@@ -235,7 +266,7 @@ export class CompraManager {
         const precioCompraValidation = validatePrecio(precioCompra, 0);
         if (!precioCompraValidation.valid) {
             showError(precioCompraValidation.message);
-            $('#precio_compra').focus();
+            focusElement('#precio_compra');
             return;
         }
 
@@ -243,7 +274,7 @@ export class CompraManager {
         const precioVentaValidation = validatePrecio(precioVenta, 0);
         if (!precioVentaValidation.valid) {
             showError(precioVentaValidation.message);
-            $('#precio_venta').focus();
+            focusElement('#precio_venta');
             return;
         }
 
@@ -312,12 +343,15 @@ export class CompraManager {
             </tr>
         `;
 
-        $('#tabla_detalle tbody').append(fila);
+        appendHTML('#tabla_detalle tbody', fila);
 
         // Event listener para eliminar
-        $(`[data-eliminar="${producto.indice}"]`).on('click', () => {
-            this.eliminarProducto(producto.indice);
-        });
+        const deleteButton = query(`[data-eliminar="${producto.indice}"]`);
+        if (deleteButton) {
+            deleteButton.addEventListener('click', () => {
+                this.eliminarProducto(producto.indice);
+            });
+        }
     }
 
     /**
@@ -337,7 +371,7 @@ export class CompraManager {
         this.state.eliminarProducto(indice);
 
         // Eliminar fila de la tabla
-        $(`#fila${indice}`).remove();
+        removeElement(`#fila${indice}`);
 
         // Actualizar totales
         this.actualizarTotales();
@@ -357,20 +391,20 @@ export class CompraManager {
     actualizarTotales() {
         const totales = this.state.calcularTotales();
 
-        $('#sumas').html(formatCurrency(totales.sumas));
-        $('#igv').html(formatCurrency(totales.igv));
-        $('#total').html(formatCurrency(totales.total));
-        $('#inputTotal').val(totales.total);
+        setHtml('#sumas', formatCurrency(totales.sumas));
+        setHtml('#igv', formatCurrency(totales.igv));
+        setHtml('#total', formatCurrency(totales.total));
+        setValue('#inputTotal', totales.total);
     }
 
     /**
      * Limpia los campos del formulario de producto
      */
     limpiarCampos() {
-        $('#cantidad').val('');
-        $('#precio_compra').val('');
-        $('#precio_venta').val('');
-        $('#producto_id').val('').selectpicker('refresh');
+        setValue('#cantidad', '');
+        setValue('#precio_compra', '');
+        setValue('#precio_venta', '');
+        this.setSelectpickerValue('#producto_id', '');
     }
 
     /**
@@ -379,8 +413,8 @@ export class CompraManager {
     actualizarEstadoBotones() {
         const hayProductos = this.state.productos.some(p => p !== null);
         
-        $('#guardar').prop('disabled', !hayProductos);
-        $('#btnCancelarCompra').prop('disabled', !hayProductos);
+        setDisabled('#guardar', !hayProductos);
+        setDisabled('#btnCancelarCompra', !hayProductos);
     }
 
     /**
@@ -397,7 +431,7 @@ export class CompraManager {
         if (!confirmado) return;
 
         // Limpiar tabla
-        $('#tabla_detalle tbody').empty();
+        clearHTML('#tabla_detalle tbody');
         
         // Agregar fila vacía
         const filaVacia = `
@@ -411,7 +445,7 @@ export class CompraManager {
                 <td></td>
             </tr>
         `;
-        $('#tabla_detalle tbody').append(filaVacia);
+        appendHTML('#tabla_detalle tbody', filaVacia);
 
         // Limpiar estado
         this.state.limpiar();
@@ -476,7 +510,7 @@ export class CompraManager {
      */
     recuperarBorrador() {
         // Limpiar tabla actual
-        $('#tabla_detalle tbody').empty();
+        clearHTML('#tabla_detalle tbody');
 
         // Agregar cada producto del borrador
         this.state.productos.forEach((producto) => {

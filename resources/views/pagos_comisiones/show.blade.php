@@ -10,19 +10,13 @@
 </div>
 @push('js')
 @vite(['resources/js/components/tables/PagoComisionHistorialTableManager.js'])
-<script>
-    document.addEventListener('DOMContentLoaded', function() {
-        if (window.PagoComisionHistorialTableManager) {
-            window.PagoComisionHistorialTableManager.init({
-                el: '#pago-comision-historial-table-container',
-                pagos: @json($pagos),
-                lavador: @json($lavador),
-                reporteUrl: @json($reporteUrl),
-                fechaInicio: @json($fechaInicio ?? null),
-                fechaFin: @json($fechaFin ?? null)
-            });
-        }
-    });
-</script>
+<script type="application/json" id="pago-comision-show-config">{!! json_encode([
+    'el' => '#pago-comision-historial-table-container',
+    'pagos' => $pagos,
+    'lavador' => $lavador,
+    'reporteUrl' => $reporteUrl,
+    'fechaInicio' => $fechaInicio ?? null,
+    'fechaFin' => $fechaFin ?? null,
+], JSON_HEX_TAG | JSON_HEX_APOS | JSON_HEX_AMP | JSON_HEX_QUOT) !!}</script>
 @endpush
 @endsection

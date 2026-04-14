@@ -155,52 +155,6 @@
         </form>
     </div>
 </div>
-
-<script>
-    // Show/hide precio_venta based on es_servicio_lavado checkbox
-    const esServicioCheckbox = document.getElementById('es_servicio_lavado');
-    const precioDivision = document.getElementById('precio_servicio_div');
-
-    function togglePrecioDiv() {
-        if (esServicioCheckbox.checked) {
-            precioDivision.style.display = 'block';
-        } else {
-            precioDivision.style.display = 'none';
-        }
-    }
-
-    esServicioCheckbox.addEventListener('change', togglePrecioDiv);
-    // Initial state
-    togglePrecioDiv();
-
-    // Form validation and submit
-    document.getElementById('productoEditForm').addEventListener('submit', function(e) {
-        e.preventDefault();
-
-        // Get form
-        const form = this;
-
-        // Simple validation - check required fields
-        const requiredFields = form.querySelectorAll('[required]');
-        let isValid = true;
-
-        requiredFields.forEach(field => {
-            if (!field.value || field.value.trim() === '') {
-                isValid = false;
-                field.classList.add('is-invalid');
-            } else {
-                field.classList.remove('is-invalid');
-            }
-        });
-
-        if (!isValid) {
-            return;
-        }
-
-        // Submit the form
-        form.submit();
-    });
-</script>
 @endsection
 
 @push('js')

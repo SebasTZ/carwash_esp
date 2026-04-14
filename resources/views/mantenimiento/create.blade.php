@@ -118,25 +118,4 @@
 @endsection
 
 @push('js')
-<script>
-    document.addEventListener('DOMContentLoaded', function() {
-        const placa = document.getElementById('placa');
-        const fechaIngreso = document.getElementById('fecha_ingreso');
-        const fechaEntregaEstimada = document.getElementById('fecha_entrega_estimada');
-
-        placa?.addEventListener('input', function() {
-            this.value = this.value.toUpperCase();
-        });
-
-        fechaIngreso?.addEventListener('change', function() {
-            if (!fechaEntregaEstimada.value) {
-                const base = new Date(this.value + 'T00:00:00');
-                if (!Number.isNaN(base.getTime())) {
-                    base.setDate(base.getDate() + 2);
-                    fechaEntregaEstimada.value = base.toISOString().slice(0, 10);
-                }
-            }
-        });
-    });
-</script>
 @endpush

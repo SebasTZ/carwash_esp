@@ -7,13 +7,8 @@
 
 @section('content')
 <div id="productoShowContainer"></div>
-<script type="module">
-    import ProductoShow from '/js/modules/ProductoShow.js';
-    document.addEventListener('DOMContentLoaded', function() {
-        new ProductoShow({
-            elementId: 'productoShowContainer',
-            producto: @json($producto),
-        });
-    });
-</script>
+<script type="application/json" id="producto-show-config">{!! json_encode([
+    'producto' => $producto,
+], JSON_HEX_TAG | JSON_HEX_APOS | JSON_HEX_AMP | JSON_HEX_QUOT) !!}</script>
 @endsection
+

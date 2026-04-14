@@ -3,6 +3,8 @@
  * Maneja toasts, confirmaciones, y estados de carga usando SweetAlert2
  */
 
+import Swal from 'sweetalert2';
+
 /**
  * Muestra un toast de éxito
  * @param {string} message - Mensaje a mostrar

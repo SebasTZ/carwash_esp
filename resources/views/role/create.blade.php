@@ -36,21 +36,11 @@
 
 @push('js')
 @vite(['resources/js/components/forms/FormValidator.js', 'resources/js/components/tables/RoleFormManager.js'])
-<script>
-    document.addEventListener('DOMContentLoaded', function() {
-        if (window.FormValidator) {
-            new FormValidator('#role-create-form');
-        }
-        if (window.RoleFormManager) {
-            window.RoleFormManager.init({
-                el: '#role-create-form-fields',
-                permisos: @json($permisos),
-                old: {
-                    name: @json(old('name')),
-                    permission: @json(old('permission'))
-                }
-            });
-        }
-    });
-</script>
+<script type="application/json" id="role-create-config">{!! json_encode([
+    'permisos' => $permisos,
+    'old' => [
+        'name' => old('name'),
+        'permission' => old('permission'),
+    ],
+], JSON_HEX_TAG | JSON_HEX_APOS | JSON_HEX_AMP | JSON_HEX_QUOT) !!}</script>
 @endpush

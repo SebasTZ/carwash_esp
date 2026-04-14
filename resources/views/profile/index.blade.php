@@ -2,10 +2,6 @@
 
 @section('title','Perfil')
 
-@push('css')
-<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-@endpush
-
 @section('content')
 
 @include('layouts.partials.alert')
@@ -74,15 +70,6 @@
                     <button type="button" id="editProfileBtn" class="btn btn-primary ms-2">Editar</button>
                 </div>
             </form>
-            <script type="module">
-                import ProfileFormManager from '/resources/js/components/forms/ProfileFormManager.js';
-                document.addEventListener('DOMContentLoaded', () => {
-                    const manager = new ProfileFormManager('#profileForm');
-                    document.getElementById('editProfileBtn').addEventListener('click', () => {
-                        manager.enableFields();
-                    });
-                });
-            </script>
         </div>
     </div>
 

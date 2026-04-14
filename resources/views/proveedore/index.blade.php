@@ -2,10 +2,6 @@
 
 @section('title','Proveedores')
 
-@push('css-datatable')
-<link href="https://cdn.jsdelivr.net/npm/simple-datatables@latest/dist/style.css" rel="stylesheet" type="text/css">
-@endpush
-
 @section('content')
 
 @include('layouts.partials.alert')
@@ -38,18 +34,10 @@
 @endsection
 
 @push('js')
-<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 @vite(['resources/js/components/tables/ProveedorTableManager.js'])
-<script>
-    document.addEventListener('DOMContentLoaded', function() {
-        if (window.ProveedorTableManager) {
-            window.ProveedorTableManager.init({
-                el: '#proveedores-dynamic-table',
-                proveedores: @json($proveedores->items()),
-                canEdit: true,
-                canDelete: true
-            });
-        }
-    });
-</script>
+<script type="application/json" id="proveedores-index-config">{!! json_encode([
+    'proveedores' => $proveedores->items(),
+    'canEdit' => auth()->user()->can('editar-proveedore'),
+    'canDelete' => auth()->user()->can('eliminar-proveedore'),
+], JSON_HEX_TAG | JSON_HEX_APOS | JSON_HEX_AMP | JSON_HEX_QUOT) !!}</script>
 @endpush

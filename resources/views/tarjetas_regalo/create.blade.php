@@ -50,33 +50,6 @@
                 </div>
                 <button type="submit" class="btn btn-success">Crear</button>
             </form>
-            <script>
-                document.addEventListener('DOMContentLoaded', () => {
-                    const generarCodigoBtn = document.getElementById('generarCodigoBtn');
-                    const codigoInput = document.getElementById('codigo');
-
-                    // Función para generar código serial único
-                    function generarCodigoSerial() {
-                        // Formato: TRG-YYYYMMDD-XXXXX (donde XXXXX es aleatorio de 5 dígitos)
-                        const fecha = new Date();
-                        const año = fecha.getFullYear();
-                        const mes = String(fecha.getMonth() + 1).padStart(2, '0');
-                        const dia = String(fecha.getDate()).padStart(2, '0');
-                        const aleatorio = String(Math.floor(Math.random() * 100000)).padStart(5, '0');
-                        
-                        return `TRG-${año}${mes}${dia}-${aleatorio}`;
-                    }
-
-                    generarCodigoBtn.addEventListener('click', (e) => {
-                        e.preventDefault();
-                        codigoInput.value = generarCodigoSerial();
-                        codigoInput.focus();
-                    });
-
-                    // Generar código al cargar la página (opcional)
-                    // codigoInput.value = generarCodigoSerial();
-                });
-            </script>
         </div>
     </div>
 </div>

@@ -3,6 +3,9 @@
  * Reemplaza el código inline de resources/views/venta/create.blade.php
  */
 
+import 'bootstrap-select/dist/css/bootstrap-select.min.css';
+import 'bootstrap-select/dist/js/bootstrap-select.min.js';
+
 import { 
     showSuccess, 
     showError, 
@@ -16,6 +19,7 @@ import {
     validateStock, 
     validatePrecio, 
     validateDescuento,
+    validateRequired,
     isPositive,
     isInteger,
     validateTableNotEmpty
@@ -25,6 +29,30 @@ import {
     formatCurrency,
     parseCurrency 
 } from '@utils/formatters';
+
+import {
+    initBootstrapSelect,
+    refreshBootstrapSelect,
+    setBootstrapSelectValue,
+} from '@utils/bootstrap-init';
+
+import {
+    on,
+    getValue,
+    setValue,
+    getSelectedText,
+    setHtml,
+    appendHTML,
+    clearHTML,
+    removeElement,
+    showElement,
+    hideElement,
+    setRequired,
+    setDisabled,
+    focusElement,
+    isChecked,
+    query,
+} from '@utils/dom';
 
 /**
  * Estado de la venta
@@ -54,9 +82,13 @@ class VentaState {
         this.sumas = this.productos.reduce((sum, producto) => {
             return sum + (producto ? producto.subtotal : 0);
         }, 0);
+
+        const tipoComprobanteText = getSelectedText('#comprobante_id');
+        const incluirIGV = isChecked('#con_igv');
+        const porcentajeIGV = parseFloat(getValue('#impuesto')) || 0;
         
         // Calcular IGV
-        this.recalcularIGV();
+        this.recalcularIGV(tipoComprobanteText, incluirIGV, porcentajeIGV);
         
         return {
             sumas: this.round(this.sumas),
@@ -68,11 +100,7 @@ class VentaState {
     /**
      * Recalcula el IGV basado en el tipo de comprobante
      */
-    recalcularIGV() {
-        const tipoComprobanteText = $('#comprobante_id option:selected').text();
-        const incluirIGV = $('#con_igv').is(':checked');
-        const porcentajeIGV = parseFloat($('#impuesto').val()) || 0;
-        
+    recalcularIGV(tipoComprobanteText, incluirIGV, porcentajeIGV) {
         if (tipoComprobanteText === 'Factura' && incluirIGV && porcentajeIGV > 0) {
             this.igv = this.round(this.sumas / 100 * porcentajeIGV);
         } else {
@@ -186,9 +214,27 @@ export class VentaManager {
      * Inicializa el manager
      */
     init() {
+        this.initBootstrapSelect();
         this.setupEventListeners();
         this.intentarRecuperarBorrador();
         this.iniciarAutoGuardado();
+    }
+
+    /**
+     * Inicializa bootstrap-select en la vista de crear venta
+     */
+    initBootstrapSelect() {
+        initBootstrapSelect('.selectpicker');
+    }
+
+    refreshSelectpicker(selector) {
+        refreshBootstrapSelect(selector);
+    }
+
+    setSelectpickerValue(selector, value) {
+        setValue(selector, value);
+        setBootstrapSelectValue(selector, value);
+        this.refreshSelectpicker(selector);
     }
 
     /**
@@ -196,22 +242,22 @@ export class VentaManager {
      */
     setupEventListeners() {
         // Botón agregar producto
-        $('#btn_agregar').on('click', () => this.agregarProducto());
+        on('#btn_agregar', 'click', () => this.agregarProducto());
 
         // Cambio de producto
-        $('#producto_id').on('change', () => this.mostrarValoresProducto());
+        on('#producto_id', 'change', () => this.mostrarValoresProducto());
 
         // Cambio de comprobante o checkbox IGV
-        $('#comprobante_id, #con_igv').on('change', () => this.actualizarTotales());
+        on('#comprobante_id, #con_igv', 'change', () => this.actualizarTotales());
 
         // Cambio de impuesto personalizado
-        $('#impuesto').on('change', () => this.actualizarTotales());
+        on('#impuesto', 'change', () => this.actualizarTotales());
 
         // Botón cancelar venta
-        $('#btnCancelarVenta').on('click', () => this.cancelarVenta());
+        on('#btnCancelarVenta', 'click', () => this.cancelarVenta());
 
         // Validación antes de guardar - Interceptar el submit del formulario
-        $('#venta-form').on('submit', (event) => {
+        on('#venta-form', 'submit', (event) => {
             console.log('[VentaManager] Submit del formulario detectado');
             const resultado = this.validarAntesDeGuardar(event);
             console.log('[VentaManager] Resultado validación:', resultado);
@@ -224,23 +270,23 @@ export class VentaManager {
         });
 
         // Cambio de medio de pago
-        $('#medio_pago').on('change', () => this.manejarCambioMedioPago());
+        on('#medio_pago', 'change', () => this.manejarCambioMedioPago());
 
         // Cambio de cliente - validar fidelización si ya está seleccionado "Lavado Gratis"
-        $('#cliente_id').on('change', () => this.validarClienteConLavadoGratis());
+        on('#cliente_id', 'change', () => this.validarClienteConLavadoGratis());
 
         // Checkbox servicio de lavado
-        $('#servicio_lavado').on('change', () => this.toggleHorarioLavado());
+        on('#servicio_lavado', 'change', () => this.toggleHorarioLavado());
     }
 
     /**
      * Valida si el cliente cambió y ya tienen "Lavado Gratis" seleccionado
      */
     validarClienteConLavadoGratis() {
-        if ($('#medio_pago').val() === 'lavado_gratis') {
+        if (getValue('#medio_pago') === 'lavado_gratis') {
             // Si ya tenían lavado gratis seleccionado y cambiaron de cliente,
             // validar si el nuevo cliente también tiene puntos
-            const clienteId = $('#cliente_id').val();
+            const clienteId = getValue('#cliente_id');
             if (clienteId) {
                 this.validarFidelizacionLavado(clienteId);
             }
@@ -252,7 +298,7 @@ export class VentaManager {
      * Muestra los valores del producto seleccionado
      */
     mostrarValoresProducto() {
-        const productoValue = $('#producto_id').val();
+        const productoValue = getValue('#producto_id');
         if (!productoValue) return;
 
         const [idProducto, stock, precioVenta, esServicio] = productoValue.split('-');
@@ -260,13 +306,13 @@ export class VentaManager {
 
         // Mostrar stock
         if (esServicioLavado) {
-            $('#stock').val('∞'); // Símbolo de infinito para servicios
+            setValue('#stock', '∞'); // Símbolo de infinito para servicios
         } else {
-            $('#stock').val(stock);
+            setValue('#stock', stock);
         }
 
         // Mostrar precio
-        $('#precio_venta').val(precioVenta);
+        setValue('#precio_venta', precioVenta);
     }
 
     /**
@@ -274,24 +320,25 @@ export class VentaManager {
      */
     agregarProducto() {
         // Obtener valores
-        const productoValue = $('#producto_id').val();
-        
-        if (!productoValue) {
-            showError('Debe seleccionar un producto');
+        const productoValue = getValue('#producto_id');
+
+        const requiredProducto = validateRequired(productoValue, 'Producto', 'Debe seleccionar un producto');
+        if (!requiredProducto.valid) {
+            showError(requiredProducto.message);
             return;
         }
 
         const [idProducto, stock, , esServicio] = productoValue.split('-');
-        const nombreProducto = $('#producto_id option:selected').text();
-        const cantidad = parseInt($('#cantidad').val());
-        const precioVenta = parseFloat($('#precio_venta').val());
-        const descuento = parseFloat($('#descuento').val()) || 0;
+        const nombreProducto = getSelectedText('#producto_id');
+        const cantidad = parseInt(getValue('#cantidad'));
+        const precioVenta = parseFloat(getValue('#precio_venta'));
+        const descuento = parseFloat(getValue('#descuento')) || 0;
         const esServicioLavado = esServicio === '1';
 
         // Validar cantidad
         if (!isInteger(cantidad) || !isPositive(cantidad)) {
             showError('La cantidad debe ser un número entero positivo');
-            $('#cantidad').focus();
+            focusElement('#cantidad');
             return;
         }
         // Solo validar stock si NO es servicio de lavado
@@ -299,7 +346,7 @@ export class VentaManager {
             const stockValidation = validateStock(cantidad, stock, esServicioLavado);
             if (!stockValidation.valid) {
                 showError(stockValidation.message);
-                $('#cantidad').focus();
+                focusElement('#cantidad');
                 return;
             }
         }
@@ -308,7 +355,7 @@ export class VentaManager {
         const precioValidation = validatePrecio(precioVenta, 0);
         if (!precioValidation.valid) {
             showError(precioValidation.message);
-            $('#precio_venta').focus();
+            focusElement('#precio_venta');
             return;
         }
 
@@ -316,7 +363,7 @@ export class VentaManager {
         const descuentoValidation = validateDescuento(descuento, precioVenta, cantidad);
         if (!descuentoValidation.valid) {
             showError(descuentoValidation.message);
-            $('#descuento').focus();
+            focusElement('#descuento');
             return;
         }
 
@@ -367,7 +414,7 @@ export class VentaManager {
             </tr>
         `;
 
-        $('#tabla_detalle tbody').append(fila);
+        appendHTML('#tabla_detalle tbody', fila);
 
         // Agregar campos ocultos en contenedor especial (FUERA de la tabla)
         const camposOcultos = `
@@ -378,12 +425,15 @@ export class VentaManager {
                 <input type="hidden" name="arraydescuento[]" value="${producto.descuento}">
             </div>
         `;
-        $('#campos-productos-ocultos').append(camposOcultos);
+        appendHTML('#campos-productos-ocultos', camposOcultos);
 
         // Event listener para eliminar
-        $(`[data-eliminar="${producto.indice}"]`).on('click', () => {
-            this.eliminarProducto(producto.indice);
-        });
+        const deleteButton = query(`[data-eliminar="${producto.indice}"]`);
+        if (deleteButton) {
+            deleteButton.addEventListener('click', () => {
+                this.eliminarProducto(producto.indice);
+            });
+        }
     }
 
     /**
@@ -403,10 +453,10 @@ export class VentaManager {
         this.state.eliminarProducto(indice);
 
         // Eliminar fila de la tabla
-        $(`#fila${indice}`).remove();
+        removeElement(`#fila${indice}`);
 
         // Eliminar campos ocultos correspondientes
-        $(`[data-producto-indice="${indice}"]`).remove();
+        removeElement(`[data-producto-indice="${indice}"]`);
 
         // Actualizar totales
         this.actualizarTotales();
@@ -432,28 +482,25 @@ export class VentaManager {
         console.log('Sumas:', totales.sumas);
         console.log('IGV:', totales.igv);
         console.log('Total:', totales.total);
-        console.log('Tipo comprobante:', $('#comprobante_id option:selected').text());
-        console.log('Incluir IGV:', $('#con_igv').is(':checked'));
+        console.log('Tipo comprobante:', getSelectedText('#comprobante_id'));
+        console.log('Incluir IGV:', isChecked('#con_igv'));
 
-        $('#sumas').html(formatCurrency(totales.sumas));
-        $('#igv').html(formatCurrency(totales.igv));
-        $('#total').html(formatCurrency(totales.total));
-        $('#inputTotal').val(totales.total);
+        setHtml('#sumas', formatCurrency(totales.sumas));
+        setHtml('#igv', formatCurrency(totales.igv));
+        setHtml('#total', formatCurrency(totales.total));
+        setValue('#inputTotal', totales.total);
     }
 
     /**
      * Limpia los campos del formulario de producto
      */
     limpiarCampos() {
-        $('#cantidad').val('');
-        $('#descuento').val('');
-        $('#producto_id').val('');
-        // Solo hacer refresh si selectpicker está disponible
-        if (typeof $.fn.selectpicker !== 'undefined') {
-            $('#producto_id').selectpicker('refresh');
-        }
-        $('#stock').val('');
-        $('#precio_venta').val('');
+        setValue('#cantidad', '');
+        setValue('#descuento', '');
+        setValue('#producto_id', '');
+        this.refreshSelectpicker('#producto_id');
+        setValue('#stock', '');
+        setValue('#precio_venta', '');
     }
 
     /**
@@ -462,8 +509,8 @@ export class VentaManager {
     actualizarEstadoBotones() {
         const hayProductos = this.state.productos.some(p => p !== null);
         
-        $('#guardar').prop('disabled', !hayProductos);
-        $('#btnCancelarVenta').prop('disabled', !hayProductos);
+        setDisabled('#guardar', !hayProductos);
+        setDisabled('#btnCancelarVenta', !hayProductos);
     }
 
     /**
@@ -480,7 +527,7 @@ export class VentaManager {
         if (!confirmado) return;
 
         // Limpiar tabla
-        $('#tabla_detalle tbody').empty();
+        clearHTML('#tabla_detalle tbody');
         
         // Agregar fila vacía
         const filaVacia = `
@@ -494,10 +541,10 @@ export class VentaManager {
                 <td></td>
             </tr>
         `;
-        $('#tabla_detalle tbody').append(filaVacia);
+        appendHTML('#tabla_detalle tbody', filaVacia);
 
         // Limpiar campos ocultos
-        $('#campos-productos-ocultos').empty();
+        clearHTML('#campos-productos-ocultos');
 
         // Limpiar estado
         this.state.limpiar();
@@ -518,7 +565,8 @@ export class VentaManager {
         console.log('[VentaManager] Iniciando validación antes de guardar');
         
         // DEBUG: Ver qué datos se van a enviar
-        const formData = new FormData($('#venta-form')[0]);
+        const ventaForm = query('#venta-form');
+        const formData = ventaForm ? new FormData(ventaForm) : new FormData();
         console.log('[VentaManager] FormData completo:', Object.fromEntries(formData));
         
         // Validar que haya productos
@@ -531,14 +579,20 @@ export class VentaManager {
         }
 
         // Validar servicio de lavado y horario
-        const servicioLavado = $('#servicio_lavado').is(':checked');
-        const horarioLavado = $('#horario_lavado').val();
+        const servicioLavado = isChecked('#servicio_lavado');
+        const horarioLavado = getValue('#horario_lavado');
         console.log('[VentaManager] Servicio lavado:', servicioLavado, 'Horario:', horarioLavado);
 
-        if (servicioLavado && !horarioLavado) {
+        const requiredHorarioLavado = validateRequired(
+            horarioLavado,
+            'Horario estimado de culminación',
+            'Debe ingresar el horario estimado de culminación del lavado'
+        );
+
+        if (servicioLavado && !requiredHorarioLavado.valid) {
             event.preventDefault();
-            showError('Debe ingresar el horario estimado de culminación del lavado');
-            $('#horario_lavado').focus();
+            showError(requiredHorarioLavado.message);
+            focusElement('#horario_lavado');
             return false;
         }
 
@@ -560,35 +614,40 @@ export class VentaManager {
      * Maneja el cambio de medio de pago
      */
     manejarCambioMedioPago() {
-        const medioPago = $('#medio_pago').val();
+        const medioPago = getValue('#medio_pago');
 
         // Tarjeta regalo
         if (medioPago === 'tarjeta_regalo') {
-            $('#tarjeta_regalo_div').show();
-            $('#tarjeta_regalo_id').attr('required', true);
+            showElement('#tarjeta_regalo_div');
+            setRequired('#tarjeta_regalo_id', true);
         } else {
-            $('#tarjeta_regalo_div').hide();
-            $('#tarjeta_regalo_id').removeAttr('required').val('');
+            hideElement('#tarjeta_regalo_div');
+            setRequired('#tarjeta_regalo_id', false);
+            setValue('#tarjeta_regalo_id', '');
         }
 
         // Lavado gratis
         if (medioPago === 'lavado_gratis') {
             // Validar si el cliente tiene suficientes puntos ANTES de permitir la selección
-            const clienteId = $('#cliente_id').val();
+            const clienteId = getValue('#cliente_id');
+            const requiredCliente = validateRequired(
+                clienteId,
+                'Cliente',
+                'Debes seleccionar un cliente primero'
+            );
             
-            if (!clienteId) {
-                showError('⚠️ Error', 'Debes seleccionar un cliente primero');
-                $('#medio_pago').val('efectivo').selectpicker('refresh');
+            if (!requiredCliente.valid) {
+                showError(requiredCliente.message);
+                this.setSelectpickerValue('#medio_pago', 'efectivo');
                 return;
             }
 
             // Hacer la validación al servidor
             this.validarFidelizacionLavado(clienteId);
         } else {
-            $('#lavado_gratis_div').hide();
+            hideElement('#lavado_gratis_div');
             // Remover el hidden input cuando se selecciona otro método de pago
-            const container = document.getElementById('campos-lavado-gratis-ocultos');
-            container.innerHTML = '';
+            clearHTML('#campos-lavado-gratis-ocultos');
             // Recalcular totales al cambiar de lavado_gratis a otro método
             this.actualizarTotales();
         }
@@ -619,30 +678,30 @@ export class VentaManager {
                 const titulo = '⚠️ Lavados Insuficientes';
                 const mensaje = `${data.mensaje}\n\n📊 Progreso: ${data.lavados_actuales}/${data.lavados_necesarios} lavados`;
                 
-                showWarning(titulo, mensaje, 'Entendido');
+                showWarning(`${titulo}: ${mensaje}`);
                 
                 // Revertir el select al valor anterior
-                $('#medio_pago').val('efectivo').selectpicker('refresh');
+                this.setSelectpickerValue('#medio_pago', 'efectivo');
                 return;
             }
 
             // ✅ Tiene lavados suficientes, proceder
-            $('#lavado_gratis_div').show();
+            showElement('#lavado_gratis_div');
             
             // Actualizar detalles en el div de lavado gratis
-            const clienteNombre = $('#cliente_id option:selected').text();
+            const clienteNombre = getSelectedText('#cliente_id');
             const detallesHtml = `
                 👤 <strong>${clienteNombre}</strong><br>
                 📊 Lavados acumulados: <strong>${data.lavados_actuales}</strong><br>
                 ✨ Lavados gratis disponibles: <strong>${data.lavados_disponibles}</strong>
             `;
-            $('#detalles_lavado_gratis').html(detallesHtml);
+            setHtml('#detalles_lavado_gratis', detallesHtml);
             
             // Mostrar mensaje de éxito con detalles
             const titulo = '✅ Lavado Gratis Disponible';
             const mensaje = `${data.mensaje}\n\n✨ El cliente podrá disfrutar de este lavado sin costo.`;
             
-            showSuccess(titulo, mensaje);
+            showSuccess(`${titulo}: ${mensaje}`);
             
             // Agregar el hidden input solo cuando se selecciona lavado_gratis
             const container = document.getElementById('campos-lavado-gratis-ocultos');
@@ -656,9 +715,9 @@ export class VentaManager {
             
             // Si es lavado gratis, el total debe ser 0 (es gratis)
             const totalZero = 0.00;
-            $('#inputTotal').val(totalZero);
-            $('#total').html(formatCurrency(totalZero));
-            $('#igv').html(formatCurrency(0));
+            setValue('#inputTotal', totalZero);
+            setHtml('#total', formatCurrency(totalZero));
+            setHtml('#igv', formatCurrency(0));
             
             console.log(`✅ Lavado Gratis seleccionado: ${data.mensaje}`);
             
@@ -666,8 +725,8 @@ export class VentaManager {
             this.actualizarEstadoBotones();
         } catch (error) {
             console.error('Error validando fidelización:', error);
-            showError('❌ Error', 'No se pudo validar los puntos de fidelización: ' + error.message);
-            $('#medio_pago').val('efectivo').selectpicker('refresh');
+            showError('No se pudo validar los puntos de fidelización: ' + error.message);
+            this.setSelectpickerValue('#medio_pago', 'efectivo');
         }
     }
 
@@ -676,12 +735,13 @@ export class VentaManager {
      * Toggle del campo horario de lavado
      */
     toggleHorarioLavado() {
-        if ($('#servicio_lavado').is(':checked')) {
-            $('#horario_lavado_div').show();
-            $('#horario_lavado').attr('required', true);
+        if (isChecked('#servicio_lavado')) {
+            showElement('#horario_lavado_div');
+            setRequired('#horario_lavado', true);
         } else {
-            $('#horario_lavado_div').hide();
-            $('#horario_lavado').removeAttr('required').val('');
+            hideElement('#horario_lavado_div');
+            setRequired('#horario_lavado', false);
+            setValue('#horario_lavado', '');
         }
     }
 
@@ -708,7 +768,7 @@ export class VentaManager {
             // Limpiar estado
             this.state.limpiar();
             // Limpiar UI
-            $('#tabla_detalle tbody').empty();
+            clearHTML('#tabla_detalle tbody');
             this.actualizarTotales();
             this.limpiarCampos();
             this.actualizarEstadoBotones();
@@ -719,7 +779,7 @@ export class VentaManager {
      */
     recuperarBorrador() {
         // Limpiar tabla actual
-        $('#tabla_detalle tbody').empty();
+        clearHTML('#tabla_detalle tbody');
 
         // Agregar cada producto del borrador
         this.state.productos.forEach((producto) => {

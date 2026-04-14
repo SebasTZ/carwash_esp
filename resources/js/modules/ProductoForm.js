@@ -4,6 +4,8 @@
  * Gestiona: bootstrap-select, show/hide de precio, validación básica
  */
 
+import { refreshBootstrapSelect } from '@utils/bootstrap-init';
+
 export default class ProductoForm {
     constructor({
         elementId,
@@ -52,12 +54,8 @@ export default class ProductoForm {
      * Inicializar bootstrap-select
      */
     setupBootstrapSelect() {
-        if (typeof $ !== 'undefined' && $.fn.selectpicker) {
-            $('select.selectpicker').selectpicker('refresh');
-            console.log('[ProductoForm] bootstrap-select inicializado');
-        } else {
-            console.warn('[ProductoForm] bootstrap-select no disponible');
-        }
+        refreshBootstrapSelect('select.selectpicker');
+        console.log('[ProductoForm] bootstrap-select inicializado');
     }
 
     /**

@@ -16,6 +16,24 @@ export function isNotEmpty(value) {
 }
 
 /**
+ * Valida que un campo requerido tenga valor
+ * @param {any} value - Valor a validar
+ * @param {string} fieldName - Nombre legible del campo
+ * @param {string|null} customMessage - Mensaje personalizado opcional
+ * @returns {Object} {valid: boolean, message: string}
+ */
+export function validateRequired(value, fieldName = 'Campo', customMessage = null) {
+    if (!isNotEmpty(value)) {
+        return {
+            valid: false,
+            message: customMessage || `${fieldName} es requerido`,
+        };
+    }
+
+    return { valid: true, message: '' };
+}
+
+/**
  * Valida que un número sea positivo
  * @param {number|string} value - Valor a validar
  * @returns {boolean}

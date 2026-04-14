@@ -54,49 +54,4 @@
 @endsection
 
 @push('js')
-<script>
-window.addEventListener('load', () => {
-    // Validar que CarWash y FormValidator existan
-    if (!window.CarWash || !window.CarWash.FormValidator) {
-        return;
-    }
-
-    const formElement = document.querySelector('#presentacioneForm');
-    if (!formElement) {
-       return;
-    }
-
-    // Configurar FormValidator (misma config que create)
-    const validator = new window.CarWash.FormValidator('#presentacioneForm', {
-        rules: {
-            nombre: {
-                required: true,
-                maxLength: 60,
-            },
-            descripcion: {
-                maxLength: 255,
-            },
-        },
-        messages: {
-            nombre: {
-                required: 'El nombre es obligatorio',
-                maxLength: 'El nombre no puede exceder 60 caracteres',
-            },
-            descripcion: {
-                maxLength: 'La descripción no puede exceder 255 caracteres',
-            },
-        },
-        validateOnSubmit: false,
-    });
-
-    formElement.addEventListener('submit', function(e) {
-        if (!validator.validate()) {
-            e.preventDefault();
-        } else {
-            formElement.submit();
-        }
-    });
-
-});
-</script>
 @endpush

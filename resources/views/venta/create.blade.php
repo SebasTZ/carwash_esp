@@ -2,10 +2,6 @@
 
 @section('title','Registrar Venta')
 
-@push('css')
-<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-select@1.14.0-beta3/dist/css/bootstrap-select.min.css">
-@endpush
-
 @section('content')
 <div class="container-fluid px-4">
     <h1 class="mt-4 text-center">Registrar Venta</h1>
@@ -300,28 +296,6 @@
 @endsection
 
 @push('js')
-<!-- jQuery (necesario para Bootstrap Select) -->
-<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.4/jquery.min.js"></script>
-<!-- SweetAlert2 (necesario para notifications.js) -->
-<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-<!-- Bootstrap Select -->
-<script src="https://cdn.jsdelivr.net/npm/bootstrap-select@1.14.0-beta3/dist/js/bootstrap-select.min.js"></script>
-
 <!-- Cargar el módulo VentaManager.js -->
 @vite(['resources/js/modules/VentaManager.js'])
-
-<script>
-$(document).ready(function() {
-    // Inicializar bootstrap-select SOLO UNA VEZ
-    if (typeof $.fn.selectpicker !== 'undefined') {
-        $('.selectpicker').selectpicker();
-        console.log('✅ Bootstrap Select inicializado');
-        console.log('Productos:', @json($productos->count()) + ' productos cargados');
-        console.log('Clientes:', @json($clientes->count()) + ' clientes cargados');
-        console.log('Comprobantes:', @json($comprobantes->count()) + ' comprobantes cargados');
-    } else {
-        console.error('❌ Bootstrap Select no está disponible');
-    }
-});
-</script>
 @endpush

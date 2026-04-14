@@ -1,12 +1,7 @@
 @extends('layouts.app')
 
 @section('title', 'Reporte de Ventas ' . ucfirst($reporte))
-
-@push('css-datatable')
-<link href="https://cdn.jsdelivr.net/npm/simple-datatables@latest/dist/style.css" rel="stylesheet" type="text/css">
-@endpush
 @push('css')
-<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 <style>
     .row-not-space {
         width: 110px;
@@ -83,51 +78,7 @@
 
 @push('js')
 @vite(['resources/js/components/DynamicTable.js', 'resources/js/modules/VentaManager.js'])
-<script>
-    document.addEventListener('DOMContentLoaded', function() {
-        console.log('🔍 Reporte Page Loaded');
-        
-        if (window.DynamicTable) {
-            console.log('✅ DynamicTable encontrado');
-            const data = @json($ventas);
-            console.log('📊 Datos de ventas:', data.length, 'registros');
-            
-            window.DynamicTable.init({
-                el: '#ventas-reporte-dynamic-table',
-                data: data,
-                columns: [
-                    { label: 'Comprobante', field: 'comprobante' },
-                    { label: 'Cliente', field: 'cliente' },
-                    { label: 'Fecha y Hora', field: 'fecha_hora' },
-                    { label: 'Vendedor', field: 'vendedor' },
-                    { label: 'Total', field: 'total' },
-                    { label: 'Comentarios', field: 'comentarios' },
-                    { label: 'Medio de Pago', field: 'medio_pago' },
-                    { label: 'Efectivo', field: 'efectivo' },
-                    { label: 'Tarjeta Crédito', field: 'tarjeta_credito' },
-                    { label: 'Tarjeta Regalo', field: 'tarjeta_regalo_id' },
-                    { label: 'Lavado Gratis', field: 'lavado_gratis' },
-                    { label: 'Servicio Lavado', field: 'servicio_lavado' },
-                    { label: 'Hora Fin de Lavado', field: 'horario_lavado' },
-                ],
-                pagination: true,
-                onRender: function(rows) {
-                    // Calcular el total solo para métodos de pago permitidos
-                    let total = 0;
-                    rows.forEach(function(row) {
-                        const medioPago = row.medio_pago ? row.medio_pago.toLowerCase() : '';
-                        // Excluir ventas de tarjeta regalo o lavado gratis
-                        if (medioPago !== 'tarjeta regalo' && medioPago !== 'lavado gratis (fidelidad)') {
-                            total += parseFloat(row.total) || 0;
-                        }
-                    });
-                    document.getElementById('ventas-reporte-total').innerText = 'Total Ventas: S/. ' + total.toFixed(2);
-                }
-            });
-            console.log('✅ DynamicTable inicializado para reporte');
-        } else {
-            console.error('❌ DynamicTable NO encontrado');
-        }
-    });
-</script>
+<script type="application/json" id="ventas-reporte-config">{!! json_encode([
+    'data' => $ventas,
+], JSON_HEX_TAG | JSON_HEX_APOS | JSON_HEX_AMP | JSON_HEX_QUOT) !!}</script>
 @endpush

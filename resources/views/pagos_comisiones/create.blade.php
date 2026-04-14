@@ -1,8 +1,3 @@
-@push('js')
-<script>
-    window.Laravel = window.Laravel || {};
-    window.Laravel.csrfToken = '{{ csrf_token() }}';
-</script>
 @extends('layouts.app')
 
 @section('content')
@@ -26,24 +21,19 @@
 
 @push('js')
 @vite(['resources/js/components/forms/PagoComisionFormManager.js'])
-<script>
-    document.addEventListener('DOMContentLoaded', function() {
-        if (window.PagoComisionFormManager) {
-            window.PagoComisionFormManager.init({
-                el: '#pago-comision-form-container',
-                lavadores: @json($lavadores),
-                old: {
-                    lavador_id: @json(old('lavador_id')),
-                    monto_pagado: @json(old('monto_pagado')),
-                    desde: @json(old('desde')),
-                    hasta: @json(old('hasta')),
-                    fecha_pago: @json(old('fecha_pago')),
-                    observacion: @json(old('observacion'))
-                },
-                errors: @json($errors->toArray())
-            });
-        }
-    });
-</script>
+<script type="application/json" id="pago-comision-create-config">{!! json_encode([
+    'el' => '#pago-comision-form-container',
+    'lavadores' => $lavadores,
+    'old' => [
+        'lavador_id' => old('lavador_id'),
+        'monto_pagado' => old('monto_pagado'),
+        'desde' => old('desde'),
+        'hasta' => old('hasta'),
+        'fecha_pago' => old('fecha_pago'),
+        'observacion' => old('observacion'),
+    ],
+    'errors' => $errors->toArray(),
+], JSON_HEX_TAG | JSON_HEX_APOS | JSON_HEX_AMP | JSON_HEX_QUOT) !!}</script>
 @endpush
 @endsection
+

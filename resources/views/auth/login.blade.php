@@ -9,7 +9,7 @@
     <meta name="author" content="SakCode" />
     <title>Sistema de Ventas - Iniciar Sesión</title>
     <link href="{{ asset('css/styles.css') }}" rel="stylesheet" />
-    <script src="https://use.fontawesome.com/releases/v6.1.0/js/all.js" crossorigin="anonymous"></script>
+    @vite(['resources/css/app.css', 'resources/js/public.js'])
 </head>
 
 <body class="bg-primary">
@@ -68,7 +68,6 @@
             </footer>
         </div>
     </div>
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js" integrity="sha384-geWF76RCwLtnZ8qwWowPQNguL3RmwHVBC9FhGdlKrxdiJJigb/j/68SIy3Te4Bkz" crossorigin="anonymous"></script>
 </body>
 
 </html>

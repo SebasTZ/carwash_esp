@@ -1,9 +1,6 @@
 @extends('layouts.app')
 
 @section('title','Roles')
-@push('css-datatable')
-<link href="https://cdn.jsdelivr.net/npm/simple-datatables@latest/dist/style.css" rel="stylesheet" type="text/css">
-@endpush
 
 @section('content')
 
@@ -39,22 +36,10 @@
 @endsection
 
 @push('js')
-<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-<script>
-    window.Laravel = window.Laravel || {};
-    window.Laravel.csrfToken = '{{ csrf_token() }}';
-</script>
 @vite(['resources/js/components/tables/RoleTableManager.js'])
-<script>
-    document.addEventListener('DOMContentLoaded', function() {
-        if (window.RoleTableManager) {
-            window.RoleTableManager.init({
-                el: '#roles-dynamic-table',
-                roles: @json($roles->items()),
-                canEdit: @json(auth()->user()->can('editar-role')),
-                canDelete: @json(auth()->user()->can('eliminar-role'))
-            });
-        }
-    });
-</script>
+<script type="application/json" id="roles-index-config">{!! json_encode([
+    'roles' => $roles->items(),
+    'canEdit' => auth()->user()->can('editar-role'),
+    'canDelete' => auth()->user()->can('eliminar-role'),
+], JSON_HEX_TAG | JSON_HEX_APOS | JSON_HEX_AMP | JSON_HEX_QUOT) !!}</script>
 @endpush

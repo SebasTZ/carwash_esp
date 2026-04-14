@@ -1,3 +1,5 @@
+@import "@fortawesome/fontawesome-free/css/all.min.css";
+
 :root {
     --cw-surface: #f8fafc;
     --cw-border: #e2e8f0;

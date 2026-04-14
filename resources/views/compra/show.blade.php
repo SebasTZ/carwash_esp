@@ -21,14 +21,8 @@
 </div>
 
 <div id="compraShowContainer"></div>
-<script type="module">
-    import CompraShow from '/js/modules/CompraShow.js';
-    document.addEventListener('DOMContentLoaded', function() {
-        new CompraShow({
-            elementId: 'compraShowContainer',
-            compra: @json($compra),
-            productos: @json($compra->productos),
-        });
-    });
-</script>
+<script type="application/json" id="compra-show-config">{!! json_encode([
+    'compra' => $compra,
+    'productos' => $compra->productos,
+], JSON_HEX_TAG | JSON_HEX_APOS | JSON_HEX_AMP | JSON_HEX_QUOT) !!}</script>
 @endsection

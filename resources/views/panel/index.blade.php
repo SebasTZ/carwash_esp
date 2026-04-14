@@ -4,23 +4,9 @@
 
 {{-- Los datos del dashboard se pasan desde el controlador como $dashboardData --}}
 
-@push('css')
-<link href="https://cdn.jsdelivr.net/npm/simple-datatables@latest/dist/style.css" rel="stylesheet" />
-@endpush
-
 @section('content')
 @if (session('success'))
-<script>
-    document.addEventListener("DOMContentLoaded", function() {
-        Swal.fire({
-            icon: 'success',
-            title: '¡Éxito!',
-            text: "{{ session('success') }}",
-            timer: 3000,
-            timerProgressBar: true,
-        });
-    });
-</script>
+<script type="application/json" id="panel-success-message">@json(session('success'))</script>
 @endif
 
 <div class="container-fluid px-4">
@@ -34,23 +20,8 @@
 </div>
 
 @push('js')
-<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 @vite(['resources/js/components/PanelDashboard.js'])
-<script>
-    document.addEventListener('DOMContentLoaded', function() {
-        if (window.PanelDashboard) {
-            window.PanelDashboard.init({
-                el: '#panel-dashboard-root',
-                data: @json($dashboardData),
-                userPermissions: @json($userPermissions)
-            });
-        }
-    });
-</script>
+<script type="application/json" id="panel-dashboard-data">@json($dashboardData)</script>
+<script type="application/json" id="panel-user-permissions">@json($userPermissions)</script>
 @endpush
 @endsection
-
-@push('js')
-<script src="https://cdn.jsdelivr.net/npm/simple-datatables@latest" crossorigin="anonymous"></script>
-<script src="{{ asset('js/datatables-simple-demo.js') }}"></script>
-@endpush

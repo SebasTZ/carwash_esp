@@ -32,78 +32,9 @@
     </div>
 </div>
 
-<script type="module">
-    document.addEventListener('DOMContentLoaded', () => {
-        if (typeof window.CarWash?.DynamicTable !== 'function') {
-            console.error('DynamicTable no está disponible en window.CarWash');
-            return;
-        }
-
-        const tableElement = document.getElementById('tiposVehiculoTable');
-        if (!tableElement) {
-            console.error('Tabla no encontrada');
-            return;
-        }
-
-        const tiposData = @json($tipos->items());
-        const canEdit = String(@json((bool)auth()->user()->can('editar-tipo-vehiculo'))) === 'true';
-
-        const actions = [];
-        if (canEdit) {
-            actions.push({
-                label: 'Editar',
-                class: 'btn-info',
-                icon: '',
-                callback: (row) => {
-                    window.location.href = `/tipos_vehiculo/${row.id}/edit`;
-                }
-            });
-        }
-
-        const config = {
-            searchable: true,
-            searchPlaceholder: 'Buscar tipo de vehículo...',
-            sortable: true,
-            perPage: 15,
-            data: tiposData,
-            columns: [
-                {
-                    key: 'nombre',
-                    label: 'Nombre',
-                    sortable: true,
-                    searchable: true
-                },
-                {
-                    key: 'comision',
-                    label: 'Comisión',
-                    sortable: true,
-                    searchable: true,
-                    formatter: (value) => {
-                        const num = parseFloat(value);
-                        return isNaN(num) ? value : `S/ ${num.toFixed(2)}`;
-                    }
-                },
-                {
-                    key: 'estado',
-                    label: 'Estado',
-                    sortable: true,
-                    searchable: true,
-                    formatter: (value) => {
-                        const estado = String(value).toLowerCase();
-                        const badgeClass = estado === 'activo' ? 'bg-success' : 'bg-secondary';
-                        return `<span class="badge ${badgeClass}">${estado.charAt(0).toUpperCase() + estado.slice(1)}</span>`;
-                    }
-                }
-            ],
-            actions: actions
-        };
-
-        try {
-            new window.CarWash.DynamicTable(tableElement, config);
-            console.log('✅ DynamicTable inicializado correctamente para TipoVehiculo');
-        } catch (error) {
-            console.error('❌ Error al inicializar DynamicTable:', error);
-        }
-    });
-</script>
+<script type="application/json" id="tipos-vehiculo-index-config">{!! json_encode([
+    'data' => $tipos->items(),
+    'canEdit' => auth()->user()->can('editar-tipo-vehiculo'),
+], JSON_HEX_TAG | JSON_HEX_APOS | JSON_HEX_AMP | JSON_HEX_QUOT) !!}</script>
 @endsection
+

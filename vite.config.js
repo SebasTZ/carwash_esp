@@ -8,6 +8,7 @@ export default defineConfig({
             input: [
                 'resources/css/app.css',
                 'resources/js/app.js',
+                'resources/js/public.js',
                 // Componentes principales
                 'resources/js/components/DynamicTable.js',
                 'resources/js/components/DetalleVentaTable.js',
@@ -27,11 +28,19 @@ export default defineConfig({
                 'resources/js/components/forms/LavadorFormManager.js',
                 'resources/js/components/forms/LavadorEditFormManager.js',
                 'resources/js/components/forms/FormValidator.js',
+                'resources/js/components/forms/PagoComisionFormManager.js',
                 // Módulos de páginas específicas
                 'resources/js/modules/VentaManager.js',
                 'resources/js/modules/CompraManager.js',
                 'resources/js/modules/LavadosManager.js',
                 'resources/js/modules/EstacionamientoManager.js',
+                'resources/js/modules/CitasFormManager.js',
+                'resources/js/modules/CitasIndexManager.js',
+                'resources/js/modules/CitasDashboardAutoRefresh.js',
+                'resources/js/modules/ClienteCreateManager.js',
+                'resources/js/modules/CompraCreateManager.js',
+                'resources/js/modules/CocheraReportesManager.js',
+                'resources/js/modules/VentaShowManager.js',
             ],
             refresh: true,
         }),

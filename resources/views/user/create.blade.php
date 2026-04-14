@@ -39,23 +39,13 @@
 
 @push('js')
 @vite(['resources/js/components/tables/UserFormManager.js', 'resources/js/components/forms/FormValidator.js'])
-<script>
-    document.addEventListener('DOMContentLoaded', function() {
-        if (window.UserFormManager) {
-            window.UserFormManager.init({
-                el: '#user-create-form-fields',
-                roles: @json($roles->pluck('name')->toArray()),
-                old: {
-                    name: @json(old('name')),
-                    email: @json(old('email')),
-                    role: @json(old('role')),
-                    status: @json(old('status'))
-                }
-            });
-        }
-        if (window.FormValidator) {
-            new FormValidator('#user-create-form');
-        }
-    });
-</script>
+<script type="application/json" id="user-create-config">{!! json_encode([
+    'roles' => $roles->pluck('name')->toArray(),
+    'old' => [
+        'name' => old('name'),
+        'email' => old('email'),
+        'role' => old('role'),
+        'status' => old('status'),
+    ],
+], JSON_HEX_TAG | JSON_HEX_APOS | JSON_HEX_AMP | JSON_HEX_QUOT) !!}</script>
 @endpush

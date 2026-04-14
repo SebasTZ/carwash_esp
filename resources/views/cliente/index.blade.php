@@ -2,10 +2,6 @@
 
 @section('title','Clientes')
 
-@push('css-datatable')
-<link href="https://cdn.jsdelivr.net/npm/simple-datatables@latest/dist/style.css" rel="stylesheet" type="text/css">
-@endpush
-
 @section('content')
 
 @include('layouts.partials.alert')
@@ -86,6 +82,5 @@
 @endsection
 
 @push('js')
-<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 <!-- DataTables removido para usar paginación de Laravel -->
 @endpush

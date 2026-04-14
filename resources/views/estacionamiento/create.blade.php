@@ -106,32 +106,4 @@
         </form>
     </div>
 </div>
-
-<script>
-// Script INLINE - se ejecuta inmediatamente
-console.log('✅ Script inline ejecutándose');
-
-// Esperar a que el DOM esté listo
-if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', initForm);
-} else {
-    initForm();
-}
-
-function initForm() {
-    console.log('✅ initForm ejecutándose');
-    
-    const checkbox = document.getElementById('pagado_adelantado');
-    const montoDiv = document.getElementById('monto-div');
-    
-    if (checkbox && montoDiv) {
-        checkbox.addEventListener('change', function() {
-            montoDiv.style.display = this.checked ? 'block' : 'none';
-        });
-        console.log('✅ Event listener agregado');
-    } else {
-        console.error('❌ No se encontraron elementos');
-    }
-}
-</script>
 @endsection

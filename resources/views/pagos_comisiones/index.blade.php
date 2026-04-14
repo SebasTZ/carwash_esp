@@ -30,53 +30,9 @@
     </div>
 </div>
 
-<script type="module">
-window.addEventListener('load', () => {
-    const { DynamicTable } = window.CarWash;
-
-    const columns = [
-        { key: 'lavador.nombre', label: 'Lavador' },
-        {
-            key: 'monto_pagado',
-            label: 'Monto Pagado',
-            formatter: (value) => `<span class='badge bg-success'>S/ ${parseFloat(value).toFixed(2)}</span>`
-        },
-        {
-            key: 'desde',
-            label: 'Desde',
-            formatter: (value) => value ? new Date(value).toLocaleDateString('es-PE') : ''
-        },
-        {
-            key: 'hasta',
-            label: 'Hasta',
-            formatter: (value) => value ? new Date(value).toLocaleDateString('es-PE') : ''
-        },
-        {
-            key: 'fecha_pago',
-            label: 'Fecha de Pago',
-            formatter: (value) => value ? new Date(value).toLocaleDateString('es-PE') : ''
-        },
-        {
-            key: 'actions',
-            label: 'Acciones',
-            formatter: (value, row) => {
-                @can('ver-historial-pago-comision')
-                    return `<a href="/pagos_comisiones/lavador/${row.lavador_id}" class="btn btn-sm btn-info">Historial</a>`;
-                @else
-                    return '-';
-                @endcan
-            }
-        }
-    ];
-
-    const data = @json($pagos->items());
-
-    new DynamicTable('#pagosTable', {
-        columns,
-        data,
-        searchPlaceholder: 'Buscar pagos...',
-        emptyMessage: 'No hay pagos registrados'
-    });
-});
-</script>
+<script type="application/json" id="pagos-comisiones-index-config">{!! json_encode([
+    'data' => $pagos->items(),
+    'canHistorial' => auth()->user()->can('ver-historial-pago-comision'),
+], JSON_HEX_TAG | JSON_HEX_APOS | JSON_HEX_AMP | JSON_HEX_QUOT) !!}</script>
 @endsection
+
