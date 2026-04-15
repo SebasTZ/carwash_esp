@@ -1,15 +1,17 @@
 // PagoComisionFormManager.js
 // Componente JS para gestionar el formulario de pago de comisión
+import { getCsrfToken } from '@utils/csrf';
 
 export const PagoComisionFormManager = {
     init({ el, lavadores = [], old = {}, errors = {} }) {
+        const csrfToken = getCsrfToken();
         const container = document.querySelector(el);
         if (!container) return;
         container.innerHTML = '';
         // Renderizar formulario
         container.innerHTML = `
             <form id="pagoForm" action="/pagos_comisiones" method="POST" novalidate>
-                <input type="hidden" name="_token" value="${window.Laravel.csrfToken}">
+                <input type="hidden" name="_token" value="${csrfToken}">
                 <div class="mb-3">
                     <label for="lavador_id" class="form-label">Lavador</label>
                     <select name="lavador_id" id="lavador_id" class="form-control" required>

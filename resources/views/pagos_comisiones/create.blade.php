@@ -7,16 +7,7 @@
     <div id="pago-comision-form-container"></div>
     @endcan
 
-    @if(session('warning'))
-        <div class="alert alert-warning mt-3">
-            {{ session('warning') }}
-        </div>
-    @endif
-    @if(session('success'))
-        <div class="alert alert-success mt-3">
-            {{ session('success') }}
-        </div>
-    @endif
+    <x-flash-alert />
 </div>
 
 @push('js')

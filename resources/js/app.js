@@ -1,16 +1,18 @@
 import './bootstrap';
 import $ from 'jquery';
 import Swal from 'sweetalert2';
-import 'bootstrap/dist/js/bootstrap.bundle.min.js';
+import Alpine from 'alpinejs';
+import { getCsrfToken, withCsrfHeader } from './utils/csrf';
 window.$ = $;
 window.jQuery = $;
 window.Swal = Swal;
+window.Alpine = Alpine;
 
 // Inicializar window.Laravel para compatibilidad con componentes legacy
 window.Laravel = {
-    csrfToken: document.querySelector('meta[name="csrf-token"]')?.getAttribute('content') ?? '',
+    csrfToken: getCsrfToken(),
 };
-// Bootstrap Select se carga desde CDN en create.blade.php para evitar doble inicialización
+// Bootstrap Select se carga vía módulos ES cuando una vista lo requiere.
 // import 'bootstrap-select/dist/js/bootstrap-select.min.js';
 
 /**
@@ -91,9 +93,7 @@ window.CarWash = {
     formatTelefono: Formatters.formatTelefono,
     capitalize: Formatters.capitalize,
     formatFileSize: Formatters.formatFileSize,
-    truncateText: Formatters.truncateText,
     formatPlaca: Formatters.formatPlaca,
-    numberToWords: Formatters.numberToWords,
     parseCurrency: Formatters.parseCurrency,
     
     // Bootstrap
@@ -114,13 +114,7 @@ window.CarWash = {
     // Lazy Loading
     initLazyImages: LazyLoader.initLazyImages,
     initLazyIframes: LazyLoader.initLazyIframes,
-    lazyLoadModule: LazyLoader.lazyLoadModule,
-    lazyLoadCSS: LazyLoader.lazyLoadCSS,
-    lazyLoadScript: LazyLoader.lazyLoadScript,
     preloadImage: LazyLoader.preloadImage,
-    preloadImages: LazyLoader.preloadImages,
-    debounce: LazyLoader.debounce,
-    throttle: LazyLoader.throttle,
 
     // DOM helpers
     query: Dom.query,
@@ -206,6 +200,21 @@ window.CarWash = {
 };
 
 // ========================================
+// Alpine.js — stores globales
+// ========================================
+Alpine.store('notifications', {
+    items: [],
+    add(type, message) {
+        const id = Date.now();
+        this.items.push({ id, type, message });
+        setTimeout(() => this.remove(id), 4000);
+    },
+    remove(id) {
+        this.items = this.items.filter(n => n.id !== id);
+    },
+});
+
+// ========================================
 // Inicialización global de la aplicación
 // ========================================
 document.addEventListener('DOMContentLoaded', () => {
@@ -277,10 +286,7 @@ document.addEventListener('DOMContentLoaded', () => {
         window.axios.interceptors.request.use(
             config => {
                 // Agregar token CSRF si existe
-                const token = document.querySelector('meta[name="csrf-token"]');
-                if (token) {
-                    config.headers['X-CSRF-TOKEN'] = token.content;
-                }
+                config.headers = withCsrfHeader(config.headers || {});
                 return config;
             },
             error => {
@@ -361,7 +367,7 @@ document.addEventListener('DOMContentLoaded', () => {
             const min = parseFloat(this.min);
             const max = parseFloat(this.max);
             const value = parseFloat(this.value);
-            
+
             if (!isNaN(min) && value < min) {
                 Notifications.showFieldError(this, `El valor mínimo es ${min}`);
             } else if (!isNaN(max) && value > max) {
@@ -371,7 +377,9 @@ document.addEventListener('DOMContentLoaded', () => {
             }
         });
     });
-    
+
+    window._alpineStarted = true;
+    Alpine.start();
 });
 
 // ========================================

@@ -35,11 +35,71 @@ export function setValue(selector, value, root = document) {
 
 export function getSelectedText(selector, root = document) {
     const element = query(selector, root);
-    if (!element || element.tagName !== 'SELECT') {
-        return '';
+    if (!element) return '';
+
+    // Native <select> element
+    if (element.tagName === 'SELECT') {
+        return element.options[element.selectedIndex]?.text || '';
     }
 
-    return element.options[element.selectedIndex]?.text || '';
+    // x-select-search: label persistida en data attribute del input hidden
+    if (element.dataset?.selectedLabel) {
+        return element.dataset.selectedLabel;
+    }
+
+    // x-select-search: hidden/text input — read label from Alpine component data
+    const wrapper = element.closest('[x-data]');
+    if (wrapper && window.Alpine) {
+        try {
+            const data = window.Alpine.$data(wrapper);
+            if (data && 'selectedLabel' in data) return data.selectedLabel || '';
+        } catch {}
+    }
+
+    return '';
+}
+
+/**
+ * Programmatically set the value and label of an x-select-search component.
+ * Falls back gracefully for native <select> elements.
+ * @param {string} name  — field name attribute
+ * @param {string} value — value to select
+ * @param {string} [label] — display label (auto-resolved from options if omitted)
+ */
+export function setSelectSearchValue(name, value, label = null) {
+    const isSelector = /^#|^\.|\[|\s/.test(name);
+    const input = isSelector
+        ? document.querySelector(name)
+        : document.querySelector(`[name="${CSS.escape(name)}"]`);
+    if (!input) return;
+
+    // Native <select>: just set value
+    if (input.tagName === 'SELECT') {
+        input.value = value;
+        input.dispatchEvent(new Event('change', { bubbles: true }));
+        return;
+    }
+
+    // x-select-search wrapper
+    const wrapper = input.closest('[x-data]');
+    if (!wrapper || !window.Alpine) return;
+
+    try {
+        const data = window.Alpine.$data(wrapper);
+        if (!data) return;
+
+        const resolved = label
+            ?? data.options?.find(o => String(o.value) === String(value))?.label
+            ?? '';
+
+        data.selected = value;
+        data.selectedLabel = resolved;
+        data.hasError = false;
+        input.dataset.selectedLabel = resolved;
+
+        // Notify other listeners
+        input.dispatchEvent(new Event('change', { bubbles: true }));
+    } catch {}
 }
 
 export function setHtml(selector, html, root = document) {

@@ -3,14 +3,6 @@
 
 @section('title', 'Reporte de Compras ' . ucfirst($reporte))
 
-@push('css')
-<style>
-    .row-not-space {
-        width: 110px;
-    }
-</style>
-@endpush
-
 @section('content')
 
 @include('layouts.partials.alert')

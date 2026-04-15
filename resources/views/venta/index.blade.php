@@ -1,13 +1,6 @@
 @extends('layouts.app')
 
 @section('title','Ventas')
-@push('css')
-<style>
-    .row-not-space {
-        width: 110px;
-    }
-</style>
-@endpush
 
 @section('content')
 
@@ -44,7 +37,6 @@
 @endsection
 
 @push('js')
-@vite(['resources/js/components/DynamicTable.js', 'resources/js/modules/VentaManager.js'])
 <script type="application/json" id="ventas-index-config">{!! json_encode([
     'data' => $ventas->items(),
     'canShow' => auth()->user()->can('mostrar-venta'),

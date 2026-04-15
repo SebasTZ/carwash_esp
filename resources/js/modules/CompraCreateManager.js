@@ -2,6 +2,8 @@
  * CompraCreateManager
  * Inicializa el formulario de compra usando datos serializados desde Blade.
  */
+import { readJsonScript } from '@utils/json-script';
+
 class CompraCreateManager {
     constructor() {
         this.containerId = 'formCompraContainer';
@@ -51,17 +53,7 @@ class CompraCreateManager {
     }
 
     getPayload() {
-        const payloadElement = document.getElementById(this.payloadId);
-        if (!payloadElement) {
-            return null;
-        }
-
-        try {
-            return JSON.parse(payloadElement.textContent || '{}');
-        } catch (error) {
-            console.error('[CompraCreateManager] No se pudo parsear la data del formulario:', error);
-            return null;
-        }
+        return readJsonScript(this.payloadId, null, 'CompraCreateManager');
     }
 }
 

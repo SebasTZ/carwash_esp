@@ -38,7 +38,7 @@
 @endsection
 
 @push('js')
-@vite(['resources/js/components/tables/UserFormManager.js', 'resources/js/components/forms/FormValidator.js'])
+@vite(['resources/js/components/tables/UserFormManager.js'])
 <script type="application/json" id="user-create-config">{!! json_encode([
     'roles' => $roles->pluck('name')->toArray(),
     'old' => [

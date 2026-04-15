@@ -8,8 +8,6 @@ import { formatCurrency } from '/js/utils/formatters.js';
 
 class ProductoShow {
     constructor({ elementId = 'productoShowContainer', producto = {} }) {
-        console.log('[ProductoShow] Data recibida:', { producto });
-
         this.elementId = elementId;
         this.producto = producto;
         this.init();
@@ -171,13 +169,7 @@ class ProductoShow {
         }
 
         container.innerHTML = this.render();
-        console.log('[ProductoShow] Componente inicializado correctamente');
     }
 }
-
-// Inicializar cuando el DOM esté listo
-document.addEventListener('DOMContentLoaded', () => {
-    console.log('[ProductoShow] DOMContentLoaded - verificando si se necesita inicializar');
-});
 
 export default ProductoShow;

@@ -145,7 +145,16 @@ class CitaController extends Controller
      */
     public function iniciarCita(Cita $cita)
     {
+        if (!$this->canTransitionCita($cita->estado, 'en_proceso')) {
+            return $this->invalidCitaTransitionResponse($cita->estado, 'en_proceso');
+        }
+
         $cita->update(['estado' => 'en_proceso']);
+
+        if (request()->expectsJson()) {
+            return response()->json(['estado' => 'en_proceso', 'message' => 'Cita iniciada exitosamente']);
+        }
+
         return redirect()->route('citas.dashboard')
             ->with('success', 'Cita iniciada exitosamente');
     }
@@ -155,7 +164,16 @@ class CitaController extends Controller
      */
     public function completarCita(Cita $cita)
     {
+        if (!$this->canTransitionCita($cita->estado, 'completada')) {
+            return $this->invalidCitaTransitionResponse($cita->estado, 'completada');
+        }
+
         $cita->update(['estado' => 'completada']);
+
+        if (request()->expectsJson()) {
+            return response()->json(['estado' => 'completada', 'message' => 'Cita completada exitosamente']);
+        }
+
         return redirect()->route('citas.dashboard')
             ->with('success', 'Cita completada exitosamente');
     }
@@ -165,9 +183,46 @@ class CitaController extends Controller
      */
     public function cancelarCita(Cita $cita)
     {
+        if (!$this->canTransitionCita($cita->estado, 'cancelada')) {
+            return $this->invalidCitaTransitionResponse($cita->estado, 'cancelada');
+        }
+
         $cita->update(['estado' => 'cancelada']);
+
+        if (request()->expectsJson()) {
+            return response()->json(['estado' => 'cancelada', 'message' => 'Cita cancelada exitosamente']);
+        }
+
         return redirect()->route('citas.dashboard')
             ->with('success', 'Cita cancelada exitosamente');
+    }
+
+    private function canTransitionCita(string $currentState, string $nextState): bool
+    {
+        $allowedTransitions = [
+            'pendiente' => ['en_proceso', 'cancelada'],
+            'en_proceso' => ['completada', 'cancelada'],
+            'completada' => [],
+            'cancelada' => [],
+        ];
+
+        return in_array($nextState, $allowedTransitions[$currentState] ?? [], true);
+    }
+
+    private function invalidCitaTransitionResponse(string $currentState, string $nextState)
+    {
+        $message = sprintf(
+            'Transición inválida de estado: %s -> %s.',
+            $currentState,
+            $nextState
+        );
+
+        if (request()->expectsJson()) {
+            return response()->json(['message' => $message], 422);
+        }
+
+        return redirect()->route('citas.dashboard')
+            ->with('error', $message);
     }
 
     /**

@@ -10,12 +10,9 @@ export default defineConfig({
                 'resources/js/app.js',
                 'resources/js/public.js',
                 // Componentes principales
-                'resources/js/components/DynamicTable.js',
                 'resources/js/components/DetalleVentaTable.js',
                 'resources/js/components/PanelDashboard.js',
                 // Componentes de tablas
-                'resources/js/components/tables/DynamicTable.js',
-                'resources/js/components/tables/LavadorTableManager.js',
                 'resources/js/components/tables/UserTableManager.js',
                 'resources/js/components/tables/UserFormManager.js',
                 'resources/js/components/tables/RoleTableManager.js',
@@ -25,9 +22,6 @@ export default defineConfig({
                 'resources/js/components/tables/PagoComisionHistorialTableManager.js',
                 'resources/js/components/tables/PagoComisionReporteTableManager.js',
                 // Componentes de formularios
-                'resources/js/components/forms/LavadorFormManager.js',
-                'resources/js/components/forms/LavadorEditFormManager.js',
-                'resources/js/components/forms/FormValidator.js',
                 'resources/js/components/forms/PagoComisionFormManager.js',
                 // Módulos de páginas específicas
                 'resources/js/modules/VentaManager.js',
@@ -41,6 +35,7 @@ export default defineConfig({
                 'resources/js/modules/CompraCreateManager.js',
                 'resources/js/modules/CocheraReportesManager.js',
                 'resources/js/modules/VentaShowManager.js',
+                'resources/js/modules/CitasDashboard.js',
             ],
             refresh: true,
         }),
@@ -56,7 +51,7 @@ export default defineConfig({
             output: {
                 manualChunks: {
                     // Separar vendors grandes
-                    'vendor-core': ['axios', 'lodash'],
+                    'vendor-core': ['axios', 'lodash', 'alpinejs'],
                     // Utilidades en su propio chunk
                     'utils': [
                         './resources/js/utils/notifications.js',
@@ -127,7 +122,7 @@ export default defineConfig({
     
     // Optimización de dependencias
     optimizeDeps: {
-        include: ['axios', 'lodash'],
+        include: ['axios', 'lodash', 'alpinejs'],
         exclude: [], // Excluir dependencias que no deben pre-bundlearse
     },
 });

@@ -56,7 +56,6 @@
 @endsection
 
 @push('js')
-@vite('resources/js/app.js')
 <script type="application/json" id="categorias-index-config">{!! json_encode([
     'data' => $categorias->items(),
     'canEdit' => auth()->user()->can('editar-categoria'),

@@ -1,8 +1,10 @@
 // LavadorTableManager.js
 import DynamicTable from './DynamicTable';
+import { getCsrfToken } from '@utils/csrf';
 
 export default class LavadorTableManager {
     constructor(tableElement, lavadores, canEdit, canDelete) {
+        const csrfToken = getCsrfToken();
         const data = (lavadores || []).map(lavador => {
             let acciones = '';
             if (canEdit) {
@@ -10,7 +12,7 @@ export default class LavadorTableManager {
             }
             if (canDelete) {
                 acciones += `<form action='/lavadores/${lavador.id}' method='POST' style='display:inline-block'>`
-                    + `<input type='hidden' name='_token' value='${document.querySelector('meta[name="csrf-token"]').content}'>`
+                    + `<input type='hidden' name='_token' value='${csrfToken}'>`
                     + `<input type='hidden' name='_method' value='DELETE'>`
                     + `<button type='submit' class='btn btn-sm btn-danger' onclick='return confirm("¿Estás seguro?")'>Desactivar</button>`
                     + `</form>`;

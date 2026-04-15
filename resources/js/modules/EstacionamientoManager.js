@@ -6,6 +6,8 @@
 
 import axios from 'axios';
 import { showError, showSuccess } from '@utils/notifications';
+import { getCsrfToken } from '@utils/csrf';
+import { safeHandler } from '@utils/safe-handler';
 
 /**
  * Clase para gestionar el estado del estacionamiento
@@ -56,8 +58,6 @@ export class EstacionamientoManager {
      * Inicializar el manager
      */
     init() {
-        console.log('🚗 EstacionamientoManager inicializado');
-        
         // Setup event listeners
         this.setupEventListeners();
         
@@ -75,9 +75,12 @@ export class EstacionamientoManager {
         // Manejar modal de resumen de salida
         const modalElement = document.getElementById('modalResumenSalida');
         if (modalElement) {
-            modalElement.addEventListener('show.bs.modal', (event) => {
-                this.cargarResumenSalida(event);
-            });
+            modalElement.addEventListener('show.bs.modal', safeHandler(
+                (event) => {
+                    this.cargarResumenSalida(event);
+                },
+                { message: 'No se pudo cargar el resumen de salida.' }
+            ));
         }
 
         // Botones para abrir modal
@@ -93,22 +96,28 @@ export class EstacionamientoManager {
         formsEliminar.forEach(button => {
             const form = button.closest('form');
             if (form) {
-                form.addEventListener('submit', async (e) => {
-                    if (button.contains(e.submitter)) {
-                        e.preventDefault();
-                        await this.confirmarEliminar(form);
-                    }
-                });
+                form.addEventListener('submit', safeHandler(
+                    async (e) => {
+                        if (button.contains(e.submitter)) {
+                            e.preventDefault();
+                            await this.confirmarEliminar(form);
+                        }
+                    },
+                    { message: 'No se pudo procesar la eliminación del registro.' }
+                ));
             }
         });
 
         // Form para registrar salida
         const formRegistrarSalida = document.getElementById('formRegistrarSalida');
         if (formRegistrarSalida) {
-            formRegistrarSalida.addEventListener('submit', async (e) => {
-                e.preventDefault();
-                await this.registrarSalida(formRegistrarSalida);
-            });
+            formRegistrarSalida.addEventListener('submit', safeHandler(
+                async (e) => {
+                    e.preventDefault();
+                    await this.registrarSalida(formRegistrarSalida);
+                },
+                { message: 'No se pudo registrar la salida del vehículo.' }
+            ));
         }
     }
 
@@ -190,7 +199,7 @@ export class EstacionamientoManager {
 
         try {
             const response = await axios.post(action, {
-                _token: document.querySelector('input[name="_token"]').value
+                _token: getCsrfToken()
             });
 
             if (response.status === 200 || response.status === 201) {
@@ -273,8 +282,6 @@ export class EstacionamientoManager {
         this.tiempoInterval = setInterval(() => {
             this.actualizarTiemposEnPagina();
         }, 30000);
-        
-        console.log('⏱️ Actualización automática de tiempos iniciada (cada 30s)');
     }
     
     /**
@@ -363,8 +370,6 @@ export class EstacionamientoManager {
                 await this.refrescarTabla();
             }
         }, intervalMs);
-        
-        console.log(`🔄 Auto-refresh completo iniciado (cada ${intervalMs / 1000}s)`);
     }
     
     /**
@@ -375,7 +380,6 @@ export class EstacionamientoManager {
             clearInterval(this.state.autoRefreshInterval);
             this.state.autoRefreshInterval = null;
             this.state.setAutoRefresh(false);
-            console.log('⏸️ Auto-refresh detenido');
         }
     }
     
@@ -407,8 +411,6 @@ export class EstacionamientoManager {
                         this.setupEventListeners(); // Re-setup listeners
                     }
                 }
-                
-                console.log('✅ Tabla actualizada');
             }
         } catch (error) {
             console.error('Error al refrescar tabla:', error);
@@ -485,13 +487,11 @@ document.addEventListener('DOMContentLoaded', () => {
     
     // NO inicializar en páginas de create o edit
     if (path.includes('/create') || path.includes('/edit')) {
-        console.log('🚗 EstacionamientoManager: NO auto-inicializado (página de create/edit)');
         return;
     }
     
     // Inicializar solo en index
     if (path.includes('/estacionamiento')) {
         window.estacionamientoManager = new EstacionamientoManager();
-        console.log('✅ EstacionamientoManager: Auto-inicializado correctamente');
     }
 });

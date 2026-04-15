@@ -2,105 +2,6 @@
 
 @section('title', 'Control de Lavados')
 
-@push('css')
-<style>
-    .control-card {
-        border-radius: 15px;
-        overflow: hidden;
-        box-shadow: 0 2px 8px rgba(0,0,0,0.08);
-        transition: all 0.3s ease;
-        margin-bottom: 1.5rem;
-    }
-    
-    .control-card:hover {
-        box-shadow: 0 6px 12px rgba(0,0,0,0.12);
-        transform: translateY(-3px);
-    }
-
-    .control-card .card-header {
-        border-bottom: none;
-        padding: 1.25rem;
-        background: linear-gradient(135deg, #6366F1 0%, #4F46E5 100%);
-    }
-    
-    .control-card .card-header h5 {
-        font-size: 1.1rem;
-        font-weight: 600;
-        margin: 0;
-        color: white;
-    }
-    
-    .status-badge {
-        font-size: 0.9rem;
-        padding: 0.5rem 1rem;
-        border-radius: 20px;
-        font-weight: 500;
-        display: inline-flex;
-        align-items: center;
-        gap: 0.5rem;
-    }
-    
-    .filter-section {
-        background: linear-gradient(to right, rgba(13,110,253,0.05), rgba(13,110,253,0.02));
-        padding: 1.5rem;
-        border-radius: 12px;
-        margin-bottom: 1.5rem;
-    }
-    
-    .btn-action {
-        padding: 0.5rem 1rem;
-        border-radius: 20px;
-        font-weight: 500;
-        display: inline-flex;
-        align-items: center;
-        gap: 0.5rem;
-        transition: all 0.3s ease;
-    }
-    
-    .btn-action:hover {
-        transform: translateY(-2px);
-    }
-
-    .time-badge {
-        display: inline-block;
-        padding: 0.25rem 0.75rem;
-        background-color: #f8f9fa;
-        border-radius: 15px;
-        font-size: 0.85rem;
-        color: #6c757d;
-        margin-top: 0.5rem;
-    }
-
-    .table > :not(caption) > * > * {
-        padding: 1rem 0.75rem;
-        vertical-align: middle;
-    }
-
-    .progress-step {
-        position: relative;
-    }
-
-    .progress-step::after {
-        content: '';
-        position: absolute;
-        top: 50%;
-        right: -1rem;
-        width: 2rem;
-        height: 2px;
-        background-color: #dee2e6;
-        transform: translateY(-50%);
-    }
-
-    .progress-step:last-child::after {
-        display: none;
-    }
-
-    .progress-step.completed::after {
-        background-color: #198754;
-    }
-</style>
-@endpush
-
 @section('content')
 <div class="container-fluid px-4">
     <div class="d-flex justify-content-between align-items-center pb-2 mb-3">
@@ -155,10 +56,19 @@
         <form method="GET" action="{{ route('control.lavados') }}" class="row g-3">
             <div class="col-md-3">
                 <label for="filtro_lavador" class="form-label">Filtrar por lavador:</label>
-                <select id="filtro_lavador" name="lavador_id" class="form-control selectpicker" data-live-search="true">
-                    <option value="">Todos</option>
-                    @foreach($lavadores as $lavador)
-                        <option value="{{ $lavador->id }}" {{ request('lavador_id') == $lavador->id ? 'selected' : '' }}>{{ $lavador->nombre }}</option>
+                @php
+                $lavadorOptions = $lavadores->map(fn($l) => [
+                    'value' => $l->id,
+                    'label' => $l->persona->razon_social ?? $l->nombre ?? 'Lavador ' . $l->id,
+                    'tokens' => $l->persona->razon_social ?? '',
+                ])->values()->toArray();
+                @endphp
+                <select id="filtro_lavador" name="lavador_id" class="form-select">
+                    <option value="">Todos los lavadores</option>
+                    @foreach($lavadorOptions as $option)
+                        <option value="{{ $option['value'] }}" {{ (string) request('lavador_id') === (string) $option['value'] ? 'selected' : '' }}>
+                            {{ $option['label'] }}
+                        </option>
                     @endforeach
                 </select>
             </div>
@@ -187,20 +97,7 @@
 
     <div class="control-card">
         <div class="card-body">
-            @if(session('error'))
-                <div class="alert alert-danger alert-dismissible fade show" role="alert">
-                    <i class="fas fa-exclamation-triangle me-2"></i>
-                    {{ session('error') }}
-                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-                </div>
-            @endif
-            @if(session('success'))
-                <div class="alert alert-success alert-dismissible fade show" role="alert">
-                    <i class="fas fa-check-circle me-2"></i>
-                    {{ session('success') }}
-                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-                </div>
-            @endif
+            <x-flash-alert />
             @if(session('confirmar_inicio'))
                 <div class="alert alert-warning" role="alert">
                     <form method="POST" action="{{ route('control.lavados.inicioLavado', session('confirmar_inicio')) }}">
@@ -382,14 +279,10 @@
                                        class="btn btn-sm btn-success btn-action">
                                         <i class="fas fa-eye"></i>
                                     </a>
-                                    <form method="POST" action="#" class="d-inline">
-                                        @csrf
-                                        @method('DELETE')
-                                        <button type="submit" class="btn btn-sm btn-danger btn-action"
-                                            data-confirm="¿Está seguro de eliminar este registro?" data-confirm-confirm-text="Eliminar">
-                                            <i class="fas fa-trash"></i>
-                                        </button>
-                                    </form>
+                                    <x-confirm-delete
+                                        :action="route('control.lavados.destroy', $lavado->id)"
+                                        icon-only
+                                    />
                                 </div>
                             </td>
                         </tr>
@@ -412,7 +305,6 @@
 
 @push('js')
 @vite([
-    'resources/js/modules/LavadosManager.js',
-    'resources/js/components/forms/FormValidator.js'
+    'resources/js/modules/LavadosManager.js'
 ])
 @endpush

@@ -100,5 +100,4 @@
 @endsection
 
 @push('js')
-@vite('resources/js/app.js')
 @endpush

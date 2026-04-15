@@ -73,7 +73,6 @@ document.addEventListener('DOMContentLoaded', () => {
 	// Obtener datos desde el DOM (Blade los debe renderizar en data-attributes o JSON)
 	const productosData = window.compraProductos || [];
 	const impuesto = document.getElementById('input-impuesto')?.value || 0;
-	console.log('[CompraShow] Data recibida:', { productos: productosData, impuesto });
 	window.compraShow = new CompraShow({ productos: productosData, impuesto });
 });
 

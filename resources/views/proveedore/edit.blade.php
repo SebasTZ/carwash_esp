@@ -36,7 +36,7 @@
 @endsection
 
 @push('js')
-@vite(['resources/js/components/forms/FormValidator.js', 'resources/js/components/tables/ProveedorFormManager.js'])
+@vite(['resources/js/components/tables/ProveedorFormManager.js'])
 <script type="application/json" id="proveedor-edit-config">{!! json_encode([
     'documentos' => $documentos,
     'persona' => $proveedore->persona,

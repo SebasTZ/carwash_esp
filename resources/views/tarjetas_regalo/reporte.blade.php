@@ -9,11 +9,7 @@
         <li class="breadcrumb-item"><a href="{{ route('panel') }}">Inicio</a></li>
         <li class="breadcrumb-item active">Reporte de Tarjetas de Regalo</li>
     </ol>
-    @if(session('success'))
-        <div class="alert alert-success">
-            {{ session('success') }}
-        </div>
-    @endif
+    <x-flash-alert />
     <div class="card mb-4">
         <div class="card-header">
             <i class="fas fa-table me-1"></i>

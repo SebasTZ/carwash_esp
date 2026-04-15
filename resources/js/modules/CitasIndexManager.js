@@ -2,12 +2,15 @@
  * CitasIndexManager
  * Reemplaza el script inline del listado de citas.
  */
+import { getCsrfToken } from '@utils/csrf';
+import { readJsonScript } from '@utils/json-script';
+
 class CitasIndexManager {
     constructor() {
         this.DynamicTable = window.CarWash?.DynamicTable;
         this.tableSelector = '#citasTable';
         this.dataElementId = 'citas-table-data';
-        this.csrfToken = document.querySelector('meta[name="csrf-token"]')?.getAttribute('content') || '';
+        this.csrfToken = getCsrfToken();
 
         if (!this.DynamicTable) {
             console.warn('[CitasIndexManager] DynamicTable no está disponible en window.CarWash');
@@ -33,18 +36,7 @@ class CitasIndexManager {
     }
 
     getData() {
-        const dataElement = document.getElementById(this.dataElementId);
-
-        if (!dataElement) {
-            return [];
-        }
-
-        try {
-            return JSON.parse(dataElement.textContent || '[]');
-        } catch (error) {
-            console.error('[CitasIndexManager] No se pudo parsear la data de citas:', error);
-            return [];
-        }
+        return readJsonScript(this.dataElementId, [], 'CitasIndexManager');
     }
 
     getColumns() {

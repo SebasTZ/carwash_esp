@@ -1,8 +1,10 @@
 // RoleTableManager.js
 // Componente JS para gestionar la tabla dinámica de roles
+import { getCsrfToken } from '@utils/csrf';
 
 export const RoleTableManager = {
     init({ el, roles, canEdit, canDelete }) {
+        const csrfToken = getCsrfToken();
         const container = document.querySelector(el);
         if (!container) return;
         container.innerHTML = '';
@@ -22,7 +24,7 @@ export const RoleTableManager = {
             if (canDelete) {
                 tableHtml += `<form method="POST" action="/roles/${role.id}" style="display:inline-block;">
                     <input type="hidden" name="_method" value="DELETE">
-                    <input type="hidden" name="_token" value="${window.Laravel.csrfToken}">
+                    <input type="hidden" name="_token" value="${csrfToken}">
                     <button type="submit" class="btn btn-sm btn-danger">Eliminar</button>
                 </form>`;
             }

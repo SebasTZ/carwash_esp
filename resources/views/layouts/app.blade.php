@@ -10,7 +10,6 @@
     <meta name="csrf-token" content="{{ csrf_token() }}" />
     <title>{{ config('app.name', 'CarWash ESP') }} - @yield('title')</title>
     @stack('css-datatable')
-    <link href="{{ asset('css/styles.css') }}" rel="stylesheet" />
     @vite(['resources/css/app.css'])
     @stack('css')
 </head>

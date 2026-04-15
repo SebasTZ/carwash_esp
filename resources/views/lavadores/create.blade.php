@@ -1,6 +1,4 @@
 @extends('layouts.app')
-
-@vite('resources/js/app.js')
 @section('content')
 <div class="container">
     <h1>Agregar Lavador</h1>

@@ -28,11 +28,28 @@
 
                         <!-----Product---->
                         <div class="col-12">
-                            <select name="producto_id" id="producto_id" class="form-control selectpicker" data-live-search="true" data-size="10" title="Buscar un producto aquí">
-                                @foreach ($productos as $item)
-                                <option value="{{$item->id}}-{{$item->stock}}-{{$item->precio_venta}}-{{$item->es_servicio_lavado ? '1' : '0'}}" data-tokens="{{$item->codigo}} {{$item->nombre}}">{{$item->codigo}} - {{$item->nombre}}</option>
-                                @endforeach
-                            </select>
+                            @php
+                            $productoOptions = $productos->map(fn($item) => [
+                                'value'  => (string) $item->id,
+                                'label'  => $item->codigo . ' - ' . $item->nombre,
+                                'tokens' => $item->codigo . ' ' . $item->nombre,
+                            ])->values()->toArray();
+
+                            $productoConfig = $productos->mapWithKeys(fn($item) => [
+                                (string) $item->id => [
+                                    'stock' => (float) $item->stock,
+                                    'precio_venta' => (float) $item->precio_venta,
+                                    'es_servicio_lavado' => (bool) $item->es_servicio_lavado,
+                                    'label' => $item->codigo . ' - ' . $item->nombre,
+                                ],
+                            ])->toArray();
+                            @endphp
+                            <x-select-search
+                                name="producto_id"
+                                :value="old('producto_id')"
+                                placeholder="Buscar un producto aquí"
+                                :options="$productoOptions"
+                            />
                         </div>
 
                         <!-----Stock--->
@@ -129,11 +146,20 @@
                         <!--Customer-->
                         <div class="col-12">
                             <label for="cliente_id" class="form-label">Cliente:</label>
-                            <select name="cliente_id" id="cliente_id" class="form-control selectpicker show-tick" data-live-search="true" title="Seleccionar" data-size='2'>
-                                @foreach ($clientes as $item)
-                                <option value="{{$item->id}}">{{$item->persona->razon_social}}</option>
-                                @endforeach
-                            </select>
+                            @php
+                            $clienteOptions = $clientes->map(fn($c) => [
+                                'value'  => $c->id,
+                                'label'  => $c->persona->razon_social . ' — ' . $c->persona->numero_documento,
+                                'tokens' => $c->persona->razon_social . ' ' . $c->persona->numero_documento,
+                            ])->values()->toArray();
+                            @endphp
+                            <x-select-search
+                                name="cliente_id"
+                                :value="old('cliente_id')"
+                                placeholder="Seleccionar cliente"
+                                :options="$clienteOptions"
+                                required
+                            />
                             @error('cliente_id')
                                 <span class="text-danger">{{ $message }}</span>
                             @enderror
@@ -142,11 +168,19 @@
                         <!--Receipt Type-->
                         <div class="col-12">
                             <label for="comprobante_id" class="form-label">Comprobante:</label>
-                            <select name="comprobante_id" id="comprobante_id" class="form-control selectpicker" title="Seleccionar">
-                                @foreach ($comprobantes as $item)
-                                <option value="{{$item->id}}">{{$item->tipo_comprobante}}</option>
-                                @endforeach
-                            </select>
+                            @php
+                            $comprobanteOptions = $comprobantes->map(fn($c) => [
+                                'value'  => $c->id,
+                                'label'  => $c->tipo_comprobante,
+                                'tokens' => $c->tipo_comprobante,
+                            ])->values()->toArray();
+                            @endphp
+                            <x-select-search
+                                name="comprobante_id"
+                                :value="old('comprobante_id')"
+                                placeholder="Seleccionar comprobante"
+                                :options="$comprobanteOptions"
+                            />
                             @error('comprobante_id')
                                 <span class="text-danger">{{ $message }}</span>
                             @enderror
@@ -210,22 +244,35 @@
                         <!-- Payment Method -->
                         <div class="col-12">
                             <label for="medio_pago" class="form-label">Método de Pago:</label>
-                            <select name="medio_pago" id="medio_pago" class="form-control selectpicker" title="Seleccionar">
-                                <option value="efectivo">Efectivo</option>
-                                <option value="tarjeta_credito">Tarjeta de Crédito</option>
-                                <option value="tarjeta_regalo">Tarjeta de Regalo</option>
-                                <option value="lavado_gratis">Lavado Gratis (Fidelidad)</option>
-                            </select>
+                            <x-select-search
+                                name="medio_pago"
+                                :value="old('medio_pago')"
+                                placeholder="Seleccionar"
+                                :options="[
+                                    ['value' => 'efectivo',       'label' => 'Efectivo',                'tokens' => 'efectivo'],
+                                    ['value' => 'tarjeta_credito','label' => 'Tarjeta de Crédito',      'tokens' => 'tarjeta credito'],
+                                    ['value' => 'tarjeta_regalo', 'label' => 'Tarjeta de Regalo',       'tokens' => 'tarjeta regalo'],
+                                    ['value' => 'lavado_gratis',  'label' => 'Lavado Gratis (Fidelidad)','tokens' => 'lavado gratis fidelidad'],
+                                ]"
+                            />
                         </div>
 
                         <!-- Gift Card -->
                         <div class="col-12" id="tarjeta_regalo_div" style="display: none;">
                             <label for="tarjeta_regalo_id" class="form-label">Tarjeta de Regalo:</label>
-                            <select name="tarjeta_regalo_id" id="tarjeta_regalo_id" class="form-control selectpicker" title="Seleccionar">
-                                @foreach ($tarjetas_regalo ?? [] as $item)
-                                <option value="{{$item->id}}">{{$item->codigo}}</option>
-                                @endforeach
-                            </select>
+                            @php
+                            $tarjetaOptions = collect($tarjetas_regalo ?? [])->map(fn($t) => [
+                                'value'  => $t->id,
+                                'label'  => $t->codigo,
+                                'tokens' => $t->codigo,
+                            ])->values()->toArray();
+                            @endphp
+                            <x-select-search
+                                name="tarjeta_regalo_id"
+                                :value="old('tarjeta_regalo_id')"
+                                placeholder="Seleccionar"
+                                :options="$tarjetaOptions"
+                            />
                         </div>
 
                         <!-- Free Wash (Loyalty) -->
@@ -296,6 +343,7 @@
 @endsection
 
 @push('js')
+<script type="application/json" id="venta-productos-config">@json($productoConfig)</script>
 <!-- Cargar el módulo VentaManager.js -->
 @vite(['resources/js/modules/VentaManager.js'])
 @endpush

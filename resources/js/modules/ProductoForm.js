@@ -18,13 +18,6 @@ export default class ProductoForm {
         action = '',
         method = 'POST'
     }) {
-        console.log('[ProductoForm] Inicializando:', {
-            elementId,
-            action,
-            method,
-            hasProducto: !!producto
-        });
-
         this.elementId = elementId;
         this.marcas = marcas;
         this.presentaciones = presentaciones;
@@ -46,7 +39,6 @@ export default class ProductoForm {
         setTimeout(() => {
             this.setupBootstrapSelect();
             this.attachEventListeners();
-            console.log('[ProductoForm] Inicialización completada');
         }, 100);
     }
 
@@ -55,7 +47,6 @@ export default class ProductoForm {
      */
     setupBootstrapSelect() {
         refreshBootstrapSelect('select.selectpicker');
-        console.log('[ProductoForm] bootstrap-select inicializado');
     }
 
     /**
@@ -83,8 +74,6 @@ export default class ProductoForm {
             } else {
                 precioDiv.style.display = 'none';
             }
-
-            console.log('[ProductoForm] Event listeners agregados');
         }
     }
 }

@@ -5,9 +5,7 @@
 {{-- Los datos del dashboard se pasan desde el controlador como $dashboardData --}}
 
 @section('content')
-@if (session('success'))
-<script type="application/json" id="panel-success-message">@json(session('success'))</script>
-@endif
+<x-flash-alert />
 
 <div class="container-fluid px-4">
     <div class="welcome-section mb-4">

@@ -37,18 +37,27 @@ import {
     getSelectedText,
     setHtml,
     appendHTML,
-    clearHTML,
     removeElement,
     setDisabled,
     focusElement,
     query,
 } from '@utils/dom';
+import { safeHandler } from '@utils/safe-handler';
+import DraftStorage from './shared/DraftStorage';
+import {
+    hasDetailItems,
+    resetTransactionTable,
+    restoreDraftTableRows,
+    startDraftAutoSave,
+    stopDraftAutoSave,
+} from './shared/TransactionDraftHelpers';
 
 /**
  * Estado de la compra
  */
 class CompraState {
     constructor() {
+        this.draftStorage = new DraftStorage('compra_borrador');
         this.productos = [];
         this.contador = 0;
         this.impuesto = 18; // IGV estándar en Perú
@@ -146,33 +155,23 @@ class CompraState {
      * Guarda el estado en localStorage
      */
     guardarEnLocalStorage() {
-        try {
-            const estado = {
-                productos: this.productos,
-                contador: this.contador,
-                timestamp: new Date().toISOString()
-            };
-            localStorage.setItem('compra_borrador', JSON.stringify(estado));
-        } catch (error) {
-            console.warn('No se pudo guardar en localStorage:', error);
-        }
+        this.draftStorage.save({
+            productos: this.productos,
+            contador: this.contador,
+        });
     }
 
     /**
      * Carga el estado desde localStorage
      */
     cargarDesdeLocalStorage() {
-        try {
-            const guardado = localStorage.getItem('compra_borrador');
-            if (guardado) {
-                const estado = JSON.parse(guardado);
-                this.productos = estado.productos || [];
-                this.contador = estado.contador || 0;
-                return true;
-            }
-        } catch (error) {
-            console.warn('No se pudo cargar desde localStorage:', error);
+        const estado = this.draftStorage.load();
+        if (estado) {
+            this.productos = estado.productos || [];
+            this.contador = estado.contador || 0;
+            return true;
         }
+
         return false;
     }
 
@@ -180,11 +179,7 @@ class CompraState {
      * Limpia el borrador de localStorage
      */
     limpiarLocalStorage() {
-        try {
-            localStorage.removeItem('compra_borrador');
-        } catch (error) {
-            console.warn('No se pudo limpiar localStorage:', error);
-        }
+        this.draftStorage.clear();
     }
 }
 
@@ -222,7 +217,10 @@ export class CompraManager {
      */
     setupEventListeners() {
         // Botón agregar producto
-        on('#btn_agregar', 'click', () => this.agregarProducto());
+        on('#btn_agregar', 'click', safeHandler(
+            () => this.agregarProducto(),
+            { message: 'No se pudo agregar el producto a la compra.' }
+        ));
 
         // Cambio de comprobante
         on('#comprobante_id', 'change', () => this.actualizarTotales());
@@ -231,10 +229,16 @@ export class CompraManager {
         on('#impuesto', 'change', () => this.actualizarTotales());
 
         // Botón cancelar compra
-        on('#btnCancelarCompra', 'click', () => this.cancelarCompra());
+        on('#btnCancelarCompra', 'click', safeHandler(
+            () => this.cancelarCompra(),
+            { message: 'No se pudo cancelar la compra actual.' }
+        ));
 
         // Validación antes de guardar
-        on('#guardar', 'click', (event) => this.validarAntesDeGuardar(event));
+        on('#guardar', 'click', safeHandler(
+            (event) => this.validarAntesDeGuardar(event),
+            { message: 'No se pudo validar la compra antes de guardar.' }
+        ));
     }
 
     /**
@@ -411,7 +415,7 @@ export class CompraManager {
      * Habilita/deshabilita botones según el estado
      */
     actualizarEstadoBotones() {
-        const hayProductos = this.state.productos.some(p => p !== null);
+        const hayProductos = hasDetailItems(this.state.productos);
         
         setDisabled('#guardar', !hayProductos);
         setDisabled('#btnCancelarCompra', !hayProductos);
@@ -430,22 +434,9 @@ export class CompraManager {
 
         if (!confirmado) return;
 
-        // Limpiar tabla
-        clearHTML('#tabla_detalle tbody');
-        
-        // Agregar fila vacía
-        const filaVacia = `
-            <tr>
-                <th></th>
-                <td></td>
-                <td></td>
-                <td></td>
-                <td></td>
-                <td></td>
-                <td></td>
-            </tr>
-        `;
-        appendHTML('#tabla_detalle tbody', filaVacia);
+        resetTransactionTable({
+            tableBodySelector: '#tabla_detalle tbody',
+        });
 
         // Limpiar estado
         this.state.limpiar();
@@ -502,6 +493,13 @@ export class CompraManager {
             this.recuperarBorrador();
         } else {
             this.state.limpiarLocalStorage();
+            this.state.limpiar();
+            resetTransactionTable({
+                tableBodySelector: '#tabla_detalle tbody',
+            });
+            this.actualizarTotales();
+            this.limpiarCampos();
+            this.actualizarEstadoBotones();
         }
     }
 
@@ -509,14 +507,12 @@ export class CompraManager {
      * Recupera el borrador y lo muestra en la UI
      */
     recuperarBorrador() {
-        // Limpiar tabla actual
-        clearHTML('#tabla_detalle tbody');
-
-        // Agregar cada producto del borrador
-        this.state.productos.forEach((producto) => {
-            if (producto !== null) {
+        restoreDraftTableRows({
+            productos: this.state.productos,
+            tableBodySelector: '#tabla_detalle tbody',
+            addRow: (producto) => {
                 this.agregarFilaTabla(producto);
-            }
+            },
         });
 
         // Actualizar totales y botones
@@ -530,23 +526,14 @@ export class CompraManager {
      * Inicia el auto-guardado periódico
      */
     iniciarAutoGuardado() {
-        // Auto-guardar cada 30 segundos
-        this.autoGuardarInterval = setInterval(() => {
-            const hayProductos = this.state.productos.some(p => p !== null);
-            if (hayProductos) {
-                this.state.guardarEnLocalStorage();
-                console.log('💾 Auto-guardado de compra realizado');
-            }
-        }, 30000); // 30 segundos
+        this.autoGuardarInterval = startDraftAutoSave(this.state);
     }
 
     /**
      * Detiene el auto-guardado
      */
     detenerAutoGuardado() {
-        if (this.autoGuardarInterval) {
-            clearInterval(this.autoGuardarInterval);
-        }
+        stopDraftAutoSave(this.autoGuardarInterval);
     }
 }
 
@@ -554,9 +541,7 @@ export class CompraManager {
 document.addEventListener('DOMContentLoaded', () => {
     // Solo inicializar si estamos en la página de crear compra
     if (document.getElementById('btn_agregar') && window.location.pathname.includes('/compras/')) {
-        console.log('[CompraManager] Inicializando módulo de compra...');
         window.compraManager = new CompraManager();
-        console.log('🚀 CompraManager inicializado');
     }
 });
 

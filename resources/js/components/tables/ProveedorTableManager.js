@@ -1,5 +1,6 @@
 // ProveedorTableManager.js
 // Componente JS para gestionar la tabla dinámica de proveedores
+import { getCsrfToken } from '@utils/csrf';
 
 export const ProveedorTableManager = {
     init({ el, proveedores, canEdit, canDelete }) {
@@ -12,7 +13,7 @@ export const ProveedorTableManager = {
         if (!proveedores || proveedores.length === 0) {
             tableHtml += `<tr><td colspan="4" class="text-center">No hay proveedores registrados.</td></tr>`;
         } else {
-            const csrfToken = document.querySelector('meta[name="csrf-token"]')?.getAttribute('content') || '';
+            const csrfToken = getCsrfToken();
             proveedores.forEach(proveedor => {
                 const persona = proveedor.persona || {};
                 tableHtml += `<tr>

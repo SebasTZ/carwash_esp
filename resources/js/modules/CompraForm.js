@@ -1,6 +1,5 @@
 export default class CompraForm {
     constructor({ elementId, productos = [], proveedores = [], comprobantes = [], impuesto = 18, old = {}, errors = [], action = '', method = 'POST', onFormReady = null }) {
-        console.log('[CompraForm] Data recibida:', { productos, proveedores, comprobantes, impuesto, old, errors, action, method });
         const container = document.getElementById(elementId);
         if (!container) {
             console.warn('[CompraForm] No se encontró el contenedor:', elementId);

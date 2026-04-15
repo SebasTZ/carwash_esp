@@ -59,13 +59,10 @@
                                     </a>
                                 </div>
                                 <div>
-                                    <form action="{{ route('clientes.destroy',['cliente'=>$cliente->id]) }}" method="post">
-                                        @method('DELETE')
-                                        @csrf
-                                        <button type="submit" class="btn btn-danger btn-sm" title="Eliminar" data-confirm="¿Está seguro de eliminar este cliente?" data-confirm-confirm-text="Eliminar">
-                                            <i class="fas fa-trash"></i>
-                                        </button>
-                                    </form>
+                                    <x-confirm-delete
+                                        :action="route('clientes.destroy', $cliente)"
+                                        icon-only
+                                    />
                                 </div>
                             </div>
                         </td>

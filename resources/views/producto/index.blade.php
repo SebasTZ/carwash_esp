@@ -86,13 +86,11 @@
                                     </a>
                                     @endcan
                                     @can('eliminar-producto')
-                                    <form method="POST" action="{{ route('productos.destroy', $producto->id) }}" style="display:inline;">
-                                        @csrf
-                                        @method('DELETE')
-                                        <button type="submit" class="btn btn-outline-danger btn-sm" title="Eliminar" data-confirm="¿Está seguro de eliminar este producto?" data-confirm-confirm-text="Eliminar">
-                                            <i class="fas fa-trash"></i>
-                                        </button>
-                                    </form>
+                                    <x-confirm-delete
+                                        :action="route('productos.destroy', $producto->id)"
+                                        message="¿Está seguro de eliminar este producto?"
+                                        icon-only
+                                    />
                                     @endcan
                                 </div>
                             </td>

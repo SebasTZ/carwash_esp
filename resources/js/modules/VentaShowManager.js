@@ -4,6 +4,7 @@
  */
 
 import DetalleVentaTable from '../components/DetalleVentaTable';
+import { readJsonScript } from '@utils/json-script';
 
 class VentaShowManager {
     constructor() {
@@ -34,17 +35,7 @@ class VentaShowManager {
     }
 
     getPayload() {
-        const dataElement = document.getElementById(this.dataElementId);
-        if (!dataElement) {
-            return null;
-        }
-
-        try {
-            return JSON.parse(dataElement.textContent || '{}');
-        } catch (error) {
-            console.error('[VentaShowManager] No se pudo parsear la data de la venta:', error);
-            return null;
-        }
+        return readJsonScript(this.dataElementId, null, 'VentaShowManager');
     }
 }
 

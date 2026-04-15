@@ -157,4 +157,24 @@ class CitaControllerTest extends TestCase
             'estado' => 'en_proceso',
         ]);
     }
+
+    #[\PHPUnit\Framework\Attributes\Test]
+    public function completar_cita_desde_estado_invalido_retorna_error_y_no_modifica_estado()
+    {
+        $cita = Cita::factory()->create([
+            'cliente_id' => $this->cliente->id,
+            'fecha' => now()->toDateString(),
+            'estado' => 'pendiente',
+        ]);
+
+        $response = $this->post(route('citas.completar', $cita));
+
+        $response->assertRedirect(route('citas.dashboard'));
+        $response->assertSessionHas('error');
+
+        $this->assertDatabaseHas('citas', [
+            'id' => $cita->id,
+            'estado' => 'pendiente',
+        ]);
+    }
 }

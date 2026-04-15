@@ -116,7 +116,7 @@ class MantenimientoControllerTest extends TestCase
     }
 
     #[\PHPUnit\Framework\Attributes\Test]
-    public function cambiar_estado_a_entregado_registra_fecha_y_redirige_a_show()
+    public function cambiar_estado_de_terminado_a_entregado_registra_fecha_y_redirige_a_show()
     {
         $mantenimiento = Mantenimiento::create([
             'cliente_id' => $this->cliente->id,
@@ -126,7 +126,7 @@ class MantenimientoControllerTest extends TestCase
             'fecha_ingreso' => now()->subDays(2),
             'tipo_servicio' => 'Diagnostico',
             'descripcion_trabajo' => 'Diagnostico general',
-            'estado' => 'en_proceso',
+            'estado' => 'terminado',
             'pagado' => false,
         ]);
 
@@ -140,6 +140,75 @@ class MantenimientoControllerTest extends TestCase
         $mantenimiento->refresh();
         $this->assertSame('entregado', $mantenimiento->estado);
         $this->assertNotNull($mantenimiento->fecha_entrega_real);
+    }
+
+    #[\PHPUnit\Framework\Attributes\Test]
+    public function cambiar_estado_invalido_no_modifica_registro()
+    {
+        $mantenimiento = Mantenimiento::create([
+            'cliente_id' => $this->cliente->id,
+            'placa' => 'EEE555',
+            'modelo' => 'Yaris',
+            'tipo_vehiculo' => 'Sedan',
+            'fecha_ingreso' => now()->subDay(),
+            'tipo_servicio' => 'Inspección',
+            'descripcion_trabajo' => 'Revisión completa',
+            'estado' => 'recibido',
+            'pagado' => false,
+        ]);
+
+        $response = $this->post(route('mantenimientos.cambiarEstado', $mantenimiento), [
+            'estado' => 'entregado',
+        ]);
+
+        $response->assertRedirect(route('mantenimientos.show', $mantenimiento));
+        $response->assertSessionHas('error');
+
+        $mantenimiento->refresh();
+        $this->assertSame('recibido', $mantenimiento->estado);
+        $this->assertNull($mantenimiento->fecha_entrega_real);
+    }
+
+    #[\PHPUnit\Framework\Attributes\Test]
+    public function update_no_permite_salto_invalido_de_estado()
+    {
+        $mantenimiento = Mantenimiento::create([
+            'cliente_id' => $this->cliente->id,
+            'placa' => 'FFF666',
+            'modelo' => 'Onix',
+            'tipo_vehiculo' => 'Sedan',
+            'fecha_ingreso' => now()->subDay(),
+            'tipo_servicio' => 'Mantenimiento',
+            'descripcion_trabajo' => 'Cambio de filtros',
+            'estado' => 'recibido',
+            'pagado' => false,
+        ]);
+
+        $response = $this->put(route('mantenimientos.update', $mantenimiento), [
+            'cliente_id' => $this->cliente->id,
+            'placa' => 'GGG777',
+            'modelo' => 'Onix',
+            'tipo_vehiculo' => 'Sedan',
+            'fecha_ingreso' => $mantenimiento->fecha_ingreso->format('Y-m-d H:i:s'),
+            'fecha_entrega_estimada' => now()->addDay()->format('Y-m-d H:i:s'),
+            'fecha_entrega_real' => '',
+            'tipo_servicio' => 'Mantenimiento',
+            'descripcion_trabajo' => 'Cambio de filtros y aceite',
+            'observaciones' => 'Sin observaciones',
+            'costo_estimado' => 120,
+            'costo_final' => 0,
+            'mecanico_responsable' => 'Jose',
+            'estado' => 'entregado',
+            'pagado' => '1',
+        ]);
+
+        $response->assertRedirect(route('mantenimientos.edit', $mantenimiento));
+        $response->assertSessionHas('error');
+
+        $mantenimiento->refresh();
+        $this->assertSame('FFF666', $mantenimiento->placa);
+        $this->assertSame('recibido', $mantenimiento->estado);
+        $this->assertNull($mantenimiento->fecha_entrega_real);
     }
 
     #[\PHPUnit\Framework\Attributes\Test]

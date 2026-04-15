@@ -36,7 +36,7 @@
 @endsection
 
 @push('js')
-@vite(['resources/js/components/forms/FormValidator.js', 'resources/js/components/tables/RoleFormManager.js'])
+@vite(['resources/js/components/tables/RoleFormManager.js'])
 <script type="application/json" id="role-edit-config">{!! json_encode([
     'permisos' => $permisos,
     'role' => $role,

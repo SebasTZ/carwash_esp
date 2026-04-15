@@ -1,13 +1,6 @@
 @extends('layouts.app')
 
 @section('title', 'Reporte de Ventas ' . ucfirst($reporte))
-@push('css')
-<style>
-    .row-not-space {
-        width: 110px;
-    }
-</style>
-@endpush
 
 @section('content')
 
@@ -77,7 +70,6 @@
 @endsection
 
 @push('js')
-@vite(['resources/js/components/DynamicTable.js', 'resources/js/modules/VentaManager.js'])
 <script type="application/json" id="ventas-reporte-config">{!! json_encode([
     'data' => $ventas,
 ], JSON_HEX_TAG | JSON_HEX_APOS | JSON_HEX_AMP | JSON_HEX_QUOT) !!}</script>

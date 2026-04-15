@@ -124,13 +124,11 @@
                                     <a href="{{ route('mantenimientos.edit', $mantenimiento->id) }}" class="btn btn-sm btn-secondary" title="Editar">
                                         <i class="fas fa-edit"></i>
                                     </a>
-                                    <form action="{{ route('mantenimientos.destroy', $mantenimiento->id) }}" method="POST" class="d-inline">
-                                        @csrf
-                                        @method('DELETE')
-                                        <button type="submit" class="btn btn-sm btn-danger" title="Eliminar" data-confirm="¿Está seguro de eliminar este mantenimiento?" data-confirm-confirm-text="Eliminar">
-                                            <i class="fas fa-trash"></i>
-                                        </button>
-                                    </form>
+                                    <x-confirm-delete
+                                        :action="route('mantenimientos.destroy', $mantenimiento->id)"
+                                        message="¿Está seguro de eliminar este mantenimiento?"
+                                        icon-only
+                                    />
                                 </td>
                             </tr>
                         @empty

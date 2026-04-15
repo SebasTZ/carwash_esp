@@ -2,14 +2,6 @@
 
 @section('title','Crear Cliente')
 
-@push('css')
-<style>
-    #box-razon-social {
-        display: none;
-    }
-</style>
-@endpush
-
 @section('content')
 <div class="container-fluid px-4">
     <h1 class="mt-4 text-center">Crear Cliente</h1>

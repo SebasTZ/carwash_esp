@@ -41,7 +41,6 @@
 
 <div id="dynamicTableLavados"></div>
 @push('js')
-@vite('resources/js/app.js')
 <script type="application/json" id="lavados-tabla-config">{!! json_encode([
     'data' => $lavados->map(function($lavado) {
         return [

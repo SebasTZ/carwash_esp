@@ -50,11 +50,12 @@
                 </div>
                 <button type="submit" class="btn btn-success">Actualizar</button>
             </form>
-            <form action="{{ route('tarjetas_regalo.destroy', $tarjeta->id) }}" method="POST" class="mt-3">
-                @csrf
-                @method('DELETE')
-                <button type="submit" class="btn btn-danger" data-confirm="¿Está seguro de eliminar esta tarjeta de regalo?" data-confirm-confirm-text="Eliminar">Eliminar</button>
-            </form>
+            <div class="mt-3">
+                <x-confirm-delete
+                    :action="route('tarjetas_regalo.destroy', $tarjeta->id)"
+                    message="¿Está seguro de eliminar esta tarjeta de regalo?"
+                />
+            </div>
         </div>
     </div>
 </div>

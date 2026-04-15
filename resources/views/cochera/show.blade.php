@@ -159,13 +159,9 @@
 
                 @if($cochera->estado === 'activo')
                     <div class="card-footer text-end">
-                        <form action="{{ route('cocheras.destroy', $cochera->id) }}" method="POST" class="d-inline">
-                            @csrf
-                            @method('DELETE')
-                            <button type="submit" class="btn btn-danger" data-confirm="¿Está seguro de eliminar este registro?" data-confirm-confirm-text="Eliminar">
-                                <i class="fas fa-trash"></i> Eliminar
-                            </button>
-                        </form>
+                        <x-confirm-delete
+                            :action="route('cocheras.destroy', $cochera->id)"
+                        />
                     </div>
                 @endif
             </div>

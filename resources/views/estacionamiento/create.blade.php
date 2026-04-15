@@ -24,13 +24,7 @@
         </div>
     @endif
 
-    @if (session('success'))
-        <div class="alert alert-success">{{ session('success') }}</div>
-    @endif
-
-    @if (session('error'))
-        <div class="alert alert-danger">{{ session('error') }}</div>
-    @endif
+    <x-flash-alert />
 
     <div class="card shadow-sm mx-auto" style="max-width: 800px;">
         <form action="{{ route('estacionamiento.store') }}" method="POST">

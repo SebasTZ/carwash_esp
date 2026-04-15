@@ -138,6 +138,11 @@ class MantenimientoController extends Controller
             'pagado' => 'boolean',
         ]);
 
+        if (!$this->canTransitionMantenimiento($mantenimiento->estado, $request->estado)) {
+            return redirect()->route('mantenimientos.edit', $mantenimiento->id)
+                ->with('error', 'Transición inválida de estado: ' . $mantenimiento->estado . ' -> ' . $request->estado);
+        }
+
         try {
             DB::beginTransaction();
             
@@ -192,6 +197,11 @@ class MantenimientoController extends Controller
         $request->validate([
             'estado' => 'required|in:recibido,en_proceso,terminado,entregado',
         ]);
+
+        if (!$this->canTransitionMantenimiento($mantenimiento->estado, $request->estado)) {
+            return redirect()->route('mantenimientos.show', $mantenimiento->id)
+                ->with('error', 'Transición inválida de estado: ' . $mantenimiento->estado . ' -> ' . $request->estado);
+        }
         
         try {
             DB::beginTransaction();
@@ -216,6 +226,22 @@ class MantenimientoController extends Controller
             return redirect()->route('mantenimientos.show', $mantenimiento->id)
                 ->with('error', 'Error al actualizar estado: ' . $e->getMessage());
         }
+    }
+
+    private function canTransitionMantenimiento(string $currentState, string $nextState): bool
+    {
+        if ($currentState === $nextState) {
+            return true;
+        }
+
+        $allowedTransitions = [
+            'recibido' => ['en_proceso'],
+            'en_proceso' => ['terminado'],
+            'terminado' => ['entregado'],
+            'entregado' => [],
+        ];
+
+        return in_array($nextState, $allowedTransitions[$currentState] ?? [], true);
     }
     
     /**

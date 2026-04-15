@@ -2,121 +2,6 @@
 
 @section('title', 'Panel de Citas')
 
-@push('css')
-<style>
-    .cita-card {
-        transition: all 0.3s ease;
-        border: none !important;
-        box-shadow: 0 2px 4px rgba(0,0,0,0.05);
-    }
-    
-    .cita-card:hover {
-        transform: translateY(-5px);
-        box-shadow: 0 10px 20px rgba(0,0,0,0.1);
-    }
-    
-    .status-badge {
-        font-size: 0.9rem;
-        padding: 8px 15px;
-        border-radius: 20px;
-        font-weight: 500;
-        display: inline-flex;
-        align-items: center;
-        gap: 8px;
-    }
-    
-    .position-badge {
-        position: absolute;
-        top: -12px;
-        right: -12px;
-        width: 45px;
-        height: 45px;
-        border-radius: 50%;
-        background-color: #fff;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        font-size: 1.2rem;
-        font-weight: bold;
-        box-shadow: 0 3px 6px rgba(0,0,0,0.1);
-        z-index: 1;
-    }
-    
-    .card-actions {
-        display: flex;
-        gap: 8px;
-    }
-    
-    .refresh-timer {
-        font-size: 0.85rem;
-        color: #6c757d;
-        background: rgba(108, 117, 125, 0.1);
-        padding: 6px 12px;
-        border-radius: 20px;
-        display: inline-flex;
-        align-items: center;
-        gap: 5px;
-    }
-    
-    .stats-card {
-        border-radius: 15px;
-        transition: all 0.3s ease;
-        overflow: hidden;
-    }
-    
-    .stats-card:hover {
-        transform: translateY(-5px) scale(1.02);
-    }
-    
-    .stats-card .card-body {
-        padding: 1.5rem;
-    }
-    
-    .stats-icon {
-        font-size: 2.5rem;
-        opacity: 0.5;
-        transition: all 0.3s ease;
-    }
-    
-    .stats-card:hover .stats-icon {
-        opacity: 0.8;
-        transform: scale(1.1);
-    }
-    
-    .display-5 {
-        font-size: 2.5rem;
-        font-weight: 600;
-    }
-    
-    .section-header {
-        display: flex;
-        align-items: center;
-        gap: 10px;
-        padding: 1rem;
-        border-radius: 10px;
-        margin-bottom: 1rem;
-    }
-    
-    .section-header i {
-        font-size: 1.5rem;
-    }
-    
-    .btn-action {
-        padding: 8px 16px;
-        border-radius: 20px;
-        display: inline-flex;
-        align-items: center;
-        gap: 8px;
-        font-weight: 500;
-        transition: all 0.3s ease;
-    }
-    
-    .btn-action:hover {
-        transform: translateY(-2px);
-    }
-</style>
-@endpush
-
 @section('content')
 <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pb-2 mb-3">
     <h1 class="h2 mb-0">Panel de Citas <small class="text-muted">{{ now()->format('d/m/Y') }}</small></h1>
@@ -139,13 +24,7 @@
     </div>
 </div>
 
-@if(session('success'))
-<div class="alert alert-success alert-dismissible fade show" role="alert">
-    <i class="fas fa-check-circle me-2"></i>
-    {{ session('success') }}
-    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-</div>
-@endif
+<x-flash-alert />
 
 <!-- Statistics Cards -->
 <div class="row g-4 mb-4">
@@ -213,13 +92,23 @@
         @if($citas->where('estado', 'pendiente')->count() > 0)
             <div class="row g-4">
                 @foreach($citas->where('estado', 'pendiente')->sortBy('posicion_cola') as $cita)
-                <div class="col-xl-3 col-lg-4 col-md-6">
+                <div
+                    class="col-xl-3 col-lg-4 col-md-6"
+                    x-data="citasDashboardCard({
+                        estado: '{{ $cita->estado }}',
+                        urls: {
+                            iniciar:   '{{ route('citas.iniciar',   $cita) }}',
+                            cancelar:  '{{ route('citas.cancelar',  $cita) }}'
+                        }
+                    })"
+                    x-show="!removed"
+                    x-cloak
+                >
                     <div class="card cita-card h-100 border-warning position-relative">
                         <div class="position-badge border border-warning text-warning">{{ $cita->posicion_cola }}</div>
                         <div class="card-header d-flex justify-content-between align-items-center bg-light py-2 border-0">
                             <span class="status-badge bg-warning text-white">
-                                <i class="fas fa-clock"></i>
-                                Pending
+                                <i class="fas fa-clock"></i> Pendiente
                             </span>
                             <span class="text-muted">{{ \Carbon\Carbon::parse($cita->hora)->format('H:i') }}</span>
                         </div>
@@ -227,9 +116,8 @@
                             <h5 class="card-title mb-2">{{ $cita->cliente->persona->razon_social }}</h5>
                             <p class="card-text mb-3">
                                 <i class="fas fa-phone me-2 text-muted"></i>
-                                {{ $cita->cliente->persona->telefono ?? 'Not registered' }}
+                                {{ $cita->cliente->persona->telefono ?? 'Sin teléfono' }}
                             </p>
-                            
                             @if($cita->notas)
                             <div class="small text-muted border-top pt-2 mt-2">
                                 <i class="fas fa-sticky-note me-1"></i>
@@ -239,24 +127,29 @@
                         </div>
                         <div class="card-footer bg-transparent pt-0 border-0">
                             <div class="d-flex justify-content-between align-items-center">
-                                <form action="{{ route('citas.iniciar', $cita) }}" method="POST">
-                                    @csrf
-                                    <button type="submit" class="btn btn-success btn-sm btn-action">
-                                        <i class="fas fa-play"></i> Start
-                                    </button>
-                                </form>
-                                
+                                <button
+                                    type="button"
+                                    class="btn btn-success btn-sm btn-action"
+                                    :disabled="loading"
+                                    @click="cambiarEstado(urls.iniciar, 'en_proceso')"
+                                >
+                                    <span x-show="!loading"><i class="fas fa-play"></i> Iniciar</span>
+                                    <span x-show="loading" x-cloak><i class="fas fa-spinner fa-spin"></i></span>
+                                </button>
                                 <div class="card-actions">
-                                    <a href="{{ route('citas.show', $cita) }}" class="btn btn-outline-secondary btn-sm btn-action">
-                                        <i class="fas fa-eye"></i>
-                                    </a>
-                                    <form action="{{ route('citas.cancelar', $cita) }}" method="POST" class="d-inline">
-                                        @csrf
-                                        <button type="submit" class="btn btn-outline-danger btn-sm btn-action" 
-                                            data-confirm="¿Está seguro de cancelar esta cita?" data-confirm-confirm-text="Cancelar cita">
-                                            <i class="fas fa-times"></i>
-                                        </button>
-                                    </form>
+                                    <x-tooltip text="Ver detalle">
+                                        <a href="{{ route('citas.show', $cita) }}" class="btn btn-outline-secondary btn-sm btn-action">
+                                            <i class="fas fa-eye"></i>
+                                        </a>
+                                    </x-tooltip>
+                                    <button
+                                        type="button"
+                                        class="btn btn-outline-danger btn-sm btn-action"
+                                        :disabled="loading"
+                                        @click="cambiarEstado(urls.cancelar, 'cancelada', '¿Está seguro de cancelar esta cita?')"
+                                    >
+                                        <i class="fas fa-times"></i>
+                                    </button>
                                 </div>
                             </div>
                         </div>
@@ -265,10 +158,10 @@
                 @endforeach
             </div>
         @else
-                <div class="alert alert-info m-0">
-                    <i class="fas fa-info-circle me-2"></i>
-                    No hay citas pendientes para hoy
-                </div>
+            <div class="alert alert-info m-0">
+                <i class="fas fa-info-circle me-2"></i>
+                No hay citas pendientes para hoy
+            </div>
         @endif
     </div>
 </div>
@@ -283,13 +176,23 @@
         @if($citas->where('estado', 'en_proceso')->count() > 0)
             <div class="row g-4">
                 @foreach($citas->where('estado', 'en_proceso')->sortBy('posicion_cola') as $cita)
-                <div class="col-xl-3 col-lg-4 col-md-6">
+                <div
+                    class="col-xl-3 col-lg-4 col-md-6"
+                    x-data="citasDashboardCard({
+                        estado: '{{ $cita->estado }}',
+                        urls: {
+                            completar: '{{ route('citas.completar', $cita) }}',
+                            cancelar:  '{{ route('citas.cancelar',  $cita) }}'
+                        }
+                    })"
+                    x-show="!removed"
+                    x-cloak
+                >
                     <div class="card cita-card h-100 border-info position-relative">
                         <div class="position-badge border border-info text-info">{{ $cita->posicion_cola }}</div>
                         <div class="card-header d-flex justify-content-between align-items-center bg-light py-2 border-0">
                             <span class="status-badge bg-info text-white">
-                                <i class="fas fa-spinner fa-spin"></i>
-                                In Process
+                                <i class="fas fa-spinner fa-spin"></i> En Proceso
                             </span>
                             <span class="text-muted">{{ \Carbon\Carbon::parse($cita->hora)->format('H:i') }}</span>
                         </div>
@@ -297,9 +200,8 @@
                             <h5 class="card-title mb-2">{{ $cita->cliente->persona->razon_social }}</h5>
                             <p class="card-text mb-3">
                                 <i class="fas fa-phone me-2 text-muted"></i>
-                                {{ $cita->cliente->persona->telefono ?? 'Not registered' }}
+                                {{ $cita->cliente->persona->telefono ?? 'Sin teléfono' }}
                             </p>
-                            
                             @if($cita->notas)
                             <div class="small text-muted border-top pt-2 mt-2">
                                 <i class="fas fa-sticky-note me-1"></i>
@@ -309,24 +211,29 @@
                         </div>
                         <div class="card-footer bg-transparent pt-0 border-0">
                             <div class="d-flex justify-content-between align-items-center">
-                                <form action="{{ route('citas.completar', $cita) }}" method="POST">
-                                    @csrf
-                                    <button type="submit" class="btn btn-success btn-sm btn-action">
-                                        <i class="fas fa-check"></i> Complete
-                                    </button>
-                                </form>
-                                
+                                <button
+                                    type="button"
+                                    class="btn btn-success btn-sm btn-action"
+                                    :disabled="loading"
+                                    @click="cambiarEstado(urls.completar, 'completada')"
+                                >
+                                    <span x-show="!loading"><i class="fas fa-check"></i> Completar</span>
+                                    <span x-show="loading" x-cloak><i class="fas fa-spinner fa-spin"></i></span>
+                                </button>
                                 <div class="card-actions">
-                                    <a href="{{ route('citas.show', $cita) }}" class="btn btn-outline-secondary btn-sm btn-action">
-                                        <i class="fas fa-eye"></i>
-                                    </a>
-                                    <form action="{{ route('citas.cancelar', $cita) }}" method="POST" class="d-inline">
-                                        @csrf
-                                        <button type="submit" class="btn btn-outline-danger btn-sm btn-action"
-                                            data-confirm="¿Está seguro de cancelar esta cita?" data-confirm-confirm-text="Cancelar cita">
-                                            <i class="fas fa-times"></i>
-                                        </button>
-                                    </form>
+                                    <x-tooltip text="Ver detalle">
+                                        <a href="{{ route('citas.show', $cita) }}" class="btn btn-outline-secondary btn-sm btn-action">
+                                            <i class="fas fa-eye"></i>
+                                        </a>
+                                    </x-tooltip>
+                                    <button
+                                        type="button"
+                                        class="btn btn-outline-danger btn-sm btn-action"
+                                        :disabled="loading"
+                                        @click="cambiarEstado(urls.cancelar, 'cancelada', '¿Está seguro de cancelar esta cita?')"
+                                    >
+                                        <i class="fas fa-times"></i>
+                                    </button>
                                 </div>
                             </div>
                         </div>
@@ -335,10 +242,10 @@
                 @endforeach
             </div>
         @else
-                <div class="alert alert-info m-0">
-                    <i class="fas fa-info-circle me-2"></i>
-                    No hay citas en proceso actualmente
-                </div>
+            <div class="alert alert-info m-0">
+                <i class="fas fa-info-circle me-2"></i>
+                No hay citas en proceso actualmente
+            </div>
         @endif
     </div>
 </div>
@@ -358,8 +265,7 @@
                         <div class="position-badge border border-success text-success">{{ $cita->posicion_cola }}</div>
                         <div class="card-header d-flex justify-content-between align-items-center bg-light py-2 border-0">
                             <span class="status-badge bg-success text-white">
-                                <i class="fas fa-check-circle"></i>
-                                Completed
+                                <i class="fas fa-check-circle"></i> Completada
                             </span>
                             <span class="text-muted">{{ \Carbon\Carbon::parse($cita->hora)->format('H:i') }}</span>
                         </div>
@@ -367,12 +273,12 @@
                             <h5 class="card-title mb-2">{{ $cita->cliente->persona->razon_social }}</h5>
                             <p class="card-text mb-0">
                                 <i class="fas fa-phone me-2 text-muted"></i>
-                                {{ $cita->cliente->persona->telefono ?? 'Not registered' }}
+                                {{ $cita->cliente->persona->telefono ?? 'Sin teléfono' }}
                             </p>
                         </div>
                         <div class="card-footer bg-transparent border-0">
                             <a href="{{ route('citas.show', $cita) }}" class="btn btn-outline-secondary btn-sm btn-action w-100">
-                                <i class="fas fa-eye"></i> View Details
+                                <i class="fas fa-eye"></i> Ver Detalle
                             </a>
                         </div>
                     </div>
@@ -380,10 +286,10 @@
                 @endforeach
             </div>
         @else
-                <div class="alert alert-info m-0">
-                    <i class="fas fa-info-circle me-2"></i>
-                    No hay citas completadas hoy
-                </div>
+            <div class="alert alert-info m-0">
+                <i class="fas fa-info-circle me-2"></i>
+                No hay citas completadas hoy
+            </div>
         @endif
     </div>
 </div>
@@ -406,8 +312,7 @@
                         <div class="card cita-card h-100 border-danger">
                             <div class="card-header d-flex justify-content-between align-items-center bg-light py-2 border-0">
                                 <span class="status-badge bg-danger text-white">
-                                    <i class="fas fa-ban"></i>
-                                    Canceled
+                                    <i class="fas fa-ban"></i> Cancelada
                                 </span>
                                 <span class="text-muted">{{ \Carbon\Carbon::parse($cita->hora)->format('H:i') }}</span>
                             </div>
@@ -415,12 +320,12 @@
                                 <h5 class="card-title mb-2">{{ $cita->cliente->persona->razon_social }}</h5>
                                 <p class="card-text mb-0">
                                     <i class="fas fa-phone me-2 text-muted"></i>
-                                    {{ $cita->cliente->persona->telefono ?? 'Not registered' }}
+                                    {{ $cita->cliente->persona->telefono ?? 'Sin teléfono' }}
                                 </p>
                             </div>
                             <div class="card-footer bg-transparent border-0">
                                 <a href="{{ route('citas.show', $cita) }}" class="btn btn-outline-secondary btn-sm btn-action w-100">
-                                    <i class="fas fa-eye"></i> View Details
+                                    <i class="fas fa-eye"></i> Ver Detalle
                                 </a>
                             </div>
                         </div>
@@ -438,6 +343,9 @@
 </div>
 @endsection
 
-@push('scripts')
-@vite(['resources/js/modules/CitasDashboardAutoRefresh.js'])
+@push('js')
+@vite([
+    'resources/js/modules/CitasDashboard.js',
+    'resources/js/modules/CitasDashboardAutoRefresh.js',
+])
 @endpush

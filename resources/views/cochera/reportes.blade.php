@@ -257,15 +257,6 @@
 </div>
 @stop
 
-@section('css')
-<style>
-    .info-box-number {
-        font-size: 1.5rem;
-        font-weight: bold;
-    }
-</style>
-@stop
-
 @section('js')
 @vite(['resources/js/modules/CocheraReportesManager.js'])
 @stop

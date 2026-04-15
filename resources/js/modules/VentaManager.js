@@ -3,16 +3,14 @@
  * Reemplaza el código inline de resources/views/venta/create.blade.php
  */
 
-import 'bootstrap-select/dist/css/bootstrap-select.min.css';
-import 'bootstrap-select/dist/js/bootstrap-select.min.js';
+import axios from 'axios';
 
 import { 
     showSuccess, 
     showError, 
     showWarning, 
     showConfirm,
-    setButtonLoading,
-    clearFormErrors 
+    setButtonLoading 
 } from '@utils/notifications';
 
 import { 
@@ -26,21 +24,15 @@ import {
 } from '@utils/validators';
 
 import { 
-    formatCurrency,
-    parseCurrency 
+    formatCurrency
 } from '@utils/formatters';
-
-import {
-    initBootstrapSelect,
-    refreshBootstrapSelect,
-    setBootstrapSelectValue,
-} from '@utils/bootstrap-init';
 
 import {
     on,
     getValue,
     setValue,
     getSelectedText,
+    setSelectSearchValue,
     setHtml,
     appendHTML,
     clearHTML,
@@ -53,12 +45,23 @@ import {
     isChecked,
     query,
 } from '@utils/dom';
+import { readJsonScript } from '@utils/json-script';
+import { safeHandler } from '@utils/safe-handler';
+import DraftStorage from './shared/DraftStorage';
+import {
+    hasDetailItems,
+    resetTransactionTable,
+    restoreDraftTableRows,
+    startDraftAutoSave,
+    stopDraftAutoSave,
+} from './shared/TransactionDraftHelpers';
 
 /**
  * Estado de la venta
  */
 class VentaState {
     constructor() {
+        this.draftStorage = new DraftStorage('venta_borrador');
         this.productos = [];
         this.contador = 0;
         this.impuesto = 18; // IGV estándar en Perú
@@ -146,45 +149,34 @@ class VentaState {
      * Limpia el estado de la venta
      */
     limpiar() {
-    this.productos = [];
-    this.contador = 0;
-    this.sumas = 0;
-    this.igv = 0;
-    this.total = 0;
-    console.log('[VentaManager] Estado de venta limpiado');
+        this.productos = [];
+        this.contador = 0;
+        this.sumas = 0;
+        this.igv = 0;
+        this.total = 0;
     }
 
     /**
      * Guarda el estado en localStorage
      */
     guardarEnLocalStorage() {
-        try {
-            const estado = {
-                productos: this.productos,
-                contador: this.contador,
-                timestamp: new Date().toISOString()
-            };
-            localStorage.setItem('venta_borrador', JSON.stringify(estado));
-        } catch (error) {
-            console.warn('No se pudo guardar en localStorage:', error);
-        }
+        this.draftStorage.save({
+            productos: this.productos,
+            contador: this.contador,
+        });
     }
 
     /**
      * Carga el estado desde localStorage
      */
     cargarDesdeLocalStorage() {
-        try {
-            const guardado = localStorage.getItem('venta_borrador');
-            if (guardado) {
-                const estado = JSON.parse(guardado);
-                this.productos = estado.productos || [];
-                this.contador = estado.contador || 0;
-                return true;
-            }
-        } catch (error) {
-            console.warn('No se pudo cargar desde localStorage:', error);
+        const estado = this.draftStorage.load();
+        if (estado) {
+            this.productos = estado.productos || [];
+            this.contador = estado.contador || 0;
+            return true;
         }
+
         return false;
     }
 
@@ -192,11 +184,7 @@ class VentaState {
      * Limpia el borrador de localStorage
      */
     limpiarLocalStorage() {
-        try {
-            localStorage.removeItem('venta_borrador');
-        } catch (error) {
-            console.warn('No se pudo limpiar localStorage:', error);
-        }
+        this.draftStorage.clear();
     }
 }
 
@@ -207,6 +195,7 @@ export class VentaManager {
     constructor() {
         this.state = new VentaState();
         this.autoGuardarInterval = null;
+        this.productosConfig = readJsonScript('venta-productos-config', {}, 'VentaManager');
         this.init();
     }
 
@@ -214,27 +203,48 @@ export class VentaManager {
      * Inicializa el manager
      */
     init() {
-        this.initBootstrapSelect();
         this.setupEventListeners();
         this.intentarRecuperarBorrador();
         this.iniciarAutoGuardado();
     }
 
-    /**
-     * Inicializa bootstrap-select en la vista de crear venta
-     */
-    initBootstrapSelect() {
-        initBootstrapSelect('.selectpicker');
+    setSelectFieldValue(selector, value, label = null) {
+        const element = query(selector);
+        if (!element) {
+            return;
+        }
+
+        if (element.tagName === 'SELECT') {
+            setValue(selector, value);
+            element.dispatchEvent(new Event('change', { bubbles: true }));
+            return;
+        }
+
+        setSelectSearchValue(selector, value, label);
     }
 
-    refreshSelectpicker(selector) {
-        refreshBootstrapSelect(selector);
+    normalizarBooleano(valor) {
+        return valor === true || valor === 1 || valor === '1';
     }
 
-    setSelectpickerValue(selector, value) {
-        setValue(selector, value);
-        setBootstrapSelectValue(selector, value);
-        this.refreshSelectpicker(selector);
+    obtenerProductoSeleccionado() {
+        const productoId = String(getValue('#producto_id') || '').trim();
+        if (!productoId) {
+            return null;
+        }
+
+        const config = this.productosConfig?.[productoId];
+        if (!config) {
+            return null;
+        }
+
+        return {
+            id: productoId,
+            nombre: config.label || getSelectedText('#producto_id'),
+            stock: Number(config.stock ?? 0),
+            precioVenta: Number(config.precio_venta ?? 0),
+            esServicioLavado: this.normalizarBooleano(config.es_servicio_lavado),
+        };
     }
 
     /**
@@ -242,41 +252,66 @@ export class VentaManager {
      */
     setupEventListeners() {
         // Botón agregar producto
-        on('#btn_agregar', 'click', () => this.agregarProducto());
+        on('#btn_agregar', 'click', safeHandler(
+            () => this.agregarProducto(),
+            { message: 'No se pudo agregar el producto a la venta.' }
+        ));
 
         // Cambio de producto
-        on('#producto_id', 'change', () => this.mostrarValoresProducto());
+        on('#producto_id', 'change', safeHandler(
+            () => this.mostrarValoresProducto(),
+            { message: 'No se pudo cargar la información del producto.' }
+        ));
 
         // Cambio de comprobante o checkbox IGV
-        on('#comprobante_id, #con_igv', 'change', () => this.actualizarTotales());
+        on('#comprobante_id, #con_igv', 'change', safeHandler(
+            () => this.actualizarTotales(),
+            { message: 'No se pudo recalcular los totales de la venta.' }
+        ));
 
         // Cambio de impuesto personalizado
-        on('#impuesto', 'change', () => this.actualizarTotales());
+        on('#impuesto', 'change', safeHandler(
+            () => this.actualizarTotales(),
+            { message: 'No se pudo aplicar el impuesto de la venta.' }
+        ));
 
         // Botón cancelar venta
-        on('#btnCancelarVenta', 'click', () => this.cancelarVenta());
+        on('#btnCancelarVenta', 'click', safeHandler(
+            () => this.cancelarVenta(),
+            { message: 'No se pudo cancelar la venta actual.' }
+        ));
 
         // Validación antes de guardar - Interceptar el submit del formulario
-        on('#venta-form', 'submit', (event) => {
-            console.log('[VentaManager] Submit del formulario detectado');
-            const resultado = this.validarAntesDeGuardar(event);
-            console.log('[VentaManager] Resultado validación:', resultado);
-            if (!resultado) {
-                event.preventDefault();
-                console.log('[VentaManager] Submit cancelado por validación');
-                return false;
-            }
-            console.log('[VentaManager] Permitiendo submit del formulario');
-        });
+        on('#venta-form', 'submit', safeHandler(
+            (event) => {
+                const resultado = this.validarAntesDeGuardar(event);
+                if (!resultado) {
+                    event.preventDefault();
+                    return false;
+                }
+
+                return true;
+            },
+            { message: 'No se pudo validar la venta antes de guardar.' }
+        ));
 
         // Cambio de medio de pago
-        on('#medio_pago', 'change', () => this.manejarCambioMedioPago());
+        on('#medio_pago', 'change', safeHandler(
+            () => this.manejarCambioMedioPago(),
+            { message: 'No se pudo validar el método de pago seleccionado.' }
+        ));
 
         // Cambio de cliente - validar fidelización si ya está seleccionado "Lavado Gratis"
-        on('#cliente_id', 'change', () => this.validarClienteConLavadoGratis());
+        on('#cliente_id', 'change', safeHandler(
+            () => this.validarClienteConLavadoGratis(),
+            { message: 'No se pudo validar la fidelización del cliente.' }
+        ));
 
         // Checkbox servicio de lavado
-        on('#servicio_lavado', 'change', () => this.toggleHorarioLavado());
+        on('#servicio_lavado', 'change', safeHandler(
+            () => this.toggleHorarioLavado(),
+            { message: 'No se pudo actualizar el horario del servicio de lavado.' }
+        ));
     }
 
     /**
@@ -298,42 +333,47 @@ export class VentaManager {
      * Muestra los valores del producto seleccionado
      */
     mostrarValoresProducto() {
-        const productoValue = getValue('#producto_id');
-        if (!productoValue) return;
-
-        const [idProducto, stock, precioVenta, esServicio] = productoValue.split('-');
-        const esServicioLavado = esServicio === '1';
+        const producto = this.obtenerProductoSeleccionado();
+        if (!producto) {
+            setValue('#stock', '');
+            setValue('#precio_venta', '');
+            return;
+        }
 
         // Mostrar stock
-        if (esServicioLavado) {
+        if (producto.esServicioLavado) {
             setValue('#stock', '∞'); // Símbolo de infinito para servicios
         } else {
-            setValue('#stock', stock);
+            setValue('#stock', producto.stock);
         }
 
         // Mostrar precio
-        setValue('#precio_venta', precioVenta);
+        setValue('#precio_venta', producto.precioVenta);
     }
 
     /**
      * Agrega un producto al detalle de venta
      */
     agregarProducto() {
-        // Obtener valores
-        const productoValue = getValue('#producto_id');
-
-        const requiredProducto = validateRequired(productoValue, 'Producto', 'Debe seleccionar un producto');
+        const productoSeleccionado = this.obtenerProductoSeleccionado();
+        const requiredProducto = validateRequired(productoSeleccionado?.id, 'Producto', 'Debe seleccionar un producto');
         if (!requiredProducto.valid) {
             showError(requiredProducto.message);
             return;
         }
 
-        const [idProducto, stock, , esServicio] = productoValue.split('-');
-        const nombreProducto = getSelectedText('#producto_id');
+        const {
+            id: idProducto,
+            nombre: nombreProducto,
+            stock,
+            precioVenta: precioBase,
+            esServicioLavado,
+        } = productoSeleccionado;
+
         const cantidad = parseInt(getValue('#cantidad'));
-        const precioVenta = parseFloat(getValue('#precio_venta'));
+        const precioInput = parseFloat(getValue('#precio_venta'));
+        const precioVenta = Number.isFinite(precioInput) ? precioInput : precioBase;
         const descuento = parseFloat(getValue('#descuento')) || 0;
-        const esServicioLavado = esServicio === '1';
 
         // Validar cantidad
         if (!isInteger(cantidad) || !isPositive(cantidad)) {
@@ -373,7 +413,8 @@ export class VentaManager {
             nombreProducto,
             cantidad,
             precioVenta,
-            descuento
+            descuento,
+            esServicioLavado
         );
 
         // Agregar fila a la tabla
@@ -476,15 +517,6 @@ export class VentaManager {
     actualizarTotales() {
         const totales = this.state.calcularTotales();
 
-        // LOG para depuración
-        console.log('--- [VentaManager] Actualizando totales ---');
-        console.log('Productos:', this.state.productos.filter(p => p !== null));
-        console.log('Sumas:', totales.sumas);
-        console.log('IGV:', totales.igv);
-        console.log('Total:', totales.total);
-        console.log('Tipo comprobante:', getSelectedText('#comprobante_id'));
-        console.log('Incluir IGV:', isChecked('#con_igv'));
-
         setHtml('#sumas', formatCurrency(totales.sumas));
         setHtml('#igv', formatCurrency(totales.igv));
         setHtml('#total', formatCurrency(totales.total));
@@ -497,8 +529,7 @@ export class VentaManager {
     limpiarCampos() {
         setValue('#cantidad', '');
         setValue('#descuento', '');
-        setValue('#producto_id', '');
-        this.refreshSelectpicker('#producto_id');
+        this.setSelectFieldValue('#producto_id', '', '');
         setValue('#stock', '');
         setValue('#precio_venta', '');
     }
@@ -507,7 +538,7 @@ export class VentaManager {
      * Habilita/deshabilita botones según el estado
      */
     actualizarEstadoBotones() {
-        const hayProductos = this.state.productos.some(p => p !== null);
+        const hayProductos = hasDetailItems(this.state.productos);
         
         setDisabled('#guardar', !hayProductos);
         setDisabled('#btnCancelarVenta', !hayProductos);
@@ -526,25 +557,10 @@ export class VentaManager {
 
         if (!confirmado) return;
 
-        // Limpiar tabla
-        clearHTML('#tabla_detalle tbody');
-        
-        // Agregar fila vacía
-        const filaVacia = `
-            <tr>
-                <th></th>
-                <td></td>
-                <td></td>
-                <td></td>
-                <td></td>
-                <td></td>
-                <td></td>
-            </tr>
-        `;
-        appendHTML('#tabla_detalle tbody', filaVacia);
-
-        // Limpiar campos ocultos
-        clearHTML('#campos-productos-ocultos');
+        resetTransactionTable({
+            tableBodySelector: '#tabla_detalle tbody',
+            hiddenFieldSelectors: ['#campos-productos-ocultos'],
+        });
 
         // Limpiar estado
         this.state.limpiar();
@@ -562,16 +578,8 @@ export class VentaManager {
      * Valida antes de guardar la venta
      */
     validarAntesDeGuardar(event) {
-        console.log('[VentaManager] Iniciando validación antes de guardar');
-        
-        // DEBUG: Ver qué datos se van a enviar
-        const ventaForm = query('#venta-form');
-        const formData = ventaForm ? new FormData(ventaForm) : new FormData();
-        console.log('[VentaManager] FormData completo:', Object.fromEntries(formData));
-        
         // Validar que haya productos
         const validacionTabla = validateTableNotEmpty('tabla_detalle');
-        console.log('[VentaManager] Validación tabla:', validacionTabla);
         if (!validacionTabla.valid) {
             event.preventDefault();
             showError('Debe agregar al menos un producto');
@@ -581,7 +589,6 @@ export class VentaManager {
         // Validar servicio de lavado y horario
         const servicioLavado = isChecked('#servicio_lavado');
         const horarioLavado = getValue('#horario_lavado');
-        console.log('[VentaManager] Servicio lavado:', servicioLavado, 'Horario:', horarioLavado);
 
         const requiredHorarioLavado = validateRequired(
             horarioLavado,
@@ -595,8 +602,6 @@ export class VentaManager {
             focusElement('#horario_lavado');
             return false;
         }
-
-        console.log('[VentaManager] Validación exitosa, enviando formulario...');
 
         // Mostrar loading en el botón
         const btnGuardar = document.getElementById('guardar');
@@ -638,7 +643,7 @@ export class VentaManager {
             
             if (!requiredCliente.valid) {
                 showError(requiredCliente.message);
-                this.setSelectpickerValue('#medio_pago', 'efectivo');
+                this.setSelectFieldValue('#medio_pago', 'efectivo');
                 return;
             }
 
@@ -658,20 +663,13 @@ export class VentaManager {
      */
     async validarFidelizacionLavado(clienteId) {
         try {
-            const response = await fetch(`/validar-fidelizacion-lavado/${clienteId}`);
-            
-            // Verificar si la respuesta es OK
-            if (!response.ok) {
-                throw new Error(`HTTP error! status: ${response.status}`);
-            }
-            
-            // Verificar si es JSON válido
-            const contentType = response.headers.get('content-type');
-            if (!contentType || !contentType.includes('application/json')) {
-                throw new Error('Respuesta no es JSON válido');
-            }
-            
-            const data = await response.json();
+            const response = await axios.get(`/validar-fidelizacion-lavado/${clienteId}`, {
+                headers: {
+                    Accept: 'application/json',
+                },
+            });
+
+            const data = response.data;
 
             if (!data.valido) {
                 // No tiene suficientes lavados, mostrar advertencia detallada
@@ -681,7 +679,7 @@ export class VentaManager {
                 showWarning(`${titulo}: ${mensaje}`);
                 
                 // Revertir el select al valor anterior
-                this.setSelectpickerValue('#medio_pago', 'efectivo');
+                this.setSelectFieldValue('#medio_pago', 'efectivo');
                 return;
             }
 
@@ -719,14 +717,12 @@ export class VentaManager {
             setHtml('#total', formatCurrency(totalZero));
             setHtml('#igv', formatCurrency(0));
             
-            console.log(`✅ Lavado Gratis seleccionado: ${data.mensaje}`);
-            
             // Asegurar que el botón de guardar esté habilitado
             this.actualizarEstadoBotones();
         } catch (error) {
             console.error('Error validando fidelización:', error);
             showError('No se pudo validar los puntos de fidelización: ' + error.message);
-            this.setSelectpickerValue('#medio_pago', 'efectivo');
+            this.setSelectFieldValue('#medio_pago', 'efectivo');
         }
     }
 
@@ -750,7 +746,6 @@ export class VentaManager {
      */
     async intentarRecuperarBorrador() {
         const hayBorrador = this.state.cargarDesdeLocalStorage();
-        console.log('[VentaManager] ¿Hay borrador en localStorage?', hayBorrador);
         if (!hayBorrador) return;
 
         const recuperar = await showConfirm(
@@ -759,7 +754,6 @@ export class VentaManager {
             'Sí, recuperar',
             'No, empezar nueva venta'
         );
-        console.log('[VentaManager] Selección recuperación:', recuperar);
         if (recuperar) {
             this.recuperarBorrador();
         } else {
@@ -768,24 +762,26 @@ export class VentaManager {
             // Limpiar estado
             this.state.limpiar();
             // Limpiar UI
-            clearHTML('#tabla_detalle tbody');
+            resetTransactionTable({
+                tableBodySelector: '#tabla_detalle tbody',
+                hiddenFieldSelectors: ['#campos-productos-ocultos'],
+            });
             this.actualizarTotales();
             this.limpiarCampos();
             this.actualizarEstadoBotones();
-            console.log('[VentaManager] Borrador limpiado y venta reiniciada');
         }
-    }    /**
+    }
+
+    /**
      * Recupera el borrador y lo muestra en la UI
      */
     recuperarBorrador() {
-        // Limpiar tabla actual
-        clearHTML('#tabla_detalle tbody');
-
-        // Agregar cada producto del borrador
-        this.state.productos.forEach((producto) => {
-            if (producto !== null) {
+        restoreDraftTableRows({
+            productos: this.state.productos,
+            tableBodySelector: '#tabla_detalle tbody',
+            addRow: (producto) => {
                 this.agregarFilaTabla(producto);
-            }
+            },
         });
 
         // Actualizar totales y botones
@@ -799,23 +795,14 @@ export class VentaManager {
      * Inicia el auto-guardado periódico
      */
     iniciarAutoGuardado() {
-        // Auto-guardar cada 30 segundos
-        this.autoGuardarInterval = setInterval(() => {
-            const hayProductos = this.state.productos.some(p => p !== null);
-            if (hayProductos) {
-                this.state.guardarEnLocalStorage();
-                console.log('💾 Auto-guardado realizado');
-            }
-        }, 30000); // 30 segundos
+        this.autoGuardarInterval = startDraftAutoSave(this.state);
     }
 
     /**
      * Detiene el auto-guardado
      */
     detenerAutoGuardado() {
-        if (this.autoGuardarInterval) {
-            clearInterval(this.autoGuardarInterval);
-        }
+        stopDraftAutoSave(this.autoGuardarInterval);
     }
 }
 
@@ -824,7 +811,6 @@ document.addEventListener('DOMContentLoaded', () => {
     // Solo inicializar si estamos en la página de crear venta
     if (document.getElementById('btn_agregar')) {
         window.ventaManager = new VentaManager();
-        console.log('🚀 VentaManager inicializado');
     }
 });
 

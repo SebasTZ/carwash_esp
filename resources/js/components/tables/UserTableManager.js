@@ -1,8 +1,10 @@
 // UserTableManager.js
 // Componente JS para gestionar la tabla dinámica de usuarios
+import { getCsrfToken } from '@utils/csrf';
 
 export const UserTableManager = {
     init({ el, users, canEdit, canDelete }) {
+        const csrfToken = getCsrfToken();
         const container = document.querySelector(el);
         if (!container) {
             return;
@@ -34,8 +36,6 @@ export const UserTableManager = {
                 tableHtml += `<a href="/users/${user.id}/edit" class="btn btn-sm btn-warning me-1">Editar</a>`;
             }
             if (canDelete) {
-                // Obtener el token CSRF desde la meta tag
-                const csrfToken = document.querySelector('meta[name="csrf-token"]')?.getAttribute('content') || '';
                 tableHtml += `<form method="POST" action="/users/${user.id}" style="display:inline-block;">
                     <input type="hidden" name="_method" value="DELETE">
                     <input type="hidden" name="_token" value="${csrfToken}">

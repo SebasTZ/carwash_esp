@@ -158,8 +158,6 @@ export function initAllBootstrapComponents() {
     initModals();
     initTabs();
     initDropdowns();
-    
-    console.log('✅ Componentes Bootstrap inicializados');
 }
 
 /**

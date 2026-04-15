@@ -6,10 +6,7 @@
  */
 
 import axios from 'axios';
-import 'bootstrap-select/dist/css/bootstrap-select.min.css';
-import 'bootstrap-select/dist/js/bootstrap-select.min.js';
 import { showError, showSuccess } from '@utils/notifications';
-import { initBootstrapSelect, setBootstrapSelectValue } from '@utils/bootstrap-init';
 
 /**
  * Clase para gestionar el estado de los filtros de lavados
@@ -98,16 +95,8 @@ export class LavadosManager {
      * Inicializar el manager
      */
     init() {
-        console.log('🚿 LavadosManager inicializado');
-        
         // Cargar filtros de la URL
         this.state.cargarFiltrosDesdeURL();
-
-        // Inicializar selectpicker de filtros sin depender de script inline en Blade
-        initBootstrapSelect('#filtro_lavador', {
-            liveSearch: true,
-            size: 7,
-        });
         
         // Aplicar valores iniciales a los campos
         this.aplicarFiltrosIniciales();
@@ -129,7 +118,6 @@ export class LavadosManager {
         
         if (lavadorSelect && this.state.filtros.lavador_id) {
             lavadorSelect.value = this.state.filtros.lavador_id;
-            setBootstrapSelectValue('#filtro_lavador', this.state.filtros.lavador_id);
         }
         
         if (estadoSelect && this.state.filtros.estado) {

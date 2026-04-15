@@ -39,9 +39,7 @@
             Vehículos Estacionados
         </div>
         <div class="card-body">
-            @if(session('success'))
-                <div class="alert alert-success">{{ session('success') }}</div>
-            @endif
+            <x-flash-alert />
 
             <table class="table table-striped">
                 <thead>
@@ -99,13 +97,10 @@
                                 </button>
                             </form>
                             @can('eliminar-estacionamiento')
-                            <form action="{{ route('estacionamiento.destroy', $estacionamiento) }}" method="POST" class="d-inline">
-                                @csrf
-                                @method('DELETE')
-                                <button type="submit" class="btn btn-danger btn-sm" data-confirm="¿Está seguro de eliminar este registro?" data-confirm-confirm-text="Eliminar">
-                                    <i class="fas fa-trash"></i>
-                                </button>
-                            </form>
+                            <x-confirm-delete
+                                :action="route('estacionamiento.destroy', $estacionamiento)"
+                                icon-only
+                            />
                             @endcan
                         </td>
                     </tr>

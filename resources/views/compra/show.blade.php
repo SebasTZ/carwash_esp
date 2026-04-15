@@ -3,13 +3,6 @@
 
 @section('title','Ver Compra')
 
-@push('css')
-<style>
-    @media (max-width:575px) { #hide-group { display: none; } }
-    @media (min-width:576px) { #icon-form { display: none; } }
-</style>
-@endpush
-
 @section('content')
 <div class="container-fluid px-4">
     <h1 class="mt-4 text-center">Ver Compra</h1>

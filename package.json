@@ -21,6 +21,7 @@
     },
     "dependencies": {
         "@fortawesome/fontawesome-free": "^7.2.0",
+        "alpinejs": "^3.15.11",
         "bootstrap": "^5.3.8",
         "bootstrap-select": "^1.13.18",
         "chart.js": "^4.5.1",

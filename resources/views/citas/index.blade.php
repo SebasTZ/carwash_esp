@@ -2,61 +2,6 @@
 
 @section('title', 'Gestión de Citas')
 
-@push('css')
-<style>
-    .export-card {
-        border-radius: 12px;
-        overflow: hidden;
-        box-shadow: 0 2px 8px rgba(0,0,0,0.08);
-        transition: all 0.3s ease;
-        margin-bottom: 1.5rem;
-    }
-    
-    .export-card:hover {
-        box-shadow: 0 6px 12px rgba(0,0,0,0.12);
-    }
-    
-    .export-card .card-header {
-        background: linear-gradient(135deg, #6366F1 0%, #4F46E5 100%);
-        padding: 1rem;
-        border: none;
-    }
-    
-    .export-card .card-header h5 {
-        color: white;
-        font-size: 1.1rem;
-        font-weight: 600;
-        margin: 0;
-    }
-    
-    .btn-export {
-        padding: 0.75rem 1rem;
-        border-radius: 10px;
-        font-weight: 500;
-        display: flex;
-        align-items: center;
-        gap: 0.5rem;
-        transition: all 0.3s ease;
-        text-decoration: none;
-    }
-    
-    .btn-export:hover {
-        transform: translateY(-2px);
-    }
-    
-    .btn-export i {
-        font-size: 1.1rem;
-    }
-    
-    .filter-card {
-        border-radius: 12px;
-        background: linear-gradient(to right, rgba(13,110,253,0.05), rgba(13,110,253,0.02));
-        padding: 1.5rem;
-        margin-bottom: 1.5rem;
-    }
-</style>
-@endpush
-
 @section('content')
 <div class="container-fluid px-4">
     <div class="cw-page-header mt-4">
@@ -140,12 +85,7 @@
     </form>
 </div>
 
-@if(session('success'))
-<div class="alert alert-success alert-dismissible fade show" role="alert">
-    {{ session('success') }}
-    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-</div>
-@endif
+<x-flash-alert />
 
 <div class="table-responsive">
     <table id="citasTable" class="table table-bordered table-hover"></table>

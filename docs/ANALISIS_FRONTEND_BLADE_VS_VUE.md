@@ -232,17 +232,20 @@ Alpine.js es el complemento oficial del ecosistema Laravel para interactividad s
 
 **Objetivo:** Reemplazar interactividad jQuery/vanilla con Alpine.js donde corresponda.
 
-- [ ] Instalar Alpine.js via npm (`npm install alpinejs`)
-- [ ] Reemplazar `bootstrap-select` con componentes Alpine nativos
-- [ ] Migrar tooltips, dropdowns y modales con logica inline a componentes Alpine
-- [ ] Agregar reactividad al dashboard de citas para cambio de estado sin recarga
-- [ ] Crear Blade Components reutilizables para:
-    - Modales de confirmacion
-    - Alertas flash
-    - Selectores de productos/clientes
-    - Badges de estado
+**Estado de ejecucion (actualizado: 2026-04-14):** Completada.
 
-**Ejemplo de beneficio:** El picker de productos en ventas actualmente usa jQuery para busqueda dinamica. Con Alpine.js se puede hacer mas limpiamente sin dependencia de jQuery.
+- [x] Instalar Alpine.js via npm (`npm install alpinejs`) _(completado: registrado en `app.js` con `Alpine.start()`, store global `notifications`, expuesto en `window.Alpine`)_
+- [x] Reemplazar `bootstrap-select` con componentes Alpine nativos _(completado: `x-select-search` Blade Component con busqueda live, transiciones y accesibilidad ARIA, sin dependencia de jQuery)_
+- [x] Migrar tooltips, dropdowns y modales con logica inline a componentes Alpine _(completado: `x-tooltip` inicializa Bootstrap Tooltip de forma declarativa via Alpine; `x-confirm-delete` con mini-confirmacion inline sin modal; `x-confirm-action-modal` existente ya integrado)_
+- [x] Agregar reactividad al dashboard de citas para cambio de estado sin recarga _(completado: `CitasDashboard.js` con Alpine component `citasDashboardCard`, peticiones AJAX via axios, loading state y animacion de salida; `CitaController` actualizado para responder JSON cuando `expectsJson()`)_
+- [x] Crear Blade Components reutilizables para:
+    - [x] Modales de confirmacion — `x-confirm-delete` (inline) + `x-confirm-action-modal` (modal Bootstrap)
+    - [x] Alertas flash — `x-flash-alert` con auto-dismiss de 4s, iconos y tipos dinamicos
+    - [x] Selectores de productos/clientes — `x-select-search` reemplaza `bootstrap-select`
+    - [x] Badges de estado — `x-status-badge` con mapa unificado de estados del dominio
+    - [x] Tooltips declarativos — `x-tooltip` sin llamadas manuales a `initTooltips()`
+
+**Ejemplo de beneficio aplicado:** El picker de productos en ventas y el filtro de lavadores pueden migrar progresivamente a `x-select-search` sin dependencia de jQuery/bootstrap-select.
 
 ### Fase 3 — Livewire para componentes reactivos (opcional)
 
@@ -527,3 +530,99 @@ Casos de uso ideales para Livewire en este proyecto:
 - Impacto en plan:
     - Fase 1 cerrada de extremo a extremo con estabilización y validación completa.
     - Se elimina riesgo residual de manifest faltante y de errores de parseo en vistas migradas.
+
+### Avance 19 — Implementacion completa de Fase 2: Alpine.js + Blade Components
+
+- Fecha: 2026-04-14
+- Resultado:
+    - Se instaló `alpinejs` como dependencia del proyecto (`npm install alpinejs --save`).
+    - Se registró Alpine en `resources/js/app.js`: import, store global `notifications`, `Alpine.start()` y exposición en `window.Alpine`.
+    - Se añadió `alpinejs` al chunk `vendor-core` de Vite para bundling eficiente.
+    - Se crearon los siguientes Blade Components en `resources/views/components/`:
+        - `x-select-search` — reemplazo nativo de `bootstrap-select`: busqueda live, transiciones Alpine, accesibilidad ARIA, sin jQuery.
+        - `x-flash-alert` — alertas flash de sesion con auto-dismiss de 4s, 4 tipos (success/error/warning/info), soporte para mensaje estatico via prop.
+        - `x-status-badge` — badge de estado unificado con mapa configurable para citas, ventas, lavados y booleanos.
+        - `x-confirm-delete` — botón de eliminar con mini-confirmacion inline (sin modal Bootstrap), basado en Alpine.
+        - `x-tooltip` — inicializa Bootstrap Tooltip de forma declarativa sin llamadas manuales a `initTooltips()`.
+    - Se migró el dashboard de citas (`resources/views/citas/dashboard.blade.php`) a Alpine reactivo:
+        - Cada tarjeta usa `x-data="citasDashboardCard(...)"` con estado local `estado`, `loading`, `removed`.
+        - Las acciones (iniciar/completar/cancelar) usan `axios.post` con `Accept: application/json`.
+        - Las tarjetas se ocultan con animación tras el cambio de estado, sin recarga completa.
+        - Se usó `x-cloak` para evitar flash de contenido no inicializado.
+    - Se actualizó `CitaController` para responder JSON cuando `request()->expectsJson()` en `iniciarCita`, `completarCita` y `cancelarCita`.
+    - Se creó `resources/js/modules/CitasDashboard.js` con el factory `citasDashboardCard` registrado vía `alpine:init`.
+    - Se registró `CitasDashboard.js` en `vite.config.js` como entrypoint.
+    - Se reemplazaron bloques manuales `@if(session(...))` por `<x-flash-alert />` en 10 vistas: `citas/create`, `citas/edit`, `citas/index`, `configuracion/edit`, `control/lavados`, `estacionamiento/create`, `estacionamiento/index`, `pagos_comisiones/create`, `panel/index`, `tarjetas_regalo/reporte`.
+    - Se actualizó `resources/views/layouts/partials/alert.blade.php` para delegar a `x-flash-alert` (eliminando el script JSON legacy).
+    - Se actualizó `LegacyInlineMigration.js` para que `initSessionSuccessToasts` ya no lea `panel-success-message` (ahora manejado por Alpine).
+    - Validacion de calidad:
+        - `npm run build`: OK
+        - `php artisan test`: 261 tests, 261 pass
+- Impacto en plan:
+    - Fase 2 completada en su totalidad.
+    - jQuery reducido al boundary de `bootstrap-select`; Alpine.js es la nueva capa de interactividad ligera.
+    - Componentes reutilizables listos para aplicarse progresivamente en el resto del sistema.
+
+### Avance 20 — Correcciones post-Fase 2 (multiagente en paralelo)
+
+- Fecha: 2026-04-14
+- Resultado (4 agentes en paralelo):
+    - **Bug `showConfirm` firma:** `CitasDashboard.js` corregido para llamar `showConfirm(title, text, confirmText)` posicionalmente en lugar de pasar un objeto.
+    - **Race condition `Alpine.start()`:** Movido `Alpine.start()` al final del callback `DOMContentLoaded` en `app.js`, con flag `window._alpineStarted = true` antes de la llamada. `CitasDashboard.js` actualizado con patrón de registro con fallback: si Alpine ya inició registra directo, si no escucha `alpine:init`.
+    - **Validación `required` en `x-select-search`:** Reemplazado `required` en `input[type=hidden]` (ignorado por el navegador) por listener `submit` en el formulario padre desde `init()` Alpine: previene el submit, activa `hasError`, hace scroll al componente y muestra mensaje de error visual.
+    - **XSS en `x-tooltip`:** Reemplazado `addslashes($text)` por atributo `data-tooltip-text="{{ e($text) }}"` leído desde `$el.dataset.tooltipText` en Alpine, eliminando la inyección inline de PHP en JS.
+    - **Doble `x-flash-alert` en `panel/index`:** Confirmado que el layout base NO incluye `alert` globalmente — la instancia en `panel/index.blade.php` es la única y es necesaria (sin cambio).
+    - **Migración `x-select-search` en `venta/create`:** Migrados `#cliente_id`, `#comprobante_id`, `#medio_pago`, `#tarjeta_regalo_id`. El select `#producto_id` se dejó con `bootstrap-select` por su formato de value compuesto (`id-stock-precio-servicio`) que `VentaManager.js` parsea con `.split('-')`.
+    - **Filtro `control/lavados`:** Se mantuvo `select` nativo para compatibilidad con el flujo GET actual; la migración completa a `x-select-search` queda como mejora pendiente.
+    - **Adopción `x-confirm-delete`:** 8 vistas migradas del patrón `data-confirm` + `<form>` + `<button>` al componente `x-confirm-delete`: `cliente/index`, `cochera/index`, `cochera/show`, `control/lavados`, `estacionamiento/index`, `mantenimiento/index`, `producto/index`, `tarjetas_regalo/edit`.
+    - Validacion de calidad:
+        - `npm run build`: OK
+        - `php artisan test`: 261 tests, 261 pass
+- Impacto en plan:
+    - Todos los bugs de alta/media prioridad de la revisión post-Fase 2 resueltos.
+    - `bootstrap-select` con dependencia jQuery reducido a 1 select (`#producto_id` en venta/create) — requiere refactor de `VentaManager.js` para eliminarlo completamente (candidato a Fase 3).
+    - `x-confirm-delete`, `x-select-search` y `x-status-badge` ahora con adopción real en el sistema.
+
+### Avance 21 — Implementación y verificación multi-agente de pendientes
+
+- Fecha: 2026-04-15
+- Resultado (multi-agente: implementación + verificación):
+    - Se eliminaron cargas duplicadas de `resources/js/app.js` en vistas que ya heredan el layout principal:
+        - `categoria/create`, `categoria/index`, `categoria/edit`
+        - `lavadores/create`, `lavadores/edit`
+        - `control/lavados_tabla_partial`
+    - Se retiró la referencia redundante a `VentaManager` en `venta/index` y `venta/reporte` (la inicialización de esas pantallas queda en el orquestador legacy).
+    - Se cerró bypass de transición de estado en mantenimiento:
+        - `MantenimientoController@update` ahora valida la misma matriz de transición usada por `cambiarEstado`.
+        - Se bloquean saltos inválidos de estado también desde el formulario de edición.
+    - Se agregó cobertura de regresión para ese caso:
+        - Nuevo test `update_no_permite_salto_invalido_de_estado` en `MantenimientoControllerTest`.
+    - Se reforzó el orquestador legacy admin para validaciones de formulario:
+        - `admin-pages.js` ahora importa `FormValidator` directamente (evita depender de `window.FormValidator` en entorno ESM).
+    - Se depuraron entradas redundantes en `vite.config.js` para reducir artefactos/chunks innecesarios.
+    - Validación de calidad:
+        - `npm run build`: OK
+        - `php artisan test tests/Feature/Controllers/MantenimientoControllerTest.php tests/Feature/Controllers/CitaControllerTest.php`: 11 tests, 11 pass
+- Impacto en plan:
+    - Queda implementado y verificado el cierre técnico de los pendientes críticos detectados por auditoría multi-agente (duplicación de carga JS y guardas de transición).
+    - Se reduce riesgo de doble inicialización global (`axios interceptors`, listeners globales).
+    - Se dejó pendiente funcional principal: eliminar completamente `bootstrap-select`/jQuery residual en `venta/create` (`#producto_id`) (resuelto en Avance 22).
+
+### Avance 22 — Cierre del residual `bootstrap-select` en venta/create
+
+- Fecha: 2026-04-15
+- Resultado:
+    - Se migró el selector de producto en `resources/views/venta/create.blade.php` de `selectpicker` a `x-select-search` con búsqueda nativa Alpine.
+    - Se eliminó el `value` compuesto (`id-stock-precio-servicio`) y se pasó a `value = id` para evitar parseo frágil por `split('-')`.
+    - Se agregó payload JSON `#venta-productos-config` con metadata de producto (`stock`, `precio_venta`, `es_servicio_lavado`, `label`).
+    - Se refactorizó `resources/js/modules/VentaManager.js` para:
+        - remover imports directos de `bootstrap-select` (CSS/JS),
+        - leer metadata desde `readJsonScript(...)`,
+        - resolver producto seleccionado por `id`,
+        - mantener `x-select-search` mediante `setSelectSearchValue(...)` sin dependencia jQuery.
+    - Se corrigió el alta de detalle para propagar `esServicioLavado` al estado interno (`VentaState.agregarProducto(...)`).
+    - Validación de calidad:
+        - `npm run build`: OK
+- Impacto en plan:
+    - Se cierra el pendiente funcional principal de `venta/create` reportado en Avance 21.
+    - Se reduce acoplamiento legacy en el flujo más crítico de ventas al eliminar `bootstrap-select` en la selección de productos.

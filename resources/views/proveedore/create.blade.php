@@ -2,14 +2,6 @@
 
 @section('title','Crear Proveedor')
 
-@push('css')
-<style>
-    #box-razon-social {
-        display: none;
-    }
-</style>
-@endpush
-
 @section('content')
 <div class="container-fluid px-4">
     <h1 class="mt-4 text-center">Crear Proveedor</h1>
@@ -36,7 +28,7 @@
 @endsection
 
 @push('js')
-@vite(['resources/js/components/forms/FormValidator.js', 'resources/js/components/tables/ProveedorFormManager.js'])
+@vite(['resources/js/components/tables/ProveedorFormManager.js'])
 <script type="application/json" id="proveedor-create-config">{!! json_encode([
     'documentos' => $documentos,
     'old' => [
