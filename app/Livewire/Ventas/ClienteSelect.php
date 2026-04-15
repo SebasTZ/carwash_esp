@@ -21,6 +21,7 @@ class ClienteSelect extends Component
         ?string $inputId = null,
         string $placeholder = 'Buscar cliente'
     ): void {
+        abort_unless(auth()->check(), 401);
         $this->name = $name;
         $this->inputId = $inputId ?: $name;
         $this->placeholder = $placeholder;
@@ -31,6 +32,7 @@ class ClienteSelect extends Component
 
     public function getResultsProperty(): array
     {
+        abort_unless(auth()->user()?->can('ver-clientes') || auth()->user()?->hasAnyRole(['admin', 'superadmin', 'cajero', 'vendedor']), 403);
         $search = trim($this->search);
 
         $clientes = Cliente::query()
@@ -90,6 +92,8 @@ class ClienteSelect extends Component
 
     public function syncFromExternal($field = null, $value = null, $label = null): void
     {
+        abort_unless(auth()->check(), 401);
+
         $field = trim((string) $field);
         if ($field !== $this->inputId) {
             return;

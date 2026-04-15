@@ -45,6 +45,9 @@
                     <a
                         href="{{ route('ventas.export.personalizado', ['fecha_inicio' => $fechaInicio, 'fecha_fin' => $fechaFin]) }}"
                         class="btn btn-success"
+                        wire:loading.attr="disabled"
+                        wire:loading.class="disabled pe-none"
+                        wire:target="filtrar,resetFiltros"
                     >
                         Exportar a Excel
                     </a>

@@ -25,7 +25,6 @@ export default defineConfig({
                 'resources/js/components/forms/PagoComisionFormManager.js',
                 // Módulos de páginas específicas
                 'resources/js/modules/VentaManager.js',
-                'resources/js/modules/CompraManager.js',
                 'resources/js/modules/LavadosManager.js',
                 'resources/js/modules/EstacionamientoManager.js',
                 'resources/js/modules/CitasFormManager.js',
@@ -61,7 +60,6 @@ export default defineConfig({
                     // Módulos de páginas
                     'modules': [
                         './resources/js/modules/VentaManager.js',
-                        './resources/js/modules/CompraManager.js',
                         './resources/js/modules/LavadosManager.js',
                         './resources/js/modules/EstacionamientoManager.js',
                     ],

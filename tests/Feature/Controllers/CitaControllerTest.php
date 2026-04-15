@@ -8,6 +8,8 @@ use App\Models\Documento;
 use App\Models\Persona;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Spatie\Permission\Models\Permission;
+use Spatie\Permission\PermissionRegistrar;
 use Tests\TestCase;
 
 class CitaControllerTest extends TestCase
@@ -21,15 +23,29 @@ class CitaControllerTest extends TestCase
     {
         parent::setUp();
 
-        $this->withoutMiddleware([
-            \Illuminate\Auth\Middleware\Authenticate::class,
-            \Illuminate\Auth\Middleware\Authorize::class,
-            \Spatie\Permission\Middleware\PermissionMiddleware::class,
-            \Spatie\Permission\Middleware\RoleMiddleware::class,
-            \Spatie\Permission\Middleware\RoleOrPermissionMiddleware::class,
-        ]);
+        app(PermissionRegistrar::class)->forgetCachedPermissions();
+
+        foreach ([
+            'ver-cita',
+            'crear-cita',
+            'editar-cita',
+            'eliminar-cita',
+            'calendario-cita',
+            'confirmar-cita',
+        ] as $permiso) {
+            Permission::findOrCreate($permiso);
+        }
 
         $this->user = User::factory()->create();
+        $this->user->givePermissionTo([
+            'ver-cita',
+            'crear-cita',
+            'editar-cita',
+            'eliminar-cita',
+            'calendario-cita',
+            'confirmar-cita',
+        ]);
+
         $this->actingAs($this->user);
 
         $documento = Documento::factory()->create(['tipo_documento' => 'DNI']);

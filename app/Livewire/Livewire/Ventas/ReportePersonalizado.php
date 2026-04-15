@@ -2,7 +2,6 @@
 
 namespace App\Livewire\Ventas;
 
-use App\Livewire\Concerns\FiltraVentas;
 use App\Repositories\VentaRepository;
 use App\Support\VentaTransformer;
 use Carbon\Carbon;
@@ -10,8 +9,6 @@ use Livewire\Component;
 
 class ReportePersonalizado extends Component
 {
-    use FiltraVentas;
-
     public string $fechaInicio = '';
     public string $fechaFin = '';
     public string $search = '';
@@ -23,8 +20,6 @@ class ReportePersonalizado extends Component
 
     public function mount(?string $fechaInicio = null, ?string $fechaFin = null): void
     {
-        abort_unless(auth()->user()?->can('reporte-personalizado-venta'), 403);
-
         $this->fechaInicio = trim((string) ($fechaInicio ?? ''));
         $this->fechaFin = trim((string) ($fechaFin ?? ''));
 
@@ -43,15 +38,12 @@ class ReportePersonalizado extends Component
 
     public function filtrar(): void
     {
-        abort_unless(auth()->user()?->can('reporte-personalizado-venta'), 403);
         $this->validate();
         $this->loadVentas();
     }
 
     public function resetFiltros(): void
     {
-        abort_unless(auth()->user()?->can('reporte-personalizado-venta'), 403);
-
         $this->fechaInicio = '';
         $this->fechaFin = '';
         $this->search = '';
@@ -63,17 +55,9 @@ class ReportePersonalizado extends Component
         $repo = app(VentaRepository::class);
         $transformer = app(VentaTransformer::class);
 
-        try {
-            $fechaInicio = Carbon::createFromFormat('Y-m-d', $this->fechaInicio);
-            $fechaFin = Carbon::createFromFormat('Y-m-d', $this->fechaFin);
-        } catch (\Throwable $e) {
-            $this->ventas = [];
-            return;
-        }
-
         $ventasRaw = $repo->obtenerPorRango(
-            $fechaInicio,
-            $fechaFin
+            Carbon::parse($this->fechaInicio),
+            Carbon::parse($this->fechaFin)
         )->reject(fn ($venta) => in_array($venta->medio_pago, ['tarjeta_regalo', 'lavado_gratis'], true));
 
         if (!auth()->user()?->hasAnyRole(['admin', 'superadmin', 'administrador'])) {
@@ -85,13 +69,29 @@ class ReportePersonalizado extends Component
 
     public function render()
     {
-        $ventasFiltradas = $this->filtrarVentasPorBusqueda($this->ventas, $this->search);
-        $montoTotal = $this->calcularMontoTotal($ventasFiltradas);
+        $ventasFiltradas = collect($this->ventas);
+        $search = mb_strtolower(trim($this->search));
+
+        if ($search !== '') {
+            $ventasFiltradas = $ventasFiltradas->filter(function (array $venta) use ($search) {
+                $cliente = mb_strtolower((string) data_get($venta, 'cliente.persona.razon_social', ''));
+                $comprobante = mb_strtolower((string) data_get($venta, 'comprobante.numero_comprobante', ''));
+                $vendedor = mb_strtolower((string) data_get($venta, 'vendedor.name', ''));
+
+                return str_contains($cliente, $search)
+                    || str_contains($comprobante, $search)
+                    || str_contains($vendedor, $search);
+            })->values();
+        }
+
+        $total = $ventasFiltradas->reduce(function (float $carry, array $venta) {
+            return $carry + (float) str_replace(',', '', (string) ($venta['total'] ?? '0'));
+        }, 0.0);
 
         return view('livewire.ventas.reporte-personalizado', [
             'ventasFiltradas' => $ventasFiltradas,
             'totalVentas' => $ventasFiltradas->count(),
-            'montoTotal' => $montoTotal,
+            'montoTotal' => $total,
         ]);
     }
 }

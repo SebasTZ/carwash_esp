@@ -4,14 +4,21 @@
 
         <div class="d-flex align-items-center gap-2">
             <label for="search_ventas_periodo" class="form-label mb-0">Buscar:</label>
-            <input
-                id="search_ventas_periodo"
-                type="text"
-                class="form-control"
-                style="min-width: 280px;"
-                placeholder="Cliente, comprobante o vendedor"
-                wire:model.live.debounce.300ms="search"
-            >
+            <div class="position-relative">
+                <input
+                    id="search_ventas_periodo"
+                    type="text"
+                    class="form-control"
+                    style="min-width: 280px;"
+                    placeholder="Cliente, comprobante o vendedor"
+                    wire:model.live.debounce.300ms="search"
+                >
+                <span wire:loading wire:target="search" class="position-absolute end-0 top-50 translate-middle-y me-2">
+                    <span class="spinner-border spinner-border-sm text-secondary" role="status">
+                        <span class="visually-hidden">Buscando...</span>
+                    </span>
+                </span>
+            </div>
         </div>
     </div>
 
@@ -21,7 +28,7 @@
             Tabla de Ventas {{ $reporte }}
         </div>
         <div class="card-body">
-            <div class="table-responsive">
+            <div class="table-responsive" wire:loading.class="opacity-50" wire:target="search">
                 <table class="table table-hover align-middle">
                     <thead class="table-light">
                         <tr>

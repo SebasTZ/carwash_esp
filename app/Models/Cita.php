@@ -34,4 +34,18 @@ class Cita extends Model
         $maxPosition = self::where('fecha', $fecha)->max('posicion_cola') ?? 0;
         return $maxPosition + 1;
     }
+
+    /**
+     * Determina si la cita puede transicionar al estado dado.
+     */
+    public function canTransitionTo(string $nextState): bool
+    {
+        $allowed = [
+            'pendiente'  => ['en_proceso', 'cancelada'],
+            'en_proceso' => ['completada', 'cancelada'],
+            'completada' => [],
+            'cancelada'  => [],
+        ];
+        return in_array($nextState, $allowed[$this->estado] ?? [], true);
+    }
 }

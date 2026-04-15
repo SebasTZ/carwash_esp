@@ -120,11 +120,84 @@ class DashboardCardsTest extends TestCase
 
         Livewire::actingAs($this->user)
             ->test(DashboardCards::class)
-            ->call('completar', $cita->id);
+            ->call('completar', $cita->id)
+            ->assertSee('Transición inválida de estado: pendiente -> completada.');
 
         $this->assertDatabaseHas('citas', [
             'id' => $cita->id,
             'estado' => 'pendiente',
         ]);
+    }
+
+    #[\PHPUnit\Framework\Attributes\Test]
+    public function test_usuario_sin_permiso_no_puede_cambiar_estado(): void
+    {
+        // Usuario sin el permiso 'confirmar-cita'
+        $userSinPermiso = User::factory()->create();
+        $userSinPermiso->givePermissionTo('calendario-cita'); // Solo tiene acceso a ver, no a confirmar
+
+        $cita = Cita::factory()->create([
+            'cliente_id' => $this->cliente->id,
+            'fecha' => now()->toDateString(),
+            'estado' => 'pendiente',
+            'posicion_cola' => 1,
+        ]);
+
+        Livewire::actingAs($userSinPermiso)
+            ->test(DashboardCards::class)
+            ->call('iniciar', $cita->id);
+
+        // El estado no debe cambiar porque el usuario no tiene permiso
+        $this->assertDatabaseHas('citas', [
+            'id' => $cita->id,
+            'estado' => 'pendiente',
+        ]);
+    }
+
+    #[\PHPUnit\Framework\Attributes\Test]
+    public function test_usuario_sin_permiso_calendario_recibe_403(): void
+    {
+        // Usuario sin ningún permiso de citas
+        $userSinPermiso = User::factory()->create();
+
+        Livewire::actingAs($userSinPermiso)
+            ->test(DashboardCards::class)
+            ->assertForbidden();
+    }
+
+    #[\PHPUnit\Framework\Attributes\Test]
+    public function test_cancelar_cita_cambia_estado_a_cancelada(): void
+    {
+        $cita = Cita::factory()->create([
+            'cliente_id' => $this->cliente->id,
+            'fecha' => now()->toDateString(),
+            'estado' => 'pendiente',
+            'posicion_cola' => 1,
+        ]);
+
+        Livewire::actingAs($this->user)
+            ->test(DashboardCards::class)
+            ->call('cancelar', $cita->id);
+
+        $this->assertDatabaseHas('citas', [
+            'id' => $cita->id,
+            'estado' => 'cancelada',
+        ]);
+    }
+
+    #[\PHPUnit\Framework\Attributes\Test]
+    public function test_cita_inexistente_no_lanza_excepcion(): void
+    {
+        $idInexistente = 99999;
+
+        // Llamar cancelar/iniciar con un ID que no existe no debe lanzar excepción:
+        // el componente muestra un flash de error y retorna silenciosamente.
+        Livewire::actingAs($this->user)
+            ->test(DashboardCards::class)
+            ->call('cancelar', $idInexistente)
+            ->assertHasNoErrors();
+
+        // No hay ninguna cita en BD con ese ID
+        $this->assertDatabaseMissing('citas', ['id' => $idInexistente]);
     }
 }

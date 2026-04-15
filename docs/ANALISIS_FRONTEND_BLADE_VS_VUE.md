@@ -703,6 +703,59 @@ Casos de uso ideales para Livewire en este proyecto:
     - Fase 3 queda extendida al módulo completo de reportes (personalizado + diario/semanal/mensual) con interfaz reactiva basada en Livewire.
     - Se reduce deuda del frontend legacy en reportes y se mantiene compatibilidad con lógica de negocio/exports del backend existente.
 
+### Avance 27 — Auditoría y corrección integral de Fase 3 (multiagente)
+
+- Fecha: 2026-04-15
+- Resultado (4 agentes de corrección + 1 de tests + validación manual):
+
+    **Seguridad — Autorización:**
+    - Se agregaron guards `abort_unless(auth()->user()?->can(...), 403)` en los 5 componentes Livewire:
+        - `ClienteSelect` y `ProductoSelect`: `abort_unless(auth()->check(), 401)` en `mount()` y guard de rol en `getResultsProperty()`.
+        - `ReportePersonalizado`: guard de `reporte-personalizado-venta` en `mount()` y `filtrar()`.
+        - `ReportePeriodo`: guard de cualquiera de los 3 permisos de periodo en `mount()`.
+        - `DashboardCards`: guard de `calendario-cita` en `render()`.
+
+    **Seguridad — Race condition:**
+    - `DashboardCards::cambiarEstado()` envuelto en `DB::transaction()` con `Cita::query()->lockForUpdate()->find($citaId)` para prevenir cambios concurrentes de estado.
+
+    **Seguridad — Filtrado por usuario:**
+    - `ReportePersonalizado::loadVentas()` ahora filtra por `user_id` si el usuario no tiene rol `admin/superadmin/administrador` — vendedores solo ven sus propias ventas.
+
+    **Corrección — Bug de casting:**
+    - `VentaTransformer` expone `total_raw` como `float` además de `total` formateado. El Trait `FiltraVentas` usa `total_raw` para cálculos evitando el bug de `str_replace(',', '', number_format(...))`.
+
+    **Refactor — Trait compartido:**
+    - Creado `app/Livewire/Concerns/FiltraVentas.php` con `filtrarVentasPorBusqueda()` y `calcularMontoTotal()`.
+    - Eliminada duplicación de código entre `ReportePersonalizado` y `ReportePeriodo`; ambos usan el Trait.
+    - `calcularMontoTotal()` normaliza `lavado_gratis_(fidelidad)` correctamente (inconsistencia previa entre los dos reportes).
+
+    **Refactor — Modelo Cita:**
+    - Agregado `Cita::canTransitionTo(string $nextState): bool` en el modelo.
+    - `DashboardCards::canTransitionCita()` delega al modelo eliminando duplicación de la tabla de transiciones.
+
+    **Configuración:**
+    - `config/livewire.php`: `pagination_theme` corregido de `tailwind` a `bootstrap-5`.
+
+    **UX — Accesibilidad:**
+    - `cliente-select.blade.php` y `producto-select.blade.php`: spinner `wire:loading wire:target="search"`, `aria-live="polite"`, `aria-label` en listado, `wire:loading.attr="aria-busy"` en contenedor raíz.
+    - `reporte-periodo.blade.php`: spinner en búsqueda y `wire:loading.class="opacity-50"` en tabla.
+
+    **Tests — Cobertura ampliada:**
+    - `ClienteSelectTest`: +4 tests (`clearSelection`, `syncFromExternal`, límite de búsqueda, 401 sin auth). Tests existentes migrados a `actingAs`.
+    - `ProductoSelectTest`: +3 tests (config en evento, `clearSelection`, productos sin stock). Tests existentes migrados a `actingAs`.
+    - `ReportePeriodoTest`: +2 tests (403 sin permiso, lista vacía). Tests existentes migrados a `actingAs` con permisos.
+    - `ReportePersonalizadoTest`: +3 tests (403 sin permiso, `resetFiltros`, vendedor ve solo sus ventas). Tests existentes actualizados con permisos.
+    - `DashboardCardsTest`: +4 tests (sin permiso no cambia estado, 403 sin `calendario-cita`, `cancelar`, cita inexistente).
+    - `CitaControllerTest` y `VentaControllerTest`: corregidos para proveer permisos a usuarios de test que ahora los necesitan por los guards de componentes Livewire.
+
+    **Validación de calidad:**
+    - `npm run build`: OK.
+    - `php artisan test`: 299 tests, 299 pass.
+
+- Impacto en plan:
+    - Fase 3 queda auditada y endurecida en seguridad, correctitud y cobertura de tests.
+    - Los 5 componentes Livewire son seguros, testeados y con lógica desduplicada.
+
 ### Avance 26 — Cierre total de Fase 3 multiagente (dashboard de citas en Livewire)
 
 - Fecha: 2026-04-15
@@ -723,3 +776,25 @@ Casos de uso ideales para Livewire en este proyecto:
 - Impacto en plan:
     - Fase 3 queda completada de extremo a extremo en los casos definidos: selectores reactivos de ventas, filtros/reportes reactivos y dashboard de citas sin recarga manual.
     - Se cierra la migración incremental de interactividad crítica a Livewire manteniendo compatibilidad con permisos, rutas y lógica de negocio existente.
+
+### Avance 28 — Auditoría multiagente de entradas Vite y limpieza de dead entry
+
+- Fecha: 2026-04-15
+- Resultado:
+    - Se ejecutó auditoría en modo multiagente para cruzar:
+        - entradas `input` de `vite.config.js`,
+        - referencias reales `@vite(...)` en vistas Blade,
+        - imports transitivos desde `resources/js/app.js`.
+    - Hallazgo consolidado de alta confianza:
+        - `resources/js/modules/CompraManager.js` estaba declarado como entrypoint en `vite.config.js` pero sin uso en vistas ni imports activos.
+    - Se aplicó limpieza mínima y segura:
+        - removida la entrada `resources/js/modules/CompraManager.js` del array `input`.
+        - removida su referencia en `build.rollupOptions.output.manualChunks.modules`.
+    - Se verificó el falso positivo reportado por agente previo:
+        - `resources/js/components/tables/RoleFormManager.js` sí existe y continúa referenciado correctamente en `vite.config.js` y `resources/views/role/edit.blade.php`.
+    - Validación de calidad:
+        - `npm run build`: OK.
+        - `php artisan test tests/Feature/Controllers/CompraControllerTest.php tests/Feature/Controllers/VentaControllerTest.php`: 12 tests, 12 pass.
+- Impacto en plan:
+    - Menor ruido y deuda técnica en configuración Vite (entrypoint huérfano eliminado).
+    - Se mantiene estabilidad funcional y de build sin regresiones.

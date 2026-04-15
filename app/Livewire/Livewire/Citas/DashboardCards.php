@@ -10,28 +10,16 @@ class DashboardCards extends Component
 {
     public function iniciar(int $citaId): void
     {
-        if (!$this->autorizaCambioEstado()) {
-            return;
-        }
-
         $this->cambiarEstado($citaId, 'en_proceso', 'Cita iniciada exitosamente');
     }
 
     public function completar(int $citaId): void
     {
-        if (!$this->autorizaCambioEstado()) {
-            return;
-        }
-
         $this->cambiarEstado($citaId, 'completada', 'Cita completada exitosamente');
     }
 
     public function cancelar(int $citaId): void
     {
-        if (!$this->autorizaCambioEstado()) {
-            return;
-        }
-
         $this->cambiarEstado($citaId, 'cancelada', 'Cita cancelada exitosamente');
     }
 
@@ -42,8 +30,6 @@ class DashboardCards extends Component
 
     public function render()
     {
-        abort_unless(auth()->user()?->can('calendario-cita'), 403);
-
         $citas = Cita::with('cliente.persona')
             ->whereDate('fecha', now()->toDateString())
             ->orderBy('posicion_cola')
@@ -61,6 +47,11 @@ class DashboardCards extends Component
 
     private function cambiarEstado(int $citaId, string $nuevoEstado, string $successMessage): void
     {
+        if (!(auth()->user()?->can('confirmar-cita') ?? false)) {
+            session()->flash('error', 'No tiene permisos para cambiar el estado de citas.');
+            return;
+        }
+
         DB::transaction(function () use ($citaId, $nuevoEstado, $successMessage) {
             $cita = Cita::query()->lockForUpdate()->find($citaId);
 
@@ -69,7 +60,7 @@ class DashboardCards extends Component
                 return;
             }
 
-            if (!$this->canTransitionCita($cita, $nuevoEstado)) {
+            if (!$this->canTransitionCita($cita->estado, $nuevoEstado)) {
                 session()->flash(
                     'error',
                     sprintf('Transición inválida de estado: %s -> %s.', $cita->estado, $nuevoEstado)
@@ -82,18 +73,15 @@ class DashboardCards extends Component
         });
     }
 
-    private function autorizaCambioEstado(): bool
+    private function canTransitionCita(string $currentState, string $nextState): bool
     {
-        if (!(auth()->user()?->can('confirmar-cita') ?? false)) {
-            session()->flash('error', 'No tiene permisos para cambiar el estado de citas.');
-            return false;
-        }
+        $allowedTransitions = [
+            'pendiente' => ['en_proceso', 'cancelada'],
+            'en_proceso' => ['completada', 'cancelada'],
+            'completada' => [],
+            'cancelada' => [],
+        ];
 
-        return true;
-    }
-
-    private function canTransitionCita(Cita $cita, string $nextState): bool
-    {
-        return $cita->canTransitionTo($nextState);
+        return in_array($nextState, $allowedTransitions[$currentState] ?? [], true);
     }
 }

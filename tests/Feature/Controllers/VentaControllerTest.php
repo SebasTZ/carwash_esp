@@ -2,18 +2,15 @@
 
 namespace Tests\Feature\Controllers;
 
-use App\Exceptions\VentaException;
 use App\Models\Cliente;
 use App\Models\Comprobante;
 use App\Models\Documento;
 use App\Models\Persona;
 use App\Models\User;
 use App\Models\Venta;
-use App\Repositories\ProductoRepository;
-use App\Repositories\VentaRepository;
-use App\Services\VentaService;
 use Illuminate\Foundation\Testing\RefreshDatabase;
-use Mockery;
+use Spatie\Permission\Models\Permission;
+use Spatie\Permission\PermissionRegistrar;
 use Tests\TestCase;
 
 class VentaControllerTest extends TestCase
@@ -23,25 +20,34 @@ class VentaControllerTest extends TestCase
     protected User $user;
     protected Cliente $cliente;
     protected Comprobante $comprobante;
-    /** @var VentaService&\Mockery\MockInterface */
-    protected $ventaServiceMock;
-
-    /** @var VentaRepository&\Mockery\MockInterface */
-    protected $ventaRepoMock;
 
     protected function setUp(): void
     {
         parent::setUp();
 
-        $this->withoutMiddleware([
-            \Illuminate\Auth\Middleware\Authenticate::class,
-            \Illuminate\Auth\Middleware\Authorize::class,
-            \Spatie\Permission\Middleware\PermissionMiddleware::class,
-            \Spatie\Permission\Middleware\RoleMiddleware::class,
-            \Spatie\Permission\Middleware\RoleOrPermissionMiddleware::class,
-        ]);
+        app(PermissionRegistrar::class)->forgetCachedPermissions();
+
+        foreach ([
+            'crear-venta',
+            'eliminar-venta',
+            'reporte-diario-venta',
+            'reporte-semanal-venta',
+            'reporte-mensual-venta',
+            'reporte-personalizado-venta',
+        ] as $perm) {
+            Permission::findOrCreate($perm);
+        }
 
         $this->user = User::factory()->create(['name' => 'Tester']);
+        $this->user->givePermissionTo([
+            'crear-venta',
+            'eliminar-venta',
+            'reporte-diario-venta',
+            'reporte-semanal-venta',
+            'reporte-mensual-venta',
+            'reporte-personalizado-venta',
+        ]);
+
         $this->actingAs($this->user);
 
         $documento = Documento::factory()->create();
@@ -53,41 +59,17 @@ class VentaControllerTest extends TestCase
 
         $this->cliente = Cliente::factory()->create([
             'persona_id' => $persona->id,
+            'lavados_acumulados' => 0,
         ]);
 
-        $this->comprobante = Comprobante::factory()->create();
-
-        $this->ventaServiceMock = Mockery::mock(VentaService::class)->shouldIgnoreMissing();
-        $productoRepoMock = Mockery::mock(ProductoRepository::class)->shouldIgnoreMissing();
-        $this->ventaRepoMock = Mockery::mock(VentaRepository::class)->shouldIgnoreMissing();
-
-        $this->ventaRepoMock->shouldReceive('obtenerDelDia')->andReturn(new \Illuminate\Database\Eloquent\Collection());
-        $this->ventaRepoMock->shouldReceive('obtenerDeLaSemana')->andReturn(new \Illuminate\Database\Eloquent\Collection());
-        $this->ventaRepoMock->shouldReceive('obtenerDelMes')->andReturn(new \Illuminate\Database\Eloquent\Collection());
-
-        $this->app->instance(VentaService::class, $this->ventaServiceMock);
-        $this->app->instance(ProductoRepository::class, $productoRepoMock);
-        $this->app->instance(VentaRepository::class, $this->ventaRepoMock);
-    }
-
-    protected function tearDown(): void
-    {
-        Mockery::close();
-        parent::tearDown();
+        $this->comprobante = Comprobante::factory()->create([
+            'serie' => 'B001-',
+        ]);
     }
 
     #[\PHPUnit\Framework\Attributes\Test]
     public function store_cuando_servicio_exitoso_redirige_a_index_con_mensaje()
     {
-        $venta = Venta::factory()->make([
-            'numero_comprobante' => 'B001-0042',
-        ]);
-
-        $this->ventaServiceMock
-            ->shouldReceive('procesarVenta')
-            ->once()
-            ->andReturn($venta);
-
         $response = $this->post(route('ventas.store'), [
             'impuesto' => 18,
             'total' => 120,
@@ -98,28 +80,34 @@ class VentaControllerTest extends TestCase
         ]);
 
         $response->assertRedirect(route('ventas.index'));
-        $response->assertSessionHas('success', 'Venta #B001-0042 realizada exitosamente');
+        $response->assertSessionHas('success', function (string $message): bool {
+            return str_starts_with($message, 'Venta #B001-')
+                && str_ends_with($message, ' realizada exitosamente');
+        });
+
+        $this->assertDatabaseHas('ventas', [
+            'cliente_id' => $this->cliente->id,
+            'comprobante_id' => $this->comprobante->id,
+            'medio_pago' => 'efectivo',
+            'estado' => 1,
+        ]);
     }
 
     #[\PHPUnit\Framework\Attributes\Test]
     public function store_cuando_servicio_lanza_venta_exception_redirige_con_error()
     {
-        $this->ventaServiceMock
-            ->shouldReceive('procesarVenta')
-            ->once()
-            ->andThrow(new VentaException('No se pudo procesar la venta'));
-
         $response = $this->post(route('ventas.store'), [
             'impuesto' => 18,
             'total' => 90,
             'cliente_id' => $this->cliente->id,
             'comprobante_id' => $this->comprobante->id,
-            'medio_pago' => 'efectivo',
-            'efectivo' => 90,
+            'medio_pago' => 'lavado_gratis',
         ]);
 
         $response->assertRedirect(route('ventas.create'));
-        $response->assertSessionHas('error', 'No se pudo procesar la venta');
+        $response->assertSessionHas('error', 'El cliente no tiene suficientes lavados acumulados para un lavado gratuito');
+
+        $this->assertDatabaseCount('ventas', 0);
     }
 
     #[\PHPUnit\Framework\Attributes\Test]
@@ -132,19 +120,18 @@ class VentaControllerTest extends TestCase
             'estado' => 1,
         ]);
 
-        $this->ventaServiceMock
-            ->shouldReceive('anularVenta')
-            ->once()
-            ->withArgs(function (Venta $ventaRecibida, string $motivo) use ($venta) {
-                return $ventaRecibida->id === $venta->id
-                    && $motivo === 'Anulada por usuario Tester';
-            })
-            ->andReturnNull();
-
         $response = $this->delete(route('ventas.destroy', $venta));
 
         $response->assertRedirect(route('ventas.index'));
         $response->assertSessionHas('success', 'Venta anulada correctamente. Stock y fidelización revertidos.');
+
+        $this->assertDatabaseHas('ventas', [
+            'id' => $venta->id,
+            'estado' => 0,
+        ]);
+
+        $venta->refresh();
+        $this->assertStringContainsString('Anulada por usuario Tester', (string) $venta->comentarios);
     }
 
     #[\PHPUnit\Framework\Attributes\Test]

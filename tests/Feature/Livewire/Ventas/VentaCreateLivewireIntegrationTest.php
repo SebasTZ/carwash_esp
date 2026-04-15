@@ -13,6 +13,8 @@ class VentaCreateLivewireIntegrationTest extends TestCase
     #[\PHPUnit\Framework\Attributes\Test]
     public function vista_crear_venta_renderiza_componentes_livewire(): void
     {
+        // Propósito: verificar que los componentes Livewire están presentes en el HTML.
+        // El middleware de permisos se omite para aislar el renderizado de los componentes.
         $this->withoutMiddleware([
             \Illuminate\Auth\Middleware\Authenticate::class,
             \Illuminate\Auth\Middleware\Authorize::class,
@@ -21,7 +23,10 @@ class VentaCreateLivewireIntegrationTest extends TestCase
             \Spatie\Permission\Middleware\RoleOrPermissionMiddleware::class,
         ]);
 
-        $this->actingAs(User::factory()->create());
+        app(\Spatie\Permission\PermissionRegistrar::class)->forgetCachedPermissions();
+        $user = User::factory()->create();
+        $user->assignRole(\Spatie\Permission\Models\Role::findOrCreate('cajero'));
+        $this->actingAs($user);
 
         $response = $this->get(route('ventas.create'));
 

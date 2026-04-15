@@ -8,7 +8,6 @@ use Livewire\Component;
 class ReportePeriodo extends Component
 {
     use FiltraVentas;
-
     public string $reporte = 'diario';
     public string $search = '';
 
@@ -19,13 +18,6 @@ class ReportePeriodo extends Component
 
     public function mount(string $reporte = 'diario', $ventas = []): void
     {
-        abort_unless(
-            auth()->user()?->can('reporte-diario-venta')
-            || auth()->user()?->can('reporte-semanal-venta')
-            || auth()->user()?->can('reporte-mensual-venta'),
-            403
-        );
-
         $this->reporte = trim((string) $reporte) !== '' ? (string) $reporte : 'diario';
         $this->ventas = collect($ventas)->values()->all();
     }
