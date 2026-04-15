@@ -10,6 +10,7 @@
     <meta name="csrf-token" content="{{ csrf_token() }}" />
     <title>{{ config('app.name', 'CarWash ESP') }} - @yield('title')</title>
     @stack('css-datatable')
+    @livewireStyles
     @vite(['resources/css/app.css'])
     @stack('css')
 </head>
@@ -55,6 +56,7 @@
     <script src="{{ asset('js/scripts.js') }}"></script>
     @vite(['resources/js/app.js'])
     @stack('js')
+    @livewireScripts
 
 </body>
 

@@ -23,7 +23,11 @@ class VentaControllerTest extends TestCase
     protected User $user;
     protected Cliente $cliente;
     protected Comprobante $comprobante;
-    protected VentaService $ventaServiceMock;
+    /** @var VentaService&\Mockery\MockInterface */
+    protected $ventaServiceMock;
+
+    /** @var VentaRepository&\Mockery\MockInterface */
+    protected $ventaRepoMock;
 
     protected function setUp(): void
     {
@@ -55,11 +59,15 @@ class VentaControllerTest extends TestCase
 
         $this->ventaServiceMock = Mockery::mock(VentaService::class)->shouldIgnoreMissing();
         $productoRepoMock = Mockery::mock(ProductoRepository::class)->shouldIgnoreMissing();
-        $ventaRepoMock = Mockery::mock(VentaRepository::class)->shouldIgnoreMissing();
+        $this->ventaRepoMock = Mockery::mock(VentaRepository::class)->shouldIgnoreMissing();
+
+        $this->ventaRepoMock->shouldReceive('obtenerDelDia')->andReturn(new \Illuminate\Database\Eloquent\Collection());
+        $this->ventaRepoMock->shouldReceive('obtenerDeLaSemana')->andReturn(new \Illuminate\Database\Eloquent\Collection());
+        $this->ventaRepoMock->shouldReceive('obtenerDelMes')->andReturn(new \Illuminate\Database\Eloquent\Collection());
 
         $this->app->instance(VentaService::class, $this->ventaServiceMock);
         $this->app->instance(ProductoRepository::class, $productoRepoMock);
-        $this->app->instance(VentaRepository::class, $ventaRepoMock);
+        $this->app->instance(VentaRepository::class, $this->ventaRepoMock);
     }
 
     protected function tearDown(): void
@@ -167,5 +175,45 @@ class VentaControllerTest extends TestCase
             'lavados_actuales' => 21,
             'lavados_disponibles' => 2,
         ]);
+    }
+
+    #[\PHPUnit\Framework\Attributes\Test]
+    public function reporte_personalizado_sin_parametros_retorna_vista_sin_error()
+    {
+        $response = $this->get(route('ventas.reporte.personalizado'));
+
+        $response->assertOk();
+        $response->assertViewIs('venta.reporte');
+        $response->assertViewHas('reporte', 'personalizado');
+    }
+
+    #[\PHPUnit\Framework\Attributes\Test]
+    public function reporte_diario_retorna_vista_sin_error()
+    {
+        $response = $this->get(route('ventas.reporte.diario'));
+
+        $response->assertOk();
+        $response->assertViewIs('venta.reporte');
+        $response->assertViewHas('reporte', 'diario');
+    }
+
+    #[\PHPUnit\Framework\Attributes\Test]
+    public function reporte_semanal_retorna_vista_sin_error()
+    {
+        $response = $this->get(route('ventas.reporte.semanal'));
+
+        $response->assertOk();
+        $response->assertViewIs('venta.reporte');
+        $response->assertViewHas('reporte', 'semanal');
+    }
+
+    #[\PHPUnit\Framework\Attributes\Test]
+    public function reporte_mensual_retorna_vista_sin_error()
+    {
+        $response = $this->get(route('ventas.reporte.mensual'));
+
+        $response->assertOk();
+        $response->assertViewIs('venta.reporte');
+        $response->assertViewHas('reporte', 'mensual');
     }
 }

@@ -301,12 +301,7 @@ class CitaController extends Controller
      */
     public function dashboard()
     {
-        $citas = Cita::with('cliente.persona')
-            ->whereDate('fecha', now()->toDateString())
-            ->orderBy('posicion_cola')
-            ->get();
-
-        return view('citas.dashboard', compact('citas'));
+        return view('citas.dashboard');
     }
 
     public function exportDiario()

@@ -13,6 +13,7 @@ use App\Models\ConfiguracionNegocio;
 use App\Repositories\ProductoRepository;
 use App\Repositories\VentaRepository;
 use App\Services\VentaService;
+use App\Support\VentaTransformer;
 use Carbon\Carbon;
 use App\Exceptions\VentaException;
 use App\Exceptions\StockInsuficienteException;
@@ -31,15 +32,18 @@ class ventaController extends Controller
     private ProductoRepository $productoRepo;
     private VentaRepository $ventaRepo;
     private VentaService $ventaService;
+    private VentaTransformer $ventaTransformer;
 
     public function __construct(
         ProductoRepository $productoRepo,
         VentaRepository $ventaRepo,
-        VentaService $ventaService
+        VentaService $ventaService,
+        VentaTransformer $ventaTransformer
     ) {
         $this->productoRepo = $productoRepo;
         $this->ventaService = $ventaService;
         $this->ventaRepo = $ventaRepo;
+        $this->ventaTransformer = $ventaTransformer;
     }
 
     /**
@@ -163,36 +167,7 @@ class ventaController extends Controller
      */
     private function transformarVentasParaTabla($ventasCollection)
     {
-        return $ventasCollection->map(function($venta) {
-            $medioPago = $venta->medio_pago ?? '-';
-            
-            return [
-                'id' => $venta->id,
-                'comprobante' => [
-                    'tipo_comprobante' => $venta->comprobante->tipo_comprobante ?? '-',
-                    'numero_comprobante' => $venta->numero_comprobante ?? '-'
-                ],
-                'cliente' => [
-                    'persona' => [
-                        'razon_social' => $venta->cliente->persona->razon_social ?? '-',
-                        'tipo_persona' => $venta->cliente->persona->tipo_persona ?? '-'
-                    ]
-                ],
-                'fecha_hora' => $venta->fecha_hora,
-                'vendedor' => [
-                    'name' => $venta->user->name ?? '-'
-                ],
-                'total' => number_format($venta->total, 2),
-                'comentarios' => $venta->comentarios ?? '-',
-                'medio_pago' => $medioPago,
-                'efectivo' => number_format($venta->efectivo ?? 0, 2),
-                'tarjeta_credito' => number_format($venta->tarjeta_credito ?? 0, 2),
-                'tarjeta_regalo_id' => $venta->tarjeta_regalo_id ?? '-',
-                'lavado_gratis' => (bool) $venta->lavado_gratis,
-                'servicio_lavado' => (bool) $venta->servicio_lavado,
-                'horario_lavado' => $venta->horario_lavado ? $venta->horario_lavado->format('d/m/Y H:i') : '-',
-            ];
-        })->values();
+        return $this->ventaTransformer->transformCollection($ventasCollection);
     }
 
     public function reporteDiario()
@@ -241,18 +216,22 @@ class ventaController extends Controller
 
     public function reportePersonalizado(Request $request)
     {
-        $request->validate([
-            'fecha_inicio' => 'required|date|before_or_equal:fecha_fin',
-            'fecha_fin'    => 'required|date',
-        ]);
+        $fechaInicio = $request->query('fecha_inicio');
+        $fechaFin = $request->query('fecha_fin');
 
-        $fechaInicio = $request->fecha_inicio;
-        $fechaFin = $request->fecha_fin;
+        $ventas = collect();
 
-        $ventasRaw = $this->ventaRepo->obtenerPorRango(Carbon::parse($fechaInicio), Carbon::parse($fechaFin))
-            ->reject(fn($v) => in_array($v->medio_pago, ['tarjeta_regalo', 'lavado_gratis']));
+        if (($fechaInicio !== null && $fechaInicio !== '') || ($fechaFin !== null && $fechaFin !== '')) {
+            $request->validate([
+                'fecha_inicio' => 'required|date|before_or_equal:fecha_fin',
+                'fecha_fin'    => 'required|date',
+            ]);
 
-        $ventas = $this->transformarVentasParaTabla($ventasRaw);
+            $ventasRaw = $this->ventaRepo->obtenerPorRango(Carbon::parse($fechaInicio), Carbon::parse($fechaFin))
+                ->reject(fn($v) => in_array($v->medio_pago, ['tarjeta_regalo', 'lavado_gratis'], true));
+
+            $ventas = $this->transformarVentasParaTabla($ventasRaw);
+        }
 
         return view('venta.reporte', compact('ventas', 'fechaInicio', 'fechaFin'))->with('reporte', 'personalizado');
     }

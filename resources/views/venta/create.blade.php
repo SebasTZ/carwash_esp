@@ -29,11 +29,9 @@
                         <!-----Product---->
                         <div class="col-12">
                             @php
-                            $productoOptions = $productos->map(fn($item) => [
-                                'value'  => (string) $item->id,
-                                'label'  => $item->codigo . ' - ' . $item->nombre,
-                                'tokens' => $item->codigo . ' ' . $item->nombre,
-                            ])->values()->toArray();
+                            $oldProductoId = old('producto_id');
+                            $oldProducto = $oldProductoId ? $productos->firstWhere('id', $oldProductoId) : null;
+                            $oldProductoLabel = $oldProducto ? ($oldProducto->codigo . ' - ' . $oldProducto->nombre) : '';
 
                             $productoConfig = $productos->mapWithKeys(fn($item) => [
                                 (string) $item->id => [
@@ -44,11 +42,20 @@
                                 ],
                             ])->toArray();
                             @endphp
-                            <x-select-search
+                            <input
+                                type="hidden"
                                 name="producto_id"
+                                id="producto_id"
+                                value="{{ old('producto_id') }}"
+                                data-livewire-select="1"
+                                data-selected-label="{{ $oldProductoLabel }}"
+                            >
+                            <livewire:ventas.producto-select
+                                name="producto_id"
+                                input-id="producto_id"
                                 :value="old('producto_id')"
-                                placeholder="Buscar un producto aquí"
-                                :options="$productoOptions"
+                                placeholder="Buscar un producto aqui"
+                                :wire:key="'venta-producto-select'"
                             />
                         </div>
 
@@ -147,18 +154,25 @@
                         <div class="col-12">
                             <label for="cliente_id" class="form-label">Cliente:</label>
                             @php
-                            $clienteOptions = $clientes->map(fn($c) => [
-                                'value'  => $c->id,
-                                'label'  => $c->persona->razon_social . ' — ' . $c->persona->numero_documento,
-                                'tokens' => $c->persona->razon_social . ' ' . $c->persona->numero_documento,
-                            ])->values()->toArray();
+                            $oldClienteId = old('cliente_id');
+                            $oldCliente = $oldClienteId ? $clientes->firstWhere('id', $oldClienteId) : null;
+                            $oldClienteLabel = $oldCliente ? ($oldCliente->persona->razon_social . ' - ' . $oldCliente->persona->numero_documento) : '';
                             @endphp
-                            <x-select-search
+                            <input
+                                type="hidden"
                                 name="cliente_id"
-                                :value="old('cliente_id')"
-                                placeholder="Seleccionar cliente"
-                                :options="$clienteOptions"
+                                id="cliente_id"
+                                value="{{ old('cliente_id') }}"
+                                data-livewire-select="1"
+                                data-selected-label="{{ $oldClienteLabel }}"
                                 required
+                            >
+                            <livewire:ventas.cliente-select
+                                name="cliente_id"
+                                input-id="cliente_id"
+                                :value="old('cliente_id')"
+                                placeholder="Buscar cliente"
+                                :wire:key="'venta-cliente-select'"
                             />
                             @error('cliente_id')
                                 <span class="text-danger">{{ $message }}</span>

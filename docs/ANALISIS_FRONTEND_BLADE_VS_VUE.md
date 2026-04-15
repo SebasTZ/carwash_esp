@@ -626,3 +626,100 @@ Casos de uso ideales para Livewire en este proyecto:
 - Impacto en plan:
     - Se cierra el pendiente funcional principal de `venta/create` reportado en Avance 21.
     - Se reduce acoplamiento legacy en el flujo más crítico de ventas al eliminar `bootstrap-select` en la selección de productos.
+
+### Avance 23 — Inicio de Fase 3 en modo multiagente (Livewire en ventas)
+
+- Fecha: 2026-04-15
+- Resultado:
+    - Se instaló Livewire en el proyecto (`livewire/livewire`) y se publicó `config/livewire.php`.
+    - Se integraron assets Livewire en layout principal:
+        - `@livewireStyles` en `resources/views/layouts/app.blade.php`.
+        - `@livewireScripts` en `resources/views/layouts/app.blade.php`.
+    - Se implementaron componentes Livewire para selección reactiva en ventas:
+        - `app/Livewire/Ventas/ProductoSelect.php` + `resources/views/livewire/ventas/producto-select.blade.php`.
+        - `app/Livewire/Ventas/ClienteSelect.php` + `resources/views/livewire/ventas/cliente-select.blade.php`.
+    - `resources/views/venta/create.blade.php` migró los selectores de `producto_id` y `cliente_id` a componentes Livewire, manteniendo `hidden inputs` con los mismos IDs para compatibilidad con el flujo existente.
+    - `resources/js/modules/VentaManager.js` incorporó un puente Livewire:
+        - escucha evento `venta-select-updated` para sincronizar hidden inputs (`value` + `data-selected-label`),
+        - actualiza metadata de producto en memoria (`productosConfig`) para validación de stock/precio,
+        - emite `venta-livewire-select-sync` para permitir sincronización inversa desde el manager hacia los componentes Livewire.
+    - Se corrigió una incompatibilidad PostgreSQL en ordenamiento booleano del componente de productos (`CASE WHEN es_servicio_lavado THEN ...`).
+    - Se agregó cobertura de pruebas para componentes Livewire:
+        - `tests/Feature/Livewire/Ventas/ProductoSelectTest.php`.
+        - `tests/Feature/Livewire/Ventas/ClienteSelectTest.php`.
+        - `tests/Feature/Livewire/Ventas/VentaCreateLivewireIntegrationTest.php`.
+    - Validación de calidad:
+        - `php artisan test tests/Feature/Livewire/Ventas/ProductoSelectTest.php tests/Feature/Livewire/Ventas/ClienteSelectTest.php tests/Feature/Livewire/Ventas/VentaCreateLivewireIntegrationTest.php tests/Feature/Controllers/VentaControllerTest.php`: 9 tests, 9 pass.
+        - `npm run build`: OK.
+- Impacto en plan:
+    - Fase 3 iniciada con entrega funcional en flujo crítico (`ventas.create`) sin romper validaciones ni proceso de registro.
+    - Se habilita base técnica para migrar en siguientes iteraciones filtros/tablas reactivas de reportes y dashboard mediante Livewire.
+
+### Avance 24 — Fase 3 multiagente: reporte personalizado reactivo (Livewire)
+
+- Fecha: 2026-04-15
+- Resultado:
+    - Se creó `app/Support/VentaTransformer.php` para centralizar la transformación de ventas usada en reportes.
+    - `VentaController` ahora reutiliza `VentaTransformer` para evitar duplicación de mapeo en `transformarVentasParaTabla`.
+    - Se ajustó `reportePersonalizado` para permitir carga inicial sin parámetros (sin error de validación en primer ingreso) y mantener validación cuando se envían fechas.
+    - Se implementó componente Livewire para reporte personalizado:
+        - `app/Livewire/Ventas/ReportePersonalizado.php`
+        - `resources/views/livewire/ventas/reporte-personalizado.blade.php`
+    - Se migró `resources/views/venta/reporte.blade.php` para usar el componente Livewire únicamente cuando `reporte === 'personalizado'`, manteniendo la tabla legacy (`DynamicTable`) para diario/semanal/mensual.
+    - Se agregó acceso directo a reporte personalizado en `resources/views/venta/index.blade.php`.
+    - Se agregó cobertura de pruebas:
+        - `tests/Feature/Livewire/Ventas/ReportePersonalizadoTest.php` (rango, exclusión de medios no permitidos y búsqueda reactiva).
+        - `tests/Feature/Controllers/VentaControllerTest.php` (no-regresión para acceso a `ventas.reporte.personalizado` sin parámetros).
+    - Validación de calidad:
+        - `php artisan test tests/Feature/Livewire/Ventas/ReportePersonalizadoTest.php tests/Feature/Livewire/Ventas/ProductoSelectTest.php tests/Feature/Livewire/Ventas/ClienteSelectTest.php tests/Feature/Livewire/Ventas/VentaCreateLivewireIntegrationTest.php tests/Feature/Controllers/VentaControllerTest.php`: 13 tests, 13 pass.
+        - `npm run build`: OK.
+- Impacto en plan:
+    - Fase 3 avanza del formulario de ventas hacia el módulo de reportes con una migración incremental y compatible con el stack existente.
+    - Se reduce acoplamiento de transformación de datos y se deja preparada la siguiente iteración para llevar diario/semanal/mensual a componentes reactivos.
+
+### Avance 25 — Fase 3 multiagente: reportes diario/semanal/mensual migrados a Livewire
+
+- Fecha: 2026-04-15
+- Resultado:
+    - Se creó el componente `app/Livewire/Ventas/ReportePeriodo.php` para renderizar reportes `diario`, `semanal` y `mensual` con búsqueda reactiva.
+    - Se creó `resources/views/livewire/ventas/reporte-periodo.blade.php` con:
+        - tabla de ventas por período,
+        - filtro de búsqueda por cliente/comprobante/vendedor,
+        - cálculo de total de registros,
+        - cálculo de monto total excluyendo `tarjeta_regalo` y `lavado_gratis`,
+        - acción de exportación por período.
+    - Se actualizó `resources/views/venta/reporte.blade.php` para usar Livewire también en `diario/semanal/mensual` y retirar el bloque legacy de inicialización JSON para esos casos.
+    - Se agregó cobertura de pruebas del nuevo componente:
+        - `tests/Feature/Livewire/Ventas/ReportePeriodoTest.php`.
+    - Se reforzó no-regresión de rutas en controlador:
+        - `tests/Feature/Controllers/VentaControllerTest.php` incluye validaciones para `ventas.reporte.diario`, `ventas.reporte.semanal` y `ventas.reporte.mensual`.
+    - Se corrigió compatibilidad de datos al montar el componente:
+        - `ReportePeriodo` ahora acepta entrada de ventas proveniente tanto de `array` como de `Collection` para evitar error de tipado en composición Livewire.
+    - Se estabilizaron assertions de vista en pruebas Livewire para evitar falsos negativos por marcado HTML.
+    - Validación de calidad:
+        - `php artisan test tests/Feature/Livewire/Ventas/ReportePeriodoTest.php tests/Feature/Livewire/Ventas/ReportePersonalizadoTest.php tests/Feature/Livewire/Ventas/ProductoSelectTest.php tests/Feature/Livewire/Ventas/ClienteSelectTest.php tests/Feature/Livewire/Ventas/VentaCreateLivewireIntegrationTest.php tests/Feature/Controllers/VentaControllerTest.php`: 18 tests, 18 pass.
+        - `npm run build`: OK.
+- Impacto en plan:
+    - Fase 3 queda extendida al módulo completo de reportes (personalizado + diario/semanal/mensual) con interfaz reactiva basada en Livewire.
+    - Se reduce deuda del frontend legacy en reportes y se mantiene compatibilidad con lógica de negocio/exports del backend existente.
+
+### Avance 26 — Cierre total de Fase 3 multiagente (dashboard de citas en Livewire)
+
+- Fecha: 2026-04-15
+- Resultado:
+    - Se implementó `app/Livewire/Citas/DashboardCards.php` para manejar el dashboard diario de citas con renderizado reactivo y actualización automática (`wire:poll.60s`).
+    - Se creó `resources/views/livewire/citas/dashboard-cards.blade.php` con:
+        - tarjetas de resumen por estado,
+        - secciones pendientes/en proceso/completadas/canceladas,
+        - acciones reactivas para iniciar, completar y cancelar citas,
+        - validación de transiciones de estado (`pendiente -> en_proceso/cancelada`, `en_proceso -> completada/cancelada`).
+    - Se migró `resources/views/citas/dashboard.blade.php` para reemplazar la capa Alpine legacy por el componente Livewire (`<livewire:citas.dashboard-cards />`).
+    - Se simplificó `CitaController@dashboard` para delegar la carga dinámica al componente Livewire.
+    - Se agregó cobertura de pruebas:
+        - `tests/Feature/Livewire/Citas/DashboardCardsTest.php` (render del día, cambios de estado válidos e invalidación de transición inválida).
+        - `tests/Feature/Controllers/CitaControllerTest.php` incluye no-regresión de acceso a `citas.dashboard`.
+    - Validación de calidad:
+        - `php artisan test tests/Feature/Livewire/Citas/DashboardCardsTest.php tests/Feature/Controllers/CitaControllerTest.php`: 10 tests, 10 pass.
+- Impacto en plan:
+    - Fase 3 queda completada de extremo a extremo en los casos definidos: selectores reactivos de ventas, filtros/reportes reactivos y dashboard de citas sin recarga manual.
+    - Se cierra la migración incremental de interactividad crítica a Livewire manteniendo compatibilidad con permisos, rutas y lógica de negocio existente.

@@ -121,7 +121,8 @@ class PaginationTest extends TestCase
         $controller = new \App\Http\Controllers\ventaController(
             app(\App\Repositories\ProductoRepository::class),
             app(\App\Repositories\VentaRepository::class),
-            app(\App\Services\VentaService::class)
+            app(\App\Services\VentaService::class),
+            app(\App\Support\VentaTransformer::class)
         );
         
         // Simular usuario autenticado

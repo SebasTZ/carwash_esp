@@ -71,6 +71,15 @@ class CitaControllerTest extends TestCase
     }
 
     #[\PHPUnit\Framework\Attributes\Test]
+    public function dashboard_retorna_vista_sin_error()
+    {
+        $response = $this->get(route('citas.dashboard'));
+
+        $response->assertOk();
+        $response->assertViewIs('citas.dashboard');
+    }
+
+    #[\PHPUnit\Framework\Attributes\Test]
     public function store_asigna_siguiente_posicion_en_cola()
     {
         $fecha = now()->addDay()->toDateString();

@@ -16,6 +16,7 @@
             <a href="{{ route('ventas.reporte.diario') }}" class="btn btn-secondary">Reporte diario</a>
             <a href="{{ route('ventas.reporte.semanal') }}" class="btn btn-secondary">Reporte semanal</a>
             <a href="{{ route('ventas.reporte.mensual') }}" class="btn btn-secondary">Reporte mensual</a>
+            <a href="{{ route('ventas.reporte.personalizado') }}" class="btn btn-secondary">Reporte personalizado</a>
         </div>
     </div>
     <ol class="breadcrumb mb-4">

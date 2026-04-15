@@ -196,6 +196,7 @@ export class VentaManager {
         this.state = new VentaState();
         this.autoGuardarInterval = null;
         this.productosConfig = readJsonScript('venta-productos-config', {}, 'VentaManager');
+        this.livewireSelectHandler = null;
         this.init();
     }
 
@@ -203,9 +204,58 @@ export class VentaManager {
      * Inicializa el manager
      */
     init() {
+        this.setupLivewireSelectBridge();
         this.setupEventListeners();
         this.intentarRecuperarBorrador();
         this.iniciarAutoGuardado();
+    }
+
+    setupLivewireSelectBridge() {
+        if (this.livewireSelectHandler) {
+            return;
+        }
+
+        this.livewireSelectHandler = (event) => {
+            const detail = event?.detail;
+            if (!detail || typeof detail !== 'object') {
+                return;
+            }
+
+            const field = String(detail.field || '').trim();
+            if (!field) {
+                return;
+            }
+
+            const selector = `#${field}`;
+            const input = query(selector);
+            if (!input) {
+                return;
+            }
+
+            const value = detail.value ?? '';
+            const label = detail.label ?? '';
+
+            setValue(selector, value);
+            input.dataset.selectedLabel = label;
+
+            if (field === 'producto_id') {
+                const selectedId = String(value || '').trim();
+                const config = detail.config && typeof detail.config === 'object' ? detail.config : null;
+
+                if (selectedId && config) {
+                    this.productosConfig[selectedId] = {
+                        stock: Number(config.stock ?? 0),
+                        precio_venta: Number(config.precio_venta ?? 0),
+                        es_servicio_lavado: this.normalizarBooleano(config.es_servicio_lavado),
+                        label: String(config.label || label || ''),
+                    };
+                }
+            }
+
+            input.dispatchEvent(new Event('change', { bubbles: true }));
+        };
+
+        window.addEventListener('venta-select-updated', this.livewireSelectHandler);
     }
 
     setSelectFieldValue(selector, value, label = null) {
@@ -217,6 +267,22 @@ export class VentaManager {
         if (element.tagName === 'SELECT') {
             setValue(selector, value);
             element.dispatchEvent(new Event('change', { bubbles: true }));
+            return;
+        }
+
+        if (element.dataset?.livewireSelect === '1') {
+            setValue(selector, value || '');
+            element.dataset.selectedLabel = label || '';
+            element.dispatchEvent(new Event('change', { bubbles: true }));
+
+            window.dispatchEvent(new CustomEvent('venta-livewire-select-sync', {
+                detail: {
+                    field: String(element.id || selector).replace(/^#/, ''),
+                    value: value || '',
+                    label: label || '',
+                },
+            }));
+
             return;
         }
 

@@ -489,7 +489,8 @@ export default class AutoSave extends Component {
      * Reanudar auto-guardado
      */
     resume() {
-        // El próximo cambio en el form lo activará automáticamente
+        // El próximo cambio en el form lo activará automáticamente.
+        console.log('AutoSave: Reanudado');
     }
 
     /**
