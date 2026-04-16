@@ -11,7 +11,16 @@ class StoreCaracteristicaRequest extends FormRequest
      */
     public function authorize(): bool
     {
-        return true;
+        $routeName = $this->route()?->getName();
+
+        $permission = match ($routeName) {
+            'categorias.store' => 'crear-categoria',
+            'marcas.store' => 'crear-marca',
+            'presentaciones.store' => 'crear-presentacion',
+            default => null,
+        };
+
+        return $permission !== null && (bool) $this->user()?->can($permission);
     }
 
     /**

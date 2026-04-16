@@ -28,6 +28,8 @@ class ControlLavadoController extends Controller
 
     public function index(Request $request)
     {
+        $this->authorizeAnyPermission(['ver-control-lavado', 'crear-control-lavado', 'editar-control-lavado', 'eliminar-control-lavado']);
+
         $filtros = $request->only(['lavador_id', 'tipo_vehiculo_id', 'estado', 'fecha']);
         $lavados = $this->controlLavadoService->obtenerLavadosConFiltros($filtros, 15);
 
@@ -48,6 +50,8 @@ class ControlLavadoController extends Controller
 
     public function show($id)
     {
+        $this->authorizePermission('ver-control-lavado');
+
         try {
             $lavado = $this->controlLavadoService->obtenerLavadoConRelaciones($id, [
                 'venta', 
@@ -66,6 +70,8 @@ class ControlLavadoController extends Controller
 
     public function destroy($lavado)
     {
+        $this->authorizePermission('eliminar-control-lavado');
+
         try {
             $this->controlLavadoService->eliminarLavado($lavado, Auth::id());
 
@@ -86,6 +92,8 @@ class ControlLavadoController extends Controller
 
     public function asignarLavador(Request $request, $lavado)
     {
+        $this->authorizePermission('editar-control-lavado');
+
         $request->validate([
             'lavador_id' => 'required|exists:lavadores,id',
             'tipo_vehiculo_id' => 'required|exists:tipos_vehiculo,id',
@@ -123,6 +131,8 @@ class ControlLavadoController extends Controller
 
     public function inicioLavado(Request $request, $id)
     {
+        $this->authorizePermission('editar-control-lavado');
+
         if ($request->confirmar != 'si') {
             return redirect()
                 ->route('control.lavados')
@@ -145,6 +155,8 @@ class ControlLavadoController extends Controller
 
     public function finLavado($id)
     {
+        $this->authorizePermission('editar-control-lavado');
+
         try {
             $this->controlLavadoService->finalizarLavado($id);
 
@@ -159,6 +171,8 @@ class ControlLavadoController extends Controller
 
     public function inicioInterior($id)
     {
+        $this->authorizePermission('editar-control-lavado');
+
         try {
             $this->controlLavadoService->iniciarInterior($id);
 
@@ -173,6 +187,8 @@ class ControlLavadoController extends Controller
 
     public function finInterior($id)
     {
+        $this->authorizePermission('editar-control-lavado');
+
         try {
             $this->controlLavadoService->finalizarInterior($id);
 
@@ -187,6 +203,8 @@ class ControlLavadoController extends Controller
 
     public function exportDiario()
     {
+        $this->authorizePermission('exportar-reporte-lavado');
+
         $lavados = $this->controlLavadoRepository->getToday();
 
         return Excel::download(
@@ -197,6 +215,8 @@ class ControlLavadoController extends Controller
 
     public function exportSemanal()
     {
+        $this->authorizePermission('exportar-reporte-lavado');
+
         $lavados = $this->controlLavadoRepository->getThisWeek();
 
         return Excel::download(
@@ -207,6 +227,8 @@ class ControlLavadoController extends Controller
 
     public function exportMensual()
     {
+        $this->authorizePermission('exportar-reporte-lavado');
+
         $lavados = $this->controlLavadoRepository->getThisMonth();
 
         return Excel::download(
@@ -217,6 +239,8 @@ class ControlLavadoController extends Controller
 
     public function exportPersonalizado(Request $request)
     {
+        $this->authorizePermission('exportar-reporte-lavado');
+
         $fechaInicio = $request->fecha_inicio;
         $fechaFin = $request->fecha_fin;
 

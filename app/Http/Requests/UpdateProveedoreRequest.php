@@ -11,7 +11,7 @@ class UpdateProveedoreRequest extends FormRequest
      */
     public function authorize(): bool
     {
-        return true;
+        return (bool) $this->user()?->can('editar-proveedor');
     }
 
     /**

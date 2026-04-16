@@ -25,18 +25,24 @@ class PagoComisionController extends Controller
 
     public function index()
     {
+        $this->authorizePermission('ver-pago-comision');
+
         $pagos = PagoComision::with('lavador')->paginate(15);
         return view('pagos_comisiones.index', compact('pagos'));
     }
 
     public function create()
     {
+        $this->authorizePermission('crear-pago-comision');
+
         $lavadores = Lavador::where('estado', 'activo')->get();
         return view('pagos_comisiones.create', compact('lavadores'));
     }
 
     public function store(Request $request)
     {
+        $this->authorizePermission('crear-pago-comision');
+
         $request->validate([
             'lavador_id' => 'required|exists:lavadores,id',
             'monto_pagado' => 'required|numeric',
@@ -68,6 +74,8 @@ class PagoComisionController extends Controller
 
     public function show(Lavador $lavador, Request $request)
     {
+        $this->authorizeAnyPermission(['ver-historial-pago-comision', 'ver-pago-comision']);
+
         // Si no hay fechas en la URL, usar primer y último día del mes actual
         $fechaInicio = $request->input('fecha_inicio', now()->startOfMonth()->toDateString());
         $fechaFin = $request->input('fecha_fin', now()->endOfMonth()->toDateString());
@@ -91,6 +99,8 @@ class PagoComisionController extends Controller
 
     public function reporteComisiones(Request $request)
     {
+        $this->authorizePermission('ver-pago-comision');
+
         $fechaInicio = $request->input('fecha_inicio', now()->startOfMonth()->toDateString());
         $fechaFin = $request->input('fecha_fin', now()->endOfMonth()->toDateString());
 
@@ -103,6 +113,8 @@ class PagoComisionController extends Controller
 
     public function exportarComisiones(Request $request)
     {
+        $this->authorizePermission('ver-pago-comision');
+
         $fechaInicio = $request->input('fecha_inicio', now()->startOfMonth()->toDateString());
         $fechaFin = $request->input('fecha_fin', now()->endOfMonth()->toDateString());
         

@@ -263,5 +263,58 @@ class EstacionamientoControllerTest extends TestCase
         $espaciosOcupados = Estacionamiento::where('estado', 'ocupado')->count();
         $this->assertLessThanOrEqual(20, $espaciosOcupados);
     }
+
+    #[\PHPUnit\Framework\Attributes\Test]
+    public function registrar_salida_retorna_403_si_usuario_no_tiene_permiso(): void
+    {
+        $this->withMiddleware();
+
+        $estacionamiento = Estacionamiento::factory()->create([
+            'estado' => 'ocupado',
+            'hora_salida' => null,
+        ]);
+
+        $sinPermisos = User::factory()->create();
+
+        $this->actingAs($sinPermisos)
+            ->post(route('estacionamiento.registrar-salida', $estacionamiento))
+            ->assertStatus(403);
+    }
+
+    #[\PHPUnit\Framework\Attributes\Test]
+    public function historial_retorna_403_si_usuario_no_tiene_permiso(): void
+    {
+        $this->withMiddleware();
+
+        $sinPermisos = User::factory()->create();
+
+        $this->actingAs($sinPermisos)
+            ->get(route('estacionamiento.historial'))
+            ->assertStatus(403);
+    }
+
+    #[\PHPUnit\Framework\Attributes\Test]
+    public function buscar_cliente_retorna_403_si_usuario_no_tiene_permiso(): void
+    {
+        $this->withMiddleware();
+
+        $sinPermisos = User::factory()->create();
+
+        $this->actingAs($sinPermisos)
+            ->get(route('estacionamiento.buscar-cliente', ['q' => 'test']))
+            ->assertStatus(403);
+    }
+
+    #[\PHPUnit\Framework\Attributes\Test]
+    public function export_diario_retorna_403_si_usuario_no_tiene_permiso(): void
+    {
+        $this->withMiddleware();
+
+        $sinPermisos = User::factory()->create();
+
+        $this->actingAs($sinPermisos)
+            ->get(route('estacionamiento.export.diario'))
+            ->assertStatus(403);
+    }
 }
 

@@ -23,6 +23,8 @@ class ProductoController extends Controller
      */
     public function index()
     {
+        $this->authorizeAnyPermission(['ver-producto', 'crear-producto', 'editar-producto', 'eliminar-producto']);
+
         $productos = Producto::with(['categorias.caracteristica','marca.caracteristica','presentacione.caracteristica'])->latest()->paginate(15);
     
         return view('producto.index',compact('productos'));
@@ -33,6 +35,8 @@ class ProductoController extends Controller
      */
     public function create()
     {
+        $this->authorizePermission('crear-producto');
+
         return view('producto.create', [
             'marcas' => $this->caracteristicaRepo->obtenerMarcasActivas(),
             'presentaciones' => $this->caracteristicaRepo->obtenerPresentacionesActivas(),
@@ -45,6 +49,8 @@ class ProductoController extends Controller
      */
     public function store(StoreProductoRequest $request)
     {
+        $this->authorizePermission('crear-producto');
+
         $validated = $request->validated();
 
         try {
@@ -107,6 +113,8 @@ class ProductoController extends Controller
      */
     public function edit(Producto $producto)
     {
+        $this->authorizePermission('editar-producto');
+
         return view('producto.edit', [
             'producto' => $producto,
             'marcas' => $this->caracteristicaRepo->obtenerMarcasActivas(),
@@ -120,6 +128,8 @@ class ProductoController extends Controller
      */
     public function update(UpdateProductoRequest $request, Producto $producto)
     {
+        $this->authorizePermission('editar-producto');
+
         $validated = $request->validated();
 
         try{
@@ -179,6 +189,8 @@ class ProductoController extends Controller
      */
     public function destroy(Producto $producto)
     {
+        $this->authorizePermission('eliminar-producto');
+
         if ($producto->estado == 1) {
             $producto->update(['estado' => 0]);
             $message = 'Producto eliminado';

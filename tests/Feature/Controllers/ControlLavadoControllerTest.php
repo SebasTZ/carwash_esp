@@ -11,6 +11,7 @@ use App\Repositories\ControlLavadoRepository;
 use App\Services\ControlLavadoService;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Mockery;
+use Mockery\MockInterface;
 use Tests\TestCase;
 
 class ControlLavadoControllerTest extends TestCase
@@ -18,8 +19,8 @@ class ControlLavadoControllerTest extends TestCase
     use RefreshDatabase;
 
     protected User $user;
-    protected ControlLavadoService $serviceMock;
-    protected ControlLavadoRepository $repositoryMock;
+    protected MockInterface $serviceMock;
+    protected MockInterface $repositoryMock;
 
     protected function setUp(): void
     {
@@ -160,6 +161,39 @@ class ControlLavadoControllerTest extends TestCase
         $this->actingAs($sinPermisos);
 
         $response = $this->delete(route('control.lavados.destroy', 999));
+
+        $response->assertStatus(403);
+    }
+
+    #[\PHPUnit\Framework\Attributes\Test]
+    public function asignar_lavador_retorna_403_si_usuario_no_tiene_permiso(): void
+    {
+        $sinPermisos = User::factory()->create();
+        $this->actingAs($sinPermisos);
+
+        $response = $this->post(route('control.lavados.asignarLavador', 999), []);
+
+        $response->assertStatus(403);
+    }
+
+    #[\PHPUnit\Framework\Attributes\Test]
+    public function inicio_lavado_retorna_403_si_usuario_no_tiene_permiso(): void
+    {
+        $sinPermisos = User::factory()->create();
+        $this->actingAs($sinPermisos);
+
+        $response = $this->post(route('control.lavados.inicioLavado', 999), []);
+
+        $response->assertStatus(403);
+    }
+
+    #[\PHPUnit\Framework\Attributes\Test]
+    public function export_diario_retorna_403_si_usuario_no_tiene_permiso(): void
+    {
+        $sinPermisos = User::factory()->create();
+        $this->actingAs($sinPermisos);
+
+        $response = $this->get(route('control.lavados.export.diario'));
 
         $response->assertStatus(403);
     }

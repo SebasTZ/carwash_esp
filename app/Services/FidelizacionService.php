@@ -56,13 +56,14 @@ class FidelizacionService
         $cliente->lavados_acumulados = 0;
         $cliente->save();
 
-        // Sin try/catch: si la tabla tiene columnas incorrectas, debe fallar visiblemente
-        Fidelizacion::create([
-            'cliente_id' => $cliente->id,
-            'lavados_acumulados' => self::LAVADOS_PARA_GRATIS,
-            'fecha_canje' => now(),
-            'tipo' => 'lavado_gratis',
-        ]);
+        Fidelizacion::updateOrCreate(
+            ['cliente_id' => $cliente->id],
+            [
+                'lavados_acumulados' => self::LAVADOS_PARA_GRATIS,
+                'fecha_canje' => now(),
+                'tipo' => 'lavado_gratis',
+            ]
+        );
 
         Cache::forget("cliente_{$cliente->id}_fidelizacion");
 

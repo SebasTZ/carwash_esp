@@ -4,8 +4,7 @@ namespace Database\Seeders;
 
 // use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
-use Spatie\Permission\Models\Permission;
-use Spatie\Permission\Models\Role;
+use Illuminate\Support\Facades\DB;
 
 class DatabaseSeeder extends Seeder
 {
@@ -16,10 +15,12 @@ class DatabaseSeeder extends Seeder
      */
     public function run()
     {
-        $this->call(DocumentoSeeder::class);
-        $this->call(ComprobanteSeeder::class);
-        $this->call(PermissionSeeder::class);
-        $this->call(UserSeeder::class);
-        $this->call(FidelizacionSeeder::class);
+        DB::transaction(function (): void {
+            $this->call(DocumentoSeeder::class);
+            $this->call(ComprobanteSeeder::class);
+            $this->call(PermissionSeeder::class);
+            $this->call(UserSeeder::class);
+            $this->call(FidelizacionSeeder::class);
+        });
     }
 }

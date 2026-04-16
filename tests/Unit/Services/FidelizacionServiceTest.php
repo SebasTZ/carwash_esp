@@ -113,6 +113,41 @@ class FidelizacionServiceTest extends TestCase
 
         $cliente->refresh();
         $this->assertEquals(0, $cliente->lavados_acumulados);
+
+        $this->assertDatabaseHas('fidelizacion', [
+            'cliente_id' => $cliente->id,
+            'lavados_acumulados' => 10,
+            'tipo' => 'lavado_gratis',
+        ]);
+    }
+
+    #[\PHPUnit\Framework\Attributes\Test]
+    public function canje_lavado_gratis_no_duplica_fila_de_fidelizacion_por_cliente()
+    {
+        $documento = Documento::factory()->create();
+        $persona = Persona::factory()->create([
+            'documento_id' => $documento->id,
+            'numero_documento' => '87654321',
+        ]);
+        $cliente = Cliente::factory()->create([
+            'persona_id' => $persona->id,
+            'lavados_acumulados' => 10,
+        ]);
+
+        Fidelizacion::create([
+            'cliente_id' => $cliente->id,
+            'puntos' => 15,
+        ]);
+
+        $this->fidelizacionService->canjearLavadoGratis($cliente);
+
+        $this->assertEquals(1, Fidelizacion::where('cliente_id', $cliente->id)->count());
+
+        $registro = Fidelizacion::where('cliente_id', $cliente->id)->first();
+        $this->assertNotNull($registro);
+        $this->assertEquals(15.0, (float) $registro->puntos);
+        $this->assertEquals(10, $registro->lavados_acumulados);
+        $this->assertEquals('lavado_gratis', $registro->tipo);
     }
 
     #[\PHPUnit\Framework\Attributes\Test]

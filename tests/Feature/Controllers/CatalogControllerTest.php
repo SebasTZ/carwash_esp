@@ -32,7 +32,7 @@ class CatalogControllerTest extends TestCase
         $permisos = [
             'ver-marca', 'crear-marca', 'editar-marca', 'eliminar-marca',
             'ver-categoria', 'crear-categoria', 'editar-categoria', 'eliminar-categoria',
-            'ver-presentacione', 'crear-presentacione', 'editar-presentacione', 'eliminar-presentacione',
+            'ver-presentacion', 'crear-presentacion', 'editar-presentacion', 'eliminar-presentacion',
         ];
         foreach ($permisos as $p) {
             Permission::create(['name' => $p]);

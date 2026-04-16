@@ -16,6 +16,8 @@ class profileController extends Controller
      */
     public function index()
     {
+        $this->authorizePermission('ver-perfil');
+
         $user = User::find(Auth::user()->id);
         return view('profile.index', compact('user'));
     }
@@ -57,6 +59,8 @@ class profileController extends Controller
      */
     public function update(Request $request, User $profile)
     {
+        $this->authorizePermission('editar-perfil');
+
         $request->validate([
             'name'     => 'required|string|max:255',
             'email'    => 'required|email|unique:users,email,' . $profile->id,

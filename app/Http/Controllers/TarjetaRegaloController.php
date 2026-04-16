@@ -19,6 +19,8 @@ class TarjetaRegaloController extends Controller
 
     public function index()
     {
+        $this->authorizePermission('ver-tarjeta-regalo');
+
         $tarjetas = TarjetaRegalo::with('cliente')->paginate(15);
         // Si es AJAX o API, responde JSON. Si es web, muestra la vista.
         if (request()->ajax()) {
@@ -29,6 +31,8 @@ class TarjetaRegaloController extends Controller
 
     public function store(Request $request)
     {
+        $this->authorizePermission('crear-tarjeta-regalo');
+
         $validator = Validator::make($request->all(), [
             'codigo' => 'required|unique:tarjetas_regalo,codigo',
             'valor_inicial' => 'required|numeric|min:1',
@@ -64,12 +68,16 @@ class TarjetaRegaloController extends Controller
 
     public function show($id)
     {
+        $this->authorizePermission('ver-tarjeta-regalo');
+
         $tarjeta = TarjetaRegalo::with('cliente')->findOrFail($id);
         return response()->json($tarjeta);
     }
 
     public function edit($id)
     {
+        $this->authorizePermission('editar-tarjeta-regalo');
+
         $tarjeta = \App\Models\TarjetaRegalo::findOrFail($id);
         $clientes = \App\Models\Cliente::with('persona')->get();
         return view('tarjetas_regalo.edit', compact('tarjeta', 'clientes'));
@@ -77,6 +85,8 @@ class TarjetaRegaloController extends Controller
 
     public function update(Request $request, $id)
     {
+        $this->authorizePermission('editar-tarjeta-regalo');
+
         $tarjeta = \App\Models\TarjetaRegalo::findOrFail($id);
         $request->validate([
             'valor_inicial' => 'required|numeric|min:1',
@@ -90,6 +100,8 @@ class TarjetaRegaloController extends Controller
 
     public function destroy($id)
     {
+        $this->authorizePermission('eliminar-tarjeta-regalo');
+
         $tarjeta = \App\Models\TarjetaRegalo::findOrFail($id);
         $tarjeta->delete();
         return redirect()->route('tarjetas_regalo.reporte.view')->with('success', 'Tarjeta de regalo eliminada correctamente.');
@@ -101,6 +113,8 @@ class TarjetaRegaloController extends Controller
      */
     public function usarTarjeta(Request $request)
     {
+        $this->authorizeAnyPermission(['crear-venta', 'ver-tarjeta-regalo']);
+
         $request->validate([
             'codigo' => 'required|exists:tarjetas_regalo,codigo',
             'monto' => 'required|numeric|min:0.01',
@@ -135,6 +149,8 @@ class TarjetaRegaloController extends Controller
 
     public function reporte(Request $request)
     {
+        $this->authorizePermission('reporte-tarjeta-regalo');
+
         $query = TarjetaRegalo::with('cliente');
         if ($request->filled('estado')) {
             $query->where('estado', $request->estado);
@@ -151,18 +167,24 @@ class TarjetaRegaloController extends Controller
 
     public function reporteView(Request $request)
     {
+        $this->authorizePermission('reporte-tarjeta-regalo');
+
         $tarjetas = \App\Models\TarjetaRegalo::with('cliente.persona')->paginate(15);
         return view('tarjetas_regalo.reporte', compact('tarjetas'));
     }
 
     public function create()
     {
+        $this->authorizePermission('crear-tarjeta-regalo');
+
         $clientes = \App\Models\Cliente::with('persona')->get();
         return view('tarjetas_regalo.create', compact('clientes'));
     }
 
     public function check($codigo)
     {
+        $this->authorizeAnyPermission(['ver-tarjeta-regalo', 'crear-venta']);
+
         $tarjeta = \App\Models\TarjetaRegalo::where('codigo', $codigo)->first();
         if (!$tarjeta) {
             return response()->json(['error' => 'not_found'], 404);
@@ -175,12 +197,16 @@ class TarjetaRegaloController extends Controller
 
     public function usos()
     {
+        $this->authorizePermission('historial-tarjeta-regalo');
+
         $usos = \App\Models\Venta::whereNotNull('tarjeta_regalo_id')->with('cliente.persona')->get();
         return view('tarjetas_regalo.usos', compact('usos'));
     }
 
     public function exportExcel()
     {
+        $this->authorizePermission('exportar-tarjeta-regalo');
+
         return Excel::download(new TarjetasRegaloExport, 'gift_cards.xlsx');
     }
 }

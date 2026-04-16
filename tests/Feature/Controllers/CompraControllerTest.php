@@ -30,9 +30,10 @@ class CompraControllerTest extends TestCase
         \Spatie\Permission\Models\Permission::create(['name' => 'crear-compra']);
         \Spatie\Permission\Models\Permission::create(['name' => 'mostrar-compra']);
         \Spatie\Permission\Models\Permission::create(['name' => 'eliminar-compra']);
+        \Spatie\Permission\Models\Permission::create(['name' => 'reporte-personalizado-compra']);
 
         $role = \Spatie\Permission\Models\Role::create(['name' => 'admin-compra-test']);
-        $role->givePermissionTo(['ver-compra', 'crear-compra', 'mostrar-compra', 'eliminar-compra']);
+        $role->givePermissionTo(['ver-compra', 'crear-compra', 'mostrar-compra', 'eliminar-compra', 'reporte-personalizado-compra']);
 
         $this->user = User::factory()->create();
         $this->user->assignRole('admin-compra-test');

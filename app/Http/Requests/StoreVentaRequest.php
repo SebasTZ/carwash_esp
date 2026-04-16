@@ -7,12 +7,12 @@ use Illuminate\Validation\Rule;
 
 class StoreVentaRequest extends FormRequest
 {
-    public function authorize()
+    public function authorize(): bool
     {
-        return true;
+        return (bool) $this->user()?->can('crear-venta');
     }
 
-    public function rules()
+    public function rules(): array
     {
         return [
             'impuesto'            => 'nullable|numeric|min:0',

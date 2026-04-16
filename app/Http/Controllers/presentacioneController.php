@@ -16,6 +16,8 @@ class presentacioneController extends Controller
      */
     public function index()
     {
+        $this->authorizeAnyPermission(['ver-presentacion', 'crear-presentacion', 'editar-presentacion', 'eliminar-presentacion']);
+
         $presentaciones = Presentacione::with('caracteristica')->latest()->paginate(15);
         return view('presentacione.index', compact('presentaciones'));
     }
@@ -25,6 +27,8 @@ class presentacioneController extends Controller
      */
     public function create()
     {
+        $this->authorizePermission('crear-presentacion');
+
         return view('presentacione.create');
     }
 
@@ -33,6 +37,8 @@ class presentacioneController extends Controller
      */
     public function store(StoreCaracteristicaRequest $request)
     {
+        $this->authorizePermission('crear-presentacion');
+
         try {
             DB::beginTransaction();
             $caracteristica = Caracteristica::create($request->validated());
@@ -61,6 +67,8 @@ class presentacioneController extends Controller
      */
     public function edit(Presentacione $presentacione)
     {
+        $this->authorizePermission('editar-presentacion');
+
         return view('presentacione.edit',compact('presentacione'));
     }
 
@@ -69,6 +77,8 @@ class presentacioneController extends Controller
      */
     public function update(UpdatePresentacioneRequest $request, Presentacione $presentacione)
     {
+        $this->authorizePermission('editar-presentacion');
+
         Caracteristica::where('id', $presentacione->caracteristica->id)
             ->update($request->validated());
 
@@ -80,6 +90,8 @@ class presentacioneController extends Controller
      */
     public function destroy(Presentacione $presentacione)
     {
+        $this->authorizePermission('eliminar-presentacion');
+
         if ($presentacione->caracteristica->estado == 1) {
             Caracteristica::where('id', $presentacione->caracteristica->id)
                 ->update(['estado' => 0]);

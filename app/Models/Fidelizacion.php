@@ -9,7 +9,17 @@ class Fidelizacion extends Model
 {
     use HasFactory;
 
-    protected $fillable = ['cliente_id', 'puntos'];
+    protected $fillable = [
+        'cliente_id',
+        'puntos',
+        'lavados_acumulados',
+        'fecha_canje',
+        'tipo',
+    ];
+
+    protected $casts = [
+        'fecha_canje' => 'datetime',
+    ];
 
     public function cliente()
     {

@@ -15,6 +15,8 @@ class FidelidadController extends Controller
 
     public function mostrarLavados($clienteId)
     {
+        $this->authorizePermission('gestionar-fidelidad');
+
         $cliente = Cliente::findOrFail($clienteId);
         return response()->json(['lavados_acumulados' => $cliente->lavados_acumulados]);
     }
@@ -27,6 +29,8 @@ class FidelidadController extends Controller
      */
     public function incrementarLavado($clienteId)
     {
+        $this->authorizePermission('gestionar-fidelidad');
+
         $cliente = Cliente::findOrFail($clienteId);
         $this->fidelizacionService->acumularLavado($cliente);
         
@@ -44,6 +48,8 @@ class FidelidadController extends Controller
      */
     public function aplicarLavadoGratis($clienteId)
     {
+        $this->authorizePermission('gestionar-fidelidad');
+
         $cliente = Cliente::findOrFail($clienteId);
         
         if ($this->fidelizacionService->puedeUsarLavadoGratis($cliente)) {
@@ -60,6 +66,8 @@ class FidelidadController extends Controller
 
     public function reporteFidelidad(Request $request)
     {
+        $this->authorizePermission('reporte-fidelidad');
+
         $clientes = \App\Models\Cliente::with('persona')
             ->orderByDesc('lavados_acumulados')
             ->get();
@@ -72,6 +80,8 @@ class FidelidadController extends Controller
 
     public function reporteView(Request $request)
     {
+        $this->authorizePermission('reporte-fidelidad');
+
         $clientes_frecuentes = \App\Models\Cliente::with('persona')->orderByDesc('lavados_acumulados')->paginate(15);
         $lavados_gratis = \App\Models\Venta::where('lavado_gratis', true)->with('cliente.persona')->paginate(15);
         return view('fidelidad.reporte', compact('clientes_frecuentes', 'lavados_gratis'));
@@ -79,6 +89,8 @@ class FidelidadController extends Controller
 
     public function exportExcel()
     {
+        $this->authorizePermission('exportar-fidelidad');
+
         $clientes = \App\Models\Cliente::with('persona')->orderByDesc('lavados_acumulados')->get();
         $lavadosGratis = \App\Models\Venta::where('lavado_gratis', true)->with('cliente.persona')->get();
         return \Maatwebsite\Excel\Facades\Excel::download(new FidelidadExport($clientes, $lavadosGratis), 'reporte_fidelidad.xlsx');

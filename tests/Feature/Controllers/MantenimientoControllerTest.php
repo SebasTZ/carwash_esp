@@ -262,4 +262,64 @@ class MantenimientoControllerTest extends TestCase
         $this->actingAs($sinPermisos);
         $this->post(route('mantenimientos.store'), [])->assertStatus(403);
     }
+
+    #[\PHPUnit\Framework\Attributes\Test]
+    public function cambiar_estado_retorna_403_si_usuario_no_tiene_permiso(): void
+    {
+        $mantenimiento = Mantenimiento::create([
+            'cliente_id' => $this->cliente->id,
+            'placa' => 'ZZZ999',
+            'modelo' => 'Test',
+            'tipo_vehiculo' => 'Sedan',
+            'fecha_ingreso' => now()->subDay(),
+            'tipo_servicio' => 'Revision',
+            'descripcion_trabajo' => 'Revision general',
+            'estado' => 'recibido',
+            'pagado' => false,
+        ]);
+
+        $sinPermisos = User::factory()->create();
+        $this->actingAs($sinPermisos);
+
+        $this->post(route('mantenimientos.cambiarEstado', $mantenimiento), [
+            'estado' => 'en_proceso',
+        ])->assertStatus(403);
+    }
+
+    #[\PHPUnit\Framework\Attributes\Test]
+    public function vincular_venta_retorna_403_si_usuario_no_tiene_permiso(): void
+    {
+        $mantenimiento = Mantenimiento::create([
+            'cliente_id' => $this->cliente->id,
+            'placa' => 'YYY888',
+            'modelo' => 'Test',
+            'tipo_vehiculo' => 'Sedan',
+            'fecha_ingreso' => now()->subDay(),
+            'tipo_servicio' => 'Revision',
+            'descripcion_trabajo' => 'Revision general',
+            'estado' => 'terminado',
+            'pagado' => false,
+        ]);
+
+        $venta = Venta::factory()->create([
+            'cliente_id' => $this->cliente->id,
+            'estado' => 1,
+        ]);
+
+        $sinPermisos = User::factory()->create();
+        $this->actingAs($sinPermisos);
+
+        $this->post(route('mantenimientos.vincularVenta', $mantenimiento), [
+            'venta_id' => $venta->id,
+        ])->assertStatus(403);
+    }
+
+    #[\PHPUnit\Framework\Attributes\Test]
+    public function reportes_retorna_403_si_usuario_no_tiene_permiso(): void
+    {
+        $sinPermisos = User::factory()->create();
+        $this->actingAs($sinPermisos);
+
+        $this->get(route('mantenimientos.reportes'))->assertStatus(403);
+    }
 }

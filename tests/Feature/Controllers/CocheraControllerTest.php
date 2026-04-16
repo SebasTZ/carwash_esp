@@ -173,4 +173,33 @@ class CocheraControllerTest extends TestCase
         $this->actingAs($sinPermisos);
         $this->post(route('cocheras.store'), [])->assertStatus(403);
     }
+
+    #[\PHPUnit\Framework\Attributes\Test]
+    public function finalizar_retorna_403_si_usuario_no_tiene_permiso(): void
+    {
+        $cochera = Cochera::create([
+            'cliente_id' => $this->cliente->id,
+            'placa' => 'EEE-555',
+            'modelo' => 'Corolla',
+            'color' => 'Azul',
+            'tipo_vehiculo' => 'Sedan',
+            'fecha_ingreso' => now()->subHours(2),
+            'tarifa_hora' => 10,
+            'estado' => 'activo',
+        ]);
+
+        $sinPermisos = User::factory()->create();
+        $this->actingAs($sinPermisos);
+
+        $this->post(route('cocheras.finalizar', $cochera))->assertStatus(403);
+    }
+
+    #[\PHPUnit\Framework\Attributes\Test]
+    public function reportes_retorna_403_si_usuario_no_tiene_permiso(): void
+    {
+        $sinPermisos = User::factory()->create();
+        $this->actingAs($sinPermisos);
+
+        $this->get(route('cocheras.reportes'))->assertStatus(403);
+    }
 }

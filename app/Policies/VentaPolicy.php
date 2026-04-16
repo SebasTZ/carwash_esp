@@ -7,15 +7,6 @@ use App\Models\Venta;
 
 class VentaPolicy
 {
-    public function before(User $user, string $ability): ?bool
-    {
-        if ($this->isPrivileged($user)) {
-            return true;
-        }
-
-        return null;
-    }
-
     public function viewAny(User $user): bool
     {
         return $user->canAny([
@@ -32,6 +23,10 @@ class VentaPolicy
             return false;
         }
 
+        if ($this->isPrivileged($user)) {
+            return true;
+        }
+
         return $this->ownsResource($user, $venta);
     }
 
@@ -44,6 +39,10 @@ class VentaPolicy
     {
         if (!$user->can('eliminar-venta')) {
             return false;
+        }
+
+        if ($this->isPrivileged($user)) {
+            return true;
         }
 
         return $this->ownsResource($user, $venta);

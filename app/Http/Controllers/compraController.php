@@ -20,6 +20,8 @@ class compraController extends Controller
 
     public function index()
     {
+        $this->authorizeAnyPermission(['ver-compra', 'crear-compra', 'mostrar-compra', 'eliminar-compra']);
+
         $compras = Compra::with('comprobante','proveedore.persona')
         ->where('estado',1)
         ->latest()
@@ -29,6 +31,8 @@ class compraController extends Controller
 
     public function create()
     {
+        $this->authorizePermission('crear-compra');
+
         $proveedores = Proveedore::whereHas('persona',function($query){
             $query->where('estado',1);
         })->get();
@@ -39,6 +43,8 @@ class compraController extends Controller
 
     public function store(StoreCompraRequest $request)
     {
+        $this->authorizePermission('crear-compra');
+
         try {
             DB::beginTransaction();
 
@@ -98,11 +104,15 @@ class compraController extends Controller
 
     public function show(Compra $compra)
     {
+        $this->authorizePermission('mostrar-compra');
+
         return view('compra.show',compact('compra'));
     }
 
     public function reporteDiario()
     {
+        $this->authorizePermission('reporte-diario-compra');
+
         $compras = Compra::whereDate('fecha_hora', now()->toDateString())
             ->with(['comprobante', 'proveedore.persona'])
             ->get();
@@ -112,6 +122,8 @@ class compraController extends Controller
 
     public function reporteSemanal()
     {
+        $this->authorizePermission('reporte-semanal-compra');
+
         $compras = Compra::whereBetween('fecha_hora', [now()->startOfWeek(), now()->endOfWeek()])
             ->with(['comprobante', 'proveedore.persona'])
             ->get();
@@ -121,6 +133,8 @@ class compraController extends Controller
 
     public function reporteMensual()
     {
+        $this->authorizePermission('reporte-mensual-compra');
+
         $compras = Compra::whereMonth('fecha_hora', now()->month)
             ->with(['comprobante', 'proveedore.persona'])
             ->get();
@@ -130,6 +144,8 @@ class compraController extends Controller
 
     public function reportePersonalizado(Request $request)
     {
+        $this->authorizePermission('reporte-personalizado-compra');
+
         $request->validate([
             'fecha_inicio' => 'required|date|before_or_equal:fecha_fin',
             'fecha_fin'    => 'required|date',
@@ -147,6 +163,8 @@ class compraController extends Controller
 
     public function exportDiario()
     {   
+        $this->authorizePermission('exportar-reporte-compra');
+
         $compras = Compra::whereDate('fecha_hora', now()->toDateString())
             ->with(['comprobante', 'proveedore.persona'])
             ->get();
@@ -156,6 +174,8 @@ class compraController extends Controller
 
     public function exportSemanal()
     {
+        $this->authorizePermission('exportar-reporte-compra');
+
         $compras = Compra::whereBetween('fecha_hora', [now()->startOfWeek(), now()->endOfWeek()])
             ->with(['comprobante', 'proveedore.persona'])
             ->get();
@@ -165,6 +185,8 @@ class compraController extends Controller
 
     public function exportMensual()
     {
+        $this->authorizePermission('exportar-reporte-compra');
+
         $compras = Compra::whereMonth('fecha_hora', now()->month)
             ->with(['comprobante', 'proveedore.persona'])
             ->get();
@@ -174,6 +196,8 @@ class compraController extends Controller
 
     public function exportPersonalizado(Request $request)
     {
+        $this->authorizePermission('exportar-reporte-compra');
+
         $request->validate([
             'fecha_inicio' => 'required|date|before_or_equal:fecha_fin',
             'fecha_fin'    => 'required|date',
@@ -191,6 +215,8 @@ class compraController extends Controller
 
     public function destroy(Compra $compra)
     {
+        $this->authorizePermission('eliminar-compra');
+
         $compra->update(['estado' => 0]);
 
         return redirect()->route('compras.index')->with('success', 'Compra eliminada');
@@ -198,6 +224,8 @@ class compraController extends Controller
 
     public function buscarProductos(Request $request)
     {
+        $this->authorizePermission('crear-compra');
+
         $query = $request->input('query', '');
 
         $productos = Producto::where('estado', 1)

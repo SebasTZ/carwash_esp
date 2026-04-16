@@ -7,15 +7,6 @@ use Spatie\Permission\Models\Role;
 
 class RolePolicy
 {
-    public function before(User $user, string $ability): ?bool
-    {
-        if ($this->isPrivileged($user)) {
-            return true;
-        }
-
-        return null;
-    }
-
     public function viewAny(User $user): bool
     {
         return $user->canAny(['ver-role', 'crear-role', 'editar-role', 'eliminar-role']);
@@ -39,10 +30,5 @@ class RolePolicy
     public function delete(User $user, Role $role): bool
     {
         return $user->can('eliminar-role');
-    }
-
-    private function isPrivileged(User $user): bool
-    {
-        return $user->hasAnyRole(['admin', 'superadmin', 'administrador']);
     }
 }

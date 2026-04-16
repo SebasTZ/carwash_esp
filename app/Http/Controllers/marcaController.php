@@ -16,6 +16,8 @@ class marcaController extends Controller
      */
     public function index()
     {
+        $this->authorizeAnyPermission(['ver-marca', 'crear-marca', 'editar-marca', 'eliminar-marca']);
+
         $marcas = Marca::with('caracteristica')->latest()->paginate(15);
         return view('marca.index',compact('marcas'));
     }
@@ -25,6 +27,8 @@ class marcaController extends Controller
      */
     public function create()
     {
+        $this->authorizePermission('crear-marca');
+
         return view('marca.create');
     }
 
@@ -33,6 +37,8 @@ class marcaController extends Controller
      */
     public function store(StoreCaracteristicaRequest $request)
     {
+        $this->authorizePermission('crear-marca');
+
         try {
             DB::beginTransaction();
             $caracteristica = Caracteristica::create($request->validated());
@@ -61,6 +67,8 @@ class marcaController extends Controller
      */
     public function edit(Marca $marca)
     {
+        $this->authorizePermission('editar-marca');
+
         return view('marca.edit',compact('marca'));
     }
 
@@ -69,6 +77,8 @@ class marcaController extends Controller
      */
     public function update(UpdateMarcaRequest $request, Marca $marca)
     {
+        $this->authorizePermission('editar-marca');
+
         Caracteristica::where('id', $marca->caracteristica->id)
             ->update($request->validated());
 
@@ -80,6 +90,8 @@ class marcaController extends Controller
      */
     public function destroy(Marca $marca)
     {
+        $this->authorizePermission('eliminar-marca');
+
         if ($marca->caracteristica->estado == 1) {
             Caracteristica::where('id', $marca->caracteristica->id)
                 ->update(['estado' => 0]);

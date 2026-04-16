@@ -18,6 +18,8 @@ class clienteController extends Controller
      */
     public function index()
     {
+        $this->authorizeAnyPermission(['ver-cliente', 'crear-cliente', 'editar-cliente', 'eliminar-cliente']);
+
         $clientes = Cliente::with('persona.documento')->paginate(15);
         return view('cliente.index', compact('clientes'));
     }
@@ -27,6 +29,8 @@ class clienteController extends Controller
      */
     public function create()
     {
+        $this->authorizePermission('crear-cliente');
+
         $documentos = Documento::all();
         return view('cliente.create', compact('documentos'));
     }
@@ -36,6 +40,8 @@ class clienteController extends Controller
      */
     public function store(StorePersonaRequest $request)
     {
+        $this->authorizePermission('crear-cliente');
+
         try {
             DB::beginTransaction();
             $persona = Persona::create($request->validated());
@@ -64,6 +70,8 @@ class clienteController extends Controller
      */
     public function edit(Cliente $cliente)
     {
+        $this->authorizePermission('editar-cliente');
+
         $cliente->load('persona.documento');
         $documentos = Documento::all();
         return view('cliente.edit', compact('cliente', 'documentos'));
@@ -74,6 +82,8 @@ class clienteController extends Controller
      */
     public function update(UpdateClienteRequest $request, Cliente $cliente)
     {
+        $this->authorizePermission('editar-cliente');
+
         try {
             DB::beginTransaction();
 
@@ -94,6 +104,8 @@ class clienteController extends Controller
      */
     public function destroy(Cliente $cliente)
     {
+        $this->authorizePermission('eliminar-cliente');
+
         $persona = $cliente->persona;
         if ($persona->estado == 1) {
             $persona->update(['estado' => 0]);
@@ -108,6 +120,8 @@ class clienteController extends Controller
 
     public function fidelizacion(Cliente $cliente)
     {
+        $this->authorizePermission('ver-fidelizacion');
+
         return view('cliente.fidelizacion', compact('cliente'));
     }
 }

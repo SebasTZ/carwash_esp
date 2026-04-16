@@ -25,6 +25,8 @@ class EstacionamientoController extends Controller
 
     public function index()
     {
+        $this->authorizeAnyPermission(['ver-estacionamiento', 'crear-estacionamiento', 'editar-estacionamiento', 'eliminar-estacionamiento']);
+
         $estacionamientos = Estacionamiento::with('cliente.persona')
             ->where('estado', 'ocupado')
             ->latest()
@@ -35,6 +37,8 @@ class EstacionamientoController extends Controller
 
     public function create()
     {
+        $this->authorizePermission('crear-estacionamiento');
+
         $clientes = Cliente::whereHas('persona', function($query) {
             $query->where('estado', 1);
         })->get();
@@ -45,6 +49,8 @@ class EstacionamientoController extends Controller
 
     public function store(Request $request)
     {
+        $this->authorizePermission('crear-estacionamiento');
+
         $request->validate([
             'cliente_id' => 'required|exists:clientes,id',
             'placa' => 'required|string|max:10',
@@ -112,6 +118,8 @@ class EstacionamientoController extends Controller
 
     public function show(Estacionamiento $estacionamiento)
     {
+        $this->authorizePermission('ver-estacionamiento');
+
         // Using index view with single item
         return view('estacionamiento.index', [
             'estacionamientos' => collect([$estacionamiento])
@@ -122,6 +130,8 @@ class EstacionamientoController extends Controller
 
     public function registrarSalida(Estacionamiento $estacionamiento)
     {
+        $this->authorizePermission('editar-estacionamiento');
+
         try {
             $estacionamiento->hora_salida = now();
 
@@ -147,6 +157,8 @@ class EstacionamientoController extends Controller
 
     public function historial()
     {
+        $this->authorizePermission('historial-estacionamiento');
+
         $estacionamientos = Estacionamiento::with('cliente.persona')
             ->where('estado', 'finalizado')
             ->latest()
@@ -157,6 +169,8 @@ class EstacionamientoController extends Controller
 
     public function buscarCliente(Request $request)
     {
+        $this->authorizeAnyPermission(['ver-estacionamiento', 'crear-estacionamiento']);
+
         $query = $request->input('q');
         
         $clientes = Cliente::whereHas('persona', function($q) use ($query) {
@@ -183,12 +197,16 @@ class EstacionamientoController extends Controller
 
     public function destroy(Estacionamiento $estacionamiento)
     {
+        $this->authorizePermission('eliminar-estacionamiento');
+
         $estacionamiento->delete();
         return redirect()->route('estacionamiento.index')->with('success', 'Registro eliminado correctamente');
     }
 
     public function reporteDiario()
     {
+        $this->authorizePermission('reporte-diario-estacionamiento');
+
         $estacionamientos = Estacionamiento::whereDate('hora_entrada', now()->toDateString())
             ->with(['cliente.persona'])
             ->get();
@@ -199,6 +217,8 @@ class EstacionamientoController extends Controller
 
     public function reporteSemanal()
     {
+        $this->authorizePermission('reporte-semanal-estacionamiento');
+
         $estacionamientos = Estacionamiento::whereBetween('hora_entrada', [now()->startOfWeek(), now()->endOfWeek()])
             ->with(['cliente.persona'])
             ->get();
@@ -209,6 +229,8 @@ class EstacionamientoController extends Controller
 
     public function reporteMensual()
     {
+        $this->authorizePermission('reporte-mensual-estacionamiento');
+
         $estacionamientos = Estacionamiento::whereMonth('hora_entrada', now()->month)
             ->with(['cliente.persona'])
             ->get();
@@ -219,6 +241,8 @@ class EstacionamientoController extends Controller
 
     public function reportePersonalizado(Request $request)
     {
+        $this->authorizePermission('reporte-personalizado-estacionamiento');
+
         $fechaInicio = $request->fecha_inicio;
         $fechaFin = $request->fecha_fin;
 
@@ -232,6 +256,8 @@ class EstacionamientoController extends Controller
 
     public function exportDiario()
     {   
+        $this->authorizePermission('reporte-diario-estacionamiento');
+
         $estacionamientos = Estacionamiento::whereDate('hora_entrada', now()->toDateString())
             ->with(['cliente.persona'])
             ->get();
@@ -241,6 +267,8 @@ class EstacionamientoController extends Controller
 
     public function exportSemanal()
     {
+        $this->authorizePermission('reporte-semanal-estacionamiento');
+
         $estacionamientos = Estacionamiento::whereBetween('hora_entrada', [now()->startOfWeek(), now()->endOfWeek()])
             ->with(['cliente.persona'])
             ->get();
@@ -250,6 +278,8 @@ class EstacionamientoController extends Controller
 
     public function exportMensual()
     {
+        $this->authorizePermission('reporte-mensual-estacionamiento');
+
         $estacionamientos = Estacionamiento::whereMonth('hora_entrada', now()->month)
             ->with(['cliente.persona'])
             ->get();
@@ -259,6 +289,8 @@ class EstacionamientoController extends Controller
 
     public function exportPersonalizado(Request $request)
     {
+        $this->authorizePermission('reporte-personalizado-estacionamiento');
+
         $fechaInicio = $request->fecha_inicio;
         $fechaFin = $request->fecha_fin;
 

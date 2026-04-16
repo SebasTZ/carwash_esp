@@ -6,15 +6,6 @@ use App\Models\User;
 
 class UserPolicy
 {
-    public function before(User $user, string $ability): ?bool
-    {
-        if ($this->isPrivileged($user)) {
-            return true;
-        }
-
-        return null;
-    }
-
     public function viewAny(User $user): bool
     {
         return $user->canAny(['ver-user', 'crear-user', 'editar-user', 'eliminar-user']);
@@ -46,10 +37,5 @@ class UserPolicy
         }
 
         return $user->can('eliminar-user');
-    }
-
-    private function isPrivileged(User $user): bool
-    {
-        return $user->hasAnyRole(['admin', 'superadmin', 'administrador']);
     }
 }

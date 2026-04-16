@@ -18,6 +18,8 @@ class categoriaController extends Controller
      */
     public function index()
     {
+        $this->authorizeAnyPermission(['ver-categoria', 'crear-categoria', 'editar-categoria', 'eliminar-categoria']);
+
         $categorias = Categoria::with('caracteristica')->latest()->paginate(15);
 
         return view('categoria.index', ['categorias' => $categorias]);
@@ -28,6 +30,8 @@ class categoriaController extends Controller
      */
     public function create()
     {
+        $this->authorizePermission('crear-categoria');
+
         return view('categoria.create');
     }
 
@@ -36,6 +40,8 @@ class categoriaController extends Controller
      */
     public function store(StoreCaracteristicaRequest $request)
     {
+        $this->authorizePermission('crear-categoria');
+
         try {
             DB::beginTransaction();
             $caracteristica = Caracteristica::create($request->validated());
@@ -64,6 +70,8 @@ class categoriaController extends Controller
      */
     public function edit(Categoria $categoria)
     {
+        $this->authorizePermission('editar-categoria');
+
         return view('categoria.edit', ['categoria' => $categoria]);
     }
 
@@ -72,6 +80,8 @@ class categoriaController extends Controller
      */
     public function update(UpdateCategoriaRequest $request, Categoria $categoria)
     {
+        $this->authorizePermission('editar-categoria');
+
         Caracteristica::where('id', $categoria->caracteristica->id)
             ->update($request->validated());
 
@@ -83,6 +93,8 @@ class categoriaController extends Controller
      */
     public function destroy(Categoria $categoria)
     {
+        $this->authorizePermission('eliminar-categoria');
+
         if ($categoria->caracteristica->estado == 1) {
             Caracteristica::where('id', $categoria->caracteristica->id)
                 ->update(['estado' => 0]);
@@ -99,6 +111,8 @@ class categoriaController extends Controller
      */
     public function restore(Categoria $categoria)
     {
+        $this->authorizePermission('editar-categoria');
+
         if ($categoria->caracteristica->estado == 0) {
             Caracteristica::where('id', $categoria->caracteristica->id)
                 ->update(['estado' => 1]);

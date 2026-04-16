@@ -16,6 +16,8 @@ class CocheraController extends Controller
      */
     public function index(Request $request)
     {
+        $this->authorizeAnyPermission(['ver-cochera', 'crear-cochera', 'editar-cochera', 'eliminar-cochera']);
+
         $query = Cochera::with('cliente.persona');
         
         // Filtrar por estado si se solicita
@@ -38,6 +40,8 @@ class CocheraController extends Controller
      */
     public function create()
     {
+        $this->authorizePermission('crear-cochera');
+
         $clientes = Cliente::whereHas('persona',function($query){
             $query->where('estado',1);
         })->get();
@@ -50,6 +54,8 @@ class CocheraController extends Controller
      */
     public function store(Request $request)
     {
+        $this->authorizePermission('crear-cochera');
+
         $request->validate([
             'cliente_id' => 'required|exists:clientes,id',
             'placa' => 'required|string|max:20',
@@ -96,6 +102,8 @@ class CocheraController extends Controller
      */
     public function show(Cochera $cochera)
     {
+        $this->authorizeAnyPermission(['ver-cochera', 'crear-cochera', 'editar-cochera', 'eliminar-cochera']);
+
         // Calcular el monto actualizado si el vehículo sigue en cochera
         if ($cochera->estado == 'activo') {
             $montoActualizado = $cochera->calcularMonto();
@@ -111,6 +119,8 @@ class CocheraController extends Controller
      */
     public function edit(Cochera $cochera)
     {
+        $this->authorizePermission('editar-cochera');
+
         $clientes = Cliente::whereHas('persona',function($query){
             $query->where('estado',1);
         })->get();
@@ -123,6 +133,8 @@ class CocheraController extends Controller
      */
     public function update(Request $request, Cochera $cochera)
     {
+        $this->authorizePermission('editar-cochera');
+
         $request->validate([
             'cliente_id' => 'required|exists:clientes,id',
             'placa' => 'required|string|max:20',
@@ -169,6 +181,8 @@ class CocheraController extends Controller
      */
     public function destroy(Cochera $cochera)
     {
+        $this->authorizePermission('eliminar-cochera');
+
         try {
             DB::beginTransaction();
             
@@ -190,6 +204,8 @@ class CocheraController extends Controller
      */
     public function finalizar(Request $request, Cochera $cochera)
     {
+        $this->authorizePermission('editar-cochera');
+
         try {
             DB::beginTransaction();
             
@@ -214,6 +230,8 @@ class CocheraController extends Controller
      */
     public function reportes(Request $request)
     {
+        $this->authorizePermission('reporte-cochera');
+
         $fechaInicio = $request->fecha_inicio ?? now()->startOfMonth()->format('Y-m-d');
         $fechaFin = $request->fecha_fin ?? now()->format('Y-m-d');
         

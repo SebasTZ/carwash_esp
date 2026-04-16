@@ -11,7 +11,15 @@ class StorePersonaRequest extends FormRequest
      */
     public function authorize(): bool
     {
-        return true;
+        $routeName = $this->route()?->getName();
+
+        $permission = match ($routeName) {
+            'clientes.store' => 'crear-cliente',
+            'proveedores.store' => 'crear-proveedor',
+            default => null,
+        };
+
+        return $permission !== null && (bool) $this->user()?->can($permission);
     }
 
     /**

@@ -17,6 +17,8 @@ class MantenimientoController extends Controller
      */
     public function index(Request $request)
     {
+        $this->authorizeAnyPermission(['ver-mantenimiento', 'crear-mantenimiento', 'editar-mantenimiento', 'eliminar-mantenimiento']);
+
         $query = Mantenimiento::with(['cliente.persona']);
         
         // Filtrar por estado
@@ -39,6 +41,8 @@ class MantenimientoController extends Controller
      */
     public function create()
     {
+        $this->authorizePermission('crear-mantenimiento');
+
         $clientes = Cliente::whereHas('persona',function($query){
             $query->where('estado', 1);
         })->get();
@@ -51,6 +55,8 @@ class MantenimientoController extends Controller
      */
     public function store(Request $request)
     {
+        $this->authorizePermission('crear-mantenimiento');
+
         $request->validate([
             'cliente_id' => 'required|exists:clientes,id',
             'placa' => 'required|string|max:20',
@@ -100,6 +106,8 @@ class MantenimientoController extends Controller
      */
     public function show(Mantenimiento $mantenimiento)
     {
+        $this->authorizeAnyPermission(['ver-mantenimiento', 'crear-mantenimiento', 'editar-mantenimiento', 'eliminar-mantenimiento']);
+
         return view('mantenimiento.show', compact('mantenimiento'));
     }
 
@@ -108,6 +116,8 @@ class MantenimientoController extends Controller
      */
     public function edit(Mantenimiento $mantenimiento)
     {
+        $this->authorizePermission('editar-mantenimiento');
+
         $clientes = Cliente::whereHas('persona',function($query){
             $query->where('estado', 1);
         })->get();
@@ -120,6 +130,8 @@ class MantenimientoController extends Controller
      */
     public function update(Request $request, Mantenimiento $mantenimiento)
     {
+        $this->authorizePermission('editar-mantenimiento');
+
         $request->validate([
             'cliente_id' => 'required|exists:clientes,id',
             'placa' => 'required|string|max:20',
@@ -173,6 +185,8 @@ class MantenimientoController extends Controller
      */
     public function destroy(Mantenimiento $mantenimiento)
     {
+        $this->authorizePermission('eliminar-mantenimiento');
+
         try {
             DB::beginTransaction();
             
@@ -194,6 +208,8 @@ class MantenimientoController extends Controller
      */
     public function cambiarEstado(Request $request, Mantenimiento $mantenimiento)
     {
+        $this->authorizePermission('editar-mantenimiento');
+
         $request->validate([
             'estado' => 'required|in:recibido,en_proceso,terminado,entregado',
         ]);
@@ -249,6 +265,8 @@ class MantenimientoController extends Controller
      */
     public function vincularVenta(Request $request, Mantenimiento $mantenimiento)
     {
+        $this->authorizePermission('editar-mantenimiento');
+
         $request->validate([
             'venta_id' => 'required|exists:ventas,id',
         ]);
@@ -284,6 +302,8 @@ class MantenimientoController extends Controller
      */
     public function reportes(Request $request)
     {
+        $this->authorizePermission('reporte-mantenimiento');
+
         $fechaInicio = $request->fecha_inicio ?? now()->startOfMonth()->format('Y-m-d');
         $fechaFin = $request->fecha_fin ?? now()->format('Y-m-d');
         

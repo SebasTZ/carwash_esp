@@ -10,6 +10,8 @@ class ConfiguracionNegocioController extends Controller
 
     public function edit()
     {
+        $this->authorizePermission('ver-configuracion');
+
         $configuracion = ConfiguracionNegocio::first();
         if (!$configuracion) {
             $configuracion = ConfiguracionNegocio::create([
@@ -23,6 +25,8 @@ class ConfiguracionNegocioController extends Controller
 
     public function update(Request $request)
     {
+        $this->authorizePermission('editar-configuracion');
+
         $request->validate([
             'nombre_negocio' => 'required|string|max:255',
             'direccion' => 'required|string|max:255',

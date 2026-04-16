@@ -4,12 +4,13 @@ namespace Database\Seeders;
 
 use Illuminate\Database\Seeder;
 use Spatie\Permission\Models\Permission;
+use Spatie\Permission\PermissionRegistrar;
 
 class PermissionSeeder extends Seeder
 {
-    public function run(): void
+    public static function permissions(): array
     {
-        $permisos = [
+        return [
             //categorías
             'ver-categoria',
             'crear-categoria',
@@ -81,7 +82,7 @@ class PermissionSeeder extends Seeder
             'editar-user',
             'eliminar-user',
 
-            //Perfil 
+            //Perfil
             'ver-perfil',
             'editar-perfil',
 
@@ -172,11 +173,21 @@ class PermissionSeeder extends Seeder
             'reporte-fidelidad',
             'exportar-fidelidad',
         ];
+    }
 
-        foreach($permisos as $permiso){
-            if (!Permission::where('name', $permiso)->exists()) {
-                Permission::create(['name' => $permiso]);
-            }
+    public function run(): void
+    {
+        app(PermissionRegistrar::class)->forgetCachedPermissions();
+
+        $guardName = config('auth.defaults.guard', 'web');
+
+        foreach (self::permissions() as $permiso) {
+            Permission::firstOrCreate([
+                'name' => $permiso,
+                'guard_name' => $guardName,
+            ]);
         }
+
+        app(PermissionRegistrar::class)->forgetCachedPermissions();
     }
 }

@@ -9,7 +9,7 @@
 <div class="container-fluid px-4">
     <div class="cw-page-header mt-4">
         <h1 class="cw-page-title">Presentaciones</h1>
-        @can('crear-presentacione')
+        @can('crear-presentacion')
         <div class="cw-page-actions">
             <a href="{{ route('presentaciones.create') }}" class="btn btn-primary">Agregar nuevo registro</a>
         </div>
@@ -51,7 +51,7 @@
 @push('js')
 <script type="application/json" id="presentaciones-index-config">{!! json_encode([
     'data' => $presentaciones->items(),
-    'canEdit' => auth()->user()->can('editar-presentacione'),
-    'canDelete' => auth()->user()->can('eliminar-presentacione'),
+    'canEdit' => auth()->user()->can('editar-presentacion'),
+    'canDelete' => auth()->user()->can('eliminar-presentacion'),
 ], JSON_HEX_TAG | JSON_HEX_APOS | JSON_HEX_AMP | JSON_HEX_QUOT) !!}</script>
 @endpush

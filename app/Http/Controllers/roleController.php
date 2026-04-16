@@ -11,7 +11,10 @@ use Spatie\Permission\Models\Role;
 
 class roleController extends Controller
 {
-    public function __construct(private AuthorizationAuditService $authorizationAuditService) {}
+    public function __construct(private AuthorizationAuditService $authorizationAuditService)
+    {
+        $this->authorizeResource(Role::class, 'role');
+    }
 
     /**
      * Display a listing of the resource.
@@ -80,9 +83,9 @@ class roleController extends Controller
     /**
      * Display the specified resource.
      */
-    public function show(string $id)
+    public function show(Role $role)
     {
-        //
+        return redirect()->route('roles.edit', $role);
     }
 
     /**

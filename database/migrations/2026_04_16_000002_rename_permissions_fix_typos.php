@@ -2,6 +2,7 @@
 
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Support\Facades\DB;
+use Spatie\Permission\PermissionRegistrar;
 
 return new class extends Migration
 {
@@ -18,11 +19,7 @@ return new class extends Migration
             'eliminar-proveedore'  => 'eliminar-proveedor',
         ];
 
-        foreach ($renames as $old => $new) {
-            DB::table('permissions')
-                ->where('name', $old)
-                ->update(['name' => $new]);
-        }
+        $this->applyRenames($renames);
     }
 
     public function down(): void
@@ -38,10 +35,55 @@ return new class extends Migration
             'eliminar-proveedor'  => 'eliminar-proveedore',
         ];
 
-        foreach ($renames as $old => $new) {
-            DB::table('permissions')
-                ->where('name', $old)
-                ->update(['name' => $new]);
-        }
+        $this->applyRenames($renames);
+    }
+
+    /**
+     * Aplica renombres de permisos de forma segura para evitar conflictos
+     * con el índice único (name, guard_name).
+     */
+    private function applyRenames(array $renames): void
+    {
+        $tableNames = config('permission.table_names');
+        $permissionPivotKey = app(PermissionRegistrar::class)->pivotPermission;
+
+        DB::transaction(function () use ($renames, $tableNames, $permissionPivotKey) {
+            foreach ($renames as $old => $new) {
+                $oldPermissions = DB::table($tableNames['permissions'])
+                    ->where('name', $old)
+                    ->get();
+
+                foreach ($oldPermissions as $oldPermission) {
+                    $targetPermission = DB::table($tableNames['permissions'])
+                        ->where('name', $new)
+                        ->where('guard_name', $oldPermission->guard_name)
+                        ->first();
+
+                    if ($targetPermission !== null) {
+                        DB::table($tableNames['role_has_permissions'])
+                            ->where($permissionPivotKey, $oldPermission->id)
+                            ->update([$permissionPivotKey => $targetPermission->id]);
+
+                        DB::table($tableNames['model_has_permissions'])
+                            ->where($permissionPivotKey, $oldPermission->id)
+                            ->update([$permissionPivotKey => $targetPermission->id]);
+
+                        DB::table($tableNames['permissions'])
+                            ->where('id', $oldPermission->id)
+                            ->delete();
+
+                        continue;
+                    }
+
+                    DB::table($tableNames['permissions'])
+                        ->where('id', $oldPermission->id)
+                        ->update(['name' => $new]);
+                }
+            }
+        });
+
+        app('cache')
+            ->store(config('permission.cache.store') !== 'default' ? config('permission.cache.store') : null)
+            ->forget(config('permission.cache.key'));
     }
 };

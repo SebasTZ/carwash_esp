@@ -7,15 +7,6 @@ use App\Models\User;
 
 class CitaPolicy
 {
-    public function before(User $user, string $ability): ?bool
-    {
-        if ($this->isPrivileged($user)) {
-            return true;
-        }
-
-        return null;
-    }
-
     public function viewAny(User $user): bool
     {
         return $user->canAny([
@@ -40,6 +31,10 @@ class CitaPolicy
             return false;
         }
 
+        if ($this->isPrivileged($user)) {
+            return true;
+        }
+
         return $this->ownsResource($user, $cita);
     }
 
@@ -54,6 +49,10 @@ class CitaPolicy
             return false;
         }
 
+        if ($this->isPrivileged($user)) {
+            return true;
+        }
+
         return $this->ownsResource($user, $cita);
     }
 
@@ -63,6 +62,10 @@ class CitaPolicy
             return false;
         }
 
+        if ($this->isPrivileged($user)) {
+            return true;
+        }
+
         return $this->ownsResource($user, $cita);
     }
 
@@ -70,6 +73,10 @@ class CitaPolicy
     {
         if (!$user->can('confirmar-cita')) {
             return false;
+        }
+
+        if ($this->isPrivileged($user)) {
+            return true;
         }
 
         return $this->ownsResource($user, $cita);

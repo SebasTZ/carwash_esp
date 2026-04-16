@@ -154,4 +154,28 @@ class ConfiguracionProfileControllerTest extends TestCase
 
         $response->assertSessionHasErrors('email');
     }
+
+    #[\PHPUnit\Framework\Attributes\Test]
+    public function profile_index_retorna_403_si_usuario_no_tiene_permiso()
+    {
+        $sinPermisos = User::factory()->create();
+
+        $response = $this->actingAs($sinPermisos)->get(route('profile.index'));
+
+        $response->assertStatus(403);
+    }
+
+    #[\PHPUnit\Framework\Attributes\Test]
+    public function profile_update_retorna_403_si_usuario_no_tiene_permiso()
+    {
+        $sinPermisos = User::factory()->create();
+
+        $response = $this->actingAs($sinPermisos)->put(route('profile.update', $sinPermisos), [
+            'name' => 'Sin Permiso',
+            'email' => 'sinpermiso@test.com',
+            'password' => '',
+        ]);
+
+        $response->assertStatus(403);
+    }
 }

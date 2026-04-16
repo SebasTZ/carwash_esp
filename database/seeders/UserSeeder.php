@@ -3,10 +3,12 @@
 namespace Database\Seeders;
 
 use App\Models\User;
-use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
+use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Str;
 use Spatie\Permission\Models\Permission;
 use Spatie\Permission\Models\Role;
+use Spatie\Permission\PermissionRegistrar;
 
 class UserSeeder extends Seeder
 {
@@ -15,20 +17,36 @@ class UserSeeder extends Seeder
      */
     public function run(): void
     {
+        app(PermissionRegistrar::class)->forgetCachedPermissions();
+
+        $guardName = config('auth.defaults.guard', 'web');
+
         // Crear usuario administrador solo si no existe
         $user = User::firstOrCreate(
             ['email' => 'admin@gmail.com'],
             [
                 'name' => 'Administrador',
-                'password' => bcrypt('12345678')
+                'password' => Hash::make($this->resolveAdminSeedPassword()),
             ]
         );
 
         // Crear rol administrador solo si no existe
-        $rol = Role::firstOrCreate(['name' => 'administrador']);
+        $rol = Role::firstOrCreate([
+            'name' => 'administrador',
+            'guard_name' => $guardName,
+        ]);
         
-        // Asignar todos los permisos al rol
-        $permisos = Permission::pluck('id', 'id')->all();
+        // Asignar permisos canónicos al rol administrador.
+        $adminPermissionNames = PermissionSeeder::permissions();
+        $permisos = Permission::whereIn('name', $adminPermissionNames)
+            ->where('guard_name', $guardName)
+            ->pluck('id')
+            ->all();
+
+        if (count($permisos) !== count($adminPermissionNames)) {
+            throw new \RuntimeException('No se pudieron resolver todos los permisos canónicos para el rol administrador.');
+        }
+
         $rol->syncPermissions($permisos);
         
         // Asignar rol al usuario si aún no lo tiene
@@ -37,7 +55,10 @@ class UserSeeder extends Seeder
         }
         
         // Ejemplo de rol para cajero con permisos limitados
-        $cajero = Role::firstOrCreate(['name' => 'cajero']);
+        $cajero = Role::firstOrCreate([
+            'name' => 'cajero',
+            'guard_name' => $guardName,
+        ]);
         $cajeroPermisos = [
             // Ventas (función principal del cajero)
             'ver-venta',
@@ -73,7 +94,10 @@ class UserSeeder extends Seeder
         $cajero->syncPermissions($cajeroPermisos);
 
         // Rol lavador: solo puede ver y actualizar estado de lavados asignados
-        $lavador = Role::firstOrCreate(['name' => 'lavador']);
+        $lavador = Role::firstOrCreate([
+            'name' => 'lavador',
+            'guard_name' => $guardName,
+        ]);
         $lavador->syncPermissions([
             'ver-control-lavado',
             'ver-cita',
@@ -82,7 +106,10 @@ class UserSeeder extends Seeder
         ]);
 
         // Rol supervisor: gestiona lavadores y controla el proceso
-        $supervisor = Role::firstOrCreate(['name' => 'supervisor']);
+        $supervisor = Role::firstOrCreate([
+            'name' => 'supervisor',
+            'guard_name' => $guardName,
+        ]);
         $supervisor->syncPermissions([
             'ver-control-lavado',
             'crear-control-lavado',
@@ -97,7 +124,10 @@ class UserSeeder extends Seeder
         ]);
 
         // Rol contador: acceso a todos los reportes y exports, sin CRUD
-        $contador = Role::firstOrCreate(['name' => 'contador']);
+        $contador = Role::firstOrCreate([
+            'name' => 'contador',
+            'guard_name' => $guardName,
+        ]);
         $contador->syncPermissions([
             'ver-venta',
             'mostrar-venta',
@@ -122,5 +152,19 @@ class UserSeeder extends Seeder
             'ver-perfil',
             'editar-perfil',
         ]);
+
+        app(PermissionRegistrar::class)->forgetCachedPermissions();
+    }
+
+    private function resolveAdminSeedPassword(): string
+    {
+        $seedPassword = env('SEED_ADMIN_PASSWORD');
+
+        if (is_string($seedPassword) && trim($seedPassword) !== '') {
+            return $seedPassword;
+        }
+
+        // Evita credenciales débiles hardcodeadas cuando no se configura SEED_ADMIN_PASSWORD.
+        return Str::random(32);
     }
 }

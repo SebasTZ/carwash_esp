@@ -24,8 +24,12 @@ class VentaCreateLivewireIntegrationTest extends TestCase
         ]);
 
         app(\Spatie\Permission\PermissionRegistrar::class)->forgetCachedPermissions();
+        $permisoCrearVenta = \Spatie\Permission\Models\Permission::findOrCreate('crear-venta');
+        $rolCajero = \Spatie\Permission\Models\Role::findOrCreate('cajero');
+        $rolCajero->givePermissionTo($permisoCrearVenta);
+
         $user = User::factory()->create();
-        $user->assignRole(\Spatie\Permission\Models\Role::findOrCreate('cajero'));
+        $user->assignRole($rolCajero);
         $this->actingAs($user);
 
         $response = $this->get(route('ventas.create'));

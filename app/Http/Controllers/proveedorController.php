@@ -18,6 +18,8 @@ class proveedorController extends Controller
      */
     public function index()
     {
+        $this->authorizeAnyPermission(['ver-proveedor', 'crear-proveedor', 'editar-proveedor', 'eliminar-proveedor']);
+
         $proveedores = Proveedore::with('persona.documento')->paginate(15);
         return view('proveedore.index', compact('proveedores'));
     }
@@ -27,6 +29,8 @@ class proveedorController extends Controller
      */
     public function create()
     {
+        $this->authorizePermission('crear-proveedor');
+
         $documentos = Documento::all();
         return view('proveedore.create', compact('documentos'));
     }
@@ -36,6 +40,8 @@ class proveedorController extends Controller
      */
     public function store(StorePersonaRequest $request)
     {
+        $this->authorizePermission('crear-proveedor');
+
         try {
             DB::beginTransaction();
             $persona = Persona::create($request->validated());
@@ -64,6 +70,8 @@ class proveedorController extends Controller
      */
     public function edit(Proveedore $proveedore)
     {
+        $this->authorizePermission('editar-proveedor');
+
         $proveedore->load('persona.documento');
         $documentos = Documento::all();
         return view('proveedore.edit', compact('proveedore', 'documentos'));
@@ -74,6 +82,8 @@ class proveedorController extends Controller
      */
     public function update(UpdateProveedoreRequest $request, Proveedore $proveedore)
     {
+        $this->authorizePermission('editar-proveedor');
+
         try {
             DB::beginTransaction();
 
@@ -94,6 +104,8 @@ class proveedorController extends Controller
      */
     public function destroy(Proveedore $proveedore)
     {
+        $this->authorizePermission('eliminar-proveedor');
+
         $persona = $proveedore->persona;
         if ($persona->estado == 1) {
             $persona->update(['estado' => 0]);

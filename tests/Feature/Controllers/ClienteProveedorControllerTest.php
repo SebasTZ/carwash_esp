@@ -28,7 +28,7 @@ class ClienteProveedorControllerTest extends TestCase
         $role = Role::create(['name' => 'admin']);
         $permisos = [
             'ver-cliente', 'crear-cliente', 'editar-cliente', 'eliminar-cliente',
-            'ver-proveedore', 'crear-proveedore', 'editar-proveedore', 'eliminar-proveedore',
+            'ver-proveedor', 'crear-proveedor', 'editar-proveedor', 'eliminar-proveedor',
         ];
         foreach ($permisos as $p) {
             Permission::create(['name' => $p]);
