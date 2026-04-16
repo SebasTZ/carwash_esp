@@ -2,12 +2,15 @@
 
 namespace App\Livewire\Citas;
 
+use App\Livewire\Concerns\AuthorizesLivewirePermissions;
 use App\Models\Cita;
 use Illuminate\Support\Facades\DB;
 use Livewire\Component;
 
 class DashboardCards extends Component
 {
+    use AuthorizesLivewirePermissions;
+
     public function iniciar(int $citaId): void
     {
         if (!$this->autorizaCambioEstado()) {
@@ -42,7 +45,7 @@ class DashboardCards extends Component
 
     public function render()
     {
-        abort_unless(auth()->user()?->can('calendario-cita'), 403);
+        $this->ensurePermission('calendario-cita');
 
         $citas = Cita::with('cliente.persona')
             ->whereDate('fecha', now()->toDateString())
@@ -55,7 +58,7 @@ class DashboardCards extends Component
             'enProceso' => $citas->where('estado', 'en_proceso')->sortBy('posicion_cola')->values(),
             'completadas' => $citas->where('estado', 'completada')->sortBy('posicion_cola')->values(),
             'canceladas' => $citas->where('estado', 'cancelada')->sortBy('posicion_cola')->values(),
-            'permiteConfirmar' => (bool) (auth()->user()?->can('confirmar-cita') ?? false),
+            'permiteConfirmar' => $this->hasPermission('confirmar-cita'),
         ]);
     }
 
@@ -84,7 +87,7 @@ class DashboardCards extends Component
 
     private function autorizaCambioEstado(): bool
     {
-        if (!(auth()->user()?->can('confirmar-cita') ?? false)) {
+        if (!$this->hasPermission('confirmar-cita')) {
             session()->flash('error', 'No tiene permisos para cambiar el estado de citas.');
             return false;
         }

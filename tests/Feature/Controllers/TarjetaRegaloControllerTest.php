@@ -21,15 +21,19 @@ class TarjetaRegaloControllerTest extends TestCase
     {
         parent::setUp();
 
-        $this->withoutMiddleware([
-            \Illuminate\Auth\Middleware\Authenticate::class,
-            \Illuminate\Auth\Middleware\Authorize::class,
-            \Spatie\Permission\Middleware\PermissionMiddleware::class,
-            \Spatie\Permission\Middleware\RoleMiddleware::class,
-            \Spatie\Permission\Middleware\RoleOrPermissionMiddleware::class,
-        ]);
+        \Spatie\Permission\Models\Permission::create(['name' => 'ver-tarjeta-regalo']);
+        \Spatie\Permission\Models\Permission::create(['name' => 'crear-tarjeta-regalo']);
+        \Spatie\Permission\Models\Permission::create(['name' => 'editar-tarjeta-regalo']);
+        \Spatie\Permission\Models\Permission::create(['name' => 'eliminar-tarjeta-regalo']);
+        \Spatie\Permission\Models\Permission::create(['name' => 'reporte-tarjeta-regalo']);
+        \Spatie\Permission\Models\Permission::create(['name' => 'historial-tarjeta-regalo']);
+        \Spatie\Permission\Models\Permission::create(['name' => 'exportar-tarjeta-regalo']);
+
+        $role = \Spatie\Permission\Models\Role::create(['name' => 'admin-tarjeta-test']);
+        $role->givePermissionTo(['ver-tarjeta-regalo','crear-tarjeta-regalo','editar-tarjeta-regalo','eliminar-tarjeta-regalo','reporte-tarjeta-regalo','historial-tarjeta-regalo','exportar-tarjeta-regalo']);
 
         $this->user = User::factory()->create();
+        $this->user->assignRole('admin-tarjeta-test');
         $this->actingAs($this->user);
 
         $documento = Documento::factory()->create();
@@ -135,5 +139,21 @@ class TarjetaRegaloControllerTest extends TestCase
             'valor_inicial' => '200.00',
             'estado' => 'vencida',
         ]);
+    }
+
+    #[\PHPUnit\Framework\Attributes\Test]
+    public function index_retorna_403_si_usuario_no_tiene_permiso(): void
+    {
+        $sinPermisos = User::factory()->create();
+        $this->actingAs($sinPermisos);
+        $this->get(route('tarjetas_regalo.index'))->assertStatus(403);
+    }
+
+    #[\PHPUnit\Framework\Attributes\Test]
+    public function store_retorna_403_si_usuario_no_tiene_permiso(): void
+    {
+        $sinPermisos = User::factory()->create();
+        $this->actingAs($sinPermisos);
+        $this->post(route('tarjetas_regalo.store'), [])->assertStatus(403);
     }
 }

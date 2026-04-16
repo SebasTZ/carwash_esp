@@ -44,6 +44,16 @@ class UserRoleControllerTest extends TestCase
     }
 
     #[\PHPUnit\Framework\Attributes\Test]
+    public function users_index_retorna_403_si_no_tiene_permiso()
+    {
+        $usuarioSinPermiso = User::factory()->create(['estado' => 1]);
+
+        $response = $this->actingAs($usuarioSinPermiso)->get(route('users.index'));
+
+        $response->assertForbidden();
+    }
+
+    #[\PHPUnit\Framework\Attributes\Test]
     public function users_store_crea_usuario_y_asigna_rol()
     {
         Role::create(['name' => 'cajero']);
@@ -138,6 +148,16 @@ class UserRoleControllerTest extends TestCase
         $response = $this->actingAs($this->admin)->get(route('roles.index'));
         $response->assertStatus(200);
         $response->assertViewIs('role.index');
+    }
+
+    #[\PHPUnit\Framework\Attributes\Test]
+    public function roles_index_retorna_403_si_no_tiene_permiso()
+    {
+        $usuarioSinPermiso = User::factory()->create(['estado' => 1]);
+
+        $response = $this->actingAs($usuarioSinPermiso)->get(route('roles.index'));
+
+        $response->assertForbidden();
     }
 
     #[\PHPUnit\Framework\Attributes\Test]

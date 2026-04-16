@@ -96,6 +96,16 @@ class CitaControllerTest extends TestCase
     }
 
     #[\PHPUnit\Framework\Attributes\Test]
+    public function dashboard_retorna_403_si_usuario_no_tiene_permiso()
+    {
+        $usuarioSinPermisos = User::factory()->create();
+
+        $response = $this->actingAs($usuarioSinPermisos)->get(route('citas.dashboard'));
+
+        $response->assertForbidden();
+    }
+
+    #[\PHPUnit\Framework\Attributes\Test]
     public function store_asigna_siguiente_posicion_en_cola()
     {
         $fecha = now()->addDay()->toDateString();
@@ -201,5 +211,46 @@ class CitaControllerTest extends TestCase
             'id' => $cita->id,
             'estado' => 'pendiente',
         ]);
+    }
+
+    #[\PHPUnit\Framework\Attributes\Test]
+    public function update_retorna_403_si_no_es_propietario_de_la_cita()
+    {
+        $duenio = User::factory()->create();
+        $duenio->givePermissionTo(['editar-cita']);
+
+        $cita = Cita::factory()->create([
+            'cliente_id' => $this->cliente->id,
+            'user_id' => $duenio->id,
+            'fecha' => now()->addDay()->toDateString(),
+            'hora' => '11:00',
+            'estado' => 'pendiente',
+        ]);
+
+        $response = $this->actingAs($this->user)->put(route('citas.update', $cita), [
+            'fecha' => now()->addDays(3)->toDateString(),
+            'hora' => '12:00',
+            'notas' => 'Intento sin propiedad',
+        ]);
+
+        $response->assertForbidden();
+    }
+
+    #[\PHPUnit\Framework\Attributes\Test]
+    public function iniciar_cita_retorna_403_si_no_es_propietario()
+    {
+        $duenio = User::factory()->create();
+        $duenio->givePermissionTo(['confirmar-cita']);
+
+        $cita = Cita::factory()->create([
+            'cliente_id' => $this->cliente->id,
+            'user_id' => $duenio->id,
+            'fecha' => now()->toDateString(),
+            'estado' => 'pendiente',
+        ]);
+
+        $response = $this->actingAs($this->user)->post(route('citas.iniciar', $cita));
+
+        $response->assertForbidden();
     }
 }

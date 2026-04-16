@@ -13,6 +13,10 @@ use Maatwebsite\Excel\Facades\Excel;
 
 class CitaController extends Controller
 {
+    public function __construct()
+    {
+        $this->authorizeResource(Cita::class, 'cita');
+    }
 
     /**
      * Display a listing of the resource.
@@ -20,6 +24,14 @@ class CitaController extends Controller
     public function index(Request $request)
     {
         $query = Cita::with('cliente.persona');
+
+        if (!$this->canManageAllCitas()) {
+            $query->where(function ($ownershipQuery) {
+                $ownershipQuery
+                    ->where('user_id', auth()->id())
+                    ->orWhereNull('user_id');
+            });
+        }
 
         // Filter by status if provided
         if ($request->has('estado') && $request->estado != '') {
@@ -79,6 +91,7 @@ class CitaController extends Controller
             'posicion_cola' => $posicionCola,
             'estado' => 'pendiente',
             'notas' => $request->notas,
+            'user_id' => auth()->id(),
         ]);
 
         return redirect()->route('citas.index')
@@ -145,6 +158,8 @@ class CitaController extends Controller
      */
     public function iniciarCita(Cita $cita)
     {
+        $this->authorize('confirm', $cita);
+
         if (!$this->canTransitionCita($cita->estado, 'en_proceso')) {
             return $this->invalidCitaTransitionResponse($cita->estado, 'en_proceso');
         }
@@ -164,6 +179,8 @@ class CitaController extends Controller
      */
     public function completarCita(Cita $cita)
     {
+        $this->authorize('confirm', $cita);
+
         if (!$this->canTransitionCita($cita->estado, 'completada')) {
             return $this->invalidCitaTransitionResponse($cita->estado, 'completada');
         }
@@ -183,6 +200,8 @@ class CitaController extends Controller
      */
     public function cancelarCita(Cita $cita)
     {
+        $this->authorize('confirm', $cita);
+
         if (!$this->canTransitionCita($cita->estado, 'cancelada')) {
             return $this->invalidCitaTransitionResponse($cita->estado, 'cancelada');
         }
@@ -230,6 +249,8 @@ class CitaController extends Controller
      */
     public function saveClient(Request $request)
     {
+        $this->authorize('create', Cita::class);
+
         // Validar datos del nuevo cliente
         $validatedData = $request->validate([
             'razon_social' => 'required|string|max:80',
@@ -301,12 +322,24 @@ class CitaController extends Controller
      */
     public function dashboard()
     {
+        $this->authorize('viewCalendar', Cita::class);
+
         return view('citas.dashboard');
     }
 
     public function exportDiario()
     {   
+        $this->authorize('export', Cita::class);
+
         $citas = Cita::whereDate('fecha', now()->toDateString())
+            ->when(
+                !$this->canManageAllCitas(),
+                fn ($query) => $query->where(function ($ownershipQuery) {
+                    $ownershipQuery
+                        ->where('user_id', auth()->id())
+                        ->orWhereNull('user_id');
+                })
+            )
             ->with(['cliente.persona'])
             ->get();
 
@@ -315,7 +348,17 @@ class CitaController extends Controller
 
     public function exportSemanal()
     {
+        $this->authorize('export', Cita::class);
+
         $citas = Cita::whereBetween('fecha', [now()->startOfWeek(), now()->endOfWeek()])
+            ->when(
+                !$this->canManageAllCitas(),
+                fn ($query) => $query->where(function ($ownershipQuery) {
+                    $ownershipQuery
+                        ->where('user_id', auth()->id())
+                        ->orWhereNull('user_id');
+                })
+            )
             ->with(['cliente.persona'])
             ->get();
 
@@ -324,7 +367,17 @@ class CitaController extends Controller
 
     public function exportMensual()
     {
+        $this->authorize('export', Cita::class);
+
         $citas = Cita::whereMonth('fecha', now()->month)
+            ->when(
+                !$this->canManageAllCitas(),
+                fn ($query) => $query->where(function ($ownershipQuery) {
+                    $ownershipQuery
+                        ->where('user_id', auth()->id())
+                        ->orWhereNull('user_id');
+                })
+            )
             ->with(['cliente.persona'])
             ->get();
 
@@ -333,13 +386,28 @@ class CitaController extends Controller
 
     public function exportPersonalizado(Request $request)
     {
+        $this->authorize('export', Cita::class);
+
         $fechaInicio = $request->fecha_inicio;
         $fechaFin = $request->fecha_fin;
 
         $citas = Cita::whereBetween('fecha', [$fechaInicio, $fechaFin])
+            ->when(
+                !$this->canManageAllCitas(),
+                fn ($query) => $query->where(function ($ownershipQuery) {
+                    $ownershipQuery
+                        ->where('user_id', auth()->id())
+                        ->orWhereNull('user_id');
+                })
+            )
             ->with(['cliente.persona'])
             ->get();
 
         return Excel::download(new CitasExport($citas), "citas_{$fechaInicio}_a_{$fechaFin}.xlsx");
+    }
+
+    private function canManageAllCitas(): bool
+    {
+        return auth()->user()?->hasAnyRole(['admin', 'superadmin', 'administrador']) ?? false;
     }
 }

@@ -11,6 +11,7 @@ class Cita extends Model
 
     protected $fillable = [
         'cliente_id',
+        'user_id',
         'fecha',
         'hora',
         'posicion_cola',
@@ -26,6 +27,11 @@ class Cita extends Model
     public function cliente()
     {
         return $this->belongsTo(Cliente::class);
+    }
+
+    public function user()
+    {
+        return $this->belongsTo(User::class);
     }
 
     // Get the next available queue position for a given date

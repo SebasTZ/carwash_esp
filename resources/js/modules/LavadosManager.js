@@ -6,6 +6,7 @@
  */
 
 import axios from 'axios';
+import * as bootstrap from 'bootstrap';
 import { showError, showSuccess } from '@utils/notifications';
 
 /**

@@ -3,6 +3,8 @@
  * Inicializa componentes Bootstrap y plugins relacionados
  */
 
+import * as bootstrap from 'bootstrap';
+
 /**
  * Inicializa todos los tooltips de la página
  * @param {string} selector - Selector CSS para tooltips (default: '[data-bs-toggle="tooltip"]')

@@ -58,7 +58,7 @@
                     Clientes
                 </a>
                 @endcan
-                @canany(['ver-tarjeta-regalo','crear-tarjeta-regalo','ver-historial-uso-tarjeta-regalo','editar-tarjeta-regalo'])
+                @canany(['ver-tarjeta-regalo','crear-tarjeta-regalo','historial-tarjeta-regalo','ver-historial-uso-tarjeta-regalo','editar-tarjeta-regalo'])
                 <a class="nav-link {{ $isActive(['tarjetas_regalo.*']) ? '' : 'collapsed' }} {{ $isActive(['tarjetas_regalo.*']) ? 'active' : '' }}" href="#" data-bs-toggle="collapse" data-bs-target="#collapseGiftCards" aria-expanded="{{ $isActive(['tarjetas_regalo.*']) ? 'true' : 'false' }}">
                     <div class="sb-nav-link-icon"><i class="fa-solid fa-gift"></i></div>
                     Tarjetas de Regalo
@@ -109,7 +109,7 @@
                     Categorías
                 </a>
                 @endcan
-                @can('ver-presentacione')
+                @can('ver-presentacion')
                 <a class="nav-link {{ $isActive(['presentaciones.*']) ? 'active' : '' }}" href="{{ route('presentaciones.index') }}">
                     <div class="sb-nav-link-icon"><i class="fa-solid fa-box-archive"></i></div>
                     Presentaciones
@@ -154,7 +154,7 @@
                     </nav>
                 </div>
                 @endcan
-                @can('ver-proveedore')
+                @can('ver-proveedor')
                 <a class="nav-link {{ $isActive(['proveedores.*']) ? 'active' : '' }}" href="{{ route('proveedores.index') }}">
                     <div class="sb-nav-link-icon"><i class="fa-solid fa-user-group"></i></div>
                     Proveedores

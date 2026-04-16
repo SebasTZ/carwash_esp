@@ -22,15 +22,15 @@ class PagoComisionControllerTest extends TestCase
     {
         parent::setUp();
 
-        $this->withoutMiddleware([
-            \Illuminate\Auth\Middleware\Authenticate::class,
-            \Illuminate\Auth\Middleware\Authorize::class,
-            \Spatie\Permission\Middleware\PermissionMiddleware::class,
-            \Spatie\Permission\Middleware\RoleMiddleware::class,
-            \Spatie\Permission\Middleware\RoleOrPermissionMiddleware::class,
-        ]);
+        \Spatie\Permission\Models\Permission::create(['name' => 'ver-pago-comision']);
+        \Spatie\Permission\Models\Permission::create(['name' => 'crear-pago-comision']);
+        \Spatie\Permission\Models\Permission::create(['name' => 'ver-historial-pago-comision']);
+
+        $role = \Spatie\Permission\Models\Role::create(['name' => 'admin-pago-test']);
+        $role->givePermissionTo(['ver-pago-comision','crear-pago-comision','ver-historial-pago-comision']);
 
         $this->user = User::factory()->create();
+        $this->user->assignRole('admin-pago-test');
         $this->actingAs($this->user);
 
         $this->comisionServiceMock = Mockery::mock(ComisionService::class)->shouldIgnoreMissing();
@@ -151,5 +151,21 @@ class PagoComisionControllerTest extends TestCase
         $response->assertOk();
         $response->assertViewIs('pagos_comisiones.reporte');
         $response->assertViewHas('data', $dataEsperada);
+    }
+
+    #[\PHPUnit\Framework\Attributes\Test]
+    public function index_retorna_403_si_usuario_no_tiene_permiso(): void
+    {
+        $sinPermisos = User::factory()->create();
+        $this->actingAs($sinPermisos);
+        $this->get(route('pagos_comisiones.index'))->assertStatus(403);
+    }
+
+    #[\PHPUnit\Framework\Attributes\Test]
+    public function store_retorna_403_si_usuario_no_tiene_permiso(): void
+    {
+        $sinPermisos = User::factory()->create();
+        $this->actingAs($sinPermisos);
+        $this->post(route('pagos_comisiones.store'), [])->assertStatus(403);
     }
 }

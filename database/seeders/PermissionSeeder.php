@@ -40,11 +40,11 @@ class PermissionSeeder extends Seeder
             'editar-marca',
             'eliminar-marca',
 
-            //Presentacione
-            'ver-presentacione',
-            'crear-presentacione',
-            'editar-presentacione',
-            'eliminar-presentacione',
+            //Presentacion
+            'ver-presentacion',
+            'crear-presentacion',
+            'editar-presentacion',
+            'eliminar-presentacion',
 
             //Producto
             'ver-producto',
@@ -52,11 +52,11 @@ class PermissionSeeder extends Seeder
             'editar-producto',
             'eliminar-producto',
 
-            //Proveedore
-            'ver-proveedore',
-            'crear-proveedore',
-            'editar-proveedore',
-            'eliminar-proveedore',
+            //Proveedor
+            'ver-proveedor',
+            'crear-proveedor',
+            'editar-proveedor',
+            'eliminar-proveedor',
 
             //Venta
             'ver-venta',
@@ -163,6 +163,7 @@ class PermissionSeeder extends Seeder
             'eliminar-tarjeta-regalo',
             'reporte-tarjeta-regalo',
             'historial-tarjeta-regalo',
+            'ver-historial-uso-tarjeta-regalo',
             'exportar-tarjeta-regalo',
 
             // Fidelidad de Clientes

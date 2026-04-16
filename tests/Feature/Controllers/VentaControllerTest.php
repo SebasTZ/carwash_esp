@@ -28,24 +28,30 @@ class VentaControllerTest extends TestCase
         app(PermissionRegistrar::class)->forgetCachedPermissions();
 
         foreach ([
+            'ver-venta',
+            'mostrar-venta',
             'crear-venta',
             'eliminar-venta',
             'reporte-diario-venta',
             'reporte-semanal-venta',
             'reporte-mensual-venta',
             'reporte-personalizado-venta',
+            'exportar-reporte-venta',
         ] as $perm) {
             Permission::findOrCreate($perm);
         }
 
         $this->user = User::factory()->create(['name' => 'Tester']);
         $this->user->givePermissionTo([
+            'ver-venta',
+            'mostrar-venta',
             'crear-venta',
             'eliminar-venta',
             'reporte-diario-venta',
             'reporte-semanal-venta',
             'reporte-mensual-venta',
             'reporte-personalizado-venta',
+            'exportar-reporte-venta',
         ]);
 
         $this->actingAs($this->user);
@@ -132,6 +138,45 @@ class VentaControllerTest extends TestCase
 
         $venta->refresh();
         $this->assertStringContainsString('Anulada por usuario Tester', (string) $venta->comentarios);
+    }
+
+    #[\PHPUnit\Framework\Attributes\Test]
+    public function show_retorna_403_si_intenta_ver_venta_de_otro_usuario()
+    {
+        $duenioVenta = User::factory()->create();
+        $duenioVenta->givePermissionTo(['ver-venta', 'mostrar-venta']);
+
+        $usuarioSinPropiedad = User::factory()->create();
+        $usuarioSinPropiedad->givePermissionTo(['ver-venta', 'mostrar-venta']);
+
+        $venta = Venta::factory()->create([
+            'cliente_id' => $this->cliente->id,
+            'comprobante_id' => $this->comprobante->id,
+            'user_id' => $duenioVenta->id,
+            'estado' => 1,
+        ]);
+
+        $response = $this->actingAs($usuarioSinPropiedad)->get(route('ventas.show', $venta));
+
+        $response->assertForbidden();
+    }
+
+    #[\PHPUnit\Framework\Attributes\Test]
+    public function destroy_retorna_403_si_intenta_anular_venta_de_otro_usuario()
+    {
+        $venta = Venta::factory()->create([
+            'cliente_id' => $this->cliente->id,
+            'comprobante_id' => $this->comprobante->id,
+            'user_id' => $this->user->id,
+            'estado' => 1,
+        ]);
+
+        $usuarioSinPropiedad = User::factory()->create();
+        $usuarioSinPropiedad->givePermissionTo('eliminar-venta');
+
+        $response = $this->actingAs($usuarioSinPropiedad)->delete(route('ventas.destroy', $venta));
+
+        $response->assertForbidden();
     }
 
     #[\PHPUnit\Framework\Attributes\Test]

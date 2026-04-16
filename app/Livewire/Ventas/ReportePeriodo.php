@@ -2,11 +2,13 @@
 
 namespace App\Livewire\Ventas;
 
+use App\Livewire\Concerns\AuthorizesLivewirePermissions;
 use App\Livewire\Concerns\FiltraVentas;
 use Livewire\Component;
 
 class ReportePeriodo extends Component
 {
+    use AuthorizesLivewirePermissions;
     use FiltraVentas;
 
     public string $reporte = 'diario';
@@ -19,12 +21,11 @@ class ReportePeriodo extends Component
 
     public function mount(string $reporte = 'diario', $ventas = []): void
     {
-        abort_unless(
-            auth()->user()?->can('reporte-diario-venta')
-            || auth()->user()?->can('reporte-semanal-venta')
-            || auth()->user()?->can('reporte-mensual-venta'),
-            403
-        );
+        $this->ensureAnyPermission([
+            'reporte-diario-venta',
+            'reporte-semanal-venta',
+            'reporte-mensual-venta',
+        ]);
 
         $this->reporte = trim((string) $reporte) !== '' ? (string) $reporte : 'diario';
         $this->ventas = collect($ventas)->values()->all();

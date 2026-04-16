@@ -2,6 +2,7 @@
 
 namespace App\Livewire\Ventas;
 
+use App\Livewire\Concerns\AuthorizesLivewirePermissions;
 use App\Livewire\Concerns\FiltraVentas;
 use App\Repositories\VentaRepository;
 use App\Support\VentaTransformer;
@@ -10,6 +11,7 @@ use Livewire\Component;
 
 class ReportePersonalizado extends Component
 {
+    use AuthorizesLivewirePermissions;
     use FiltraVentas;
 
     public string $fechaInicio = '';
@@ -23,7 +25,7 @@ class ReportePersonalizado extends Component
 
     public function mount(?string $fechaInicio = null, ?string $fechaFin = null): void
     {
-        abort_unless(auth()->user()?->can('reporte-personalizado-venta'), 403);
+        $this->ensurePermission('reporte-personalizado-venta');
 
         $this->fechaInicio = trim((string) ($fechaInicio ?? ''));
         $this->fechaFin = trim((string) ($fechaFin ?? ''));
@@ -43,14 +45,14 @@ class ReportePersonalizado extends Component
 
     public function filtrar(): void
     {
-        abort_unless(auth()->user()?->can('reporte-personalizado-venta'), 403);
+        $this->ensurePermission('reporte-personalizado-venta');
         $this->validate();
         $this->loadVentas();
     }
 
     public function resetFiltros(): void
     {
-        abort_unless(auth()->user()?->can('reporte-personalizado-venta'), 403);
+        $this->ensurePermission('reporte-personalizado-venta');
 
         $this->fechaInicio = '';
         $this->fechaFin = '';
@@ -76,7 +78,7 @@ class ReportePersonalizado extends Component
             $fechaFin
         )->reject(fn ($venta) => in_array($venta->medio_pago, ['tarjeta_regalo', 'lavado_gratis'], true));
 
-        if (!auth()->user()?->hasAnyRole(['admin', 'superadmin', 'administrador'])) {
+        if (!$this->isPrivilegedUser()) {
             $ventasRaw = $ventasRaw->filter(fn ($venta) => $venta->user_id === auth()->id());
         }
 

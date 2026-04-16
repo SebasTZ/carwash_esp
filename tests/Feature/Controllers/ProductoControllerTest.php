@@ -8,6 +8,8 @@ use App\Models\Presentacione;
 use App\Models\Producto;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Spatie\Permission\Models\Permission;
+use Spatie\Permission\Models\Role;
 use Tests\TestCase;
 
 class ProductoControllerTest extends TestCase
@@ -20,15 +22,17 @@ class ProductoControllerTest extends TestCase
     {
         parent::setUp();
 
-        $this->withoutMiddleware([
-            \Illuminate\Auth\Middleware\Authenticate::class,
-            \Illuminate\Auth\Middleware\Authorize::class,
-            \Spatie\Permission\Middleware\PermissionMiddleware::class,
-            \Spatie\Permission\Middleware\RoleMiddleware::class,
-            \Spatie\Permission\Middleware\RoleOrPermissionMiddleware::class,
-        ]);
+        // Crear permisos necesarios para productos
+        Permission::create(['name' => 'ver-producto']);
+        Permission::create(['name' => 'crear-producto']);
+        Permission::create(['name' => 'editar-producto']);
+        Permission::create(['name' => 'eliminar-producto']);
+
+        $role = Role::create(['name' => 'admin-test']);
+        $role->givePermissionTo(['ver-producto', 'crear-producto', 'editar-producto', 'eliminar-producto']);
 
         $this->user = User::factory()->create();
+        $this->user->assignRole('admin-test');
         $this->actingAs($this->user);
     }
 
@@ -135,5 +139,27 @@ class ProductoControllerTest extends TestCase
             'id' => $producto->id,
             'estado' => 1,
         ]);
+    }
+
+    #[\PHPUnit\Framework\Attributes\Test]
+    public function index_retorna_403_si_usuario_no_tiene_permiso()
+    {
+        $sinPermisos = User::factory()->create();
+        $this->actingAs($sinPermisos);
+
+        $response = $this->get(route('productos.index'));
+
+        $response->assertStatus(403);
+    }
+
+    #[\PHPUnit\Framework\Attributes\Test]
+    public function store_retorna_403_si_usuario_no_tiene_permiso()
+    {
+        $sinPermisos = User::factory()->create();
+        $this->actingAs($sinPermisos);
+
+        $response = $this->post(route('productos.store'), []);
+
+        $response->assertStatus(403);
     }
 }

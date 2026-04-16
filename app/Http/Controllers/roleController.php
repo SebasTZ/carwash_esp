@@ -2,7 +2,7 @@
 
 namespace App\Http\Controllers;
 
-use App\Helpers\PermissionHelper;
+use App\Services\AuthorizationAuditService;
 use Exception;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -11,6 +11,8 @@ use Spatie\Permission\Models\Role;
 
 class roleController extends Controller
 {
+    public function __construct(private AuthorizationAuditService $authorizationAuditService) {}
+
     /**
      * Display a listing of the resource.
      */
@@ -57,6 +59,15 @@ class roleController extends Controller
             DB::beginTransaction();
             $rol = Role::create(['name' => $request->name]);
             $rol->syncPermissions($request->permission);
+
+            $this->authorizationAuditService->logRolePermissionsSynced(
+                auth()->user(),
+                $rol,
+                [],
+                $rol->permissions()->pluck('name')->all(),
+                'created'
+            );
+
             DB::commit();
         } catch (Exception $e) {
             DB::rollBack();
@@ -96,8 +107,19 @@ class roleController extends Controller
 
         try {
             DB::beginTransaction();
+
+            $permisosAntes = $role->permissions()->pluck('name')->all();
             $role->update(['name' => $request->name]);
             $role->syncPermissions($request->permission);
+
+            $this->authorizationAuditService->logRolePermissionsSynced(
+                auth()->user(),
+                $role,
+                $permisosAntes,
+                $role->permissions()->pluck('name')->all(),
+                'updated'
+            );
+
             DB::commit();
         } catch (Exception $e) {
             DB::rollBack();
@@ -112,6 +134,10 @@ class roleController extends Controller
      */
     public function destroy(Role $role)
     {
+        $permisosAsociados = $role->permissions()->pluck('name')->all();
+
+        $this->authorizationAuditService->logRoleDeleted(auth()->user(), $role, $permisosAsociados);
+
         $role->delete();
 
         return redirect()->route('roles.index')->with('success', 'Rol eliminado');

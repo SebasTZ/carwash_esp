@@ -22,15 +22,17 @@ class MantenimientoControllerTest extends TestCase
     {
         parent::setUp();
 
-        $this->withoutMiddleware([
-            \Illuminate\Auth\Middleware\Authenticate::class,
-            \Illuminate\Auth\Middleware\Authorize::class,
-            \Spatie\Permission\Middleware\PermissionMiddleware::class,
-            \Spatie\Permission\Middleware\RoleMiddleware::class,
-            \Spatie\Permission\Middleware\RoleOrPermissionMiddleware::class,
-        ]);
+        \Spatie\Permission\Models\Permission::create(['name' => 'ver-mantenimiento']);
+        \Spatie\Permission\Models\Permission::create(['name' => 'crear-mantenimiento']);
+        \Spatie\Permission\Models\Permission::create(['name' => 'editar-mantenimiento']);
+        \Spatie\Permission\Models\Permission::create(['name' => 'eliminar-mantenimiento']);
+        \Spatie\Permission\Models\Permission::create(['name' => 'reporte-mantenimiento']);
+
+        $role = \Spatie\Permission\Models\Role::create(['name' => 'admin-mant-test']);
+        $role->givePermissionTo(['ver-mantenimiento','crear-mantenimiento','editar-mantenimiento','eliminar-mantenimiento','reporte-mantenimiento']);
 
         $this->user = User::factory()->create();
+        $this->user->assignRole('admin-mant-test');
         $this->actingAs($this->user);
 
         $documento = Documento::factory()->create();
@@ -243,5 +245,21 @@ class MantenimientoControllerTest extends TestCase
         $this->assertTrue($mantenimiento->pagado);
         $this->assertSame($venta->id, $mantenimiento->venta_id);
         $this->assertSame('350.00', number_format((float) $mantenimiento->costo_final, 2, '.', ''));
+    }
+
+    #[\PHPUnit\Framework\Attributes\Test]
+    public function index_retorna_403_si_usuario_no_tiene_permiso(): void
+    {
+        $sinPermisos = User::factory()->create();
+        $this->actingAs($sinPermisos);
+        $this->get(route('mantenimientos.index'))->assertStatus(403);
+    }
+
+    #[\PHPUnit\Framework\Attributes\Test]
+    public function store_retorna_403_si_usuario_no_tiene_permiso(): void
+    {
+        $sinPermisos = User::factory()->create();
+        $this->actingAs($sinPermisos);
+        $this->post(route('mantenimientos.store'), [])->assertStatus(403);
     }
 }

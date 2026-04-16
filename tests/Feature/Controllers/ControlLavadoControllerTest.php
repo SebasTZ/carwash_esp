@@ -25,15 +25,20 @@ class ControlLavadoControllerTest extends TestCase
     {
         parent::setUp();
 
-        $this->withoutMiddleware([
-            \Illuminate\Auth\Middleware\Authenticate::class,
-            \Illuminate\Auth\Middleware\Authorize::class,
-            \Spatie\Permission\Middleware\PermissionMiddleware::class,
-            \Spatie\Permission\Middleware\RoleMiddleware::class,
-            \Spatie\Permission\Middleware\RoleOrPermissionMiddleware::class,
+        \Spatie\Permission\Models\Permission::create(['name' => 'ver-control-lavado']);
+        \Spatie\Permission\Models\Permission::create(['name' => 'crear-control-lavado']);
+        \Spatie\Permission\Models\Permission::create(['name' => 'editar-control-lavado']);
+        \Spatie\Permission\Models\Permission::create(['name' => 'eliminar-control-lavado']);
+        \Spatie\Permission\Models\Permission::create(['name' => 'exportar-reporte-lavado']);
+
+        $role = \Spatie\Permission\Models\Role::create(['name' => 'admin-lavado-test']);
+        $role->givePermissionTo([
+            'ver-control-lavado', 'crear-control-lavado',
+            'editar-control-lavado', 'eliminar-control-lavado', 'exportar-reporte-lavado',
         ]);
 
         $this->user = User::factory()->create();
+        $this->user->assignRole('admin-lavado-test');
         $this->actingAs($this->user);
 
         $this->serviceMock = Mockery::mock(ControlLavadoService::class)->shouldIgnoreMissing();
@@ -135,5 +140,27 @@ class ControlLavadoControllerTest extends TestCase
 
         $response->assertRedirect(route('control.lavados'));
         $response->assertSessionHas('error', 'Lavado no encontrado.');
+    }
+
+    #[\PHPUnit\Framework\Attributes\Test]
+    public function index_retorna_403_si_usuario_no_tiene_permiso(): void
+    {
+        $sinPermisos = User::factory()->create();
+        $this->actingAs($sinPermisos);
+
+        $response = $this->get(route('control.lavados'));
+
+        $response->assertStatus(403);
+    }
+
+    #[\PHPUnit\Framework\Attributes\Test]
+    public function destroy_retorna_403_si_usuario_no_tiene_permiso(): void
+    {
+        $sinPermisos = User::factory()->create();
+        $this->actingAs($sinPermisos);
+
+        $response = $this->delete(route('control.lavados.destroy', 999));
+
+        $response->assertStatus(403);
     }
 }

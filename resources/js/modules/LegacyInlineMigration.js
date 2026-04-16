@@ -87,7 +87,9 @@ const initCategoriaForms = () => {
             messages,
             validateOnBlur: true,
             validateOnInput: false,
-            validateOnSubmit: true,
+            // El submit se valida en el listener de abajo; si FormValidator
+            // también intercepta submit, impide el envío incluso cuando es válido.
+            validateOnSubmit: false,
             scrollToError: true,
             focusOnError: true,
             disableSubmitOnInvalid: false,

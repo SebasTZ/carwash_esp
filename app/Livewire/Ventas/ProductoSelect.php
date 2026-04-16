@@ -2,11 +2,14 @@
 
 namespace App\Livewire\Ventas;
 
+use App\Livewire\Concerns\AuthorizesLivewirePermissions;
 use App\Models\Producto;
 use Livewire\Component;
 
 class ProductoSelect extends Component
 {
+    use AuthorizesLivewirePermissions;
+
     public string $name = 'producto_id';
     public string $inputId = 'producto_id';
     public string $placeholder = 'Buscar un producto aqui';
@@ -21,7 +24,7 @@ class ProductoSelect extends Component
         ?string $inputId = null,
         string $placeholder = 'Buscar un producto aqui'
     ): void {
-        abort_unless(auth()->check(), 401);
+        $this->ensureAuthenticated();
         $this->name = $name;
         $this->inputId = $inputId ?: $name;
         $this->placeholder = $placeholder;
@@ -32,7 +35,8 @@ class ProductoSelect extends Component
 
     public function getResultsProperty(): array
     {
-        abort_unless(auth()->user()?->hasAnyRole(['admin', 'superadmin', 'cajero', 'vendedor']), 403);
+        $this->ensurePermissionOrRole('crear-venta', ['admin', 'superadmin', 'cajero', 'vendedor']);
+
         $search = trim($this->search);
 
         $productos = Producto::query()
@@ -95,7 +99,7 @@ class ProductoSelect extends Component
 
     public function syncFromExternal($field = null, $value = null, $label = null): void
     {
-        abort_unless(auth()->check(), 401);
+        $this->ensureAuthenticated();
 
         $field = trim((string) $field);
         if ($field !== $this->inputId) {

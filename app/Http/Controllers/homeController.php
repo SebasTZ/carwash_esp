@@ -30,7 +30,7 @@ class homeController extends Controller
                     'bg' => 'bg-primary',
                     'url' => route('clientes.index'),
                     'footer' => 'Gestionar Clientes',
-                    'permission' => 'ver-clientes'
+                    'permission' => 'ver-cliente'
                 ],
                 [
                     'label' => 'Categorías',
@@ -93,7 +93,7 @@ class homeController extends Controller
                     'bg' => 'bg-primary',
                     'url' => route('users.index'),
                     'footer' => 'Ver Usuarios',
-                    'permission' => 'ver-usuario'
+                    'permission' => 'ver-user'
                 ],
                 [
                     'label' => 'Control de Lavado',

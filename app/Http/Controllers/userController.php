@@ -5,14 +5,16 @@ namespace App\Http\Controllers;
 use App\Http\Requests\StoreUserRequest;
 use App\Http\Requests\UpdateUserRequest;
 use App\Models\User;
+use App\Services\AuthorizationAuditService;
 use Exception;
-use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
 use Spatie\Permission\Models\Role;
 
 class userController extends Controller
 {
+    public function __construct(private AuthorizationAuditService $authorizationAuditService) {}
+
     /**
      * Display a listing of the resource.
      */
@@ -46,7 +48,18 @@ class userController extends Controller
                 'estado' => $request->input('estado'),
                 'password' => Hash::make($request->input('password')),
             ]);
-            $user->assignRole($request->input('role'));
+
+            $rolesAntes = $user->getRoleNames()->values()->all();
+            $user->syncRoles([$request->input('role')]);
+            $rolesDespues = $user->getRoleNames()->values()->all();
+
+            $this->authorizationAuditService->logUserRolesSynced(
+                auth()->user(),
+                $user,
+                $rolesAntes,
+                $rolesDespues,
+                'created'
+            );
 
             DB::commit();
         } catch (Exception $e) {
@@ -90,8 +103,19 @@ class userController extends Controller
             if (!empty($request->input('password'))) {
                 $data['password'] = Hash::make($request->input('password'));
             }
+
+            $rolesAntes = $user->getRoleNames()->values()->all();
             $user->update($data);
             $user->syncRoles([$request->input('role')]);
+            $rolesDespues = $user->getRoleNames()->values()->all();
+
+            $this->authorizationAuditService->logUserRolesSynced(
+                auth()->user(),
+                $user,
+                $rolesAntes,
+                $rolesDespues,
+                'updated'
+            );
 
             DB::commit();
         } catch (Exception $e) {
@@ -107,8 +131,11 @@ class userController extends Controller
      */
     public function destroy(User $user)
     {
-        $rolUser = $user->getRoleNames()->first();
-        $user->removeRole($rolUser);
+        $rolesEliminados = $user->getRoleNames()->values()->all();
+        $user->syncRoles([]);
+
+        $this->authorizationAuditService->logUserDeletedWithRoles(auth()->user(), $user, $rolesEliminados);
+
         $user->delete();
 
         return redirect()->route('users.index')->with('success','Usuario eliminado');

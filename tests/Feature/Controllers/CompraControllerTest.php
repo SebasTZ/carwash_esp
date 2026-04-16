@@ -26,15 +26,16 @@ class CompraControllerTest extends TestCase
     {
         parent::setUp();
 
-        $this->withoutMiddleware([
-            \Illuminate\Auth\Middleware\Authenticate::class,
-            \Illuminate\Auth\Middleware\Authorize::class,
-            \Spatie\Permission\Middleware\PermissionMiddleware::class,
-            \Spatie\Permission\Middleware\RoleMiddleware::class,
-            \Spatie\Permission\Middleware\RoleOrPermissionMiddleware::class,
-        ]);
+        \Spatie\Permission\Models\Permission::create(['name' => 'ver-compra']);
+        \Spatie\Permission\Models\Permission::create(['name' => 'crear-compra']);
+        \Spatie\Permission\Models\Permission::create(['name' => 'mostrar-compra']);
+        \Spatie\Permission\Models\Permission::create(['name' => 'eliminar-compra']);
+
+        $role = \Spatie\Permission\Models\Role::create(['name' => 'admin-compra-test']);
+        $role->givePermissionTo(['ver-compra', 'crear-compra', 'mostrar-compra', 'eliminar-compra']);
 
         $this->user = User::factory()->create();
+        $this->user->assignRole('admin-compra-test');
         $this->actingAs($this->user);
 
         $documento = Documento::factory()->create();
@@ -175,5 +176,27 @@ class CompraControllerTest extends TestCase
         $response->assertViewHas('compras', function ($compras) use ($compraEnRango) {
             return $compras->count() === 1 && $compras->first()->id === $compraEnRango->id;
         });
+    }
+
+    #[\PHPUnit\Framework\Attributes\Test]
+    public function index_retorna_403_si_usuario_no_tiene_permiso(): void
+    {
+        $sinPermisos = User::factory()->create();
+        $this->actingAs($sinPermisos);
+
+        $response = $this->get(route('compras.index'));
+
+        $response->assertStatus(403);
+    }
+
+    #[\PHPUnit\Framework\Attributes\Test]
+    public function store_retorna_403_si_usuario_no_tiene_permiso(): void
+    {
+        $sinPermisos = User::factory()->create();
+        $this->actingAs($sinPermisos);
+
+        $response = $this->post(route('compras.store'), []);
+
+        $response->assertStatus(403);
     }
 }

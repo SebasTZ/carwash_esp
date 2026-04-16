@@ -21,15 +21,17 @@ class CocheraControllerTest extends TestCase
     {
         parent::setUp();
 
-        $this->withoutMiddleware([
-            \Illuminate\Auth\Middleware\Authenticate::class,
-            \Illuminate\Auth\Middleware\Authorize::class,
-            \Spatie\Permission\Middleware\PermissionMiddleware::class,
-            \Spatie\Permission\Middleware\RoleMiddleware::class,
-            \Spatie\Permission\Middleware\RoleOrPermissionMiddleware::class,
-        ]);
+        \Spatie\Permission\Models\Permission::create(['name' => 'ver-cochera']);
+        \Spatie\Permission\Models\Permission::create(['name' => 'crear-cochera']);
+        \Spatie\Permission\Models\Permission::create(['name' => 'editar-cochera']);
+        \Spatie\Permission\Models\Permission::create(['name' => 'eliminar-cochera']);
+        \Spatie\Permission\Models\Permission::create(['name' => 'reporte-cochera']);
+
+        $role = \Spatie\Permission\Models\Role::create(['name' => 'admin-cochera-test']);
+        $role->givePermissionTo(['ver-cochera','crear-cochera','editar-cochera','eliminar-cochera','reporte-cochera']);
 
         $this->user = User::factory()->create();
+        $this->user->assignRole('admin-cochera-test');
         $this->actingAs($this->user);
 
         $documento = Documento::factory()->create();
@@ -154,5 +156,21 @@ class CocheraControllerTest extends TestCase
         $response->assertRedirect(route('cocheras.index'));
         $response->assertSessionHas('success');
         $this->assertDatabaseMissing('cocheras', ['id' => $cochera->id]);
+    }
+
+    #[\PHPUnit\Framework\Attributes\Test]
+    public function index_retorna_403_si_usuario_no_tiene_permiso(): void
+    {
+        $sinPermisos = User::factory()->create();
+        $this->actingAs($sinPermisos);
+        $this->get(route('cocheras.index'))->assertStatus(403);
+    }
+
+    #[\PHPUnit\Framework\Attributes\Test]
+    public function store_retorna_403_si_usuario_no_tiene_permiso(): void
+    {
+        $sinPermisos = User::factory()->create();
+        $this->actingAs($sinPermisos);
+        $this->post(route('cocheras.store'), [])->assertStatus(403);
     }
 }

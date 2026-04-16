@@ -18,6 +18,7 @@ class CitaFactory extends Factory
     {
         return [
             'cliente_id' => \App\Models\Cliente::factory(),
+            'user_id' => null,
             'fecha' => $this->faker->dateTimeBetween('now', '+30 days')->format('Y-m-d'),
             'hora' => $this->faker->time('H:i'),
             'posicion_cola' => $this->faker->numberBetween(1, 10),

@@ -5,6 +5,7 @@ namespace App\Providers;
 use Illuminate\Cache\RateLimiting\Limit;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Event;
+use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\Facades\RateLimiter;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\ServiceProvider;
@@ -39,6 +40,24 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
+        // Policies y Gates para autorización contextual
+        Gate::policy(\App\Models\Venta::class, \App\Policies\VentaPolicy::class);
+        Gate::policy(\App\Models\Cita::class, \App\Policies\CitaPolicy::class);
+        Gate::policy(\App\Models\User::class, \App\Policies\UserPolicy::class);
+        Gate::policy(\Spatie\Permission\Models\Role::class, \App\Policies\RolePolicy::class);
+
+        Gate::define('gestionar-venta-propia', function (\App\Models\User $user, \App\Models\Venta $venta) {
+            $esPrivilegiado = $user->hasAnyRole(['admin', 'superadmin', 'administrador']);
+
+            return $user->can('eliminar-venta') && ($esPrivilegiado || $venta->user_id === $user->id);
+        });
+
+        Gate::define('gestionar-cita-propia', function (\App\Models\User $user, \App\Models\Cita $cita) {
+            $esPrivilegiado = $user->hasAnyRole(['admin', 'superadmin', 'administrador']);
+
+            return $user->can('editar-cita') && ($esPrivilegiado || $cita->user_id === $user->id);
+        });
+
         // Observers
         \App\Models\Producto::observe(\App\Observers\ProductoObserver::class);
         \App\Models\Venta::observe(\App\Observers\VentaObserver::class);
@@ -53,6 +72,21 @@ class AppServiceProvider extends ServiceProvider
             \App\Events\StockBajoEvent::class,
             \App\Listeners\NotificarStockBajo::class,
         );
+
+        // Invalidar caché de permisos al cambiar roles o permisos
+        $permissionEvents = [
+            \Spatie\Permission\Events\RoleAssigned::class,
+            \Spatie\Permission\Events\RoleRevoked::class,
+            \Spatie\Permission\Events\PermissionAssigned::class,
+            \Spatie\Permission\Events\PermissionRevoked::class,
+            \Spatie\Permission\Events\RoleCreated::class,
+            \Spatie\Permission\Events\RoleDeleted::class,
+            \Spatie\Permission\Events\PermissionCreated::class,
+            \Spatie\Permission\Events\PermissionDeleted::class,
+        ];
+        foreach ($permissionEvents as $event) {
+            Event::listen($event, \App\Listeners\LimpiarCachePermisos::class);
+        }
 
         // Route model bindings (migrado desde RouteServiceProvider)
         Route::model('lavador', \App\Models\Lavador::class);

@@ -8,7 +8,6 @@ use App\Models\Comprobante;
 use App\Models\Producto;
 use App\Models\Venta;
 use App\Models\Fidelizacion;
-use App\Models\ControlLavado;
 use App\Models\ConfiguracionNegocio;
 use App\Repositories\ProductoRepository;
 use App\Repositories\VentaRepository;
@@ -22,7 +21,6 @@ use Exception;
 use App\Exports\VentasExport;
 use Maatwebsite\Excel\Facades\Excel;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Barryvdh\DomPDF\Facade\Pdf;
 use Illuminate\Support\Facades\Storage;
@@ -51,8 +49,14 @@ class ventaController extends Controller
      */
     public function index()
     {
-        $ventas = Venta::with(['comprobante','cliente.persona','user'])
-            ->where('estado',1)
+        $this->authorize('viewAny', Venta::class);
+
+        $ventas = Venta::with(['comprobante', 'cliente.persona', 'user'])
+            ->where('estado', 1)
+            ->when(
+                !$this->canManageAllVentas(),
+                fn ($query) => $query->where('user_id', auth()->id())
+            )
             ->latest()
             ->paginate(15);
 
@@ -82,6 +86,8 @@ class ventaController extends Controller
      */
     public function create()
     {
+        $this->authorize('create', Venta::class);
+
         // Usar el repository optimizado con caché
         $productos = $this->productoRepo->obtenerParaVenta();
 
@@ -98,6 +104,8 @@ class ventaController extends Controller
      */
     public function store(StoreVentaRequest $request)
     {
+        $this->authorize('create', Venta::class);
+
         try {
             // Procesar la venta usando el servicio
             $venta = $this->ventaService->procesarVenta($request->validated());
@@ -142,6 +150,8 @@ class ventaController extends Controller
      */
     public function show(Venta $venta)
     {
+        $this->authorize('view', $venta);
+
         $venta->load(['productos', 'cliente.persona', 'comprobante', 'user']);
         return view('venta.show', compact('venta'));
     }
@@ -172,32 +182,56 @@ class ventaController extends Controller
 
     public function reporteDiario()
     {
-        $ventas = $this->transformarVentasParaTabla($this->ventaRepo->obtenerDelDia());
+        $this->authorize('viewReports', Venta::class);
+
+        $ventas = $this->transformarVentasParaTabla(
+            $this->filtrarVentasPorPropietario($this->ventaRepo->obtenerDelDia())
+        );
+
         return view('venta.reporte', compact('ventas'))->with('reporte', 'diario');
     }
 
     public function reporteSemanal()
     {
-        $ventas = $this->transformarVentasParaTabla($this->ventaRepo->obtenerDeLaSemana());
+        $this->authorize('viewReports', Venta::class);
+
+        $ventas = $this->transformarVentasParaTabla(
+            $this->filtrarVentasPorPropietario($this->ventaRepo->obtenerDeLaSemana())
+        );
+
         return view('venta.reporte', compact('ventas'))->with('reporte', 'semanal');
     }
 
     public function reporteMensual()
     {
-        $ventas = $this->transformarVentasParaTabla($this->ventaRepo->obtenerDelMes());
+        $this->authorize('viewReports', Venta::class);
+
+        $ventas = $this->transformarVentasParaTabla(
+            $this->filtrarVentasPorPropietario($this->ventaRepo->obtenerDelMes())
+        );
+
         return view('venta.reporte', compact('ventas'))->with('reporte', 'mensual');
     }
 
     public function exportDiario()
     {
-        $ventas = $this->ventaRepo->obtenerDelDia();
+        $this->authorize('export', Venta::class);
+
+        $ventas = $this->filtrarVentasPorPropietario($this->ventaRepo->obtenerDelDia());
+
         return Excel::download(new VentasExport($ventas), 'ventas_diarias.xlsx');
     }
 
     public function exportSemanal()
     {
+        $this->authorize('export', Venta::class);
+
         $ventas = Venta::whereBetween('fecha_hora', [now()->startOfWeek(), now()->endOfWeek()])
             ->whereNotIn('medio_pago', ['tarjeta_regalo', 'lavado_gratis'])
+            ->when(
+                !$this->canManageAllVentas(),
+                fn ($query) => $query->where('user_id', auth()->id())
+            )
             ->with(['comprobante', 'cliente.persona', 'user'])
             ->get();
 
@@ -206,8 +240,14 @@ class ventaController extends Controller
 
     public function exportMensual()
     {
+        $this->authorize('export', Venta::class);
+
         $ventas = Venta::whereMonth('fecha_hora', now()->month)
             ->whereNotIn('medio_pago', ['tarjeta_regalo', 'lavado_gratis'])
+            ->when(
+                !$this->canManageAllVentas(),
+                fn ($query) => $query->where('user_id', auth()->id())
+            )
             ->with(['comprobante', 'cliente.persona', 'user'])
             ->get();
 
@@ -216,6 +256,8 @@ class ventaController extends Controller
 
     public function reportePersonalizado(Request $request)
     {
+        $this->authorize('viewReports', Venta::class);
+
         $fechaInicio = $request->query('fecha_inicio');
         $fechaFin = $request->query('fecha_fin');
 
@@ -230,6 +272,8 @@ class ventaController extends Controller
             $ventasRaw = $this->ventaRepo->obtenerPorRango(Carbon::parse($fechaInicio), Carbon::parse($fechaFin))
                 ->reject(fn($v) => in_array($v->medio_pago, ['tarjeta_regalo', 'lavado_gratis'], true));
 
+            $ventasRaw = $this->filtrarVentasPorPropietario($ventasRaw);
+
             $ventas = $this->transformarVentasParaTabla($ventasRaw);
         }
 
@@ -238,6 +282,8 @@ class ventaController extends Controller
 
     public function exportPersonalizado(Request $request)
     {
+        $this->authorize('export', Venta::class);
+
         $request->validate([
             'fecha_inicio' => 'required|date|before_or_equal:fecha_fin',
             'fecha_fin'    => 'required|date',
@@ -249,6 +295,8 @@ class ventaController extends Controller
         $ventas = $this->ventaRepo->obtenerPorRango(Carbon::parse($fechaInicio), Carbon::parse($fechaFin))
             ->reject(fn($v) => in_array($v->medio_pago, ['tarjeta_regalo', 'lavado_gratis']));
 
+        $ventas = $this->filtrarVentasPorPropietario($ventas);
+
         return Excel::download(new VentasExport($ventas), "ventas_{$fechaInicio}_a_{$fechaFin}.xlsx");
     }
 
@@ -257,6 +305,8 @@ class ventaController extends Controller
      */
     public function destroy(Venta $venta)
     {
+        $this->authorize('delete', $venta);
+
         try {
             $this->ventaService->anularVenta($venta, 'Anulada por usuario ' . auth()->user()->name);
             return redirect()->route('ventas.index')->with('success', 'Venta anulada correctamente. Stock y fidelización revertidos.');
@@ -268,12 +318,16 @@ class ventaController extends Controller
 
     public function ticket(Venta $venta)
     {
+        $this->authorize('view', $venta);
+
         $configuracion = ConfiguracionNegocio::first();
         return view('venta.ticket', compact('venta', 'configuracion'));
     }
 
     public function printTicket(Venta $venta)
     {
+        $this->authorize('view', $venta);
+
         try {
             $configuracion = ConfiguracionNegocio::first();
             $pdf = Pdf::loadView('venta.ticket_pdf', compact('venta', 'configuracion'));
@@ -288,6 +342,8 @@ class ventaController extends Controller
 
     public function buscarProductos(Request $request)
 {
+    $this->authorize('searchProducts', Venta::class);
+
     $query = $request->input('query', '');
 
     // Productos normales con stock
@@ -347,6 +403,8 @@ class ventaController extends Controller
      */
     public function validarFidelizacionLavado($cliente_id)
     {
+        $this->authorize('validateFidelizacion', Venta::class);
+
         try {
             $cliente = Cliente::findOrFail($cliente_id);
             
@@ -383,5 +441,23 @@ class ventaController extends Controller
                 'mensaje' => 'Error al validar: ' . $e->getMessage()
             ], 500);
         }
+    }
+
+    private function canManageAllVentas(): bool
+    {
+        return auth()->user()?->hasAnyRole(['admin', 'superadmin', 'administrador']) ?? false;
+    }
+
+    private function filtrarVentasPorPropietario(iterable $ventas): \Illuminate\Support\Collection
+    {
+        $collection = collect($ventas);
+
+        if ($this->canManageAllVentas()) {
+            return $collection->values();
+        }
+
+        return $collection
+            ->filter(fn ($venta) => (int) ($venta->user_id ?? 0) === (int) auth()->id())
+            ->values();
     }
 }

@@ -1,12 +1,10 @@
 import './bootstrap';
 import $ from 'jquery';
 import Swal from 'sweetalert2';
-import Alpine from 'alpinejs';
 import { getCsrfToken, withCsrfHeader } from './utils/csrf';
 window.$ = $;
 window.jQuery = $;
 window.Swal = Swal;
-window.Alpine = Alpine;
 
 // Inicializar window.Laravel para compatibilidad con componentes legacy
 window.Laravel = {
@@ -202,17 +200,31 @@ window.CarWash = {
 // ========================================
 // Alpine.js — stores globales
 // ========================================
-Alpine.store('notifications', {
-    items: [],
-    add(type, message) {
-        const id = Date.now();
-        this.items.push({ id, type, message });
-        setTimeout(() => this.remove(id), 4000);
-    },
-    remove(id) {
-        this.items = this.items.filter(n => n.id !== id);
-    },
-});
+const registerNotificationStore = () => {
+    const alpine = window.Alpine;
+    if (!alpine || typeof alpine.store !== 'function') {
+        return;
+    }
+
+    if (alpine.store('notifications')) {
+        return;
+    }
+
+    alpine.store('notifications', {
+        items: [],
+        add(type, message) {
+            const id = Date.now();
+            this.items.push({ id, type, message });
+            setTimeout(() => this.remove(id), 4000);
+        },
+        remove(id) {
+            this.items = this.items.filter(n => n.id !== id);
+        },
+    });
+};
+
+registerNotificationStore();
+document.addEventListener('alpine:init', registerNotificationStore);
 
 // ========================================
 // Inicialización global de la aplicación
@@ -378,8 +390,6 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     });
 
-    window._alpineStarted = true;
-    Alpine.start();
 });
 
 // ========================================

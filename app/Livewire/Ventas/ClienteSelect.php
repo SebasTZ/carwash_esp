@@ -2,11 +2,14 @@
 
 namespace App\Livewire\Ventas;
 
+use App\Livewire\Concerns\AuthorizesLivewirePermissions;
 use App\Models\Cliente;
 use Livewire\Component;
 
 class ClienteSelect extends Component
 {
+    use AuthorizesLivewirePermissions;
+
     public string $name = 'cliente_id';
     public string $inputId = 'cliente_id';
     public string $placeholder = 'Buscar cliente';
@@ -21,7 +24,7 @@ class ClienteSelect extends Component
         ?string $inputId = null,
         string $placeholder = 'Buscar cliente'
     ): void {
-        abort_unless(auth()->check(), 401);
+        $this->ensureAuthenticated();
         $this->name = $name;
         $this->inputId = $inputId ?: $name;
         $this->placeholder = $placeholder;
@@ -32,7 +35,8 @@ class ClienteSelect extends Component
 
     public function getResultsProperty(): array
     {
-        abort_unless(auth()->user()?->can('ver-clientes') || auth()->user()?->hasAnyRole(['admin', 'superadmin', 'cajero', 'vendedor']), 403);
+        $this->ensurePermissionOrRole('ver-cliente', ['admin', 'superadmin', 'cajero', 'vendedor']);
+
         $search = trim($this->search);
 
         $clientes = Cliente::query()
@@ -92,7 +96,7 @@ class ClienteSelect extends Component
 
     public function syncFromExternal($field = null, $value = null, $label = null): void
     {
-        abort_unless(auth()->check(), 401);
+        $this->ensureAuthenticated();
 
         $field = trim((string) $field);
         if ($field !== $this->inputId) {

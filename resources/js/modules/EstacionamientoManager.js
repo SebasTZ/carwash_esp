@@ -5,6 +5,7 @@
  */
 
 import axios from 'axios';
+import * as bootstrap from 'bootstrap';
 import { showError, showSuccess } from '@utils/notifications';
 import { getCsrfToken } from '@utils/csrf';
 import { safeHandler } from '@utils/safe-handler';

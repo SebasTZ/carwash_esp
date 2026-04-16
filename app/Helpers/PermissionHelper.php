@@ -34,20 +34,20 @@ class PermissionHelper
             'editar-marca' => ['en' => 'Edit Brand', 'es' => 'Editar Marca'],
             'eliminar-marca' => ['en' => 'Delete Brand', 'es' => 'Eliminar Marca'],
 
-            'ver-presentacione' => ['en' => 'View Presentation', 'es' => 'Ver Presentación'],
-            'crear-presentacione' => ['en' => 'Create Presentation', 'es' => 'Crear Presentación'],
-            'editar-presentacione' => ['en' => 'Edit Presentation', 'es' => 'Editar Presentación'],
-            'eliminar-presentacione' => ['en' => 'Delete Presentation', 'es' => 'Eliminar Presentación'],
+            'ver-presentacion' => ['en' => 'View Presentation', 'es' => 'Ver Presentación'],
+            'crear-presentacion' => ['en' => 'Create Presentation', 'es' => 'Crear Presentación'],
+            'editar-presentacion' => ['en' => 'Edit Presentation', 'es' => 'Editar Presentación'],
+            'eliminar-presentacion' => ['en' => 'Delete Presentation', 'es' => 'Eliminar Presentación'],
 
             'ver-producto' => ['en' => 'View Product', 'es' => 'Ver Producto'],
             'crear-producto' => ['en' => 'Create Product', 'es' => 'Crear Producto'],
             'editar-producto' => ['en' => 'Edit Product', 'es' => 'Editar Producto'],
             'eliminar-producto' => ['en' => 'Delete Product', 'es' => 'Eliminar Producto'],
 
-            'ver-proveedore' => ['en' => 'View Supplier', 'es' => 'Ver Proveedor'],
-            'crear-proveedore' => ['en' => 'Create Supplier', 'es' => 'Crear Proveedor'],
-            'editar-proveedore' => ['en' => 'Edit Supplier', 'es' => 'Editar Proveedor'],
-            'eliminar-proveedore' => ['en' => 'Delete Supplier', 'es' => 'Eliminar Proveedor'],
+            'ver-proveedor' => ['en' => 'View Supplier', 'es' => 'Ver Proveedor'],
+            'crear-proveedor' => ['en' => 'Create Supplier', 'es' => 'Crear Proveedor'],
+            'editar-proveedor' => ['en' => 'Edit Supplier', 'es' => 'Editar Proveedor'],
+            'eliminar-proveedor' => ['en' => 'Delete Supplier', 'es' => 'Eliminar Proveedor'],
 
             'ver-venta' => ['en' => 'View Sale', 'es' => 'Ver Venta'],
             'crear-venta' => ['en' => 'Create Sale', 'es' => 'Crear Venta'],
@@ -140,6 +140,7 @@ class PermissionHelper
             'eliminar-tarjeta-regalo' => ['en' => 'Delete Gift Card', 'es' => 'Eliminar Tarjeta Regalo'],
             'reporte-tarjeta-regalo' => ['en' => 'Gift Card Report', 'es' => 'Reporte Tarjeta Regalo'],
             'historial-tarjeta-regalo' => ['en' => 'Gift Card History', 'es' => 'Historial Tarjeta Regalo'],
+            'ver-historial-uso-tarjeta-regalo' => ['en' => 'View Gift Card Usage History', 'es' => 'Ver Historial de Uso Tarjeta Regalo'],
             'exportar-tarjeta-regalo' => ['en' => 'Export Gift Card', 'es' => 'Exportar Tarjeta Regalo'],
 
             'ver-fidelidad' => ['en' => 'View Loyalty', 'es' => 'Ver Fidelidad'],

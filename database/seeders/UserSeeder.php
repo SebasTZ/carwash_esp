@@ -39,15 +39,88 @@ class UserSeeder extends Seeder
         // Ejemplo de rol para cajero con permisos limitados
         $cajero = Role::firstOrCreate(['name' => 'cajero']);
         $cajeroPermisos = [
+            // Ventas (función principal del cajero)
+            'ver-venta',
+            'crear-venta',
+            'mostrar-venta',
+
+            // Clientes
+            'ver-cliente',
+            'crear-cliente',
+            'ver-fidelizacion',
+
+            // Tarjetas de Regalo
             'ver-tarjeta-regalo',
             'crear-tarjeta-regalo',
+            'editar-tarjeta-regalo',
             'reporte-tarjeta-regalo',
             'exportar-tarjeta-regalo',
+            'ver-historial-uso-tarjeta-regalo',
+
+            // Fidelidad
             'ver-fidelidad',
             'gestionar-fidelidad',
             'reporte-fidelidad',
             'exportar-fidelidad',
+
+            // Perfil propio
+            'ver-perfil',
+            'editar-perfil',
+
+            // Control de lavado (registro básico)
+            'ver-control-lavado',
         ];
         $cajero->syncPermissions($cajeroPermisos);
+
+        // Rol lavador: solo puede ver y actualizar estado de lavados asignados
+        $lavador = Role::firstOrCreate(['name' => 'lavador']);
+        $lavador->syncPermissions([
+            'ver-control-lavado',
+            'ver-cita',
+            'ver-perfil',
+            'editar-perfil',
+        ]);
+
+        // Rol supervisor: gestiona lavadores y controla el proceso
+        $supervisor = Role::firstOrCreate(['name' => 'supervisor']);
+        $supervisor->syncPermissions([
+            'ver-control-lavado',
+            'crear-control-lavado',
+            'editar-control-lavado',
+            'ver-lavador',
+            'ver-cita',
+            'confirmar-cita',
+            'ver-pago-comision',
+            'ver-historial-pago-comision',
+            'ver-perfil',
+            'editar-perfil',
+        ]);
+
+        // Rol contador: acceso a todos los reportes y exports, sin CRUD
+        $contador = Role::firstOrCreate(['name' => 'contador']);
+        $contador->syncPermissions([
+            'ver-venta',
+            'mostrar-venta',
+            'reporte-diario-venta',
+            'reporte-semanal-venta',
+            'reporte-mensual-venta',
+            'reporte-personalizado-venta',
+            'exportar-reporte-venta',
+            'ver-compra',
+            'mostrar-compra',
+            'reporte-diario-compra',
+            'reporte-semanal-compra',
+            'reporte-mensual-compra',
+            'reporte-personalizado-compra',
+            'exportar-reporte-compra',
+            'ver-pago-comision',
+            'ver-historial-pago-comision',
+            'reporte-fidelidad',
+            'exportar-fidelidad',
+            'reporte-tarjeta-regalo',
+            'exportar-tarjeta-regalo',
+            'ver-perfil',
+            'editar-perfil',
+        ]);
     }
 }

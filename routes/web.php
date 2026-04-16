@@ -50,7 +50,8 @@ Route::middleware(['auth'])->group(function () {
         ->middleware('permission:editar-estacionamiento');
     Route::get('/estacionamiento-historial', [EstacionamientoController::class, 'historial'])->name('estacionamiento.historial')
         ->middleware('permission:historial-estacionamiento');
-    Route::get('/buscar-clientes', [EstacionamientoController::class, 'buscarCliente'])->name('estacionamiento.buscar-cliente');
+    Route::get('/buscar-clientes', [EstacionamientoController::class, 'buscarCliente'])->name('estacionamiento.buscar-cliente')
+        ->middleware('permission:ver-estacionamiento|crear-estacionamiento');
     Route::delete('/estacionamiento/{estacionamiento}', [EstacionamientoController::class, 'destroy'])->name('estacionamiento.destroy')
         ->middleware('permission:eliminar-estacionamiento');
 
@@ -87,7 +88,8 @@ Route::middleware(['auth'])->group(function () {
         ->middleware('permission:editar-control-lavado');
     Route::post('/control/lavados/{lavado}/fin-interior', [ControlLavadoController::class, 'finInterior'])->name('control.lavados.finInterior')
         ->middleware('permission:editar-control-lavado');
-    Route::get('/control/lavados/{lavado}', [ControlLavadoController::class, 'show'])->name('control.lavados.show');
+    Route::get('/control/lavados/{lavado}', [ControlLavadoController::class, 'show'])->name('control.lavados.show')
+        ->middleware('permission:ver-control-lavado');
     Route::get('/control/lavados/export/diario', [ControlLavadoController::class, 'exportDiario'])->name('control.lavados.export.diario')
         ->middleware('permission:exportar-reporte-lavado');
     Route::get('/control/lavados/export/semanal', [ControlLavadoController::class, 'exportSemanal'])->name('control.lavados.export.semanal')
@@ -121,7 +123,8 @@ Route::middleware(['auth'])->group(function () {
         ->middlewareFor('destroy', 'permission:eliminar-cita');
 
     // --- Categorías ---
-    Route::patch('/categorias/{categoria}/restore', [categoriaController::class, 'restore'])->name('categorias.restore');
+    Route::patch('/categorias/{categoria}/restore', [categoriaController::class, 'restore'])->name('categorias.restore')
+        ->middleware('permission:editar-categoria');
     Route::resource('categorias', categoriaController::class)
         ->middlewareFor(['index', 'show'], 'permission:ver-categoria|crear-categoria|editar-categoria|eliminar-categoria')
         ->middlewareFor(['create', 'store'], 'permission:crear-categoria')
@@ -130,10 +133,10 @@ Route::middleware(['auth'])->group(function () {
 
     // --- Presentaciones ---
     Route::resource('presentaciones', presentacioneController::class)
-        ->middlewareFor(['index', 'show'], 'permission:ver-presentacione|crear-presentacione|editar-presentacione|eliminar-presentacione')
-        ->middlewareFor(['create', 'store'], 'permission:crear-presentacione')
-        ->middlewareFor(['edit', 'update'], 'permission:editar-presentacione')
-        ->middlewareFor('destroy', 'permission:eliminar-presentacione');
+        ->middlewareFor(['index', 'show'], 'permission:ver-presentacion|crear-presentacion|editar-presentacion|eliminar-presentacion')
+        ->middlewareFor(['create', 'store'], 'permission:crear-presentacion')
+        ->middlewareFor(['edit', 'update'], 'permission:editar-presentacion')
+        ->middlewareFor('destroy', 'permission:eliminar-presentacion');
 
     // --- Marcas ---
     Route::resource('marcas', marcaController::class)
@@ -150,7 +153,8 @@ Route::middleware(['auth'])->group(function () {
         ->middlewareFor('destroy', 'permission:eliminar-producto');
 
     // --- Clientes ---
-    Route::get('clientes/{cliente}/fidelizacion', [\App\Http\Controllers\clienteController::class, 'fidelizacion'])->name('clientes.fidelizacion');
+    Route::get('clientes/{cliente}/fidelizacion', [\App\Http\Controllers\clienteController::class, 'fidelizacion'])->name('clientes.fidelizacion')
+        ->middleware('permission:ver-fidelizacion');
     Route::resource('clientes', clienteController::class)
         ->middlewareFor(['index', 'show'], 'permission:ver-cliente|crear-cliente|editar-cliente|eliminar-cliente')
         ->middlewareFor(['create', 'store'], 'permission:crear-cliente')
@@ -159,10 +163,10 @@ Route::middleware(['auth'])->group(function () {
 
     // --- Proveedores ---
     Route::resource('proveedores', proveedorController::class)
-        ->middlewareFor(['index', 'show'], 'permission:ver-proveedore|crear-proveedore|editar-proveedore|eliminar-proveedore')
-        ->middlewareFor(['create', 'store'], 'permission:crear-proveedore')
-        ->middlewareFor(['edit', 'update'], 'permission:editar-proveedore')
-        ->middlewareFor('destroy', 'permission:eliminar-proveedore');
+        ->middlewareFor(['index', 'show'], 'permission:ver-proveedor|crear-proveedor|editar-proveedor|eliminar-proveedor')
+        ->middlewareFor(['create', 'store'], 'permission:crear-proveedor')
+        ->middlewareFor(['edit', 'update'], 'permission:editar-proveedor')
+        ->middlewareFor('destroy', 'permission:eliminar-proveedor');
 
     // --- Compras ---
     Route::get('/compras/reporte/diario', [compraController::class, 'reporteDiario'])->name('compras.reporte.diario')
@@ -205,9 +209,12 @@ Route::middleware(['auth'])->group(function () {
         ->middleware('permission:exportar-reporte-venta');
     Route::get('ventas/export/personalizado', [ventaController::class, 'exportPersonalizado'])->name('ventas.export.personalizado')
         ->middleware('permission:exportar-reporte-venta');
-    Route::get('ventas/{venta}/ticket', [ventaController::class, 'ticket'])->name('ventas.ticket');
-    Route::get('ventas/{venta}/print-ticket', [ventaController::class, 'printTicket'])->name('ventas.printTicket');
-    Route::get('/validar-fidelizacion-lavado/{cliente_id}', [ventaController::class, 'validarFidelizacionLavado'])->name('validar.fidelizacion');
+    Route::get('ventas/{venta}/ticket', [ventaController::class, 'ticket'])->name('ventas.ticket')
+        ->middleware('permission:mostrar-venta');
+    Route::get('ventas/{venta}/print-ticket', [ventaController::class, 'printTicket'])->name('ventas.printTicket')
+        ->middleware('permission:mostrar-venta');
+    Route::get('/validar-fidelizacion-lavado/{cliente_id}', [ventaController::class, 'validarFidelizacionLavado'])->name('validar.fidelizacion')
+        ->middleware('permission:crear-venta');
     Route::resource('ventas', ventaController::class)
         ->middlewareFor('index', 'permission:ver-venta|crear-venta|mostrar-venta|eliminar-venta')
         ->middlewareFor(['create', 'store'], 'permission:crear-venta')
@@ -262,39 +269,41 @@ Route::middleware(['auth'])->group(function () {
     Route::resource('lavadores', LavadorController::class)
         ->parameters(['lavadores' => 'lavador'])
         ->except(['show'])
-        ->middlewareFor('index', 'can:ver-lavador')
-        ->middlewareFor(['create', 'store'], 'can:crear-lavador')
-        ->middlewareFor(['edit', 'update'], 'can:editar-lavador')
-        ->middlewareFor('destroy', 'can:eliminar-lavador');
+        ->middlewareFor('index', 'permission:ver-lavador')
+        ->middlewareFor(['create', 'store'], 'permission:crear-lavador')
+        ->middlewareFor(['edit', 'update'], 'permission:editar-lavador')
+        ->middlewareFor('destroy', 'permission:eliminar-lavador');
 
     // --- Tipos de Vehículo ---
     Route::resource('tipos_vehiculo', TipoVehiculoController::class)
         ->parameters(['tipos_vehiculo' => 'tipo_vehiculo'])
         ->except(['show', 'destroy'])
-        ->middlewareFor('index', 'can:ver-tipo-vehiculo')
-        ->middlewareFor(['create', 'store'], 'can:crear-tipo-vehiculo')
-        ->middlewareFor(['edit', 'update'], 'can:editar-tipo-vehiculo');
+        ->middlewareFor('index', 'permission:ver-tipo-vehiculo')
+        ->middlewareFor(['create', 'store'], 'permission:crear-tipo-vehiculo')
+        ->middlewareFor(['edit', 'update'], 'permission:editar-tipo-vehiculo');
 
     // --- Pagos de Comisiones ---
     Route::get('pagos_comisiones/lavador/{lavador}', [PagoComisionController::class, 'show'])
         ->name('pagos_comisiones.lavador')
-        ->middleware('can:ver-historial-pago-comision');
+        ->middleware('permission:ver-historial-pago-comision');
     Route::get('pagos_comisiones/reporte', [PagoComisionController::class, 'reporteComisiones'])->name('pagos_comisiones.reporte')
-        ->middleware('can:ver-pago-comision');
+        ->middleware('permission:ver-pago-comision');
     Route::get('pagos_comisiones/reporte/export', [PagoComisionController::class, 'exportarComisiones'])->name('pagos_comisiones.reporte.export')
-        ->middleware('can:ver-pago-comision');
+        ->middleware('permission:ver-pago-comision');
     Route::resource('pagos_comisiones', PagoComisionController::class)
         ->except(['edit', 'update', 'destroy'])
-        ->middlewareFor(['index', 'show'], 'can:ver-pago-comision')
-        ->middlewareFor(['create', 'store'], 'can:crear-pago-comision');
-    Route::get('reporte/comisiones', [PagoComisionController::class, 'reporteComisiones'])->name('reporte.comisiones');
+        ->middlewareFor(['index', 'show'], 'permission:ver-pago-comision')
+        ->middlewareFor(['create', 'store'], 'permission:crear-pago-comision');
+    Route::get('reporte/comisiones', [PagoComisionController::class, 'reporteComisiones'])->name('reporte.comisiones')
+        ->middleware('permission:ver-pago-comision');
 
     // --- Tarjetas de Regalo ---
     Route::get('tarjetas_regalo/reporte', [\App\Http\Controllers\TarjetaRegaloController::class, 'reporte'])->name('tarjetas_regalo.reporte')
         ->middleware('permission:reporte-tarjeta-regalo');
     Route::get('tarjetas_regalo/reporte-view', [\App\Http\Controllers\TarjetaRegaloController::class, 'reporteView'])->name('tarjetas_regalo.reporte.view')
         ->middleware('permission:reporte-tarjeta-regalo');
-    Route::get('tarjetas_regalo/check/{codigo}', [\App\Http\Controllers\TarjetaRegaloController::class, 'check']);
+    Route::get('tarjetas_regalo/check/{codigo}', [\App\Http\Controllers\TarjetaRegaloController::class, 'check'])
+        ->middleware('permission:ver-tarjeta-regalo|crear-venta');
     Route::get('tarjetas_regalo/usos', [\App\Http\Controllers\TarjetaRegaloController::class, 'usos'])->name('tarjetas_regalo.usos')
         ->middleware('permission:historial-tarjeta-regalo');
     Route::get('tarjetas_regalo/export/excel', [\App\Http\Controllers\TarjetaRegaloController::class, 'exportExcel'])->name('tarjetas_regalo.export.excel')
@@ -320,8 +329,10 @@ Route::middleware(['auth'])->group(function () {
         ->middleware('permission:exportar-fidelidad');
 });
 
-// Configuración del negocio (requiere rol de administrador)
-Route::middleware(['auth', 'role:administrador'])->group(function () {
-    Route::get('/configuracion', [ConfiguracionNegocioController::class, 'edit'])->name('configuracion.edit');
-    Route::put('/configuracion', [ConfiguracionNegocioController::class, 'update'])->name('configuracion.update');
+// Configuración del negocio
+Route::middleware(['auth'])->group(function () {
+    Route::get('/configuracion', [ConfiguracionNegocioController::class, 'edit'])->name('configuracion.edit')
+        ->middleware('permission:ver-configuracion');
+    Route::put('/configuracion', [ConfiguracionNegocioController::class, 'update'])->name('configuracion.update')
+        ->middleware('permission:editar-configuracion');
 });
