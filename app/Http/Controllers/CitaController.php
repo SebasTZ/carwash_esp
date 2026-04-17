@@ -166,11 +166,11 @@ class CitaController extends Controller
 
         $cita->update(['estado' => 'en_proceso']);
 
-        if (request()->expectsJson()) {
+        if ($this->shouldReturnJson()) {
             return response()->json(['estado' => 'en_proceso', 'message' => 'Cita iniciada exitosamente']);
         }
 
-        return redirect()->route('citas.dashboard')
+        return redirect()->back()
             ->with('success', 'Cita iniciada exitosamente');
     }
 
@@ -187,11 +187,11 @@ class CitaController extends Controller
 
         $cita->update(['estado' => 'completada']);
 
-        if (request()->expectsJson()) {
+        if ($this->shouldReturnJson()) {
             return response()->json(['estado' => 'completada', 'message' => 'Cita completada exitosamente']);
         }
 
-        return redirect()->route('citas.dashboard')
+        return redirect()->back()
             ->with('success', 'Cita completada exitosamente');
     }
 
@@ -208,11 +208,11 @@ class CitaController extends Controller
 
         $cita->update(['estado' => 'cancelada']);
 
-        if (request()->expectsJson()) {
+        if ($this->shouldReturnJson()) {
             return response()->json(['estado' => 'cancelada', 'message' => 'Cita cancelada exitosamente']);
         }
 
-        return redirect()->route('citas.dashboard')
+        return redirect()->back()
             ->with('success', 'Cita cancelada exitosamente');
     }
 
@@ -236,11 +236,11 @@ class CitaController extends Controller
             $nextState
         );
 
-        if (request()->expectsJson()) {
+        if ($this->shouldReturnJson()) {
             return response()->json(['message' => $message], 422);
         }
 
-        return redirect()->route('citas.dashboard')
+        return redirect()->back()
             ->with('error', $message);
     }
 

@@ -88,6 +88,54 @@ class TarjetaRegaloControllerTest extends TestCase
     }
 
     #[\PHPUnit\Framework\Attributes\Test]
+    public function index_con_accept_json_retorna_paginacion_json()
+    {
+        TarjetaRegalo::create([
+            'codigo' => 'TG-INDEX-01',
+            'valor_inicial' => 100,
+            'saldo_actual' => 80,
+            'estado' => 'activa',
+            'fecha_venta' => now()->toDateString(),
+            'cliente_id' => $this->cliente->id,
+        ]);
+
+        $response = $this->get(route('tarjetas_regalo.index'), [
+            'HTTP_ACCEPT' => 'application/json',
+        ]);
+
+        $response->assertOk();
+        $response->assertJsonStructure(['data', 'current_page', 'per_page']);
+        $this->assertSame('TG-INDEX-01', $response->json('data.0.codigo'));
+    }
+
+    #[\PHPUnit\Framework\Attributes\Test]
+    public function store_con_accept_json_crea_tarjeta_y_retorna_201()
+    {
+        $response = $this->post(route('tarjetas_regalo.store'), [
+            'codigo' => 'TG-JSON-01',
+            'valor_inicial' => 200,
+            'fecha_venta' => now()->toDateString(),
+            'fecha_vencimiento' => now()->addMonths(3)->toDateString(),
+            'cliente_id' => $this->cliente->id,
+        ], [
+            'HTTP_ACCEPT' => 'application/json',
+        ]);
+
+        $response->assertStatus(201);
+        $response->assertJson([
+            'codigo' => 'TG-JSON-01',
+            'valor_inicial' => 200,
+            'saldo_actual' => 200,
+            'estado' => 'activa',
+        ]);
+
+        $this->assertDatabaseHas('tarjetas_regalo', [
+            'codigo' => 'TG-JSON-01',
+            'cliente_id' => $this->cliente->id,
+        ]);
+    }
+
+    #[\PHPUnit\Framework\Attributes\Test]
     public function check_devuelve_datos_basicos_o_404_si_no_existe()
     {
         $tarjeta = TarjetaRegalo::create([

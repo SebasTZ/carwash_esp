@@ -1,20 +1,6 @@
 {{-- Vista parcial para carga AJAX de la tabla de lavados --}}
 
-@if(session('error'))
-    <div class="alert alert-danger alert-dismissible fade show" role="alert">
-        <i class="fas fa-exclamation-triangle me-2"></i>
-        {{ session('error') }}
-        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-    </div>
-@endif
-
-@if(session('success'))
-    <div class="alert alert-success alert-dismissible fade show" role="alert">
-        <i class="fas fa-check-circle me-2"></i>
-        {{ session('success') }}
-        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-    </div>
-@endif
+<x-flash-alert />
 
 @if(session('confirmar_inicio'))
     <div class="alert alert-warning" role="alert">
@@ -39,25 +25,11 @@
     </div>
 @endif
 
-<div id="dynamicTableLavados"></div>
-@push('js')
-<script type="application/json" id="lavados-tabla-config">{!! json_encode([
-    'data' => $lavados->map(function($lavado) {
-        return [
-            'comprobante' => $lavado->venta?->numero_comprobante ?? '-',
-            'cliente' => $lavado->venta?->cliente?->persona?->nombre_completo ?? '-',
-            'lavador_tipo' => ($lavado->lavador?->nombre ?? '-') . ' / ' . ($lavado->tipoVehiculo?->nombre ?? '-'),
-            'hora_llegada' => $lavado->hora_llegada?->format('H:i') ?? '-',
-            'inicio_lavado' => $lavado->inicio_lavado?->format('H:i') ?? '-',
-            'fin_lavado' => $lavado->fin_lavado?->format('H:i') ?? '-',
-            'inicio_interior' => $lavado->inicio_interior?->format('H:i') ?? '-',
-            'fin_interior' => $lavado->fin_interior?->format('H:i') ?? '-',
-            'hora_final' => $lavado->hora_final?->format('H:i') ?? '-',
-            'tiempo_total' => $lavado->tiempo_total ?? '-',
-            'estado' => $lavado->estado,
-            'acciones' => $lavado->id,
-        ];
-    }),
-], JSON_HEX_TAG | JSON_HEX_APOS | JSON_HEX_AMP | JSON_HEX_QUOT) !!}</script>
-@endpush
+<div id="lavados-table-wrapper">
+    @include('control.partials.lavados_table', [
+        'lavados' => $lavados,
+        'lavadores' => $lavadores,
+        'tiposVehiculo' => $tiposVehiculo,
+    ])
+</div>
 

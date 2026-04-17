@@ -180,9 +180,12 @@ class CitaControllerTest extends TestCase
             'cliente_id' => $this->cliente->id,
             'fecha' => now()->toDateString(),
             'estado' => 'pendiente',
+            'user_id' => $this->user->id,
         ]);
 
-        $response = $this->post(route('citas.iniciar', $cita));
+        $response = $this
+            ->withHeader('referer', route('citas.dashboard'))
+            ->post(route('citas.iniciar', $cita));
 
         $response->assertRedirect(route('citas.dashboard'));
         $response->assertSessionHas('success');
@@ -200,9 +203,12 @@ class CitaControllerTest extends TestCase
             'cliente_id' => $this->cliente->id,
             'fecha' => now()->toDateString(),
             'estado' => 'pendiente',
+            'user_id' => $this->user->id,
         ]);
 
-        $response = $this->post(route('citas.completar', $cita));
+        $response = $this
+            ->withHeader('referer', route('citas.dashboard'))
+            ->post(route('citas.completar', $cita));
 
         $response->assertRedirect(route('citas.dashboard'));
         $response->assertSessionHas('error');
@@ -252,5 +258,56 @@ class CitaControllerTest extends TestCase
         $response = $this->actingAs($this->user)->post(route('citas.iniciar', $cita));
 
         $response->assertForbidden();
+    }
+
+    #[\PHPUnit\Framework\Attributes\Test]
+    public function iniciar_cita_con_accept_json_retorna_payload_json()
+    {
+        $cita = Cita::factory()->create([
+            'cliente_id' => $this->cliente->id,
+            'fecha' => now()->toDateString(),
+            'estado' => 'pendiente',
+            'user_id' => $this->user->id,
+        ]);
+
+        $response = $this->post(route('citas.iniciar', $cita), [], [
+            'HTTP_ACCEPT' => 'application/json',
+        ]);
+
+        $response->assertOk();
+        $response->assertJson([
+            'estado' => 'en_proceso',
+            'message' => 'Cita iniciada exitosamente',
+        ]);
+
+        $this->assertDatabaseHas('citas', [
+            'id' => $cita->id,
+            'estado' => 'en_proceso',
+        ]);
+    }
+
+    #[\PHPUnit\Framework\Attributes\Test]
+    public function completar_cita_invalida_con_accept_json_retorna_422()
+    {
+        $cita = Cita::factory()->create([
+            'cliente_id' => $this->cliente->id,
+            'fecha' => now()->toDateString(),
+            'estado' => 'pendiente',
+            'user_id' => $this->user->id,
+        ]);
+
+        $response = $this->post(route('citas.completar', $cita), [], [
+            'HTTP_ACCEPT' => 'application/json',
+        ]);
+
+        $response->assertStatus(422);
+        $response->assertJson([
+            'message' => 'Transición inválida de estado: pendiente -> completada.',
+        ]);
+
+        $this->assertDatabaseHas('citas', [
+            'id' => $cita->id,
+            'estado' => 'pendiente',
+        ]);
     }
 }

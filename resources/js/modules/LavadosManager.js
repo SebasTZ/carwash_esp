@@ -89,6 +89,7 @@ export class LavadosManager {
         }
         
         this.state = new LavadosState();
+        this.paginationClickHandler = null;
         this.init();
     }
     
@@ -177,7 +178,11 @@ export class LavadosManager {
      * Configurar listeners para paginación
      */
     setupPaginationListeners() {
-        document.addEventListener('click', (e) => {
+        if (this.paginationClickHandler) {
+            return;
+        }
+
+        this.paginationClickHandler = (e) => {
             const paginationLink = e.target.closest('.pagination a');
             
             if (paginationLink && !paginationLink.classList.contains('disabled')) {
@@ -191,7 +196,9 @@ export class LavadosManager {
                     this.cargarLavados();
                 }
             }
-        });
+        };
+
+        document.addEventListener('click', this.paginationClickHandler);
     }
     
     /**
@@ -239,9 +246,6 @@ export class LavadosManager {
                 this.actualizarTabla(response.data.html);
             }
             
-            // Re-inicializar listeners de paginación
-            this.setupPaginationListeners();
-            
             // Re-inicializar tooltips
             this.initTooltips();
             
@@ -266,21 +270,27 @@ export class LavadosManager {
     actualizarTabla(html) {
         const parser = new DOMParser();
         const doc = parser.parseFromString(html, 'text/html');
-        
-        // Extraer tabla del HTML recibido
-        const nuevaTabla = doc.querySelector('.table-responsive');
-        const tablasActual = document.querySelector('.control-card .table-responsive');
-        
-        if (nuevaTabla && tablasActual) {
-            tablasActual.innerHTML = nuevaTabla.innerHTML;
-        }
-        
-        // Extraer paginación
-        const nuevaPaginacion = doc.querySelector('.pagination');
-        const paginacionActual = document.querySelector('.pagination');
-        
-        if (nuevaPaginacion && paginacionActual) {
-            paginacionActual.parentElement.innerHTML = nuevaPaginacion.parentElement.innerHTML;
+
+        const nuevoWrapper = doc.querySelector('#lavados-table-wrapper');
+        const wrapperActual = document.querySelector('#lavados-table-wrapper');
+
+        if (nuevoWrapper && wrapperActual) {
+            wrapperActual.innerHTML = nuevoWrapper.innerHTML;
+        } else {
+            // Fallback para respuestas parciales antiguas.
+            const nuevaTabla = doc.querySelector('.table-responsive');
+            const tablasActual = document.querySelector('.control-card .table-responsive');
+
+            if (nuevaTabla && tablasActual) {
+                tablasActual.innerHTML = nuevaTabla.innerHTML;
+            }
+
+            const nuevaPaginacion = doc.querySelector('.pagination');
+            const paginacionActual = document.querySelector('.pagination');
+
+            if (nuevaPaginacion && paginacionActual) {
+                paginacionActual.parentElement.innerHTML = nuevaPaginacion.parentElement.innerHTML;
+            }
         }
         
         // Extraer alertas si existen
@@ -304,7 +314,7 @@ export class LavadosManager {
      * @param {boolean} mostrar
      */
     mostrarCargando(mostrar) {
-        const tabla = document.querySelector('.table-responsive');
+        const tabla = document.querySelector('#lavados-table-wrapper');
         
         if (!tabla) return;
         
@@ -351,6 +361,16 @@ export class LavadosManager {
             // Crear nuevo tooltip
             new bootstrap.Tooltip(tooltipTriggerEl);
         });
+    }
+
+    /**
+     * Cleanup al destruir
+     */
+    destroy() {
+        if (this.paginationClickHandler) {
+            document.removeEventListener('click', this.paginationClickHandler);
+            this.paginationClickHandler = null;
+        }
     }
 }
 

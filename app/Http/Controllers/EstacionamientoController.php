@@ -132,7 +132,7 @@ class EstacionamientoController extends Controller
     {
         $this->authorizePermission('editar-estacionamiento');
 
-        $wantsJson = $request->ajax() || $request->wantsJson();
+        $wantsJson = $this->shouldReturnJson($request);
 
         try {
             $estacionamiento->hora_salida = now();

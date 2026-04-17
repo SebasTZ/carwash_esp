@@ -10,6 +10,7 @@ use App\Models\User;
 use App\Repositories\ControlLavadoRepository;
 use App\Services\ControlLavadoService;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Pagination\LengthAwarePaginator;
 use Mockery;
 use Mockery\MockInterface;
 use Tests\TestCase;
@@ -141,6 +142,43 @@ class ControlLavadoControllerTest extends TestCase
 
         $response->assertRedirect(route('control.lavados'));
         $response->assertSessionHas('error', 'Lavado no encontrado.');
+    }
+
+    #[\PHPUnit\Framework\Attributes\Test]
+    public function index_ajax_retorna_json_con_html_de_tabla_compatible_con_frontend(): void
+    {
+        Lavador::factory()->create(['estado' => 'activo']);
+        TipoVehiculo::factory()->create(['estado' => 'activo']);
+        $lavado = ControlLavado::factory()->create();
+
+        $lavados = new LengthAwarePaginator(
+            collect([$lavado]),
+            1,
+            15,
+            1,
+            ['path' => route('control.lavados')]
+        );
+
+        $this->serviceMock
+            ->shouldReceive('obtenerLavadosConFiltros')
+            ->once()
+            ->with(Mockery::type('array'), 15)
+            ->andReturn($lavados);
+
+        $response = $this->get(route('control.lavados'), [
+            'HTTP_ACCEPT' => 'application/json',
+            'HTTP_X_REQUESTED_WITH' => 'XMLHttpRequest',
+        ]);
+
+        $response->assertOk();
+        $response->assertJson([
+            'success' => true,
+        ]);
+        $response->assertJsonStructure(['success', 'html']);
+
+        $html = (string) $response->json('html');
+        $this->assertStringContainsString('id="lavados-table-wrapper"', $html);
+        $this->assertStringContainsString('table-responsive', $html);
     }
 
     #[\PHPUnit\Framework\Attributes\Test]

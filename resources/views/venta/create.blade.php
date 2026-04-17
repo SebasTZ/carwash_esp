@@ -358,6 +358,9 @@
 
 @push('js')
 <script type="application/json" id="venta-productos-config">@json($productoConfig)</script>
+<script type="application/json" id="venta-endpoints-config">@json([
+    'validarFidelizacionUrl' => route('validar.fidelizacion', ['cliente_id' => '__cliente_id__']),
+])</script>
 <!-- Cargar el módulo VentaManager.js -->
 @vite(['resources/js/modules/VentaManager.js'])
 @endpush

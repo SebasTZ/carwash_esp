@@ -17,13 +17,13 @@ class TarjetaRegaloController extends Controller
         private TarjetaRegaloService $tarjetaRegaloService
     ) {}
 
-    public function index()
+    public function index(Request $request)
     {
         $this->authorizePermission('ver-tarjeta-regalo');
 
         $tarjetas = TarjetaRegalo::with('cliente')->paginate(15);
         // Si es AJAX o API, responde JSON. Si es web, muestra la vista.
-        if (request()->ajax()) {
+        if ($this->shouldReturnJson($request)) {
             return response()->json($tarjetas);
         }
         return view('tarjetas_regalo.reporte', compact('tarjetas'));
@@ -43,7 +43,7 @@ class TarjetaRegaloController extends Controller
 
         if ($validator->fails()) {
             // Si es AJAX, responde JSON, si no, redirige con errores
-            if ($request->ajax()) {
+            if ($this->shouldReturnJson($request)) {
                 return response()->json(['errors' => $validator->errors()], 422);
             }
             return redirect()->back()->withErrors($validator)->withInput();
@@ -60,7 +60,7 @@ class TarjetaRegaloController extends Controller
         ]);
 
         // Si es AJAX, responde JSON, si no, redirige con mensaje de éxito
-        if ($request->ajax()) {
+        if ($this->shouldReturnJson($request)) {
             return response()->json($tarjeta, 201);
         }
         return redirect()->route('tarjetas_regalo.reporte.view')->with('success', '¡Tarjeta de regalo creada correctamente!');

@@ -20,4 +20,6 @@ Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
 });
 
 // Validación de fidelización para lavado gratis
-Route::middleware('auth:sanctum')->get('/validar-fidelizacion-lavado/{cliente_id}', [ventaController::class, 'validarFidelizacionLavado']);
+Route::middleware('auth:sanctum')
+    ->get('/validar-fidelizacion-lavado/{cliente_id}', [ventaController::class, 'validarFidelizacionLavado'])
+    ->name('api.validar.fidelizacion');

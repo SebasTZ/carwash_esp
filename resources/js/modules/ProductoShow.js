@@ -4,7 +4,7 @@
  * Basado en CompraShow.js
  */
 
-import { formatCurrency } from '/js/utils/formatters.js';
+import { getCsrfToken } from '@utils/csrf';
 
 class ProductoShow {
     constructor({ elementId = 'productoShowContainer', producto = {} }) {
@@ -18,6 +18,7 @@ class ProductoShow {
      */
     render() {
         const producto = this.producto;
+        const csrfToken = getCsrfToken();
 
         // Determinar estado
         const estadoClass = producto.estado === 1 ? 'bg-success' : 'bg-danger';
@@ -151,8 +152,8 @@ class ProductoShow {
                 </div>
 
                 <form id="deleteForm" action="/productos/${producto.id}" method="POST" style="display:none;">
-                    @csrf
-                    @method('DELETE')
+                    <input type="hidden" name="_token" value="${csrfToken}">
+                    <input type="hidden" name="_method" value="DELETE">
                 </form>
             </div>
         `;

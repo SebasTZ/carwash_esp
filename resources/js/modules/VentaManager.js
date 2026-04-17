@@ -196,8 +196,20 @@ export class VentaManager {
         this.state = new VentaState();
         this.autoGuardarInterval = null;
         this.productosConfig = readJsonScript('venta-productos-config', {}, 'VentaManager');
+        this.endpointsConfig = readJsonScript('venta-endpoints-config', {}, 'VentaManager');
         this.livewireSelectHandler = null;
         this.init();
+    }
+
+    obtenerUrlValidacionFidelizacion(clienteId) {
+        const clienteIdEncoded = encodeURIComponent(String(clienteId));
+        const template = this.endpointsConfig?.validarFidelizacionUrl;
+
+        if (typeof template === 'string' && template.includes('__cliente_id__')) {
+            return template.replace('__cliente_id__', clienteIdEncoded);
+        }
+
+        return `/validar-fidelizacion-lavado/${clienteIdEncoded}`;
     }
 
     /**
@@ -729,7 +741,9 @@ export class VentaManager {
      */
     async validarFidelizacionLavado(clienteId) {
         try {
-            const response = await axios.get(`/validar-fidelizacion-lavado/${clienteId}`, {
+            const endpoint = this.obtenerUrlValidacionFidelizacion(clienteId);
+
+            const response = await axios.get(endpoint, {
                 headers: {
                     Accept: 'application/json',
                 },

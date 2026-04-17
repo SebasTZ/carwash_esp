@@ -37,7 +37,7 @@ class ControlLavadoController extends Controller
         $tiposVehiculo = TipoVehiculo::where('estado', 'activo')->get();
 
         // Si es una petición AJAX, retornar solo la tabla
-        if ($request->ajax() || $request->wantsJson()) {
+        if ($this->shouldReturnJson($request)) {
             $html = view('control.lavados_tabla_partial', compact('lavados', 'lavadores', 'tiposVehiculo'))->render();
             return response()->json([
                 'html' => $html,

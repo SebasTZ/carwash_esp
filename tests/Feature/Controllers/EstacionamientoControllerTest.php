@@ -265,6 +265,39 @@ class EstacionamientoControllerTest extends TestCase
     }
 
     #[\PHPUnit\Framework\Attributes\Test]
+    public function registrar_salida_con_accept_json_retorna_json_y_actualiza_estado()
+    {
+        $this->withMiddleware();
+
+        Permission::findOrCreate('editar-estacionamiento');
+        $this->user->givePermissionTo('editar-estacionamiento');
+
+        $estacionamiento = Estacionamiento::factory()->create([
+            'cliente_id' => $this->cliente->id,
+            'estado' => 'ocupado',
+            'hora_entrada' => now()->subHours(2),
+            'hora_salida' => null,
+            'tarifa_hora' => 6,
+            'pagado_adelantado' => false,
+            'monto_pagado_adelantado' => 0,
+        ]);
+
+        $response = $this->actingAs($this->user)
+            ->post(route('estacionamiento.registrar-salida', $estacionamiento), [], [
+                'HTTP_ACCEPT' => 'application/json',
+            ]);
+
+        $response->assertOk();
+        $response->assertJsonStructure(['message', 'monto_total', 'estacionamiento_id']);
+        $response->assertJsonPath('estacionamiento_id', $estacionamiento->id);
+
+        $this->assertDatabaseHas('estacionamientos', [
+            'id' => $estacionamiento->id,
+            'estado' => 'finalizado',
+        ]);
+    }
+
+    #[\PHPUnit\Framework\Attributes\Test]
     public function registrar_salida_retorna_403_si_usuario_no_tiene_permiso(): void
     {
         $this->withMiddleware();

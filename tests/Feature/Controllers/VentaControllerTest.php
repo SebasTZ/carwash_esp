@@ -226,6 +226,20 @@ class VentaControllerTest extends TestCase
     }
 
     #[\PHPUnit\Framework\Attributes\Test]
+    public function create_incluye_configuracion_de_endpoint_para_validar_fidelizacion()
+    {
+        Permission::findOrCreate('ver-cliente');
+        $this->user->givePermissionTo('ver-cliente');
+
+        $response = $this->get(route('ventas.create'));
+
+        $response->assertOk();
+        $response->assertSee('id="venta-endpoints-config"', false);
+        $response->assertSee('validarFidelizacionUrl', false);
+        $response->assertSee('__cliente_id__', false);
+    }
+
+    #[\PHPUnit\Framework\Attributes\Test]
     public function reporte_personalizado_sin_parametros_retorna_vista_sin_error()
     {
         $response = $this->get(route('ventas.reporte.personalizado'));
