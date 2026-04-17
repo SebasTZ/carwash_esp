@@ -23,7 +23,7 @@ class EstacionamientoController extends Controller
         $this->estacionamientoService = $estacionamientoService;
     }
 
-    public function index()
+    public function index(Request $request)
     {
         $this->authorizeAnyPermission(['ver-estacionamiento', 'crear-estacionamiento', 'editar-estacionamiento', 'eliminar-estacionamiento']);
 
@@ -31,6 +31,15 @@ class EstacionamientoController extends Controller
             ->where('estado', 'ocupado')
             ->latest()
             ->paginate(15);
+
+        if ($this->shouldReturnJson($request)) {
+            $html = view('estacionamiento.partials.table', compact('estacionamientos'))->render();
+
+            return response()->json([
+                'success' => true,
+                'html' => $html,
+            ]);
+        }
 
         return view('estacionamiento.index', compact('estacionamientos'));
     }
@@ -51,6 +60,8 @@ class EstacionamientoController extends Controller
     {
         $this->authorizePermission('crear-estacionamiento');
 
+        $wantsJson = $this->shouldReturnJson($request);
+
         $request->validate([
             'cliente_id' => 'required|exists:clientes,id',
             'placa' => 'required|string|max:10',
@@ -58,6 +69,7 @@ class EstacionamientoController extends Controller
             'modelo' => 'required|string|max:50',
             'telefono' => 'required|string|max:20',
             'tarifa_hora' => 'required|numeric|min:0',
+            'monto_pagado_adelantado' => 'nullable|numeric|min:0',
         ]);
 
         try {
@@ -69,10 +81,14 @@ class EstacionamientoController extends Controller
             
             if ($espaciosOcupados >= $capacidadMaxima) {
                 DB::rollBack();
-                return redirect()->back()->with('error', 
-                    "Estacionamiento lleno. Capacidad máxima: {$capacidadMaxima} vehículos. " .
-                    "Espacios ocupados: {$espaciosOcupados}"
-                );
+                $message = "Estacionamiento lleno. Capacidad máxima: {$capacidadMaxima} vehículos. " .
+                    "Espacios ocupados: {$espaciosOcupados}";
+
+                if ($wantsJson) {
+                    return response()->json(['message' => $message], 422);
+                }
+
+                return redirect()->back()->with('error', $message);
             }
 
             // ✅ CORRECCIÓN BUG #4: Validar que la placa no esté duplicada (case-insensitive)
@@ -82,16 +98,21 @@ class EstacionamientoController extends Controller
                 
             if ($placaExistente) {
                 DB::rollBack();
-                return redirect()->back()->with('error', 
-                    "El vehículo con placa {$request->placa} ya está estacionado actualmente. " .
-                    "Por favor, verifique la placa o registre la salida del vehículo anterior."
-                );
+                $message = "El vehículo con placa {$request->placa} ya está estacionado actualmente. " .
+                    "Por favor, verifique la placa o registre la salida del vehículo anterior.";
+
+                if ($wantsJson) {
+                    return response()->json(['message' => $message], 422);
+                }
+
+                return redirect()->back()->with('error', $message);
             }
 
             // Normalizar placa a mayúsculas
             $placa = strtoupper($request->placa);
+            $pagadoAdelantado = $request->boolean('pagado_adelantado');
 
-            Estacionamiento::create([
+            $estacionamiento = Estacionamiento::create([
                 'cliente_id' => $request->cliente_id,
                 'placa' => $placa,
                 'marca' => $request->marca,
@@ -100,19 +121,33 @@ class EstacionamientoController extends Controller
                 'tarifa_hora' => $request->tarifa_hora,
                 'hora_entrada' => now(),
                 'estado' => 'ocupado',
-                'pagado_adelantado' => $request->has('pagado_adelantado'),
-                'monto_pagado_adelantado' => $request->pagado_adelantado ? $request->monto_pagado_adelantado : null
+                'pagado_adelantado' => $pagadoAdelantado,
+                'monto_pagado_adelantado' => $pagadoAdelantado ? $request->monto_pagado_adelantado : null
             ]);
 
             DB::commit();
             
             $espaciosDisponibles = $capacidadMaxima - ($espaciosOcupados + 1);
-            return redirect()->route('estacionamiento.index')->with('success', 
-                "Vehículo registrado correctamente. Espacios disponibles: {$espaciosDisponibles}"
-            );
+            $successMessage = "Vehículo registrado correctamente. Espacios disponibles: {$espaciosDisponibles}";
+
+            if ($wantsJson) {
+                return response()->json([
+                    'message' => $successMessage,
+                    'estacionamiento_id' => $estacionamiento->id,
+                    'espacios_disponibles' => $espaciosDisponibles,
+                ], 201);
+            }
+
+            return redirect()->route('estacionamiento.index')->with('success', $successMessage);
         } catch (\Exception $e) {
             DB::rollBack();
-            return redirect()->back()->with('error', 'Error al registrar el vehículo: ' . $e->getMessage());
+            $message = 'Error al registrar el vehículo: ' . $e->getMessage();
+
+            if ($wantsJson) {
+                return response()->json(['message' => $message], 422);
+            }
+
+            return redirect()->back()->with('error', $message);
         }
     }
 

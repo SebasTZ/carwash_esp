@@ -18,7 +18,7 @@ class compraController extends Controller
 {
     public function __construct(private StockService $stockService) {}
 
-    public function index()
+    public function index(Request $request)
     {
         $this->authorizeAnyPermission(['ver-compra', 'crear-compra', 'mostrar-compra', 'eliminar-compra']);
 
@@ -26,6 +26,14 @@ class compraController extends Controller
         ->where('estado',1)
         ->latest()
         ->paginate(15); 
+
+        if ($this->shouldReturnJson($request)) {
+            return response()->json([
+                'success' => true,
+                'data' => $compras,
+            ]);
+        }
+
         return view('compra.index',compact('compras'));
     }
 
@@ -44,6 +52,7 @@ class compraController extends Controller
     public function store(StoreCompraRequest $request)
     {
         $this->authorizePermission('crear-compra');
+        $wantsJson = $this->shouldReturnJson($request);
 
         try {
             DB::beginTransaction();
@@ -56,7 +65,15 @@ class compraController extends Controller
                                      ->exists();
             
             if ($existeComprobante) {
-                return redirect()->back()->with('error', 'Ya existe una compra con este número de comprobante para este proveedor.');
+                DB::rollBack();
+
+                $message = 'Ya existe una compra con este número de comprobante para este proveedor.';
+
+                if ($wantsJson) {
+                    return response()->json(['message' => $message], 422);
+                }
+
+                return redirect()->back()->with('error', $message)->withInput();
             }
 
             // Llenar tabla compras
@@ -94,9 +111,25 @@ class compraController extends Controller
             }
 
             DB::commit();
+
+            if ($wantsJson) {
+                return response()->json([
+                    'message' => 'Compra exitosa',
+                    'compra_id' => $compra->id,
+                ], 201);
+            }
         } catch (Exception $e) {
-            DB::rollBack();
-            return redirect()->back()->with('error', 'Error al realizar la compra: ' . $e->getMessage());
+            if (DB::transactionLevel() > 0) {
+                DB::rollBack();
+            }
+
+            $message = 'Error al realizar la compra: ' . $e->getMessage();
+
+            if ($wantsJson) {
+                return response()->json(['message' => $message], 422);
+            }
+
+            return redirect()->back()->with('error', $message)->withInput();
         }
 
         return redirect()->route('compras.index')->with('success', 'Compra exitosa');
@@ -213,11 +246,18 @@ class compraController extends Controller
         return Excel::download(new ComprasExport($compras), "compras_{$fechaInicio}_a_{$fechaFin}.xlsx");
     }
 
-    public function destroy(Compra $compra)
+    public function destroy(Request $request, Compra $compra)
     {
         $this->authorizePermission('eliminar-compra');
 
         $compra->update(['estado' => 0]);
+
+        if ($this->shouldReturnJson($request)) {
+            return response()->json([
+                'message' => 'Compra eliminada',
+                'compra_id' => $compra->id,
+            ]);
+        }
 
         return redirect()->route('compras.index')->with('success', 'Compra eliminada');
     }

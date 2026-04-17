@@ -91,7 +91,19 @@
     <table id="citasTable" class="table table-bordered table-hover"></table>
 </div>
 
+@php
+    $citasEndpointsConfig = [
+        'show' => route('citas.show', ['cita' => '__cita__']),
+        'edit' => route('citas.edit', ['cita' => '__cita__']),
+        'iniciar' => route('citas.iniciar', ['cita' => '__cita__']),
+        'completar' => route('citas.completar', ['cita' => '__cita__']),
+        'cancelar' => route('citas.cancelar', ['cita' => '__cita__']),
+        'destroy' => route('citas.destroy', ['cita' => '__cita__']),
+    ];
+@endphp
+
 <script type="application/json" id="citas-table-data">@json($citas->items())</script>
+<script type="application/json" id="citas-endpoints-config">@json($citasEndpointsConfig)</script>
 
 <!-- Paginación con preservación de filtros -->
 <x-pagination-info :paginator="$citas" entity="citas" :preserve-query="true" />

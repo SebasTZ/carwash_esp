@@ -10,7 +10,9 @@ class CitasIndexManager {
         this.DynamicTable = window.CarWash?.DynamicTable;
         this.tableSelector = '#citasTable';
         this.dataElementId = 'citas-table-data';
+        this.endpointsElementId = 'citas-endpoints-config';
         this.csrfToken = getCsrfToken();
+        this.endpointsConfig = this.getEndpointsConfig();
 
         if (!this.DynamicTable) {
             console.warn('[CitasIndexManager] DynamicTable no está disponible en window.CarWash');
@@ -37,6 +39,22 @@ class CitasIndexManager {
 
     getData() {
         return readJsonScript(this.dataElementId, [], 'CitasIndexManager');
+    }
+
+    getEndpointsConfig() {
+        return readJsonScript(this.endpointsElementId, {}, 'CitasIndexManager');
+    }
+
+    resolveCitaUrl(key, citaId) {
+        const template = this.endpointsConfig?.[key];
+        const idEncoded = encodeURIComponent(String(citaId));
+
+        if (typeof template === 'string' && template.includes('__cita__')) {
+            return template.replace('__cita__', idEncoded);
+        }
+
+        console.error(`[CitasIndexManager] Endpoint no configurado para ${key}`);
+        return '#';
     }
 
     getColumns() {
@@ -102,21 +120,28 @@ class CitasIndexManager {
     }
 
     renderActionButtons(row) {
+        const showUrl = this.resolveCitaUrl('show', row.id);
+        const editUrl = this.resolveCitaUrl('edit', row.id);
+        const iniciarUrl = this.resolveCitaUrl('iniciar', row.id);
+        const completarUrl = this.resolveCitaUrl('completar', row.id);
+        const cancelarUrl = this.resolveCitaUrl('cancelar', row.id);
+        const destroyUrl = this.resolveCitaUrl('destroy', row.id);
+
         let buttons = '<div class="btn-group" role="group">';
 
-        buttons += `<a href="/citas/${row.id}" class="btn btn-info btn-sm" title="Ver detalles">
+        buttons += `<a href="${showUrl}" class="btn btn-info btn-sm" title="Ver detalles">
             <i class="fas fa-eye"></i>
         </a>`;
 
         if (row.estado !== 'completada' && row.estado !== 'cancelada') {
-            buttons += `<a href="/citas/${row.id}/edit" class="btn btn-primary btn-sm" title="Editar">
+            buttons += `<a href="${editUrl}" class="btn btn-primary btn-sm" title="Editar">
                 <i class="fas fa-edit"></i>
             </a>`;
         }
 
         if (row.estado === 'pendiente') {
             buttons += this.buildPostActionButton({
-                action: `/citas/${row.id}/iniciar`,
+                action: iniciarUrl,
                 title: 'Iniciar Cita',
                 buttonClass: 'btn btn-success btn-sm',
                 iconClass: 'fas fa-play',
@@ -125,7 +150,7 @@ class CitasIndexManager {
 
         if (row.estado === 'en_proceso') {
             buttons += this.buildPostActionButton({
-                action: `/citas/${row.id}/completar`,
+                action: completarUrl,
                 title: 'Completar Cita',
                 buttonClass: 'btn btn-success btn-sm',
                 iconClass: 'fas fa-check',
@@ -134,7 +159,7 @@ class CitasIndexManager {
 
         if (row.estado !== 'completada' && row.estado !== 'cancelada') {
             buttons += this.buildPostActionButton({
-                action: `/citas/${row.id}/cancelar`,
+                action: cancelarUrl,
                 title: 'Cancelar Cita',
                 buttonClass: 'btn btn-danger btn-sm',
                 iconClass: 'fas fa-times',
@@ -144,7 +169,7 @@ class CitasIndexManager {
         }
 
         buttons += this.buildPostActionButton({
-            action: `/citas/${row.id}`,
+            action: destroyUrl,
             title: 'Eliminar',
             buttonClass: 'btn btn-danger btn-sm',
             iconClass: 'fas fa-trash',

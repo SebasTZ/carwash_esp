@@ -265,6 +265,82 @@ class EstacionamientoControllerTest extends TestCase
     }
 
     #[\PHPUnit\Framework\Attributes\Test]
+    public function index_con_accept_json_retorna_html_parcial_para_refresco_frontend(): void
+    {
+        Estacionamiento::factory()->create([
+            'cliente_id' => $this->cliente->id,
+            'estado' => 'ocupado',
+        ]);
+
+        $response = $this->actingAs($this->user)
+            ->get(route('estacionamiento.index'), [
+                'HTTP_ACCEPT' => 'application/json',
+                'HTTP_X_REQUESTED_WITH' => 'XMLHttpRequest',
+            ]);
+
+        $response->assertOk();
+        $response->assertJson([
+            'success' => true,
+        ]);
+        $response->assertJsonStructure(['success', 'html']);
+
+        $html = (string) $response->json('html');
+        $this->assertStringContainsString('table table-striped', $html);
+        $this->assertStringContainsString('Registrar Salida', $html);
+    }
+
+    #[\PHPUnit\Framework\Attributes\Test]
+    public function store_con_accept_json_retorna_201_y_payload_consistente(): void
+    {
+        $response = $this->actingAs($this->user)
+            ->post(route('estacionamiento.store'), [
+                'cliente_id' => $this->cliente->id,
+                'placa' => 'abc-987',
+                'marca' => 'Toyota',
+                'modelo' => 'Yaris',
+                'telefono' => '999111222',
+                'tarifa_hora' => 8,
+            ], [
+                'HTTP_ACCEPT' => 'application/json',
+                'HTTP_X_REQUESTED_WITH' => 'XMLHttpRequest',
+            ]);
+
+        $response->assertStatus(201);
+        $response->assertJsonStructure(['message', 'estacionamiento_id', 'espacios_disponibles']);
+
+        $this->assertDatabaseHas('estacionamientos', [
+            'placa' => 'ABC-987',
+            'estado' => 'ocupado',
+        ]);
+    }
+
+    #[\PHPUnit\Framework\Attributes\Test]
+    public function store_con_accept_json_y_placa_duplicada_retorna_422(): void
+    {
+        Estacionamiento::factory()->create([
+            'cliente_id' => $this->cliente->id,
+            'placa' => 'QWE-123',
+            'estado' => 'ocupado',
+        ]);
+
+        $response = $this->actingAs($this->user)
+            ->post(route('estacionamiento.store'), [
+                'cliente_id' => $this->cliente->id,
+                'placa' => 'qwe-123',
+                'marca' => 'Honda',
+                'modelo' => 'Civic',
+                'telefono' => '999111222',
+                'tarifa_hora' => 8,
+            ], [
+                'HTTP_ACCEPT' => 'application/json',
+                'HTTP_X_REQUESTED_WITH' => 'XMLHttpRequest',
+            ]);
+
+        $response->assertStatus(422);
+        $response->assertJsonStructure(['message']);
+    }
+
+    #[\PHPUnit\Framework\Attributes\Test]
     public function registrar_salida_con_accept_json_retorna_json_y_actualiza_estado()
     {
         $this->withMiddleware();

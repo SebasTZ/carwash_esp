@@ -98,6 +98,99 @@ class CompraControllerTest extends TestCase
     }
 
     #[\PHPUnit\Framework\Attributes\Test]
+    public function index_con_accept_json_retorna_payload_consistente(): void
+    {
+        Compra::factory()->create([
+            'proveedore_id' => $this->proveedor->id,
+            'comprobante_id' => $this->comprobante->id,
+            'estado' => 1,
+        ]);
+
+        $response = $this->get(route('compras.index'), [
+            'HTTP_ACCEPT' => 'application/json',
+            'HTTP_X_REQUESTED_WITH' => 'XMLHttpRequest',
+        ]);
+
+        $response->assertOk();
+        $response->assertJson([
+            'success' => true,
+        ]);
+        $response->assertJsonStructure([
+            'success',
+            'data' => ['data', 'current_page', 'per_page'],
+        ]);
+    }
+
+    #[\PHPUnit\Framework\Attributes\Test]
+    public function store_con_accept_json_retorna_201_y_compra_id(): void
+    {
+        $producto = Producto::factory()->create([
+            'stock' => 5,
+            'es_servicio_lavado' => false,
+            'estado' => 1,
+        ]);
+
+        $response = $this->post(route('compras.store'), [
+            'proveedore_id' => $this->proveedor->id,
+            'comprobante_id' => $this->comprobante->id,
+            'numero_comprobante' => 'C-JSON-001',
+            'impuesto' => 18,
+            'fecha_hora' => now()->format('Y-m-d H:i:s'),
+            'total' => 100,
+            'arrayidproducto' => [$producto->id],
+            'arraycantidad' => [2],
+            'arraypreciocompra' => [30],
+            'arrayprecioventa' => [50],
+        ], [
+            'HTTP_ACCEPT' => 'application/json',
+            'HTTP_X_REQUESTED_WITH' => 'XMLHttpRequest',
+        ]);
+
+        $response->assertStatus(201);
+        $response->assertJsonStructure(['message', 'compra_id']);
+
+        $this->assertDatabaseHas('compras', [
+            'numero_comprobante' => 'C-JSON-001',
+        ]);
+    }
+
+    #[\PHPUnit\Framework\Attributes\Test]
+    public function store_con_accept_json_y_comprobante_duplicado_retorna_422(): void
+    {
+        $producto = Producto::factory()->create([
+            'stock' => 5,
+            'es_servicio_lavado' => false,
+            'estado' => 1,
+        ]);
+
+        Compra::factory()->create([
+            'proveedore_id' => $this->proveedor->id,
+            'comprobante_id' => $this->comprobante->id,
+            'numero_comprobante' => 'C-DUP-001',
+            'estado' => 1,
+        ]);
+
+        $response = $this->post(route('compras.store'), [
+            'proveedore_id' => $this->proveedor->id,
+            'comprobante_id' => $this->comprobante->id,
+            'numero_comprobante' => 'C-DUP-001',
+            'impuesto' => 18,
+            'fecha_hora' => now()->format('Y-m-d H:i:s'),
+            'total' => 100,
+            'arrayidproducto' => [$producto->id],
+            'arraycantidad' => [1],
+            'arraypreciocompra' => [60],
+            'arrayprecioventa' => [100],
+        ], [
+            'HTTP_ACCEPT' => 'application/json',
+            'HTTP_X_REQUESTED_WITH' => 'XMLHttpRequest',
+        ]);
+
+        $response->assertStatus(422);
+        $response->assertJsonStructure(['message']);
+    }
+
+    #[\PHPUnit\Framework\Attributes\Test]
     public function store_si_stock_service_falla_hace_rollback_y_muestra_error()
     {
         $producto = Producto::factory()->create([
@@ -149,6 +242,27 @@ class CompraControllerTest extends TestCase
         $this->assertDatabaseHas('compras', [
             'id' => $compra->id,
             'estado' => 0,
+        ]);
+    }
+
+    #[\PHPUnit\Framework\Attributes\Test]
+    public function destroy_con_accept_json_retorna_payload_consistente(): void
+    {
+        $compra = Compra::factory()->create([
+            'proveedore_id' => $this->proveedor->id,
+            'comprobante_id' => $this->comprobante->id,
+            'estado' => 1,
+        ]);
+
+        $response = $this->delete(route('compras.destroy', $compra), [], [
+            'HTTP_ACCEPT' => 'application/json',
+            'HTTP_X_REQUESTED_WITH' => 'XMLHttpRequest',
+        ]);
+
+        $response->assertOk();
+        $response->assertJson([
+            'message' => 'Compra eliminada',
+            'compra_id' => $compra->id,
         ]);
     }
 

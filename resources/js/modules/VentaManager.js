@@ -209,7 +209,7 @@ export class VentaManager {
             return template.replace('__cliente_id__', clienteIdEncoded);
         }
 
-        return `/validar-fidelizacion-lavado/${clienteIdEncoded}`;
+        return null;
     }
 
     /**
@@ -742,6 +742,10 @@ export class VentaManager {
     async validarFidelizacionLavado(clienteId) {
         try {
             const endpoint = this.obtenerUrlValidacionFidelizacion(clienteId);
+
+            if (!endpoint) {
+                throw new Error('No se encontró la configuración de endpoint para validar fidelización.');
+            }
 
             const response = await axios.get(endpoint, {
                 headers: {

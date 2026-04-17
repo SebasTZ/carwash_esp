@@ -8,6 +8,7 @@ import axios from 'axios';
 import * as bootstrap from 'bootstrap';
 import { showError, showSuccess } from '@utils/notifications';
 import { getCsrfToken } from '@utils/csrf';
+import { readJsonScript } from '@utils/json-script';
 import { safeHandler } from '@utils/safe-handler';
 
 /**
@@ -52,6 +53,7 @@ export class EstacionamientoManager {
         }
         
         this.state = new EstacionamientoState();
+        this.endpointsConfig = readJsonScript('estacionamiento-endpoints-config', {}, 'EstacionamientoManager');
         this.init();
     }
     
@@ -75,43 +77,20 @@ export class EstacionamientoManager {
     setupEventListeners() {
         // Manejar modal de resumen de salida
         const modalElement = document.getElementById('modalResumenSalida');
-        if (modalElement) {
+        if (modalElement && modalElement.dataset.estacionamientoBound !== '1') {
             modalElement.addEventListener('show.bs.modal', safeHandler(
                 (event) => {
                     this.cargarResumenSalida(event);
                 },
                 { message: 'No se pudo cargar el resumen de salida.' }
             ));
+
+            modalElement.dataset.estacionamientoBound = '1';
         }
-
-        // Botones para abrir modal
-        const botonesRegistrarSalida = document.querySelectorAll('button[data-bs-target="#modalResumenSalida"]');
-        botonesRegistrarSalida.forEach(button => {
-            button.addEventListener('click', (e) => {
-                e.preventDefault();
-            });
-        });
-
-        // Confirmación para eliminar
-        const formsEliminar = document.querySelectorAll('form[method="POST"] button[onclick*="eliminar"]');
-        formsEliminar.forEach(button => {
-            const form = button.closest('form');
-            if (form) {
-                form.addEventListener('submit', safeHandler(
-                    async (e) => {
-                        if (button.contains(e.submitter)) {
-                            e.preventDefault();
-                            await this.confirmarEliminar(form);
-                        }
-                    },
-                    { message: 'No se pudo procesar la eliminación del registro.' }
-                ));
-            }
-        });
 
         // Form para registrar salida
         const formRegistrarSalida = document.getElementById('formRegistrarSalida');
-        if (formRegistrarSalida) {
+        if (formRegistrarSalida && formRegistrarSalida.dataset.estacionamientoBound !== '1') {
             formRegistrarSalida.addEventListener('submit', safeHandler(
                 async (e) => {
                     e.preventDefault();
@@ -119,7 +98,20 @@ export class EstacionamientoManager {
                 },
                 { message: 'No se pudo registrar la salida del vehículo.' }
             ));
+
+            formRegistrarSalida.dataset.estacionamientoBound = '1';
         }
+    }
+
+    obtenerUrlRegistrarSalida(estacionamientoId) {
+        const idEncoded = encodeURIComponent(String(estacionamientoId));
+        const template = this.endpointsConfig?.registrarSalidaUrl;
+
+        if (typeof template === 'string' && template.includes('__estacionamiento__')) {
+            return template.replace('__estacionamiento__', idEncoded);
+        }
+
+        return null;
     }
 
     /**
@@ -133,6 +125,12 @@ export class EstacionamientoManager {
         const entrada = button.getAttribute('data-entrada'); // Formato: "d/m/Y H:i"
         const tarifa = parseFloat(button.getAttribute('data-tarifa')) || 0;
         const pagado = parseFloat(button.getAttribute('data-pagado')) || 0;
+        const action = button.getAttribute('data-action') || this.obtenerUrlRegistrarSalida(estacionamientoId);
+
+        if (!action) {
+            showError('No se encontró la ruta para registrar la salida del vehículo.');
+            return;
+        }
 
         // Procesar la fecha de entrada (dd/mm/yyyy HH:mm)
         const [fechaParte, horaParte] = entrada.split(' ');
@@ -184,7 +182,7 @@ export class EstacionamientoManager {
         // Actualizar acción del formulario
         const formRegistrarSalida = document.getElementById('formRegistrarSalida');
         if (formRegistrarSalida) {
-            formRegistrarSalida.action = `/estacionamiento/${estacionamientoId}/registrar-salida`;
+            formRegistrarSalida.action = action;
         }
     }
 
@@ -393,25 +391,37 @@ export class EstacionamientoManager {
         this.state.isLoading = true;
         
         try {
-            const response = await axios.get(window.location.pathname, {
+            const indexUrl = this.endpointsConfig?.indexUrl || window.location.pathname;
+            const queryString = window.location.search || '';
+            const requestUrl = `${indexUrl}${queryString}`;
+
+            const response = await axios.get(requestUrl, {
                 headers: {
                     'X-Requested-With': 'XMLHttpRequest'
                 }
             });
-            
-            if (response.data.html) {
-                // Actualizar tabla con nuevo HTML
-                const tabla = document.querySelector('.table-striped');
-                if (tabla) {
-                    const parser = new DOMParser();
-                    const doc = parser.parseFromString(response.data.html, 'text/html');
-                    const nuevaTabla = doc.querySelector('.table-striped');
-                    
-                    if (nuevaTabla) {
-                        tabla.innerHTML = nuevaTabla.innerHTML;
-                        this.setupEventListeners(); // Re-setup listeners
-                    }
+
+            const html = typeof response.data === 'string'
+                ? response.data
+                : response.data?.html;
+
+            if (typeof html === 'string' && html.trim() !== '') {
+                const wrapper = document.querySelector('#estacionamiento-table-wrapper');
+                if (!wrapper) {
+                    return;
                 }
+
+                const parser = new DOMParser();
+                const doc = parser.parseFromString(html, 'text/html');
+                const newWrapper = doc.querySelector('#estacionamiento-table-wrapper');
+
+                if (newWrapper) {
+                    wrapper.innerHTML = newWrapper.innerHTML;
+                } else {
+                    wrapper.innerHTML = html;
+                }
+
+                this.setupEventListeners();
             }
         } catch (error) {
             console.error('Error al refrescar tabla:', error);

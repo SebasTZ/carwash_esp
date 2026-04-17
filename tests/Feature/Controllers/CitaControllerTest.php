@@ -87,6 +87,25 @@ class CitaControllerTest extends TestCase
     }
 
     #[\PHPUnit\Framework\Attributes\Test]
+    public function index_incluye_configuracion_de_endpoints_para_acciones_frontend(): void
+    {
+        Cita::factory()->create([
+            'cliente_id' => $this->cliente->id,
+            'fecha' => now()->toDateString(),
+            'estado' => 'pendiente',
+            'user_id' => $this->user->id,
+        ]);
+
+        $response = $this->get(route('citas.index'));
+
+        $response->assertOk();
+        $response->assertSee('id="citas-endpoints-config"', false);
+        $response->assertSee('"show"', false);
+        $response->assertSee('"destroy"', false);
+        $response->assertSee('__cita__', false);
+    }
+
+    #[\PHPUnit\Framework\Attributes\Test]
     public function dashboard_retorna_vista_sin_error()
     {
         $response = $this->get(route('citas.dashboard'));
