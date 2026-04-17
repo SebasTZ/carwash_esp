@@ -91,16 +91,23 @@ class VentaService
      */
     private function procesarPagoTarjetaRegalo(array &$data): void
     {
-        if (empty($data['tarjeta_regalo_codigo'])) {
+        $tarjetaCodigo = $data['tarjeta_regalo_codigo'] ?? null;
+
+        if (empty($tarjetaCodigo) && !empty($data['tarjeta_regalo_id'])) {
+            $tarjetaCodigo = \App\Models\TarjetaRegalo::find($data['tarjeta_regalo_id'])?->codigo;
+        }
+
+        if (empty($tarjetaCodigo)) {
             throw new VentaException('Debe proporcionar el código de la tarjeta de regalo');
         }
 
         $tarjeta = $this->tarjetaRegaloService->validarYDescontar(
-            $data['tarjeta_regalo_codigo'],
+            $tarjetaCodigo,
             $data['total']
         );
 
         $data['tarjeta_regalo_id'] = $tarjeta->id;
+        $data['tarjeta_regalo_codigo'] = $tarjeta->codigo;
         $data['lavado_gratis'] = false;
     }
 

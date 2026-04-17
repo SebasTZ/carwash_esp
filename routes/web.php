@@ -216,6 +216,7 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/validar-fidelizacion-lavado/{cliente_id}', [ventaController::class, 'validarFidelizacionLavado'])->name('validar.fidelizacion')
         ->middleware('permission:crear-venta');
     Route::resource('ventas', ventaController::class)
+        ->except(['edit', 'update'])
         ->middlewareFor('index', 'permission:ver-venta|crear-venta|mostrar-venta|eliminar-venta')
         ->middlewareFor(['create', 'store'], 'permission:crear-venta')
         ->middlewareFor('show', 'permission:mostrar-venta')

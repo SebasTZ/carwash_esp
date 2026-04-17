@@ -6,6 +6,7 @@ use App\Models\Cliente;
 use App\Models\Comprobante;
 use App\Models\Documento;
 use App\Models\Persona;
+use App\Models\Producto;
 use App\Models\User;
 use App\Models\Venta;
 use Illuminate\Foundation\Testing\RefreshDatabase;
@@ -20,6 +21,7 @@ class VentaControllerTest extends TestCase
     protected User $user;
     protected Cliente $cliente;
     protected Comprobante $comprobante;
+    protected Producto $producto;
 
     protected function setUp(): void
     {
@@ -71,6 +73,12 @@ class VentaControllerTest extends TestCase
         $this->comprobante = Comprobante::factory()->create([
             'serie' => 'B001-',
         ]);
+
+        $this->producto = Producto::factory()->create([
+            'stock' => 30,
+            'precio_venta' => 60,
+            'es_servicio_lavado' => false,
+        ]);
     }
 
     #[\PHPUnit\Framework\Attributes\Test]
@@ -83,6 +91,10 @@ class VentaControllerTest extends TestCase
             'comprobante_id' => $this->comprobante->id,
             'medio_pago' => 'efectivo',
             'efectivo' => 120,
+            'arrayidproducto' => [$this->producto->id],
+            'arraycantidad' => [2],
+            'arrayprecioventa' => [60],
+            'arraydescuento' => [0],
         ]);
 
         $response->assertRedirect(route('ventas.index'));
@@ -108,6 +120,10 @@ class VentaControllerTest extends TestCase
             'cliente_id' => $this->cliente->id,
             'comprobante_id' => $this->comprobante->id,
             'medio_pago' => 'lavado_gratis',
+            'arrayidproducto' => [$this->producto->id],
+            'arraycantidad' => [1],
+            'arrayprecioventa' => [90],
+            'arraydescuento' => [0],
         ]);
 
         $response->assertRedirect(route('ventas.create'));

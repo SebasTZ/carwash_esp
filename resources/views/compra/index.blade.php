@@ -31,8 +31,30 @@
         </div>
     </div>
 </div>
+
+@php
+    $comprasTableData = $compras->getCollection()->map(function ($compra) {
+        $persona = $compra->proveedore?->persona;
+        $fechaHora = $compra->fecha_hora ? \Carbon\Carbon::parse($compra->fecha_hora) : null;
+
+        return [
+            'id' => $compra->id,
+            'comprobante' => $compra->comprobante?->tipo_comprobante,
+            'numero_comprobante' => $compra->numero_comprobante,
+            'tipo_persona' => $persona?->tipo_persona,
+            'razon_social' => $persona?->razon_social,
+            'fecha' => $fechaHora?->format('d/m/Y'),
+            'hora' => $fechaHora?->format('H:i'),
+            'total' => (float) $compra->total,
+        ];
+    })->values();
+@endphp
 @endsection
 
 @push('js')
-<!-- DynamicTable maneja la paginación y acciones -->
+<script type="application/json" id="compras-index-config">{!! json_encode([
+    'data' => $comprasTableData,
+    'canShow' => auth()->user()->can('mostrar-compra'),
+    'canDelete' => auth()->user()->can('eliminar-compra'),
+], JSON_HEX_TAG | JSON_HEX_APOS | JSON_HEX_AMP | JSON_HEX_QUOT) !!}</script>
 @endpush

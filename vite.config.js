@@ -30,7 +30,6 @@ export default defineConfig({
                 'resources/js/modules/CitasFormManager.js',
                 'resources/js/modules/CitasIndexManager.js',
                 'resources/js/modules/ClienteCreateManager.js',
-                'resources/js/modules/CompraCreateManager.js',
                 'resources/js/modules/CocheraReportesManager.js',
                 'resources/js/modules/VentaShowManager.js',
             ],

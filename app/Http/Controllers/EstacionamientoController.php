@@ -128,9 +128,11 @@ class EstacionamientoController extends Controller
         // Alternatively, you can create the show.blade.php file in resources/views/estacionamiento/ directory
     }
 
-    public function registrarSalida(Estacionamiento $estacionamiento)
+    public function registrarSalida(Request $request, Estacionamiento $estacionamiento)
     {
         $this->authorizePermission('editar-estacionamiento');
+
+        $wantsJson = $request->ajax() || $request->wantsJson();
 
         try {
             $estacionamiento->hora_salida = now();
@@ -141,14 +143,30 @@ class EstacionamientoController extends Controller
             $estacionamiento->estado = 'finalizado';
             $estacionamiento->save();
 
+            $successMessage = 'Salida registrada correctamente. Monto total: S/.' . number_format($montoTotal, 2);
+
+            if ($wantsJson) {
+                return response()->json([
+                    'message' => $successMessage,
+                    'monto_total' => $montoTotal,
+                    'estacionamiento_id' => $estacionamiento->id,
+                ]);
+            }
+
             return redirect()->route('estacionamiento.index')
-                ->with('success', 'Salida registrada correctamente. Monto total: S/.' . number_format($montoTotal, 2));
+                ->with('success', $successMessage);
 
         } catch (\Exception $e) {
             Log::error('Error al registrar salida de estacionamiento', [
                 'estacionamiento_id' => $estacionamiento->id,
                 'error' => $e->getMessage(),
             ]);
+
+            if ($wantsJson) {
+                return response()->json([
+                    'message' => 'Error al registrar la salida: ' . $e->getMessage(),
+                ], 422);
+            }
 
             return redirect()->route('estacionamiento.index')
                 ->with('error', 'Error al registrar la salida: ' . $e->getMessage());

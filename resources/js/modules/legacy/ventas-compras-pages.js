@@ -1,5 +1,4 @@
-import axios from 'axios';
-import { getCsrfToken, withCsrfHeader } from '@utils/csrf';
+import { getCsrfToken } from '@utils/csrf';
 import { readJsonScript } from '@utils/json-script';
 
 export const initVentaPages = () => {
@@ -142,37 +141,36 @@ export const initVentaPages = () => {
     }
 };
 
-const fetchTableData = async (url) => {
-    const response = await axios.get(url, {
-        headers: {
-            ...withCsrfHeader(),
-            'X-Requested-With': 'XMLHttpRequest',
-            Accept: 'application/json',
-        },
-    });
-
-    const payload = response.data;
-    if (Array.isArray(payload)) {
-        return payload;
-    }
-
-    if (Array.isArray(payload?.data)) {
-        return payload.data;
-    }
-
-    return [];
-};
-
-export const initCompraPages = async () => {
+export const initCompraPages = () => {
     const DynamicTable = window.CarWash?.DynamicTable;
     if (!DynamicTable) {
         return;
     }
 
+    const formatCompraRow = (row = {}) => ({
+        ...row,
+        comprobante: row.comprobante || '-',
+        numero_comprobante: row.numero_comprobante || '-',
+        tipo_persona: row.tipo_persona || '-',
+        razon_social: row.razon_social || '-',
+        fecha: row.fecha || '-',
+        hora: row.hora || '-',
+        impuesto: Number(row.impuesto || 0),
+        total: Number(row.total || 0),
+    });
+
     const comprasIndexNode = document.getElementById('dynamicTableCompras');
     if (comprasIndexNode) {
         try {
-            const data = await fetchTableData('/api/compras');
+            const config = readJsonScript('compras-index-config', null, 'LegacyInlineMigration');
+            let data = [];
+
+            if (config && Array.isArray(config.data)) {
+                data = config.data.map(formatCompraRow);
+            } else {
+                console.warn('[LegacyInlineMigration] compras-index-config no está disponible; se renderiza tabla vacía.');
+            }
+
             new DynamicTable('#dynamicTableCompras', {
                 searchable: true,
                 searchPlaceholder: 'Buscar compras...',
@@ -193,8 +191,44 @@ export const initCompraPages = async () => {
                         label: 'Fecha y Hora',
                         formatter: (value, row) => `<div class='row-not-space'><p class='fw-semibold mb-1'><span class='m-1'><i class='fa-solid fa-calendar-days'></i></span>${row.fecha || '-'}</p><p class='fw-semibold mb-0'><span class='m-1'><i class='fa-solid fa-clock'></i></span>${row.hora || '-'}</p></div>`,
                     },
-                    { key: 'total', label: 'Total' },
-                    { key: 'acciones', label: 'Acciones' },
+                    {
+                        key: 'total',
+                        label: 'Total',
+                        formatter: (value) => formatCurrency(value),
+                    },
+                    {
+                        key: 'acciones',
+                        label: 'Acciones',
+                        formatter: (_, row) => {
+                            const canShow = Boolean(config?.canShow);
+                            const canDelete = Boolean(config?.canDelete);
+
+                            if (!canShow && !canDelete) {
+                                return '-';
+                            }
+
+                            let actions = '<div class="btn-group btn-group-sm" role="group">';
+
+                            if (canShow) {
+                                actions += `<a href="/compras/${row.id}" class="btn btn-primary" title="Ver"><i class="fas fa-eye"></i></a>`;
+                            }
+
+                            if (canDelete) {
+                                actions += `
+                                    <form action="/compras/${row.id}" method="POST" style="display:inline;">
+                                        <input type="hidden" name="_token" value="${csrfToken}">
+                                        <input type="hidden" name="_method" value="DELETE">
+                                        <button type="submit" class="btn btn-danger" data-confirm="¿Está seguro de eliminar esta compra?" title="Eliminar">
+                                            <i class="fas fa-trash"></i>
+                                        </button>
+                                    </form>
+                                `;
+                            }
+
+                            actions += '</div>';
+                            return actions;
+                        },
+                    },
                 ],
             });
         } catch (error) {
@@ -210,7 +244,15 @@ export const initCompraPages = async () => {
         }
 
         try {
-            const data = await fetchTableData(`/api/compras/reporte?tipo=${encodeURIComponent(reportType)}`);
+            const config = readJsonScript('compras-reporte-config', null, 'LegacyInlineMigration');
+            let data = [];
+
+            if (config && Array.isArray(config.data)) {
+                data = config.data.map(formatCompraRow);
+            } else {
+                console.warn('[LegacyInlineMigration] compras-reporte-config no está disponible; se renderiza tabla vacía.');
+            }
+
             new DynamicTable('#dynamicTableComprasReporte', {
                 searchable: true,
                 searchPlaceholder: 'Buscar compras...',
@@ -231,8 +273,16 @@ export const initCompraPages = async () => {
                         label: 'Fecha y Hora',
                         formatter: (value, row) => `<div class='row-not-space'><p class='fw-semibold mb-1'><span class='m-1'><i class='fa-solid fa-calendar-days'></i></span>${row.fecha || '-'}</p><p class='fw-semibold mb-0'><span class='m-1'><i class='fa-solid fa-clock'></i></span>${row.hora || '-'}</p></div>`,
                     },
-                    { key: 'impuesto', label: 'IGV' },
-                    { key: 'total', label: 'Total' },
+                    {
+                        key: 'impuesto',
+                        label: 'IGV',
+                        formatter: (value) => `${Number(value || 0).toFixed(2)}%`,
+                    },
+                    {
+                        key: 'total',
+                        label: 'Total',
+                        formatter: (value) => formatCurrency(value),
+                    },
                 ],
             });
         } catch (error) {

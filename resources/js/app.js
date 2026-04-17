@@ -32,7 +32,6 @@ import * as Dom from './utils/dom';
 // Importar componentes modernos
 // ========================================
 import DynamicTable from './components/tables/DynamicTable.js';
-import CompraForm from './modules/CompraForm.js';
 import AutoSave from './components/forms/AutoSave.js';
 import FormValidator from './components/forms/FormValidator.js';
 import LavadorTableManager from './components/tables/LavadorTableManager.js';
@@ -136,7 +135,6 @@ window.CarWash = {
     DynamicTable: DynamicTable,
     AutoSave: AutoSave,
     FormValidator: FormValidator,
-    CompraForm: CompraForm,
     // Lavadores
     LavadorTableManager: LavadorTableManager,
     LavadorFormManager: LavadorFormManager,
@@ -325,7 +323,19 @@ document.addEventListener('DOMContentLoaded', () => {
                             Notifications.showError('Recurso no encontrado.');
                             break;
                         case 422:
-                            // Errores de validación (se manejan en cada componente)
+                            // Fallback global cuando un módulo no procesa errores de validación.
+                            if (error.response.data?.errors && typeof error.response.data.errors === 'object') {
+                                const firstFieldErrors = Object.values(error.response.data.errors)[0];
+                                const firstError = Array.isArray(firstFieldErrors) ? firstFieldErrors[0] : null;
+                                if (firstError) {
+                                    Notifications.showError(firstError);
+                                    break;
+                                }
+                            }
+
+                            if (error.response.data?.message) {
+                                Notifications.showError(error.response.data.message);
+                            }
                             break;
                         case 500:
                             Notifications.showError('Error interno del servidor. Por favor, contacta al administrador.');
