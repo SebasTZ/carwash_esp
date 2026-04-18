@@ -6,7 +6,6 @@
 import { DataTable } from 'simple-datatables';
 import 'simple-datatables/dist/style.css';
 import { Chart } from 'chart.js/auto';
-import * as XLSX from 'xlsx';
 
 class CocheraReportesManager {
     constructor() {
@@ -141,10 +140,16 @@ class CocheraReportesManager {
             return;
         }
 
-        button.addEventListener('click', () => this.exportToExcel());
+        button.addEventListener('click', () => this.exportToCsv());
     }
 
-    exportToExcel() {
+    escapeCsvCell(cellValue) {
+        const normalizedValue = String(cellValue ?? '').replace(/\r?\n|\r/g, ' ').trim();
+        const escapedValue = normalizedValue.replace(/"/g, '""');
+        return `"${escapedValue}"`;
+    }
+
+    exportToCsv() {
         const clonedTable = this.table.cloneNode(true);
         Array.from(clonedTable.querySelectorAll('tr')).forEach((row) => {
             if (row.lastElementChild) {
@@ -157,19 +162,22 @@ class CocheraReportesManager {
             Array.from(row.querySelectorAll('td')).map((td) => td.innerText)
         );
 
-        const workbook = XLSX.utils.book_new();
-        workbook.Props = {
-            Title: 'Reporte de Cochera',
-            Author: 'Sistema Carwash',
-            CreatedDate: new Date(),
-        };
+        const csvContent = [headers, ...rows]
+            .map((row) => row.map((value) => this.escapeCsvCell(value)).join(','))
+            .join('\r\n');
 
-        workbook.SheetNames.push('Report');
-        const worksheet = XLSX.utils.aoa_to_sheet([headers, ...rows]);
-        workbook.Sheets.Report = worksheet;
-
+        const csvBlob = new Blob([`\uFEFF${csvContent}`], {
+            type: 'text/csv;charset=utf-8;',
+        });
         const currentDate = new Date().toISOString().slice(0, 10);
-        XLSX.writeFile(workbook, `Reporte_Cochera_${currentDate}.xlsx`);
+        const downloadUrl = URL.createObjectURL(csvBlob);
+        const link = document.createElement('a');
+        link.href = downloadUrl;
+        link.download = `Reporte_Cochera_${currentDate}.csv`;
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+        URL.revokeObjectURL(downloadUrl);
     }
 }
 

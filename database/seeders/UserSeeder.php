@@ -5,7 +5,6 @@ namespace Database\Seeders;
 use App\Models\User;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\Hash;
-use Illuminate\Support\Str;
 use Spatie\Permission\Models\Permission;
 use Spatie\Permission\Models\Role;
 use Spatie\Permission\PermissionRegistrar;
@@ -164,7 +163,7 @@ class UserSeeder extends Seeder
             return $seedPassword;
         }
 
-        // Evita credenciales débiles hardcodeadas cuando no se configura SEED_ADMIN_PASSWORD.
-        return Str::random(32);
+        // Contraseña por defecto para entornos de desarrollo.
+        return '12345678';
     }
 }

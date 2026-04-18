@@ -12,11 +12,11 @@
         "@vitest/ui": "^3.2.4",
         "axios": "^1.1.2",
         "happy-dom": "^20.0.7",
-        "laravel-vite-plugin": "^0.6.0",
+        "laravel-vite-plugin": "^3.0.1",
         "lodash": "^4.17.19",
         "postcss": "^8.1.14",
         "terser": "^5.44.0",
-        "vite": "^3.0.0",
+        "vite": "^8.0.8",
         "vitest": "^3.2.4"
     },
     "dependencies": {
@@ -27,7 +27,6 @@
         "chart.js": "^4.5.1",
         "jquery": "^3.7.1",
         "simple-datatables": "^10.2.0",
-        "sweetalert2": "^11.26.24",
-        "xlsx": "^0.18.5"
+        "sweetalert2": "^11.26.24"
     }
 }

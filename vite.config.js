@@ -45,23 +45,39 @@ export default defineConfig({
         // Code splitting avanzado
         rollupOptions: {
             output: {
-                manualChunks: {
+                manualChunks(id) {
+                    const normalizedId = id.replace(/\\/g, '/');
+
                     // Separar vendors grandes
-                    'vendor-core': ['axios', 'lodash', 'alpinejs'],
+                    if (
+                        normalizedId.includes('/node_modules/axios/') ||
+                        normalizedId.includes('/node_modules/lodash/') ||
+                        normalizedId.includes('/node_modules/alpinejs/')
+                    ) {
+                        return 'vendor-core';
+                    }
+
                     // Utilidades en su propio chunk
-                    'utils': [
-                        './resources/js/utils/notifications.js',
-                        './resources/js/utils/validators.js',
-                        './resources/js/utils/formatters.js',
-                        './resources/js/utils/bootstrap-init.js',
-                        './resources/js/utils/lazy-loader.js',
-                    ],
+                    if (
+                        normalizedId.includes('/resources/js/utils/notifications.js') ||
+                        normalizedId.includes('/resources/js/utils/validators.js') ||
+                        normalizedId.includes('/resources/js/utils/formatters.js') ||
+                        normalizedId.includes('/resources/js/utils/bootstrap-init.js') ||
+                        normalizedId.includes('/resources/js/utils/lazy-loader.js')
+                    ) {
+                        return 'utils';
+                    }
+
                     // Módulos de páginas
-                    'modules': [
-                        './resources/js/modules/VentaManager.js',
-                        './resources/js/modules/LavadosManager.js',
-                        './resources/js/modules/EstacionamientoManager.js',
-                    ],
+                    if (
+                        normalizedId.includes('/resources/js/modules/VentaManager.js') ||
+                        normalizedId.includes('/resources/js/modules/LavadosManager.js') ||
+                        normalizedId.includes('/resources/js/modules/EstacionamientoManager.js')
+                    ) {
+                        return 'modules';
+                    }
+
+                    return undefined;
                 },
                 // Nombres de archivo con hash para cache busting
                 entryFileNames: 'assets/[name].[hash].js',
